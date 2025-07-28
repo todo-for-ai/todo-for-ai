@@ -1,0 +1,213 @@
+"""
+API Token管理接口
+"""
+
+from flask import Blueprint, request, jsonify
+from models import db, ApiToken
+from app.auth import token_required, get_current_token
+from api.base import handle_api_error
+
+tokens_bp = Blueprint('tokens', __name__)
+
+
+@tokens_bp.route('', methods=['GET'])
+@token_required
+def list_tokens():
+    """获取Token列表"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = min(request.args.get('per_page', 20, type=int), 100)
+        
+        # 查询tokens
+        query = ApiToken.query.filter_by(is_active=True)
+        
+        # 分页
+        pagination = query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
+        tokens = [token.to_dict() for token in pagination.items]
+        
+        return jsonify({
+            'tokens': tokens,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': pagination.total,
+                'pages': pagination.pages,
+                'has_next': pagination.has_next,
+                'has_prev': pagination.has_prev
+            }
+        })
+    
+    except Exception as e:
+        return handle_api_error(e)
+
+
+@tokens_bp.route('', methods=['POST'])
+@token_required
+def create_token():
+    """创建新的API Token"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        name = data.get('name')
+        if not name:
+            return jsonify({'error': 'Token name is required'}), 400
+        
+        description = data.get('description')
+        expires_days = data.get('expires_days')
+        
+        # 生成token
+        api_token, token = ApiToken.generate_token(
+            name=name,
+            description=description,
+            expires_days=expires_days
+        )
+        
+        db.session.add(api_token)
+        db.session.commit()
+        
+        # 返回token信息（包含完整token，仅此一次）
+        result = api_token.to_dict()
+        result['token'] = token  # 完整token仅在创建时返回
+        
+        return jsonify(result), 201
+    
+    except Exception as e:
+        db.session.rollback()
+        return handle_api_error(e)
+
+
+@tokens_bp.route('/<int:token_id>', methods=['GET'])
+@token_required
+def get_token(token_id):
+    """获取Token详情"""
+    try:
+        api_token = ApiToken.query.get_or_404(token_id)
+        return jsonify(api_token.to_dict())
+    
+    except Exception as e:
+        return handle_api_error(e)
+
+
+@tokens_bp.route('/<int:token_id>', methods=['PUT'])
+@token_required
+def update_token(token_id):
+    """更新Token"""
+    try:
+        api_token = ApiToken.query.get_or_404(token_id)
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # 更新字段
+        if 'name' in data:
+            api_token.name = data['name']
+        if 'description' in data:
+            api_token.description = data['description']
+        if 'is_active' in data:
+            api_token.is_active = data['is_active']
+        
+        db.session.commit()
+        
+        return jsonify(api_token.to_dict())
+    
+    except Exception as e:
+        db.session.rollback()
+        return handle_api_error(e)
+
+
+@tokens_bp.route('/<int:token_id>/renew', methods=['POST'])
+@token_required
+def renew_token(token_id):
+    """续期Token"""
+    try:
+        api_token = ApiToken.query.get_or_404(token_id)
+        data = request.get_json() or {}
+        
+        expires_days = data.get('expires_days')
+        api_token.renew(expires_days)
+        
+        return jsonify({
+            'message': 'Token renewed successfully',
+            'token': api_token.to_dict()
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return handle_api_error(e)
+
+
+@tokens_bp.route('/<int:token_id>', methods=['DELETE'])
+@token_required
+def delete_token(token_id):
+    """删除（停用）Token"""
+    try:
+        api_token = ApiToken.query.get_or_404(token_id)
+        
+        # 不能删除当前使用的token
+        current_token = get_current_token()
+        if current_token and current_token.id == token_id:
+            return jsonify({
+                'error': 'Cannot delete the token currently being used'
+            }), 400
+        
+        api_token.deactivate()
+        
+        return jsonify({
+            'message': 'Token deactivated successfully'
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return handle_api_error(e)
+
+
+@tokens_bp.route('/verify', methods=['POST'])
+def verify_token():
+    """验证Token（公开接口）"""
+    try:
+        data = request.get_json()
+        if not data or 'token' not in data:
+            return jsonify({'error': 'Token is required'}), 400
+        
+        token = data['token']
+        api_token = ApiToken.verify_token(token)
+        
+        if api_token:
+            return jsonify({
+                'valid': True,
+                'token_info': api_token.to_dict()
+            })
+        else:
+            return jsonify({
+                'valid': False,
+                'message': 'Invalid or expired token'
+            })
+    
+    except Exception as e:
+        return handle_api_error(e)
+
+
+@tokens_bp.route('/cleanup', methods=['POST'])
+@token_required
+def cleanup_expired_tokens():
+    """清理过期的Token"""
+    try:
+        count = ApiToken.cleanup_expired()
+        
+        return jsonify({
+            'message': f'Cleaned up {count} expired tokens',
+            'count': count
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return handle_api_error(e)
