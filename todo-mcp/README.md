@@ -1,0 +1,293 @@
+# Todo for AI MCP Server
+
+A Model Context Protocol (MCP) server that provides AI assistants with access to the Todo for AI task management system. This allows AI assistants to retrieve tasks, get project information, and submit task feedback through a standardized interface.
+
+## Features
+
+- 🔍 **Get Project Tasks**: Retrieve pending tasks for a specific project
+- 📋 **Get Task Details**: Fetch detailed information about individual tasks
+- ✅ **Submit Feedback**: Update task status and provide completion feedback
+- 🔄 **Automatic Retry**: Built-in retry mechanism for network failures
+- 📝 **Comprehensive Logging**: Detailed logging with configurable levels
+- ⚙️ **Flexible Configuration**: Environment variables and config file support
+
+## Installation
+
+### From npm (Recommended)
+
+```bash
+npm install -g todo-for-ai-mcp
+```
+
+### From Source
+
+```bash
+git clone <repository-url>
+cd todo-mcp
+npm install
+npm run build
+npm link
+```
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file or set environment variables:
+
+```bash
+# Required: Todo API base URL
+TODO_API_BASE_URL=http://localhost:50110
+
+# Optional: API timeout in milliseconds (default: 10000)
+TODO_API_TIMEOUT=10000
+
+# Optional: API authentication token
+TODO_API_TOKEN=your-api-token
+
+# Optional: Log level (default: info)
+LOG_LEVEL=info
+
+# Optional: Environment (default: development)
+NODE_ENV=development
+```
+
+### Configuration File
+
+Alternatively, create a `config.json` file:
+
+```json
+{
+  "apiBaseUrl": "http://localhost:50110",
+  "apiTimeout": 10000,
+  "apiToken": "",
+  "logLevel": "info"
+}
+```
+
+## Usage
+
+### Command Line
+
+```bash
+# Start the MCP server
+todo-for-ai-mcp
+
+# With custom configuration
+TODO_API_BASE_URL=http://your-server:8080 todo-for-ai-mcp
+```
+
+### IDE Integration
+
+#### Claude Desktop
+
+Add to your Claude Desktop configuration file (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "todo-for-ai": {
+      "command": "todo-for-ai-mcp",
+      "env": {
+        "TODO_API_BASE_URL": "http://localhost:50110"
+      }
+    }
+  }
+}
+```
+
+#### Cursor IDE
+
+Add to your Cursor configuration:
+
+```json
+{
+  "mcpServers": {
+    "todo-for-ai": {
+      "command": "npx",
+      "args": ["todo-for-ai-mcp"],
+      "env": {
+        "TODO_API_BASE_URL": "http://localhost:50110"
+      }
+    }
+  }
+}
+```
+
+#### Local Development
+
+For development with local Todo for AI server:
+
+```json
+{
+  "mcpServers": {
+    "todo-for-ai-local": {
+      "command": "node",
+      "args": ["/path/to/todo-mcp/dist/index.js"],
+      "env": {
+        "TODO_API_BASE_URL": "http://localhost:50110",
+        "LOG_LEVEL": "debug"
+      }
+    }
+  }
+}
+```
+
+## Available Tools
+
+### 1. get_project_tasks_by_name
+
+Get all pending tasks for a project by name.
+
+**Parameters:**
+- `project_name` (string, required): Name of the project
+- `status_filter` (array, optional): Filter by task status (default: ["todo", "in_progress", "review"])
+
+**Example:**
+```json
+{
+  "project_name": "My Project",
+  "status_filter": ["todo", "in_progress"]
+}
+```
+
+### 2. get_task_by_id
+
+Get detailed information about a specific task.
+
+**Parameters:**
+- `task_id` (integer, required): ID of the task to retrieve
+
+**Example:**
+```json
+{
+  "task_id": 123
+}
+```
+
+### 3. submit_task_feedback
+
+Submit feedback and update status for a task.
+
+**Parameters:**
+- `task_id` (integer, required): ID of the task
+- `project_name` (string, required): Name of the project
+- `feedback_content` (string, required): Feedback description
+- `status` (string, required): New status ("in_progress", "review", "done", "cancelled")
+- `ai_identifier` (string, optional): AI identifier (default: "MCP Client")
+
+**Example:**
+```json
+{
+  "task_id": 123,
+  "project_name": "My Project",
+  "feedback_content": "Completed the implementation as requested",
+  "status": "done",
+  "ai_identifier": "Claude"
+}
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- Todo for AI backend server running
+
+### Setup
+
+```bash
+# Clone and install
+git clone <repository-url>
+cd todo-mcp
+npm install
+
+# Copy environment file
+cp .env.example .env
+# Edit .env with your configuration
+
+# Development mode
+npm run dev
+
+# Build
+npm run build
+
+# Test
+npm test
+
+# Lint
+npm run lint
+```
+
+### Project Structure
+
+```
+todo-mcp/
+├── src/
+│   ├── index.ts          # Main entry point
+│   ├── server.ts         # MCP server implementation
+│   ├── api-client.ts     # Todo API client
+│   ├── config.ts         # Configuration management
+│   ├── logger.ts         # Logging utilities
+│   ├── error-handler.ts  # Error handling
+│   └── types.ts          # TypeScript types
+├── dist/                 # Compiled JavaScript
+├── package.json
+├── tsconfig.json
+├── .env.example
+└── README.md
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Connection Failed**
+   - Ensure Todo for AI backend is running
+   - Check `TODO_API_BASE_URL` is correct
+   - Verify network connectivity
+
+2. **Authentication Errors**
+   - Check if API token is required
+   - Verify `TODO_API_TOKEN` is set correctly
+
+3. **Tool Not Found**
+   - Ensure MCP server is properly registered in IDE
+   - Check IDE configuration syntax
+   - Restart IDE after configuration changes
+
+### Debug Mode
+
+Enable debug logging:
+
+```bash
+LOG_LEVEL=debug todo-for-ai-mcp
+```
+
+### Health Check
+
+Test connection to Todo API:
+
+```bash
+curl http://localhost:50110/api/health
+```
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+## Support
+
+For issues and questions:
+- Create an issue on GitHub
+- Check the troubleshooting section
+- Review the logs with debug mode enabled
