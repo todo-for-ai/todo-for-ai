@@ -8,6 +8,7 @@ import {
   EditOutlined,
   CopyOutlined
 } from '@ant-design/icons'
+import ThemeSelector from '../ThemeSelector'
 
 interface ToolbarProps {
   previewMode: 'live' | 'edit' | 'preview'
@@ -78,6 +79,16 @@ const Toolbar: React.FC<ToolbarProps> = ({
             未保存的更改
           </span>
         )}
+
+        {/* 主题选择器 - 增强对比度 */}
+        <div style={{
+          borderLeft: '1px solid #d9d9d9',
+          paddingLeft: '8px',
+          marginLeft: '4px'
+        }}>
+          <ThemeSelector mode="button" size="small" />
+        </div>
+
         {onSave && (
           <Tooltip title="保存 (Ctrl+S)">
             <Button

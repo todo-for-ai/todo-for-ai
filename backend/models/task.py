@@ -52,7 +52,6 @@ class Task(BaseModel):
     
     # 时间信息
     due_date = Column(DateTime, comment='截止时间')
-    actual_hours = Column(DECIMAL(5, 2), comment='实际工时')
     completion_rate = Column(Integer, default=0, comment='完成百分比 (0-100)')
     completed_at = Column(DateTime, comment='完成时间')
     
@@ -165,13 +164,11 @@ class Task(BaseModel):
         
         return query.all()
     
-    def complete(self, actual_hours=None):
+    def complete(self):
         """完成任务"""
         self.status = TaskStatus.DONE
         self.completion_rate = 100
         self.completed_at = datetime.utcnow()
-        if actual_hours:
-            self.actual_hours = actual_hours
         self.save()
     
     def start(self):

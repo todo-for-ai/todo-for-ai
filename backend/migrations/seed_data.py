@@ -181,7 +181,6 @@ def create_sample_tasks(projects):
             'assignee': 'Frontend-Lead',
             'due_date': datetime.now() - timedelta(days=3),
             'estimated_hours': 8.0,
-            'actual_hours': 6.5,
             'completion_rate': 100,
             'completed_at': datetime.now() - timedelta(days=2),
             'tags': ['前端', '选型', 'React'],

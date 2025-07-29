@@ -1,5 +1,15 @@
+/* 编辑器容器样式 */
 .milkdown-editor {
   position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #fafbfc;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.milkdown-editor:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .milkdown-editor.fullscreen {
@@ -9,14 +19,16 @@
   right: 0 !important;
   bottom: 0 !important;
   z-index: 9999 !important;
-  background-color: #fff !important;
+  background-color: #fafbfc !important;
   border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 .milkdown-editor .milkdown {
   outline: none;
   border: none;
   background: transparent;
+  border-radius: inherit;
 }
 
 .milkdown-editor .milkdown .editor {
@@ -24,6 +36,18 @@
   border: none;
   background: transparent;
   min-height: 200px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #2c3e50;
+  padding: 20px;
+  border-radius: inherit;
+  transition: all 0.2s ease;
+}
+
+/* 编辑器焦点状态 */
+.milkdown-editor .milkdown .editor:focus-within {
+  background: rgba(24, 144, 255, 0.02);
+  transform: translateY(-1px);
 }
 
 /* 自动高度模式 */
@@ -52,116 +76,439 @@
   overflow: visible;
 }
 
+/* 段落样式 */
 .milkdown-editor .milkdown .editor p {
-  margin: 0 0 16px 0;
-  line-height: 1.6;
+  margin: 0 0 18px 0;
+  line-height: 1.8;
+  color: #34495e;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  transition: color 0.2s ease;
 }
 
+.milkdown-editor .milkdown .editor p:last-child {
+  margin-bottom: 0;
+}
+
+/* 标题样式 */
 .milkdown-editor .milkdown .editor h1,
 .milkdown-editor .milkdown .editor h2,
 .milkdown-editor .milkdown .editor h3,
 .milkdown-editor .milkdown .editor h4,
 .milkdown-editor .milkdown .editor h5,
 .milkdown-editor .milkdown .editor h6 {
-  margin: 24px 0 16px 0;
-  font-weight: 600;
+  margin: 32px 0 20px 0;
+  font-weight: 700;
+  color: #1a202c;
+  letter-spacing: -0.5px;
+  transition: color 0.2s ease;
 }
 
+.milkdown-editor .milkdown .editor h1 {
+  font-size: 28px;
+  border-bottom: 3px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.milkdown-editor .milkdown .editor h2 {
+  font-size: 24px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.milkdown-editor .milkdown .editor h3 {
+  font-size: 20px;
+  color: #2d3748;
+}
+
+.milkdown-editor .milkdown .editor h4 {
+  font-size: 18px;
+  color: #2d3748;
+}
+
+.milkdown-editor .milkdown .editor h5 {
+  font-size: 16px;
+  color: #4a5568;
+}
+
+.milkdown-editor .milkdown .editor h6 {
+  font-size: 14px;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 列表样式 */
 .milkdown-editor .milkdown .editor ul,
 .milkdown-editor .milkdown .editor ol {
-  margin: 0 0 16px 0;
-  padding-left: 24px;
+  margin: 0 0 20px 0;
+  padding-left: 28px;
 }
 
 .milkdown-editor .milkdown .editor li {
-  margin: 4px 0;
-  line-height: 1.6;
+  margin: 8px 0;
+  line-height: 1.7;
+  color: #34495e;
+  position: relative;
 }
 
+.milkdown-editor .milkdown .editor ul li::marker {
+  color: #1890ff;
+  font-size: 1.2em;
+}
+
+.milkdown-editor .milkdown .editor ol li::marker {
+  color: #1890ff;
+  font-weight: 600;
+}
+
+/* 任务列表样式 */
+.milkdown-editor .milkdown .editor li[data-task-list-item] {
+  list-style: none;
+  margin-left: -28px;
+  padding-left: 28px;
+}
+
+.milkdown-editor .milkdown .editor li[data-task-list-item] input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.1);
+  accent-color: #1890ff;
+}
+
+/* 引用块样式 */
 .milkdown-editor .milkdown .editor blockquote {
-  margin: 16px 0;
-  padding: 12px 16px;
-  border-left: 4px solid #1890ff;
-  background-color: #f6f8fa;
-  color: #666;
+  margin: 24px 0;
+  padding: 20px 24px;
+  border-left: 5px solid #1890ff;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #475569;
+  font-style: italic;
+  border-radius: 0 8px 8px 0;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
 }
 
+.milkdown-editor .milkdown .editor blockquote::before {
+  content: '"';
+  position: absolute;
+  top: -5px;
+  left: 15px;
+  font-size: 48px;
+  color: #1890ff;
+  opacity: 0.3;
+  font-family: Georgia, serif;
+}
+
+/* 行内代码样式 */
 .milkdown-editor .milkdown .editor code {
-  padding: 2px 6px;
-  background-color: #f6f8fa;
-  border-radius: 4px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.9em;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  color: #e53e3e;
+  border: 1px solid #e2e8f0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
+/* 代码块样式 */
 .milkdown-editor .milkdown .editor pre {
-  margin: 16px 0;
-  padding: 16px;
-  background-color: #f6f8fa;
-  border-radius: 8px;
+  margin: 24px 0;
+  padding: 24px;
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  border-radius: 12px;
   overflow-x: auto;
+  border: 1px solid #4a5568;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.milkdown-editor .milkdown .editor pre::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5f56;
+  box-shadow: 20px 0 #ffbd2e, 40px 0 #27ca3f;
 }
 
 .milkdown-editor .milkdown .editor pre code {
   padding: 0;
   background: transparent;
   border-radius: 0;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  border: none;
+  letter-spacing: 0.5px;
 }
 
+/* 表格样式 */
 .milkdown-editor .milkdown .editor table {
   width: 100%;
   border-collapse: collapse;
-  margin: 16px 0;
+  margin: 24px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .milkdown-editor .milkdown .editor th,
 .milkdown-editor .milkdown .editor td {
-  padding: 8px 12px;
-  border: 1px solid #d9d9d9;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
   text-align: left;
+  transition: background-color 0.2s ease;
 }
 
 .milkdown-editor .milkdown .editor th {
-  background-color: #fafafa;
-  font-weight: 600;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  font-weight: 700;
+  color: #2d3748;
+  border-bottom: 2px solid #1890ff;
 }
 
+.milkdown-editor .milkdown .editor tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* 分割线样式 */
 .milkdown-editor .milkdown .editor hr {
-  margin: 24px 0;
+  margin: 32px 0;
   border: none;
-  border-top: 1px solid #d9d9d9;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #1890ff 50%, transparent 100%);
+  border-radius: 2px;
 }
 
+/* 图片样式 */
 .milkdown-editor .milkdown .editor img {
   max-width: 100%;
   height: auto;
-  border-radius: 4px;
-  margin: 8px 0;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.milkdown-editor .milkdown .editor img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 链接样式 */
 .milkdown-editor .milkdown .editor a {
   color: #1890ff;
   text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .milkdown-editor .milkdown .editor a:hover {
-  text-decoration: underline;
+  color: #0056b3;
+  border-bottom-color: #1890ff;
+  text-shadow: 0 1px 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 文本格式化样式 */
+.milkdown-editor .milkdown .editor strong {
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.milkdown-editor .milkdown .editor em {
+  font-style: italic;
+  color: #4a5568;
+}
+
+.milkdown-editor .milkdown .editor del {
+  text-decoration: line-through;
+  color: #a0aec0;
+  opacity: 0.8;
 }
 
 /* 占位符样式 */
 .milkdown-editor .milkdown .editor:empty::before {
   content: attr(data-placeholder);
-  color: #bfbfbf;
+  color: #a0aec0;
   pointer-events: none;
   position: absolute;
+  font-style: italic;
+  font-size: 15px;
+  opacity: 0.8;
+}
+
+/* 选中文本样式 */
+.milkdown-editor .milkdown .editor ::selection {
+  background: rgba(24, 144, 255, 0.2);
+  color: inherit;
 }
 
 /* 只读模式样式 */
 .milkdown-editor.readonly .milkdown .editor {
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   cursor: default;
+  opacity: 0.9;
 }
 
 .milkdown-editor.readonly .milkdown .editor * {
   pointer-events: none;
+}
+
+/* 打字光标样式 */
+.milkdown-editor .milkdown .editor .ProseMirror-focused {
+  outline: none;
+}
+
+.milkdown-editor .milkdown .editor .ProseMirror {
+  caret-color: #1890ff;
+}
+
+/* 打字动画效果 */
+@keyframes typing-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(24, 144, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(24, 144, 255, 0.3);
+  }
+}
+
+.milkdown-editor .milkdown .editor:focus-within {
+  animation: typing-glow 2s ease-in-out infinite;
+}
+
+/* 滚动条样式 */
+.milkdown-editor .milkdown .editor::-webkit-scrollbar {
+  width: 8px;
+}
+
+.milkdown-editor .milkdown .editor::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.milkdown-editor .milkdown .editor::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.milkdown-editor .milkdown .editor::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+}
+
+/* 响应式字体大小 */
+@media (max-width: 768px) {
+  .milkdown-editor .milkdown .editor {
+    font-size: 14px;
+    padding: 16px;
+  }
+
+  .milkdown-editor .milkdown .editor h1 {
+    font-size: 24px;
+  }
+
+  .milkdown-editor .milkdown .editor h2 {
+    font-size: 20px;
+  }
+
+  .milkdown-editor .milkdown .editor h3 {
+    font-size: 18px;
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .milkdown-editor {
+    background: #1a202c;
+    color: #e2e8f0;
+  }
+
+  .milkdown-editor .milkdown .editor {
+    color: #e2e8f0;
+  }
+
+  .milkdown-editor .milkdown .editor:focus-within {
+    background: rgba(24, 144, 255, 0.05);
+  }
+
+  .milkdown-editor .milkdown .editor p {
+    color: #cbd5e0;
+  }
+
+  .milkdown-editor .milkdown .editor h1,
+  .milkdown-editor .milkdown .editor h2,
+  .milkdown-editor .milkdown .editor h3,
+  .milkdown-editor .milkdown .editor h4,
+  .milkdown-editor .milkdown .editor h5,
+  .milkdown-editor .milkdown .editor h6 {
+    color: #f7fafc;
+  }
+
+  .milkdown-editor .milkdown .editor blockquote {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    color: #cbd5e0;
+  }
+
+  .milkdown-editor .milkdown .editor code {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    color: #68d391;
+    border-color: #4a5568;
+  }
+}
+
+/* 平滑滚动 */
+.milkdown-editor .milkdown .editor {
+  scroll-behavior: smooth;
+}
+
+/* 文本选择优化 */
+.milkdown-editor .milkdown .editor {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 输入时的微妙动画 */
+.milkdown-editor .milkdown .editor p,
+.milkdown-editor .milkdown .editor h1,
+.milkdown-editor .milkdown .editor h2,
+.milkdown-editor .milkdown .editor h3,
+.milkdown-editor .milkdown .editor h4,
+.milkdown-editor .milkdown .editor h5,
+.milkdown-editor .milkdown .editor h6,
+.milkdown-editor .milkdown .editor li {
+  transition: all 0.15s ease-out;
+}
+
+/* 悬停效果 */
+.milkdown-editor .milkdown .editor h1:hover,
+.milkdown-editor .milkdown .editor h2:hover,
+.milkdown-editor .milkdown .editor h3:hover {
+  transform: translateX(4px);
+  color: #1890ff;
+}
+
+/* 代码块语言标签 */
+.milkdown-editor .milkdown .editor pre[data-language]::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
 }

@@ -243,7 +243,6 @@ class TodoMCPServer:
                                 "assignee": {"type": "string"},
                                 "due_date": {"type": "string", "format": "date"},
                                 "estimated_hours": {"type": "number"},
-                                "actual_hours": {"type": "number"},
                                 "completion_rate": {"type": "integer", "minimum": 0, "maximum": 100},
                                 "tags": {
                                     "type": "array",
@@ -589,7 +588,6 @@ class TodoMCPServer:
                     'assignee': task.assignee,
                     'due_date': task.due_date.isoformat() if task.due_date else None,
                     'estimated_hours': task.estimated_hours,
-                    'actual_hours': task.actual_hours,
                     'completion_rate': task.completion_rate,
                     'tags': task.tags,
                     'created_at': task.created_at.isoformat(),
@@ -636,7 +634,6 @@ class TodoMCPServer:
                 'assignee': task.assignee,
                 'due_date': task.due_date.isoformat() if task.due_date else None,
                 'estimated_hours': task.estimated_hours,
-                'actual_hours': task.actual_hours,
                 'completion_rate': task.completion_rate,
                 'tags': task.tags,
                 'created_at': task.created_at.isoformat(),
@@ -644,6 +641,19 @@ class TodoMCPServer:
                 'created_by': task.created_by,
                 'completed_at': task.completed_at.isoformat() if task.completed_at else None
             }
+
+            # 获取项目级别的上下文规则并拼接到任务内容后
+            if task.project:
+                project_context = ContextRule.build_context_string(
+                    project_id=task.project.id,
+                    for_tasks=True,
+                    for_projects=False
+                )
+
+                if project_context:
+                    # 将项目上下文拼接到任务内容后
+                    original_content = task_data.get('content', '')
+                    task_data['content'] = f"{original_content}\n\n## 项目上下文规则\n\n{project_context}"
 
             return CallToolResult(
                 content=[TextContent(
@@ -765,8 +775,6 @@ class TodoMCPServer:
                     task.due_date = None
             if 'estimated_hours' in arguments:
                 task.estimated_hours = arguments['estimated_hours']
-            if 'actual_hours' in arguments:
-                task.actual_hours = arguments['actual_hours']
             if 'completion_rate' in arguments:
                 task.completion_rate = arguments['completion_rate']
             if 'tags' in arguments:
@@ -965,6 +973,19 @@ class TodoMCPServer:
             task_data = task.to_dict()
             task_data['project_name'] = project.name if project else None
             task_data['project_description'] = project.description if project else None
+
+            # 获取项目级别的上下文规则并拼接到任务内容后
+            if project:
+                project_context = ContextRule.build_context_string(
+                    project_id=project.id,
+                    for_tasks=True,
+                    for_projects=False
+                )
+
+                if project_context:
+                    # 将项目上下文拼接到任务内容后
+                    original_content = task_data.get('content', '')
+                    task_data['content'] = f"{original_content}\n\n## 项目上下文规则\n\n{project_context}"
 
             return CallToolResult(
                 content=[TextContent(

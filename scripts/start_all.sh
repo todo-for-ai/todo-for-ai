@@ -79,7 +79,7 @@ except Exception as e:
     print('请确保 MySQL 服务正在运行，并且数据库配置正确')
     exit(1)
 "
-    
+
     echo -e "${GREEN}✅ 后端环境初始化完成${NC}"
 }
 

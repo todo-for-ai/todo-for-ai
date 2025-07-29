@@ -61,7 +61,6 @@ CREATE TABLE tasks (
     assignee VARCHAR(100) COMMENT '任务分配给的AI或用户',
     due_date DATETIME COMMENT '截止时间',
     estimated_hours DECIMAL(5,2) COMMENT '预估工时',
-    actual_hours DECIMAL(5,2) COMMENT '实际工时',
     completion_rate INT DEFAULT 0 COMMENT '完成百分比 (0-100)',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

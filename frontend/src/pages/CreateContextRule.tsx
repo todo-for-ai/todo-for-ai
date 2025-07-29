@@ -289,7 +289,8 @@ const CreateContextRule = () => {
                     value={form.getFieldValue('content') || ''}
                     onChange={(value) => form.setFieldsValue({ content: value })}
                     onSave={() => handleSubmit()}
-                    height={400}
+                    autoHeight={true}
+                    minHeight={300}
                     placeholder="请输入规则内容..."
                   />
                 ) : (

@@ -5,7 +5,7 @@
 """
 
 from flask import Blueprint, request
-from models import db, ContextRule, RuleType, Project
+from models import db, ContextRule, Project
 from .base import api_response, api_error, paginate_query, validate_json_request, get_request_args
 
 # 创建蓝图
@@ -27,14 +27,7 @@ def list_context_rules():
         elif request.args.get('scope') == 'global':
             query = query.filter_by(project_id=None)
         
-        # 规则类型筛选
-        rule_type = request.args.get('rule_type')
-        if rule_type:
-            try:
-                rule_type_enum = RuleType(rule_type)
-                query = query.filter_by(rule_type=rule_type_enum)
-            except ValueError:
-                return api_error(f"Invalid rule_type: {rule_type}", 400)
+
         
         # 激活状态筛选
         is_active = request.args.get('is_active')
@@ -104,7 +97,7 @@ def create_context_rule():
         data = validate_json_request(
             required_fields=['name', 'content'],
             optional_fields=[
-                'project_id', 'description', 'rule_type', 'priority',
+                'project_id', 'description', 'priority',
                 'is_active', 'apply_to_tasks', 'apply_to_projects'
             ]
         )
@@ -118,20 +111,11 @@ def create_context_rule():
             if not project:
                 return api_error("Project not found", 404, "PROJECT_NOT_FOUND")
         
-        # 处理规则类型
-        rule_type = RuleType.INSTRUCTION
-        if 'rule_type' in data:
-            try:
-                rule_type = RuleType(data['rule_type'])
-            except ValueError:
-                return api_error(f"Invalid rule_type: {data['rule_type']}", 400)
-        
         # 创建上下文规则
         context_rule = ContextRule.create(
             project_id=data.get('project_id'),
             name=data['name'],
             description=data.get('description', ''),
-            rule_type=rule_type,
             content=data['content'],
             priority=data.get('priority', 0),
             is_active=data.get('is_active', True),
@@ -181,7 +165,7 @@ def update_context_rule(rule_id):
         # 验证请求数据
         data = validate_json_request(
             optional_fields=[
-                'name', 'description', 'rule_type', 'content', 'priority',
+                'name', 'description', 'content', 'priority',
                 'is_active', 'apply_to_tasks', 'apply_to_projects'
             ]
         )
@@ -189,12 +173,7 @@ def update_context_rule(rule_id):
         if isinstance(data, tuple):  # 错误响应
             return data
         
-        # 处理规则类型
-        if 'rule_type' in data:
-            try:
-                context_rule.rule_type = RuleType(data['rule_type'])
-            except ValueError:
-                return api_error(f"Invalid rule_type: {data['rule_type']}", 400)
+
         
         # 更新其他字段
         simple_fields = ['name', 'description', 'content', 'priority', 'is_active', 'apply_to_tasks', 'apply_to_projects']

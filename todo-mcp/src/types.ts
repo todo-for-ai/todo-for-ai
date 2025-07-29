@@ -38,7 +38,6 @@ export interface Task {
   assignee?: string;
   due_date?: string;
   estimated_hours?: number;
-  actual_hours?: number;
   tags?: string[];
   related_files?: string[];
   is_ai_task: boolean;

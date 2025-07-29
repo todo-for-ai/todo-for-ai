@@ -125,8 +125,6 @@ class MCPServerMethods:
                     task.due_date = None
             if 'estimated_hours' in arguments:
                 task.estimated_hours = arguments['estimated_hours']
-            if 'actual_hours' in arguments:
-                task.actual_hours = arguments['actual_hours']
             if 'completion_rate' in arguments:
                 task.completion_rate = arguments['completion_rate']
             if 'tags' in arguments:
@@ -146,7 +144,6 @@ class MCPServerMethods:
                 'assignee': task.assignee,
                 'due_date': task.due_date.isoformat() if task.due_date else None,
                 'estimated_hours': task.estimated_hours,
-                'actual_hours': task.actual_hours,
                 'completion_rate': task.completion_rate,
                 'tags': task.tags,
                 'updated_at': task.updated_at.isoformat(),
