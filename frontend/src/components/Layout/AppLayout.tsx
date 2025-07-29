@@ -11,6 +11,7 @@ import {
   MenuUnfoldOutlined,
   AppstoreOutlined,
   FileTextOutlined,
+  ApiOutlined,
 } from '@ant-design/icons'
 
 const { Header, Sider, Content } = Layout
@@ -36,6 +37,16 @@ const AppLayout = () => {
       key: '/todo-for-ai/pages/context-rules',
       icon: <FileTextOutlined />,
       label: '上下文规则',
+    },
+    {
+      key: '/todo-for-ai/pages/mcp-installation',
+      icon: <AppstoreOutlined />,
+      label: 'MCP安装文档',
+    },
+    {
+      key: '/todo-for-ai/pages/api-documentation',
+      icon: <ApiOutlined />,
+      label: 'HTTP API文档',
     },
     {
       key: '/todo-for-ai/pages/settings',

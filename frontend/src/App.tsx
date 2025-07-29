@@ -9,7 +9,10 @@ import {
   TaskDetail,
   CreateTask,
   Settings,
-  ContextRules
+  ContextRules,
+  CreateContextRule,
+  MCPInstallation,
+  APIDocumentation
 } from './pages'
 
 function App() {
@@ -30,6 +33,10 @@ function App() {
           <Route path="tasks/:id" element={<TaskDetail />} />
           <Route path="tasks/:id/edit" element={<CreateTask />} />
           <Route path="context-rules" element={<ContextRules />} />
+          <Route path="context-rules/create" element={<CreateContextRule />} />
+          <Route path="context-rules/:id/edit" element={<CreateContextRule />} />
+          <Route path="mcp-installation" element={<MCPInstallation />} />
+          <Route path="api-documentation" element={<APIDocumentation />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 

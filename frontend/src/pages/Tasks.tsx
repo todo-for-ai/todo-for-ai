@@ -152,6 +152,18 @@ ${task.content || '无详细内容'}
     fetchTasks()
   }
 
+  // 根据任务状态获取标题颜色
+  const getTaskTitleColor = (status: string) => {
+    const statusColors = {
+      todo: '#000000',        // 黑色 - 待办
+      in_progress: '#1890ff', // 蓝色 - 进行中
+      review: '#fa8c16',      // 橙色 - 待审核
+      done: '#52c41a',        // 绿色 - 已完成
+      cancelled: '#ff4d4f'    // 红色 - 已取消
+    }
+    return statusColors[status as keyof typeof statusColors] || '#000000'
+  }
+
   const columns = [
     {
       title: '任务标题',
@@ -162,7 +174,12 @@ ${task.content || '无详细内容'}
         <div>
           <Button
             type="link"
-            style={{ padding: 0, fontWeight: 500, height: 'auto' }}
+            style={{
+              padding: 0,
+              fontWeight: 500,
+              height: 'auto',
+              color: getTaskTitleColor(record.status)
+            }}
             onClick={() => handleView(record)}
           >
             {text}

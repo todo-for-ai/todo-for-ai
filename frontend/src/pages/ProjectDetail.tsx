@@ -40,11 +40,12 @@ import {
   LinkOutlined,
   GlobalOutlined
 } from '@ant-design/icons'
-import { useProjectStore, useTaskStore } from '../stores'
+import { useProjectStore, useTaskStore, useContextRuleStore } from '../stores'
 import { KanbanBoard } from '../components/Kanban'
 import { TaskContentSummary } from '../components/TaskContentPreview'
 import { MarkdownEditor } from '../components/MarkdownEditor'
 import type { Task } from '../api/tasks'
+import type { ContextRule } from '../api/contextRules'
 
 const { Title, Paragraph } = Typography
 const { TabPane } = Tabs
@@ -165,6 +166,36 @@ const ProjectDetail = () => {
     }
   }
 
+  // 处理刷新任务列表
+  const handleRefreshTasks = async () => {
+    if (!id) return
+
+    try {
+      // 使用当前的筛选和排序条件重新获取任务数据
+      const queryParams = {
+        project_id: parseInt(id),
+        status: taskFilters.status,
+        priority: taskFilters.priority,
+        search: taskFilters.search,
+        sort_by: taskFilters.sort_by,
+        sort_order: taskFilters.sort_order,
+        per_page: 20
+      }
+      setQueryParams(queryParams)
+
+      // 同时刷新任务列表和项目统计信息
+      await Promise.all([
+        fetchTasks(),
+        fetchProject(parseInt(id))
+      ])
+
+      message.success('任务列表和统计信息已刷新')
+    } catch (error) {
+      console.error('刷新失败:', error)
+      message.error('刷新失败')
+    }
+  }
+
   // 处理表格变化（排序、分页）
   const handleTableChange = (pagination: any, _filters: any, sorter: any) => {
     const newFilters = { ...taskFilters }
@@ -276,6 +307,18 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
     )
   }
 
+  // 根据任务状态获取标题颜色
+  const getTaskTitleColor = (status: string) => {
+    const statusColors = {
+      todo: '#000000',        // 黑色 - 待办
+      in_progress: '#1890ff', // 蓝色 - 进行中
+      review: '#fa8c16',      // 橙色 - 待审核
+      done: '#52c41a',        // 绿色 - 已完成
+      cancelled: '#ff4d4f'    // 红色 - 已取消
+    }
+    return statusColors[status as keyof typeof statusColors] || '#000000'
+  }
+
   const taskColumns = [
     {
       title: '任务标题',
@@ -291,7 +334,12 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
           <div style={{ flex: 1, minWidth: 0 }}>
             <Button
               type="link"
-              style={{ padding: 0, fontWeight: 500, height: 'auto' }}
+              style={{
+                padding: 0,
+                fontWeight: 500,
+                height: 'auto',
+                color: getTaskTitleColor(record.status)
+              }}
               onClick={() => navigate(`/todo-for-ai/pages/tasks/${record.id}`)}
             >
               {text}
@@ -724,20 +772,13 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
                   <Button
                     type="link"
                     size="small"
-                    onClick={() => {
-                      const defaultFilters = {
-                        status: 'todo,in_progress,review',
-                        priority: '',
-                        search: '',
-                        sort_by: 'created_at',
-                        sort_order: 'desc' as 'desc' | 'asc'
-                      }
-                      setTaskFilters(defaultFilters)
-                      localStorage.setItem('project-task-filters', JSON.stringify(defaultFilters))
-                    }}
+                    icon={<ReloadOutlined />}
+                    onClick={handleRefreshTasks}
+                    loading={tasksLoading}
                     style={{ fontSize: '12px' }}
+                    title="刷新任务列表"
                   >
-                    重置
+                    刷新
                   </Button>
                 </Col>
               </Row>
@@ -775,16 +816,199 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
         </TabPane>
 
         <TabPane tab="上下文规则" key="context">
-          <Card>
-            <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
-              <CheckSquareOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
-              <div>上下文规则功能开发中...</div>
-            </div>
-          </Card>
+          <ContextRulesTab projectId={parseInt(id!, 10)} />
         </TabPane>
       </Tabs>
 
 
+    </div>
+  )
+}
+
+// 上下文规则标签页组件
+const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
+  const navigate = useNavigate()
+  const {
+    contextRules,
+    loading,
+    fetchContextRules,
+    setQueryParams,
+    deleteContextRule,
+    toggleContextRule
+  } = useContextRuleStore()
+
+  useEffect(() => {
+    // 设置查询参数为当前项目
+    setQueryParams({ project_id: projectId })
+    fetchContextRules()
+  }, [projectId, setQueryParams, fetchContextRules])
+
+  const handleCreate = () => {
+    navigate(`/todo-for-ai/pages/context-rules/create?project_id=${projectId}`)
+  }
+
+  const handleEdit = (rule: ContextRule) => {
+    navigate(`/todo-for-ai/pages/context-rules/${rule.id}/edit`)
+  }
+
+  const handleDelete = async (rule: ContextRule) => {
+    const success = await deleteContextRule(rule.id)
+    if (success) {
+      message.success('上下文规则删除成功')
+    }
+  }
+
+  const handleToggle = async (rule: ContextRule) => {
+    const success = await toggleContextRule(rule.id, !rule.is_active)
+    if (success) {
+      message.success(`上下文规则已${rule.is_active ? '禁用' : '启用'}`)
+    }
+  }
+
+
+
+  const columns = [
+    {
+      title: '规则名称',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string, record: ContextRule) => (
+        <Button
+          type="link"
+          onClick={() => handleEdit(record)}
+          style={{ padding: 0, height: 'auto' }}
+        >
+          {text}
+        </Button>
+      ),
+    },
+    {
+      title: '优先级',
+      dataIndex: 'priority',
+      key: 'priority',
+      width: 80,
+      sorter: true,
+    },
+    {
+      title: '状态',
+      dataIndex: 'is_active',
+      key: 'is_active',
+      width: 80,
+      render: (isActive: boolean) => (
+        <Tag color={isActive ? 'green' : 'red'}>
+          {isActive ? '启用' : '禁用'}
+        </Tag>
+      ),
+    },
+    {
+      title: '应用范围',
+      key: 'apply_scope',
+      width: 120,
+      render: (record: ContextRule) => (
+        <Space direction="vertical" size={0}>
+          {record.apply_to_tasks && <Tag>任务</Tag>}
+          {record.apply_to_projects && <Tag>项目</Tag>}
+        </Space>
+      ),
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      width: 120,
+      render: (date: string) => new Date(date).toLocaleDateString('zh-CN'),
+    },
+    {
+      title: '操作',
+      key: 'actions',
+      width: 200,
+      render: (record: ContextRule) => (
+        <Space>
+          <Button
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => handleEdit(record)}
+          >
+            查看
+          </Button>
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+          >
+            编辑
+          </Button>
+          <Button
+            size="small"
+            type={record.is_active ? 'default' : 'primary'}
+            onClick={() => handleToggle(record)}
+          >
+            {record.is_active ? '禁用' : '启用'}
+          </Button>
+          <Popconfirm
+            title="确定要删除这个上下文规则吗？"
+            description="删除后无法恢复，请谨慎操作。"
+            onConfirm={() => handleDelete(record)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ]
+
+  return (
+    <div>
+      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <Title level={4} style={{ margin: 0 }}>项目上下文规则</Title>
+          <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>
+            管理项目级别的上下文规则，这些规则将在AI查询时自动应用
+          </div>
+        </div>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleCreate}
+        >
+          创建上下文规则
+        </Button>
+      </div>
+
+      <Card>
+        <Table
+          columns={columns}
+          dataSource={contextRules}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `共 ${total} 条记录`,
+          }}
+          locale={{
+            emptyText: (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                <CheckSquareOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                <div>暂无上下文规则</div>
+                <div style={{ marginTop: '8px' }}>
+                  <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                    创建第一个上下文规则
+                  </Button>
+                </div>
+              </div>
+            )
+          }}
+        />
+      </Card>
     </div>
   )
 }
