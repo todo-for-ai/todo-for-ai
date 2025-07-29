@@ -120,8 +120,8 @@ EOF
     if [ ! -f "frontend/.env" ]; then
         cat > frontend/.env << EOF
 # API 配置
-VITE_API_BASE_URL=http://localhost:5000
-VITE_MCP_SERVER_URL=http://localhost:8080
+VITE_API_BASE_URL=http://localhost:50110/todo-for-ai/api/v1
+VITE_MCP_SERVER_URL=http://localhost:50110
 
 # 应用配置
 VITE_APP_TITLE=Todo for AI

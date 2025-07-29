@@ -114,7 +114,7 @@ if (allFilesExist) {
   console.log('      "command": "node",');
   console.log(`      "args": ["${path.join(__dirname, 'dist/index.js')}"],`);
   console.log('      "env": {');
-  console.log('        "TODO_API_BASE_URL": "http://localhost:50110"');
+  console.log('        "TODO_API_BASE_URL": "http://localhost:50110/todo-for-ai/api/v1"');
   console.log('      }');
   console.log('    }');
   console.log('  }');

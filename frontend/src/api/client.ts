@@ -3,7 +3,7 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
 // 创建axios实例
 const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:50110',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:50110/todo-for-ai/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ apiClient.interceptors.response.use(
         case 401:
           // 未授权，清除token并跳转到登录页
           localStorage.removeItem('auth_token')
-          window.location.href = '/login'
+          window.location.href = '/todo-for-ai/pages/login'
           break
         case 403:
           // 禁止访问

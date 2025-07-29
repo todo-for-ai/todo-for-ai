@@ -9,7 +9,7 @@ config();
  */
 export function getConfig(): TodoConfig {
   return {
-    apiBaseUrl: process.env.TODO_API_BASE_URL || 'http://localhost:50110',
+    apiBaseUrl: process.env.TODO_API_BASE_URL || 'http://localhost:50110/todo-for-ai/api/v1',
     apiTimeout: parseInt(process.env.TODO_API_TIMEOUT || '10000', 10),
     apiToken: process.env.TODO_API_TOKEN,
     logLevel: (process.env.LOG_LEVEL as TodoConfig['logLevel']) || 'info',

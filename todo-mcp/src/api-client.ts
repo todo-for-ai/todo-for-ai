@@ -31,7 +31,7 @@ export class TodoApiClient {
     };
 
     this.client = axios.create({
-      baseURL: `${config.apiBaseUrl}/api`,
+      baseURL: `${config.apiBaseUrl}/todo-for-ai/api/v1`,
       timeout: config.apiTimeout,
       headers: {
         'Content-Type': 'application/json',

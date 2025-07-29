@@ -8,7 +8,7 @@ export default defineConfig({
     port: 50111,
     host: '0.0.0.0',
     proxy: {
-      '/api': {
+      '/todo-for-ai/api': {
         target: 'http://localhost:50110',
         changeOrigin: true,
         secure: false,

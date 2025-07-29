@@ -28,7 +28,15 @@ from mcp.types import (
 )
 
 # Import our application models and database
-from app import create_app
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+import importlib.util
+spec = importlib.util.spec_from_file_location("app_module", "app.py")
+app_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(app_module)
+create_app = app_module.create_app
 from models import db, Project, Task, ContextRule
 
 # Configure logging

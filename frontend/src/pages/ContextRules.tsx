@@ -82,6 +82,16 @@ const ContextRules = () => {
     }
   }, [error, clearError])
 
+  // 设置网页标题
+  useEffect(() => {
+    document.title = '上下文规则 - Todo for AI'
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [])
+
   const handleCreate = () => {
     setEditingRule(null)
     form.resetFields()

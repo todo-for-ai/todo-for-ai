@@ -1,14 +1,24 @@
+import { useEffect } from 'react'
 import { Typography, Card, Row, Col, Statistic } from 'antd'
-import { 
-  ProjectOutlined, 
-  CheckSquareOutlined, 
+import {
+  ProjectOutlined,
+  CheckSquareOutlined,
   ClockCircleOutlined,
-  RobotOutlined 
+  RobotOutlined
 } from '@ant-design/icons'
 
 const { Title, Paragraph } = Typography
 
 const Dashboard = () => {
+  // 设置网页标题
+  useEffect(() => {
+    document.title = '仪表板 - Todo for AI'
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [])
   return (
     <div className="page-container">
       <div className="page-header">

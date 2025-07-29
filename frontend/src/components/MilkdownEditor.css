@@ -1,0 +1,167 @@
+.milkdown-editor {
+  position: relative;
+}
+
+.milkdown-editor.fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+  background-color: #fff !important;
+  border-radius: 0 !important;
+}
+
+.milkdown-editor .milkdown {
+  outline: none;
+  border: none;
+  background: transparent;
+}
+
+.milkdown-editor .milkdown .editor {
+  outline: none;
+  border: none;
+  background: transparent;
+  min-height: 200px;
+}
+
+/* 自动高度模式 */
+.milkdown-editor.auto-height {
+  height: auto !important;
+}
+
+.milkdown-editor.auto-height .milkdown {
+  height: auto !important;
+  min-height: inherit;
+  max-height: inherit;
+}
+
+.milkdown-editor.auto-height .milkdown .editor {
+  height: auto !important;
+  min-height: inherit;
+  max-height: inherit;
+  overflow-y: auto;
+  resize: none;
+}
+
+/* 确保编辑器内容能够正确撑开容器 */
+.milkdown-editor.auto-height .milkdown .editor .ProseMirror {
+  min-height: inherit;
+  height: auto !important;
+  overflow: visible;
+}
+
+.milkdown-editor .milkdown .editor p {
+  margin: 0 0 16px 0;
+  line-height: 1.6;
+}
+
+.milkdown-editor .milkdown .editor h1,
+.milkdown-editor .milkdown .editor h2,
+.milkdown-editor .milkdown .editor h3,
+.milkdown-editor .milkdown .editor h4,
+.milkdown-editor .milkdown .editor h5,
+.milkdown-editor .milkdown .editor h6 {
+  margin: 24px 0 16px 0;
+  font-weight: 600;
+}
+
+.milkdown-editor .milkdown .editor ul,
+.milkdown-editor .milkdown .editor ol {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+
+.milkdown-editor .milkdown .editor li {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.milkdown-editor .milkdown .editor blockquote {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-left: 4px solid #1890ff;
+  background-color: #f6f8fa;
+  color: #666;
+}
+
+.milkdown-editor .milkdown .editor code {
+  padding: 2px 6px;
+  background-color: #f6f8fa;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+}
+
+.milkdown-editor .milkdown .editor pre {
+  margin: 16px 0;
+  padding: 16px;
+  background-color: #f6f8fa;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.milkdown-editor .milkdown .editor pre code {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.milkdown-editor .milkdown .editor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.milkdown-editor .milkdown .editor th,
+.milkdown-editor .milkdown .editor td {
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  text-align: left;
+}
+
+.milkdown-editor .milkdown .editor th {
+  background-color: #fafafa;
+  font-weight: 600;
+}
+
+.milkdown-editor .milkdown .editor hr {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid #d9d9d9;
+}
+
+.milkdown-editor .milkdown .editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.milkdown-editor .milkdown .editor a {
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.milkdown-editor .milkdown .editor a:hover {
+  text-decoration: underline;
+}
+
+/* 占位符样式 */
+.milkdown-editor .milkdown .editor:empty::before {
+  content: attr(data-placeholder);
+  color: #bfbfbf;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* 只读模式样式 */
+.milkdown-editor.readonly .milkdown .editor {
+  background-color: #f5f5f5;
+  cursor: default;
+}
+
+.milkdown-editor.readonly .milkdown .editor * {
+  pointer-events: none;
+}

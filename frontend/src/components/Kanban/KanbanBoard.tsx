@@ -224,9 +224,11 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ projectId, onTaskClick }) => 
                   )}
                 </Space>
                 
-                {activeTask.assignee && (
-                  <Tooltip title={activeTask.assignee}>
-                    <Avatar size="small" icon={<UserOutlined />} />
+                {activeTask.is_ai_task && (
+                  <Tooltip title="AI执行任务">
+                    <Avatar size="small" icon={<UserOutlined />} style={{ backgroundColor: '#52c41a' }}>
+                      AI
+                    </Avatar>
                   </Tooltip>
                 )}
               </div>

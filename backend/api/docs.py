@@ -14,20 +14,20 @@ def api_docs():
         "title": "Todo for AI API Documentation",
         "version": "1.0.0",
         "description": "RESTful API for Todo for AI task management system",
-        "base_url": "http://localhost:50110/api",
+        "base_url": "http://localhost:50110/todo-for-ai/api/v1",
         "authentication": {
             "type": "Bearer Token",
             "description": "Use Authorization: Bearer <token> header or ?token=<token> query parameter",
             "endpoints": {
-                "create_token": "POST /api/tokens",
-                "verify_token": "POST /api/tokens/verify"
+                "create_token": "POST /todo-for-ai/api/v1/tokens",
+                "verify_token": "POST /todo-for-ai/api/v1/tokens/verify"
             }
         },
         "endpoints": {
             "projects": {
                 "list": {
                     "method": "GET",
-                    "url": "/api/projects",
+                    "url": "/todo-for-ai/api/v1/projects",
                     "description": "Get list of projects with filtering and sorting",
                     "parameters": {
                         "page": "Page number (default: 1)",
@@ -43,7 +43,7 @@ def api_docs():
                 },
                 "create": {
                     "method": "POST",
-                    "url": "/api/projects",
+                    "url": "/todo-for-ai/api/v1/projects",
                     "description": "Create a new project",
                     "body": {
                         "name": "Project name (required)",
@@ -55,34 +55,34 @@ def api_docs():
                 },
                 "get": {
                     "method": "GET",
-                    "url": "/api/projects/{id}",
+                    "url": "/todo-for-ai/api/v1/projects/{id}",
                     "description": "Get project by ID"
                 },
                 "update": {
                     "method": "PUT",
-                    "url": "/api/projects/{id}",
+                    "url": "/todo-for-ai/api/v1/projects/{id}",
                     "description": "Update project"
                 },
                 "delete": {
                     "method": "DELETE",
-                    "url": "/api/projects/{id}",
+                    "url": "/todo-for-ai/api/v1/projects/{id}",
                     "description": "Delete project"
                 },
                 "archive": {
                     "method": "POST",
-                    "url": "/api/projects/{id}/archive",
+                    "url": "/todo-for-ai/api/v1/projects/{id}/archive",
                     "description": "Archive project"
                 },
                 "restore": {
                     "method": "POST",
-                    "url": "/api/projects/{id}/restore",
+                    "url": "/todo-for-ai/api/v1/projects/{id}/restore",
                     "description": "Restore archived project"
                 }
             },
             "tasks": {
                 "list": {
                     "method": "GET",
-                    "url": "/api/tasks",
+                    "url": "/todo-for-ai/api/v1/tasks",
                     "description": "Get list of tasks with filtering and sorting",
                     "parameters": {
                         "page": "Page number (default: 1)",
@@ -98,7 +98,7 @@ def api_docs():
                 },
                 "create": {
                     "method": "POST",
-                    "url": "/api/tasks",
+                    "url": "/todo-for-ai/api/v1/tasks",
                     "description": "Create a new task",
                     "body": {
                         "project_id": "Project ID (required)",
@@ -117,61 +117,61 @@ def api_docs():
                 },
                 "get": {
                     "method": "GET",
-                    "url": "/api/tasks/{id}",
+                    "url": "/todo-for-ai/api/v1/tasks/{id}",
                     "description": "Get task by ID"
                 },
                 "update": {
                     "method": "PUT",
-                    "url": "/api/tasks/{id}",
+                    "url": "/todo-for-ai/api/v1/tasks/{id}",
                     "description": "Update task"
                 },
                 "delete": {
                     "method": "DELETE",
-                    "url": "/api/tasks/{id}",
+                    "url": "/todo-for-ai/api/v1/tasks/{id}",
                     "description": "Delete task"
                 }
             },
             "context_rules": {
                 "list": {
                     "method": "GET",
-                    "url": "/api/context-rules",
+                    "url": "/todo-for-ai/api/v1/context-rules",
                     "description": "Get list of context rules"
                 },
                 "create": {
                     "method": "POST",
-                    "url": "/api/context-rules",
+                    "url": "/todo-for-ai/api/v1/context-rules",
                     "description": "Create a new context rule"
                 },
                 "get": {
                     "method": "GET",
-                    "url": "/api/context-rules/{id}",
+                    "url": "/todo-for-ai/api/v1/context-rules/{id}",
                     "description": "Get context rule by ID"
                 },
                 "update": {
                     "method": "PUT",
-                    "url": "/api/context-rules/{id}",
+                    "url": "/todo-for-ai/api/v1/context-rules/{id}",
                     "description": "Update context rule"
                 },
                 "delete": {
                     "method": "DELETE",
-                    "url": "/api/context-rules/{id}",
+                    "url": "/todo-for-ai/api/v1/context-rules/{id}",
                     "description": "Delete context rule"
                 },
                 "merged": {
                     "method": "GET",
-                    "url": "/api/context-rules/merged",
+                    "url": "/todo-for-ai/api/v1/context-rules/merged",
                     "description": "Get merged context rules for AI execution"
                 }
             },
             "tokens": {
                 "list": {
                     "method": "GET",
-                    "url": "/api/tokens",
+                    "url": "/todo-for-ai/api/v1/tokens",
                     "description": "Get list of API tokens (requires authentication)"
                 },
                 "create": {
                     "method": "POST",
-                    "url": "/api/tokens",
+                    "url": "/todo-for-ai/api/v1/tokens",
                     "description": "Create a new API token (requires authentication)",
                     "body": {
                         "name": "Token name (required)",
@@ -181,7 +181,7 @@ def api_docs():
                 },
                 "verify": {
                     "method": "POST",
-                    "url": "/api/tokens/verify",
+                    "url": "/todo-for-ai/api/v1/tokens/verify",
                     "description": "Verify a token (public endpoint)",
                     "body": {
                         "token": "Token to verify (required)"
@@ -189,24 +189,24 @@ def api_docs():
                 },
                 "renew": {
                     "method": "POST",
-                    "url": "/api/tokens/{id}/renew",
+                    "url": "/todo-for-ai/api/v1/tokens/{id}/renew",
                     "description": "Renew token expiration (requires authentication)"
                 },
                 "delete": {
                     "method": "DELETE",
-                    "url": "/api/tokens/{id}",
+                    "url": "/todo-for-ai/api/v1/tokens/{id}",
                     "description": "Deactivate token (requires authentication)"
                 }
             },
             "mcp": {
                 "tools": {
                     "method": "GET",
-                    "url": "/api/mcp/tools",
+                    "url": "/todo-for-ai/api/v1/mcp/tools",
                     "description": "List available MCP tools"
                 },
                 "call": {
                     "method": "POST",
-                    "url": "/api/mcp/call",
+                    "url": "/todo-for-ai/api/v1/mcp/call",
                     "description": "Call an MCP tool",
                     "body": {
                         "name": "Tool name (required)",

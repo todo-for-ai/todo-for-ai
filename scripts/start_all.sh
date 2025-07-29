@@ -118,8 +118,8 @@ start_services() {
     sleep 3
     
     # 检查后端是否启动成功
-    if curl -s http://localhost:5000/api/health > /dev/null; then
-        echo -e "${GREEN}✅ 后端服务启动成功 (http://localhost:5000)${NC}"
+    if curl -s http://localhost:50110/todo-for-ai/api/v1/health > /dev/null; then
+        echo -e "${GREEN}✅ 后端服务启动成功 (http://localhost:50110)${NC}"
     else
         echo -e "${RED}❌ 后端服务启动失败${NC}"
         kill $BACKEND_PID 2>/dev/null || true

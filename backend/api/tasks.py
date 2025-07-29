@@ -31,8 +31,16 @@ def list_tasks():
         # 状态筛选
         if args['status']:
             try:
-                status = TaskStatus(args['status'])
-                query = query.filter_by(status=status)
+                # 支持多状态筛选，用逗号分隔
+                if ',' in args['status']:
+                    status_list = [s.strip() for s in args['status'].split(',')]
+                    status_enums = []
+                    for status_str in status_list:
+                        status_enums.append(TaskStatus(status_str))
+                    query = query.filter(Task.status.in_(status_enums))
+                else:
+                    status = TaskStatus(args['status'])
+                    query = query.filter_by(status=status)
             except ValueError:
                 return api_error(f"Invalid status: {args['status']}", 400)
         
