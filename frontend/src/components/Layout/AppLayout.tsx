@@ -23,32 +23,22 @@ const AppLayout = () => {
 
   const menuItems = [
     {
-      key: '/',
+      key: '/todo-for-ai/pages',
       icon: <DashboardOutlined />,
       label: '仪表板',
     },
     {
-      key: '/projects',
+      key: '/todo-for-ai/pages/projects',
       icon: <ProjectOutlined />,
       label: '项目管理',
     },
     {
-      key: '/tasks',
-      icon: <CheckSquareOutlined />,
-      label: '任务管理',
-    },
-    {
-      key: '/kanban',
-      icon: <AppstoreOutlined />,
-      label: '任务看板',
-    },
-    {
-      key: '/context-rules',
+      key: '/todo-for-ai/pages/context-rules',
       icon: <FileTextOutlined />,
       label: '上下文规则',
     },
     {
-      key: '/settings',
+      key: '/todo-for-ai/pages/settings',
       icon: <SettingOutlined />,
       label: '系统设置',
     },

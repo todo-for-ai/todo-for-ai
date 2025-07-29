@@ -7,14 +7,9 @@ import {
   Space,
   Tag,
   Select,
-  Modal,
-  Form,
-  Input,
-  DatePicker,
   message,
   Popconfirm,
   Progress,
-  Drawer,
   Checkbox
 } from 'antd'
 import {
@@ -23,26 +18,20 @@ import {
   DeleteOutlined,
   EyeOutlined,
   ReloadOutlined,
-  FileTextOutlined,
   CopyOutlined,
-  BranchesOutlined
+  RobotOutlined
 } from '@ant-design/icons'
 import { useTaskStore, useProjectStore } from '../stores'
-import { MarkdownEditor } from '../components/MarkdownEditor'
+
 import type { Task, CreateTaskData, UpdateTaskData } from '../api/tasks'
 import dayjs from 'dayjs'
 
 const { Title, Paragraph } = Typography
 const { Option } = Select
-const { TextArea } = Input
 
 const Tasks = () => {
   const navigate = useNavigate()
-  const [isModalVisible, setIsModalVisible] = useState(false)
-  const [isDetailVisible, setIsDetailVisible] = useState(false)
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [viewingTask, setViewingTask] = useState<Task | null>(null)
-  const [form] = Form.useForm()
+
 
   const {
     tasks,
@@ -76,26 +65,26 @@ const Tasks = () => {
     }
   }, [tasksError, clearTasksError])
 
+  // 设置网页标题
+  useEffect(() => {
+    document.title = '所有任务 - Todo for AI'
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [])
+
   const handleCreate = () => {
-    navigate('/tasks/create')
+    navigate('/todo-for-ai/pages/tasks/create')
   }
 
   const handleEdit = (task: Task) => {
-    setEditingTask(task)
-    form.setFieldsValue({
-      project_id: task.project_id,
-      title: task.title,
-      content: task.content,
-      status: task.status,
-      priority: task.priority,
-      due_date: task.due_date ? dayjs(task.due_date) : null,
-      tags: task.tags,
-    })
-    setIsModalVisible(true)
+    navigate(`/todo-for-ai/pages/tasks/${task.id}/edit`)
   }
 
   const handleView = (task: Task) => {
-    navigate(`/tasks/${task.id}`)
+    navigate(`/todo-for-ai/pages/tasks/${task.id}`)
   }
 
   const handleCopyPrompt = (task: Task) => {
@@ -130,26 +119,7 @@ ${task.content || '无详细内容'}
     })
   }
 
-  const handleQuickCreate = (sourceTask: Task) => {
-    const project = projects.find(p => p.id === sourceTask.project_id)
 
-    // 复制当前任务的所有字段作为新任务的默认值
-    form.setFieldsValue({
-      project_id: sourceTask.project_id,
-      title: `${sourceTask.title} - 副本`,
-      content: sourceTask.content,
-      priority: sourceTask.priority,
-      due_date: sourceTask.due_date ? dayjs(sourceTask.due_date) : null,
-      tags: sourceTask.tags,
-      related_files: sourceTask.related_files
-    })
-
-    setEditingTask(null) // 确保是创建模式
-    setIsDetailVisible(false) // 关闭详情抽屉
-    setIsModalVisible(true) // 打开创建/编辑模态框
-
-    message.info(`基于任务"${sourceTask.title}"创建新任务`)
-  }
 
   const handleDelete = async (task: Task) => {
     const success = await deleteTask(task.id)
@@ -165,49 +135,7 @@ ${task.content || '无详细内容'}
     }
   }
 
-  const handleModalOk = async () => {
-    try {
-      const values = await form.validateFields()
-      const taskData: CreateTaskData | UpdateTaskData = {
-        project_id: values.project_id,
-        title: values.title,
-        content: values.content || '',
-        status: values.status || 'todo',
-        priority: values.priority || 'medium',
-        due_date: values.due_date ? values.due_date.format('YYYY-MM-DD') : undefined,
-        tags: values.tags || [],
-      }
 
-      let success = false
-      if (editingTask) {
-        const result = await updateTask(editingTask.id, taskData)
-        success = !!result
-        if (success) {
-          message.success('任务更新成功')
-        }
-      } else {
-        const result = await createTask(taskData as CreateTaskData)
-        success = !!result
-        if (success) {
-          message.success('任务创建成功')
-        }
-      }
-
-      if (success) {
-        setIsModalVisible(false)
-        form.resetFields()
-        setEditingTask(null)
-      }
-    } catch (error) {
-      console.error('Form validation failed:', error)
-    }
-  }
-
-  const handleModalCancel = () => {
-    setIsModalVisible(false)
-    form.resetFields()
-    setEditingTask(null)
-  }
 
   const handleTableChange = (pagination: any, _filters: any, sorter: any) => {
     const newParams: any = {
@@ -477,296 +405,6 @@ ${task.content || '无详细内容'}
         }}
         onChange={handleTableChange}
       />
-
-      {/* 创建/编辑任务模态框 */}
-      <Modal
-        title={editingTask ? '编辑任务' : '新建任务'}
-        open={isModalVisible}
-        onOk={handleModalOk}
-        onCancel={handleModalCancel}
-        confirmLoading={tasksLoading}
-        width={800}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            status: 'todo',
-            priority: 'medium',
-          }}
-        >
-          <Form.Item
-            label="所属项目"
-            name="project_id"
-            rules={[{ required: true, message: '请选择所属项目' }]}
-          >
-            <Select placeholder="请选择项目">
-              {projects.map(project => (
-                <Option key={project.id} value={project.id}>
-                  {project.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="任务标题"
-            name="title"
-            rules={[
-              { required: true, message: '请输入任务标题' },
-              { max: 200, message: '任务标题不能超过200个字符' },
-            ]}
-          >
-            <Input placeholder="请输入任务标题" />
-          </Form.Item>
-
-          <Form.Item
-            label="任务描述"
-            name="description"
-            rules={[
-              { max: 500, message: '任务描述不能超过500个字符' },
-            ]}
-          >
-            <TextArea
-              rows={3}
-              placeholder="请输入任务简短描述（可选）"
-              showCount
-              maxLength={500}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="任务内容"
-            name="content"
-            tooltip="支持Markdown格式，可以编写详细的任务说明、需求文档等"
-          >
-            <MarkdownEditor
-              placeholder="请输入任务详细内容（支持Markdown格式）..."
-              height={300}
-              preview="live"
-            />
-          </Form.Item>
-
-          <Space style={{ width: '100%' }} size="large">
-            <Form.Item
-              label="状态"
-              name="status"
-              style={{ flex: 1 }}
-            >
-              <Select>
-                <Option value="todo">待办</Option>
-                <Option value="in_progress">进行中</Option>
-                <Option value="review">待审核</Option>
-                <Option value="done">已完成</Option>
-                <Option value="cancelled">已取消</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label="优先级"
-              name="priority"
-              style={{ flex: 1 }}
-            >
-              <Select>
-                <Option value="low">低</Option>
-                <Option value="medium">中</Option>
-                <Option value="high">高</Option>
-                <Option value="urgent">紧急</Option>
-              </Select>
-            </Form.Item>
-          </Space>
-
-          <Form.Item
-            label="截止时间"
-            name="due_date"
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            label="标签"
-            name="tags"
-          >
-            <Select
-              mode="tags"
-              placeholder="请输入标签，按回车添加"
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="相关文件"
-            name="related_files"
-            help="输入与此任务相关的文件路径，按回车添加多个文件"
-          >
-            <Select
-              mode="tags"
-              placeholder="请输入文件路径，如: src/components/TaskList.tsx"
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="分配给AI"
-            name="is_ai_task"
-            valuePropName="checked"
-            help="勾选表示此任务分配给AI执行"
-          >
-            <Checkbox>此任务分配给AI执行</Checkbox>
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* 任务详情抽屉 */}
-      <Drawer
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileTextOutlined />
-            <span>任务详情</span>
-          </div>
-        }
-        placement="right"
-        width={800}
-        open={isDetailVisible}
-        onClose={() => setIsDetailVisible(false)}
-        extra={
-          viewingTask && (
-            <Space>
-              <Button
-                icon={<CopyOutlined />}
-                onClick={() => handleCopyPrompt(viewingTask)}
-                title="复制AI执行提示词"
-              >
-                复制Prompt
-              </Button>
-              <Button
-                icon={<BranchesOutlined />}
-                onClick={() => handleQuickCreate(viewingTask)}
-                title="基于此任务快速创建新任务"
-              >
-                快速创建
-              </Button>
-              <Button
-                icon={<EditOutlined />}
-                onClick={() => {
-                  setIsDetailVisible(false)
-                  handleEdit(viewingTask)
-                }}
-              >
-                编辑
-              </Button>
-            </Space>
-          )
-        }
-      >
-        {viewingTask && (
-          <div>
-            <div style={{ marginBottom: '24px' }}>
-              <Title level={3}>{viewingTask.title}</Title>
-              <div style={{ marginBottom: '16px' }}>
-                <Space wrap>
-                  <Tag color={projects.find(p => p.id === viewingTask.project_id)?.color}>
-                    {projects.find(p => p.id === viewingTask.project_id)?.name}
-                  </Tag>
-                  <Tag color={
-                    viewingTask.status === 'done' ? 'success' :
-                    viewingTask.status === 'in_progress' ? 'processing' :
-                    viewingTask.status === 'review' ? 'warning' :
-                    viewingTask.status === 'cancelled' ? 'error' : 'default'
-                  }>
-                    {viewingTask.status === 'todo' ? '待办' :
-                     viewingTask.status === 'in_progress' ? '进行中' :
-                     viewingTask.status === 'review' ? '待审核' :
-                     viewingTask.status === 'done' ? '已完成' : '已取消'}
-                  </Tag>
-                  <Tag color={
-                    viewingTask.priority === 'urgent' ? 'magenta' :
-                    viewingTask.priority === 'high' ? 'red' :
-                    viewingTask.priority === 'medium' ? 'orange' : 'green'
-                  }>
-                    {viewingTask.priority === 'low' ? '低' :
-                     viewingTask.priority === 'medium' ? '中' :
-                     viewingTask.priority === 'high' ? '高' : '紧急'}
-                  </Tag>
-                </Space>
-              </div>
-
-              {viewingTask.description && (
-                <div style={{ marginBottom: '16px' }}>
-                  <strong>描述：</strong>
-                  <div style={{ marginTop: '8px', color: 'rgba(0, 0, 0, 0.65)' }}>
-                    {viewingTask.description}
-                  </div>
-                </div>
-              )}
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                <div>
-                  <strong>截止时间：</strong> {viewingTask.due_date ? dayjs(viewingTask.due_date).format('YYYY-MM-DD') : '无'}
-                </div>
-                <div>
-                  <strong>执行方式：</strong> {viewingTask.is_ai_task ? 'AI执行' : '人工执行'}
-                </div>
-                <div>
-                  <strong>实际工时：</strong> {viewingTask.actual_hours ? `${viewingTask.actual_hours}小时` : '未记录'}
-                </div>
-                <div>
-                  <strong>完成进度：</strong> {viewingTask.completion_rate}%
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <strong>完成进度：</strong>
-                <Progress
-                  percent={viewingTask.completion_rate}
-                  status={viewingTask.completion_rate === 100 ? 'success' : 'active'}
-                  style={{ marginTop: '8px' }}
-                />
-              </div>
-
-              {viewingTask.tags && viewingTask.tags.length > 0 && (
-                <div style={{ marginBottom: '24px' }}>
-                  <strong>标签：</strong>
-                  <div style={{ marginTop: '8px' }}>
-                    {viewingTask.tags.map(tag => (
-                      <Tag key={tag}>{tag}</Tag>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {viewingTask.related_files && viewingTask.related_files.length > 0 && (
-                <div style={{ marginBottom: '24px' }}>
-                  <strong>相关文件：</strong>
-                  <div style={{ marginTop: '8px' }}>
-                    {viewingTask.related_files.map(file => (
-                      <Tag key={file} color="blue">{file}</Tag>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div style={{ marginBottom: '24px' }}>
-                <strong>任务类型：</strong>
-                <Tag color={viewingTask.is_ai_task ? 'purple' : 'default'}>
-                  {viewingTask.is_ai_task ? 'AI任务' : '人工任务'}
-                </Tag>
-              </div>
-            </div>
-
-            <div>
-              <Title level={4}>任务内容</Title>
-              <MarkdownEditor
-                value={viewingTask.content || ''}
-                readOnly
-                height={400}
-                hideToolbar
-                preview="preview"
-              />
-            </div>
-          </div>
-        )}
-      </Drawer>
     </div>
   )
 }

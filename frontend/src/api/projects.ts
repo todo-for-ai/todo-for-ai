@@ -11,6 +11,11 @@ export interface Project {
   created_at: string
   updated_at: string
   created_by: string
+  github_url?: string
+  local_url?: string
+  production_url?: string
+  project_context?: string
+  last_activity_at?: string
   stats?: {
     total_tasks: number
     todo_tasks: number
@@ -24,6 +29,11 @@ export interface CreateProjectData {
   name: string
   description?: string
   color?: string
+  github_url?: string
+  local_url?: string
+  production_url?: string
+  project_context?: string
+  status?: 'active' | 'archived' | 'deleted'
 }
 
 export interface UpdateProjectData {
@@ -31,6 +41,10 @@ export interface UpdateProjectData {
   description?: string
   color?: string
   status?: 'active' | 'archived' | 'deleted'
+  github_url?: string
+  local_url?: string
+  production_url?: string
+  project_context?: string
 }
 
 export interface ProjectQueryParams {
@@ -56,38 +70,38 @@ export class ProjectsApi {
       })
     }
     
-    const url = `/api/projects${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const url = `/projects${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     return api.get<PaginatedResponse<Project>>(url)
   }
 
   // 获取单个项目
   async getProject(id: number) {
-    return api.get<Project>(`/api/projects/${id}`)
+    return api.get<Project>(`/projects/${id}`)
   }
 
   // 创建项目
   async createProject(data: CreateProjectData) {
-    return api.post<Project>('/api/projects', data)
+    return api.post<Project>('/projects', data)
   }
 
   // 更新项目
   async updateProject(id: number, data: UpdateProjectData) {
-    return api.put<Project>(`/api/projects/${id}`, data)
+    return api.put<Project>(`/projects/${id}`, data)
   }
 
   // 删除项目
   async deleteProject(id: number) {
-    return api.delete(`/api/projects/${id}`)
+    return api.delete(`/projects/${id}`)
   }
 
   // 归档项目
   async archiveProject(id: number) {
-    return api.post<Project>(`/api/projects/${id}/archive`)
+    return api.post<Project>(`/projects/${id}/archive`)
   }
 
   // 恢复项目
   async restoreProject(id: number) {
-    return api.post<Project>(`/api/projects/${id}/restore`)
+    return api.post<Project>(`/projects/${id}/restore`)
   }
 
   // 获取项目任务
@@ -97,7 +111,6 @@ export class ProjectsApi {
     search?: string
     status?: string
     priority?: string
-    assignee?: string
     sort_by?: string
     sort_order?: 'asc' | 'desc'
   }) {
@@ -111,13 +124,13 @@ export class ProjectsApi {
       })
     }
     
-    const url = `/api/projects/${id}/tasks${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const url = `/projects/${id}/tasks${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     return api.get(url)
   }
 
   // 获取项目上下文规则
   async getProjectContextRules(id: number) {
-    return api.get(`/api/projects/${id}/context-rules`)
+    return api.get(`/projects/${id}/context-rules`)
   }
 }
 

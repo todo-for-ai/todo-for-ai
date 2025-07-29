@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Typography, Card, Tabs, Form, Input, Button, Switch, Select } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 
@@ -8,6 +9,16 @@ const { Option } = Select
 
 const Settings = () => {
   const [form] = Form.useForm()
+
+  // 设置网页标题
+  useEffect(() => {
+    document.title = '系统设置 - Todo for AI'
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [])
 
   const onFinish = (values: any) => {
     console.log('Settings saved:', values)

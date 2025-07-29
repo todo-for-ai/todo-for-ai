@@ -64,8 +64,8 @@ start_frontend() {
     if [ ! -f ".env" ]; then
         echo "⚠️  .env 文件不存在，创建默认配置..."
         cat > .env << EOF
-VITE_API_BASE_URL=http://localhost:5000
-VITE_MCP_SERVER_URL=http://localhost:8080
+VITE_API_BASE_URL=http://localhost:50110/todo-for-ai/api/v1
+VITE_MCP_SERVER_URL=http://localhost:50110
 VITE_APP_TITLE=Todo for AI
 VITE_APP_VERSION=1.0.0
 VITE_DEV_MODE=true

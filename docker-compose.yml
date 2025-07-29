@@ -48,9 +48,9 @@ services:
       - DATABASE_URL=mysql://todo_user:todo_password@mysql:3306/todo_for_ai
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=your-secret-key-here
-      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+      - CORS_ORIGINS=http://localhost:50111,http://localhost:50112
     ports:
-      - "5000:5000"
+      - "50110:50110"
     volumes:
       - ./backend/uploads:/app/uploads
       - ./logs:/app/logs
@@ -62,7 +62,7 @@ services:
       redis:
         condition: service_started
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:50110/todo-for-ai/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -77,60 +77,60 @@ export class TasksApi {
       })
     }
     
-    const url = `/api/tasks${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const url = `/tasks${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     return api.get<PaginatedResponse<Task>>(url)
   }
 
   // 获取单个任务
   async getTask(id: number) {
-    return api.get<Task>(`/api/tasks/${id}`)
+    return api.get<Task>(`/tasks/${id}`)
   }
 
   // 创建任务
   async createTask(data: CreateTaskData) {
-    return api.post<Task>('/api/tasks', data)
+    return api.post<Task>('/tasks', data)
   }
 
   // 更新任务
   async updateTask(id: number, data: UpdateTaskData) {
-    return api.put<Task>(`/api/tasks/${id}`, data)
+    return api.put<Task>(`/tasks/${id}`, data)
   }
 
   // 删除任务
   async deleteTask(id: number) {
-    return api.delete(`/api/tasks/${id}`)
+    return api.delete(`/tasks/${id}`)
   }
 
   // 更新任务状态
   async updateTaskStatus(id: number, status: Task['status']) {
-    return api.put<Task>(`/api/tasks/${id}`, { status })
+    return api.put<Task>(`/tasks/${id}`, { status })
   }
 
   // 更新任务进度
   async updateTaskProgress(id: number, completion_rate: number) {
-    return api.put<Task>(`/api/tasks/${id}`, { completion_rate })
+    return api.put<Task>(`/tasks/${id}`, { completion_rate })
   }
 
 
 
   // 获取任务历史
   async getTaskHistory(id: number) {
-    return api.get(`/api/tasks/${id}/history`)
+    return api.get(`/tasks/${id}/history`)
   }
 
   // 获取任务附件
   async getTaskAttachments(id: number) {
-    return api.get(`/api/tasks/${id}/attachments`)
+    return api.get(`/tasks/${id}/attachments`)
   }
 
   // 上传任务附件
   async uploadTaskAttachment(id: number, file: File, onProgress?: (progress: number) => void) {
-    return api.upload(`/api/tasks/${id}/attachments`, file, onProgress)
+    return api.upload(`/tasks/${id}/attachments`, file, onProgress)
   }
 
   // 删除任务附件
   async deleteTaskAttachment(taskId: number, attachmentId: number) {
-    return api.delete(`/api/tasks/${taskId}/attachments/${attachmentId}`)
+    return api.delete(`/tasks/${taskId}/attachments/${attachmentId}`)
   }
 }
 

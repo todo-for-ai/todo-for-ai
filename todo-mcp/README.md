@@ -37,7 +37,7 @@ Create a `.env` file or set environment variables:
 
 ```bash
 # Required: Todo API base URL
-TODO_API_BASE_URL=http://localhost:50110
+TODO_API_BASE_URL=http://localhost:50110/todo-for-ai/api/v1
 
 # Optional: API timeout in milliseconds (default: 10000)
 TODO_API_TIMEOUT=10000

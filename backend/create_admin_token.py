@@ -9,12 +9,16 @@ import os
 # 添加当前目录到Python路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-import app as app_module
+import importlib.util
+spec = importlib.util.spec_from_file_location("app_module", "app.py")
+app_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(app_module)
+
 from models import db, ApiToken
 
 def create_admin_token():
     """创建管理员Token"""
-    app = app_module.app
+    app = app_module.create_app()
     
     with app.app_context():
         try:

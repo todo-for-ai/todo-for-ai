@@ -16,7 +16,7 @@ RUN npm ci --only=production
 COPY . .
 
 # 构建参数
-ARG VITE_API_BASE_URL=http://localhost:5000
+ARG VITE_API_BASE_URL=http://localhost:50110/todo-for-ai/api/v1
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # 构建应用

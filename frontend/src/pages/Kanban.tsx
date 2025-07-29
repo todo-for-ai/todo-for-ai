@@ -28,6 +28,22 @@ const Kanban = () => {
     fetchProjects()
   }, [fetchProjects])
 
+  // 设置网页标题
+  useEffect(() => {
+    if (selectedProjectId && projects.length > 0) {
+      const project = projects.find(p => p.id === selectedProjectId)
+      const projectName = project?.name || '未知项目'
+      document.title = `${projectName} - 看板视图 - Todo for AI`
+    } else {
+      document.title = '看板视图 - Todo for AI'
+    }
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [selectedProjectId, projects])
+
   const handleProjectChange = (projectId: number) => {
     setSelectedProjectId(projectId)
   }

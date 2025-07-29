@@ -13,7 +13,9 @@ import {
   message,
   Row,
   Col,
-  Divider
+  Divider,
+  Popconfirm,
+  Select
 } from 'antd'
 import {
   EditOutlined,
@@ -22,12 +24,16 @@ import {
   HomeOutlined,
   CopyOutlined,
   BranchesOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  PlusOutlined,
+  LeftOutlined,
+  RightOutlined
 } from '@ant-design/icons'
 import { useTaskStore, useProjectStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
 import type { Task } from '../api/tasks'
 import dayjs from 'dayjs'
+import styles from './TaskDetail.module.css'
 
 const { Title, Paragraph } = Typography
 
@@ -36,8 +42,9 @@ const TaskDetail: React.FC = () => {
   const navigate = useNavigate()
   const [task, setTask] = useState<Task | null>(null)
   const [loading, setLoading] = useState(true)
-  
-  const { getTask, deleteTask } = useTaskStore()
+  const [projectTasks, setProjectTasks] = useState<Task[]>([])
+
+  const { getTask, deleteTask, fetchTasks } = useTaskStore()
   const { projects } = useProjectStore()
 
   useEffect(() => {
@@ -46,20 +53,71 @@ const TaskDetail: React.FC = () => {
     }
   }, [id])
 
+  // 设置网页标题
+  useEffect(() => {
+    if (task && projects.length > 0) {
+      const project = projects.find(p => p.id === task.project_id)
+      const projectName = project?.name || '未知项目'
+      document.title = `${projectName} - 任务详情 - Todo for AI`
+    }
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [task, projects])
+
+  // 键盘快捷键支持
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // 只在没有焦点在输入框时响应快捷键
+      if (event.target instanceof HTMLInputElement ||
+          event.target instanceof HTMLTextAreaElement ||
+          event.target instanceof HTMLSelectElement) {
+        return
+      }
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault()
+          handlePreviousTask()
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          handleNextTask()
+          break
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [projectTasks, task])
+
   const loadTask = async (taskId: number) => {
     try {
       setLoading(true)
       const result = await getTask(taskId)
       if (result) {
         setTask(result)
+        // 加载同项目的所有任务，用于上一个/下一个任务导航
+        const projectTasksResult = await fetchTasks({
+          project_id: result.project_id,
+          sort_by: 'created_at',
+          sort_order: 'desc'
+        })
+        if (projectTasksResult) {
+          setProjectTasks(projectTasksResult)
+        }
       } else {
         message.error('任务不存在')
-        navigate('/tasks')
+        navigate('/todo-for-ai/pages/tasks')
       }
     } catch (error) {
       console.error('加载任务失败:', error)
       message.error('加载任务失败')
-      navigate('/tasks')
+      navigate('/todo-for-ai/pages/tasks')
     } finally {
       setLoading(false)
     }
@@ -67,42 +125,174 @@ const TaskDetail: React.FC = () => {
 
   const handleEdit = () => {
     if (task) {
-      navigate(`/tasks/${task.id}/edit`)
+      navigate(`/todo-for-ai/pages/tasks/${task.id}/edit`)
     }
   }
 
   const handleDelete = async () => {
     if (!task) return
-    
+
     try {
       await deleteTask(task.id)
       message.success('任务删除成功')
-      navigate('/tasks')
+      navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)
     } catch (error) {
       console.error('删除任务失败:', error)
       message.error('删除任务失败')
     }
   }
 
-  const handleCopyPrompt = () => {
+  // 获取当前任务在项目任务列表中的索引
+  const getCurrentTaskIndex = () => {
+    if (!task || !projectTasks.length) return -1
+    return projectTasks.findIndex(t => t.id === task.id)
+  }
+
+  // 上一个任务
+  const handlePreviousTask = () => {
+    const currentIndex = getCurrentTaskIndex()
+    if (currentIndex > 0) {
+      const previousTask = projectTasks[currentIndex - 1]
+      navigate(`/todo-for-ai/pages/tasks/${previousTask.id}`)
+    }
+  }
+
+  // 下一个任务
+  const handleNextTask = () => {
+    const currentIndex = getCurrentTaskIndex()
+    if (currentIndex >= 0 && currentIndex < projectTasks.length - 1) {
+      const nextTask = projectTasks[currentIndex + 1]
+      navigate(`/todo-for-ai/pages/tasks/${nextTask.id}`)
+    }
+  }
+
+  // 创建新任务
+  const handleCreateTask = () => {
+    if (task) {
+      navigate(`/todo-for-ai/pages/tasks/create?project_id=${task.project_id}`)
+    }
+  }
+
+  // 修改任务状态
+  const handleStatusChange = async (newStatus: string) => {
     if (!task) return
-    
-    const project = projects.find(p => p.id === task.project_id)
-    const prompt = `请执行以下任务：
 
-项目：${project?.name || '未知项目'}
-任务：${task.title}
-描述：${task.description || '无'}
-优先级：${task.priority}
-截止时间：${task.due_date ? dayjs(task.due_date).format('YYYY-MM-DD') : '无'}
+    try {
+      // 这里需要调用更新任务状态的API
+      // 暂时使用updateTask方法，需要确保后端支持
+      const { updateTask } = useTaskStore.getState()
+      await updateTask(task.id, { status: newStatus })
 
-任务详细内容：
-${task.content || '无详细内容'}
+      // 更新本地状态
+      setTask({ ...task, status: newStatus })
+      message.success('任务状态已更新')
+    } catch (error) {
+      console.error('更新任务状态失败:', error)
+      message.error('更新任务状态失败')
+    }
+  }
 
-请根据以上信息完成任务，并在完成后提供详细的执行报告。`
+  // 复制MCP执行任务的提示词
+  const handleCopyMCPPrompt = () => {
+    if (!task) return
+
+    const prompt = `请使用todo-for-ai MCP工具获取任务ID为${task.id}的详细信息，然后执行这个任务，完成后提交任务反馈报告。`
 
     navigator.clipboard.writeText(prompt).then(() => {
-      message.success('AI执行提示词已复制到剪贴板')
+      message.success('MCP执行任务提示词已复制到剪贴板')
+    }).catch(() => {
+      message.error('复制失败，请手动复制')
+    })
+  }
+
+  // 复制AI助手执行任务的详细提示词
+  const handleCopyAIPrompt = () => {
+    if (!task) return
+
+    const project = projects.find(p => p.id === task.project_id)
+    const prompt = `请帮我执行以下任务，这是一个完整的任务信息：
+
+**项目信息**：
+- 项目名称：${project?.name || '未知项目'}
+- 任务ID：${task.id}
+- 任务标题：${task.title}
+- 任务描述：${task.description || '无'}
+- 优先级：${task.priority}
+- 截止时间：${task.due_date ? dayjs(task.due_date).format('YYYY-MM-DD') : '无'}
+
+**任务详细内容**：
+${task.content || '无详细内容'}
+
+**执行要求**：
+请仔细阅读任务内容，按照要求完成任务，并在完成后提供详细的执行报告和结果说明。`
+
+    navigator.clipboard.writeText(prompt).then(() => {
+      message.success('AI助手执行任务提示词已复制到剪贴板')
+    }).catch(() => {
+      message.error('复制失败')
+    })
+  }
+
+  // 复制任务完成确认提示词
+  const handleCopyTaskCompletionPrompt = () => {
+    if (!task) return
+
+    const prompt = `请检查并确认任务ID为${task.id}的任务执行状态：
+
+**任务信息**：
+- 任务ID：${task.id}
+- 任务标题：${task.title}
+- 当前状态：${task.status}
+- 完成进度：${task.completion_rate || 0}%
+
+**检查要求**：
+1. 仔细检查任务是否已经完全完成
+2. 如果任务已完成：
+   - 使用MCP工具将任务状态更新为"已完成"(done)
+   - 设置完成进度为100%
+   - 提交详细的任务完成报告
+3. 如果任务未完成：
+   - 继续执行任务内容直到完成
+   - 确保所有要求都已满足
+   - 完成后再次运行此检查
+
+**任务详细内容**：
+${task.content || '无详细内容'}
+
+请开始检查并执行相应操作。`
+
+    navigator.clipboard.writeText(prompt).then(() => {
+      message.success('任务完成确认提示词已复制到剪贴板')
+    }).catch(() => {
+      message.error('复制失败')
+    })
+  }
+
+  // 复制快速完成任务提示词
+  const handleCopyQuickCompletePrompt = () => {
+    if (!task) return
+
+    const prompt = `请立即执行并完成任务ID为${task.id}的任务，完成后直接关闭：
+
+**任务信息**：
+- 任务ID：${task.id}
+- 任务标题：${task.title}
+- 优先级：${task.priority}
+
+**任务内容**：
+${task.content || '无详细内容'}
+
+**执行要求**：
+1. 立即开始执行上述任务内容
+2. 完成所有要求的工作
+3. 使用MCP工具将任务状态更新为"已完成"(done)
+4. 设置完成进度为100%
+5. 提交简要的完成报告
+
+请开始执行并在完成后立即关闭任务。`
+
+    navigator.clipboard.writeText(prompt).then(() => {
+      message.success('快速完成任务提示词已复制到剪贴板')
     }).catch(() => {
       message.error('复制失败')
     })
@@ -150,6 +340,29 @@ ${task.content || '无详细内容'}
     return texts[priority as keyof typeof texts] || priority
   }
 
+  const getStatusTag = (status: string) => {
+    const statusConfig = {
+      todo: { color: 'default', text: '待办' },
+      in_progress: { color: 'processing', text: '进行中' },
+      review: { color: 'warning', text: '待审核' },
+      done: { color: 'success', text: '已完成' },
+      cancelled: { color: 'error', text: '已取消' }
+    }
+    const config = statusConfig[status as keyof typeof statusConfig] || { color: 'default', text: status }
+    return <Tag color={config.color}>{config.text}</Tag>
+  }
+
+  const getPriorityTag = (priority: string) => {
+    const priorityConfig = {
+      low: { color: 'green', text: '低优先级' },
+      medium: { color: 'blue', text: '中优先级' },
+      high: { color: 'orange', text: '高优先级' },
+      urgent: { color: 'red', text: '紧急' }
+    }
+    const config = priorityConfig[priority as keyof typeof priorityConfig] || { color: 'blue', text: priority }
+    return <Tag color={config.color}>{config.text}</Tag>
+  }
+
   if (loading) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
@@ -162,7 +375,7 @@ ${task.content || '无详细内容'}
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
         <Title level={3}>任务不存在</Title>
-        <Button type="primary" onClick={() => navigate('/tasks')}>
+        <Button type="primary" onClick={() => navigate('/todo-for-ai/pages/tasks')}>
           返回任务列表
         </Button>
       </div>
@@ -172,72 +385,256 @@ ${task.content || '无详细内容'}
   const project = projects.find(p => p.id === task.project_id)
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* 面包屑导航 */}
-      <Breadcrumb style={{ marginBottom: '24px' }}>
-        <Breadcrumb.Item>
-          <HomeOutlined />
-          <span onClick={() => navigate('/')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
-            首页
-          </span>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <span onClick={() => navigate('/tasks')} style={{ cursor: 'pointer' }}>
-            任务管理
-          </span>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>{task.title}</Breadcrumb.Item>
-      </Breadcrumb>
+    <div className={styles.taskDetailContainer}>
+      {/* 顶部导航栏 */}
+      <Card className={styles.topNavCard} style={{ marginBottom: '16px' }}>
+        <Row justify="space-between" align="middle">
+          <Col>
+            {/* 左上角：上一个任务按钮 */}
+            <Button
+              icon={<LeftOutlined />}
+              onClick={handlePreviousTask}
+              disabled={getCurrentTaskIndex() <= 0}
+              title="上一个任务 (←键)"
+            >
+              上一个任务
+            </Button>
+          </Col>
+          <Col>
+            {/* 中间：面包屑导航 */}
+            <Breadcrumb>
+              <Breadcrumb.Item>
+                <HomeOutlined />
+                <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
+                  首页
+                </span>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>
+                <span
+                  onClick={() => navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  项目任务列表
+                </span>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>{task.title}</Breadcrumb.Item>
+            </Breadcrumb>
+          </Col>
+          <Col>
+            {/* 右上角：返回项目任务列表 + 下一个任务按钮 */}
+            <Space>
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)}
+              >
+                返回项目任务列表
+              </Button>
+              <Button
+                icon={<RightOutlined />}
+                onClick={handleNextTask}
+                disabled={getCurrentTaskIndex() >= projectTasks.length - 1 || getCurrentTaskIndex() === -1}
+                title="下一个任务 (→键)"
+              >
+                下一个任务
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+      </Card>
 
-      {/* 页面标题和操作 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-        <div style={{ flex: 1 }}>
-          <Title level={2}>
-            <FileTextOutlined style={{ marginRight: '12px' }} />
-            {task.title}
-          </Title>
-          {task.description && (
-            <Paragraph type="secondary" style={{ fontSize: '16px' }}>
-              {task.description}
-            </Paragraph>
-          )}
-        </div>
+      {/* 页面标题和状态 */}
+      <Card className={styles.titleCard}>
+        <Row gutter={[24, 16]} align="middle">
+          <Col flex="auto">
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              {/* 任务ID徽标 */}
+              <div style={{
+                backgroundColor: '#1890ff',
+                color: 'white',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                marginRight: '12px',
+                minWidth: '40px',
+                textAlign: 'center'
+              }}>
+                #{task.id}
+              </div>
+              <FileTextOutlined className={styles.titleIcon} />
+              <Title level={2} className={styles.titleText}>
+                {task.title}
+              </Title>
+              <div style={{ marginLeft: '16px' }}>
+                {getStatusTag(task.status)}
+              </div>
+            </div>
+            {task.description && (
+              <Paragraph type="secondary" className={styles.titleDescription}>
+                {task.description}
+              </Paragraph>
+            )}
+          </Col>
+          <Col>
+            <div className={styles.statusProgress}>
+              {getPriorityTag(task.priority)}
+              <Progress
+                type="circle"
+                size={60}
+                percent={task.completion_rate || 0}
+                status={task.status === 'done' ? 'success' : 'active'}
+                strokeWidth={8}
+                className={styles.circleProgress}
+              />
+            </div>
+          </Col>
+        </Row>
+      </Card>
         
-        <Space>
-          <Button
-            icon={<CopyOutlined />}
-            onClick={handleCopyPrompt}
-            title="复制AI执行提示词"
-          >
-            复制Prompt
-          </Button>
-          <Button
-            icon={<EditOutlined />}
-            onClick={handleEdit}
-          >
-            编辑
-          </Button>
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={handleDelete}
-          >
-            删除
-          </Button>
-          <Button
-            icon={<ArrowLeftOutlined />}
-            onClick={() => navigate('/tasks')}
-          >
-            返回
-          </Button>
-        </Space>
-      </div>
+      {/* 操作按钮组 */}
+      <Card className={styles.actionCard}>
+        <Row gutter={[16, 16]} className={styles.actionGrid}>
+          {/* 任务状态快捷修改 */}
+          <Col xs={24} sm={12} md={8} className={styles.actionCol}>
+            <div className={styles.actionSection}>任务状态</div>
+            <Select
+              value={task.status}
+              onChange={handleStatusChange}
+              style={{ width: '100%' }}
+              placeholder="选择任务状态"
+            >
+              <Select.Option value="todo">待办</Select.Option>
+              <Select.Option value="in_progress">进行中</Select.Option>
+              <Select.Option value="review">待审核</Select.Option>
+              <Select.Option value="done">已完成</Select.Option>
+            </Select>
+          </Col>
 
-      <Row gutter={24}>
-        <Col xs={24} lg={8}>
-          {/* 任务信息 */}
-          <Card title="任务信息" style={{ marginBottom: '24px' }}>
-            <Descriptions column={1} size="small">
+          {/* 主要操作 */}
+          <Col xs={24} sm={12} md={8} className={styles.actionCol}>
+            <div className={styles.actionSection}>主要操作</div>
+            <Space>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleCreateTask}
+              >
+                创建任务
+              </Button>
+              <Button
+                icon={<EditOutlined />}
+                onClick={handleEdit}
+              >
+                编辑
+              </Button>
+            </Space>
+          </Col>
+
+          {/* 删除操作 */}
+          <Col xs={24} sm={12} md={8} className={styles.actionCol}>
+            <div className={styles.actionSection}>危险操作</div>
+            <Popconfirm
+              title="确定要删除这个任务吗？"
+              description="删除后无法恢复，请谨慎操作。"
+              onConfirm={handleDelete}
+              okText="确定"
+              cancelText="取消"
+            >
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+              >
+                删除任务
+              </Button>
+            </Popconfirm>
+          </Col>
+        </Row>
+      </Card>
+
+      {/* 复制提示词面板 */}
+      <Card className={styles.actionCard}>
+        <Title level={4} style={{ marginBottom: '16px', color: '#1890ff' }}>
+          <CopyOutlined style={{ marginRight: '8px' }} />
+          复制提示词工具
+        </Title>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={6}>
+            <div className={styles.actionSection}>MCP工具执行</div>
+            <Button
+              icon={<CopyOutlined />}
+              onClick={handleCopyMCPPrompt}
+              block
+              title="复制MCP工具执行任务的提示词，适用于支持MCP协议的AI助手"
+            >
+              复制MCP工具执行提示词
+            </Button>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              使用MCP工具自动获取任务信息并执行，适用于Claude等支持MCP的AI助手
+            </div>
+          </Col>
+
+          <Col xs={24} sm={12} md={6}>
+            <div className={styles.actionSection}>通用AI助手执行</div>
+            <Button
+              icon={<CopyOutlined />}
+              onClick={handleCopyAIPrompt}
+              block
+              title="复制包含完整任务信息的执行提示词，适用于所有AI助手"
+            >
+              复制完整任务执行提示词
+            </Button>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              包含完整任务信息和执行要求，适用于ChatGPT、Claude等所有AI助手
+            </div>
+          </Col>
+
+          <Col xs={24} sm={12} md={6}>
+            <div className={styles.actionSection}>任务完成检查</div>
+            <Button
+              icon={<CopyOutlined />}
+              onClick={handleCopyTaskCompletionPrompt}
+              block
+              type="primary"
+              title="复制任务完成检查和关闭的提示词"
+            >
+              复制任务完成检查提示词
+            </Button>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              检查任务是否完成，如果完成则自动关闭任务并提交报告
+            </div>
+          </Col>
+
+          <Col xs={24} sm={12} md={6}>
+            <div className={styles.actionSection}>一键完成任务</div>
+            <Button
+              icon={<CopyOutlined />}
+              onClick={handleCopyQuickCompletePrompt}
+              block
+              type="primary"
+              danger
+              title="复制快速完成并关闭任务的提示词"
+            >
+              复制快速完成任务提示词
+            </Button>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              直接执行任务并在完成后立即关闭，适合简单快速的任务
+            </div>
+          </Col>
+        </Row>
+      </Card>
+
+      {/* 任务信息 */}
+      <Card className={styles.infoCard}>
+        <Title level={3} className={styles.infoTitle}>任务信息</Title>
+        <Descriptions
+          column={{ xs: 1, sm: 2, md: 3 }}
+          size="middle"
+          bordered
+          styles={{
+            label: { fontWeight: 500, backgroundColor: '#fafafa' },
+            content: { backgroundColor: '#fff' }
+          }}
+        >
               <Descriptions.Item label="所属项目">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {project && (
@@ -264,14 +661,8 @@ ${task.content || '无详细内容'}
                   {getPriorityText(task.priority)}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="分配给">
-                {task.assignee || '-'}
-              </Descriptions.Item>
               <Descriptions.Item label="截止时间">
                 {task.due_date ? dayjs(task.due_date).format('YYYY-MM-DD') : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="预估工时">
-                {task.estimated_hours ? `${task.estimated_hours} 小时` : '-'}
               </Descriptions.Item>
               <Descriptions.Item label="实际工时">
                 {task.actual_hours ? `${task.actual_hours} 小时` : '-'}
@@ -294,43 +685,41 @@ ${task.content || '无详细内容'}
               </Descriptions.Item>
             </Descriptions>
 
-            {task.tags && task.tags.length > 0 && (
-              <>
-                <Divider />
-                <div>
-                  <strong>标签：</strong>
-                  <div style={{ marginTop: '8px' }}>
-                    {task.tags.map((tag, index) => (
-                      <Tag key={index} style={{ marginBottom: '4px' }}>
-                        {tag}
-                      </Tag>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </Card>
-        </Col>
+        {task.tags && task.tags.length > 0 && (
+          <div className={styles.tagsContainer}>
+            <div className={styles.tagsLabel}>标签</div>
+            <div>
+              {task.tags.map((tag, index) => (
+                <Tag key={index} color="blue" style={{ marginBottom: '4px', marginRight: '8px' }}>
+                  {tag}
+                </Tag>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
 
-        <Col xs={24} lg={16}>
-          {/* 任务内容 */}
-          <Card title="任务内容" style={{ marginBottom: '24px' }}>
-            {task.content ? (
-              <MarkdownEditor
-                value={task.content}
-                readOnly
-                height={600}
-                hideToolbar
-                preview="preview"
-              />
-            ) : (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                暂无详细内容
-              </div>
-            )}
-          </Card>
-        </Col>
-      </Row>
+      {/* 任务内容 */}
+      <Card className={styles.contentCard}>
+        <Title level={3} className={styles.contentTitle}>任务内容</Title>
+        {task.content ? (
+          <div className={styles.markdownContainer}>
+            <MarkdownEditor
+              value={task.content}
+              readOnly
+              height={600}
+              hideToolbar
+              preview="preview"
+            />
+          </div>
+        ) : (
+          <div className={styles.emptyContent}>
+            <FileTextOutlined className={styles.emptyIcon} />
+            <div className={styles.emptyTitle}>暂无详细内容</div>
+            <div className={styles.emptySubtitle}>点击编辑按钮添加任务内容</div>
+          </div>
+        )}
+      </Card>
     </div>
   )
 }

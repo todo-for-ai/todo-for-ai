@@ -64,69 +64,69 @@ export class ContextRulesApi {
       })
     }
     
-    const url = `/api/context-rules${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const url = `/context-rules${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     return api.get<PaginatedResponse<ContextRule>>(url)
   }
 
   // 获取单个上下文规则
   async getContextRule(id: number) {
-    return api.get<ContextRule>(`/api/context-rules/${id}`)
+    return api.get<ContextRule>(`/context-rules/${id}`)
   }
 
   // 创建上下文规则
   async createContextRule(data: CreateContextRuleData) {
-    return api.post<ContextRule>('/api/context-rules', data)
+    return api.post<ContextRule>('/context-rules', data)
   }
 
   // 更新上下文规则
   async updateContextRule(id: number, data: UpdateContextRuleData) {
-    return api.put<ContextRule>(`/api/context-rules/${id}`, data)
+    return api.put<ContextRule>(`/context-rules/${id}`, data)
   }
 
   // 删除上下文规则
   async deleteContextRule(id: number) {
-    return api.delete(`/api/context-rules/${id}`)
+    return api.delete(`/context-rules/${id}`)
   }
 
   // 切换上下文规则状态
   async toggleContextRule(id: number, is_active: boolean) {
-    return api.put<ContextRule>(`/api/context-rules/${id}`, { is_active })
+    return api.put<ContextRule>(`/context-rules/${id}`, { is_active })
   }
 
   // 获取项目的上下文规则
   async getProjectContextRules(projectId: number) {
-    return api.get<ContextRule[]>(`/api/projects/${projectId}/context-rules`)
+    return api.get<ContextRule[]>(`/projects/${projectId}/context-rules`)
   }
 
   // 获取全局上下文规则
   async getGlobalContextRules() {
-    return api.get<ContextRule[]>('/api/context-rules/global')
+    return api.get<ContextRule[]>('/context-rules/global')
   }
 
   // 获取合并后的上下文规则（用于AI）
   async getMergedContextRules(projectId?: number) {
-    const url = projectId 
-      ? `/api/context-rules/merged?project_id=${projectId}`
-      : '/api/context-rules/merged'
+    const url = projectId
+      ? `/context-rules/merged?project_id=${projectId}`
+      : '/context-rules/merged'
     return api.get<{ content: string; rules: ContextRule[] }>(url)
   }
 
   // 预览合并后的上下文规则
   async previewMergedRules(projectId?: number) {
-    const url = projectId 
-      ? `/api/context-rules/preview?project_id=${projectId}`
-      : '/api/context-rules/preview'
+    const url = projectId
+      ? `/context-rules/preview?project_id=${projectId}`
+      : '/context-rules/preview'
     return api.get<{ content: string; rules: ContextRule[] }>(url)
   }
 
   // 复制上下文规则
   async copyContextRule(id: number, data: { name: string; project_id?: number }) {
-    return api.post<ContextRule>(`/api/context-rules/${id}/copy`, data)
+    return api.post<ContextRule>(`/context-rules/${id}/copy`, data)
   }
 
   // 导入上下文规则
   async importContextRules(file: File) {
-    return api.upload('/api/context-rules/import', file)
+    return api.upload('/context-rules/import', file)
   }
 
   // 导出上下文规则
@@ -141,7 +141,7 @@ export class ContextRulesApi {
       })
     }
     
-    const url = `/api/context-rules/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const url = `/context-rules/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     return api.download(url, 'context-rules.json')
   }
 }

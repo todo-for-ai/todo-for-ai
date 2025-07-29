@@ -23,7 +23,8 @@ import {
   PlusOutlined
 } from '@ant-design/icons'
 import { useTaskStore, useProjectStore } from '../stores'
-import { MarkdownEditor } from '../components/MarkdownEditor'
+import MilkdownEditor from '../components/MilkdownEditor'
+
 import type { CreateTaskData } from '../api/tasks'
 import dayjs from 'dayjs'
 
@@ -44,6 +45,46 @@ const CreateTask: React.FC = () => {
   // 从URL参数获取默认项目ID
   const defaultProjectId = searchParams.get('project_id')
 
+  // 实时保存草稿功能
+  const getDraftKey = (projectId: number) => `task-draft-${projectId}`
+
+  const saveDraft = (projectId: number, formData: any) => {
+    try {
+      const draftKey = getDraftKey(projectId)
+      localStorage.setItem(draftKey, JSON.stringify({
+        ...formData,
+        savedAt: new Date().toISOString()
+      }))
+    } catch (error) {
+      console.warn('Failed to save draft:', error)
+    }
+  }
+
+  const loadDraft = (projectId: number) => {
+    try {
+      const draftKey = getDraftKey(projectId)
+      const saved = localStorage.getItem(draftKey)
+      if (saved) {
+        const draft = JSON.parse(saved)
+        // 移除savedAt字段，只返回表单数据
+        const { savedAt, ...formData } = draft
+        return formData
+      }
+    } catch (error) {
+      console.warn('Failed to load draft:', error)
+    }
+    return null
+  }
+
+  const clearDraft = (projectId: number) => {
+    try {
+      const draftKey = getDraftKey(projectId)
+      localStorage.removeItem(draftKey)
+    } catch (error) {
+      console.warn('Failed to clear draft:', error)
+    }
+  }
+
   useEffect(() => {
     fetchProjects()
 
@@ -54,12 +95,45 @@ const CreateTask: React.FC = () => {
     } else {
       // 设置默认项目
       if (defaultProjectId) {
-        form.setFieldsValue({
-          project_id: parseInt(defaultProjectId, 10)
-        })
+        const projectId = parseInt(defaultProjectId, 10)
+
+        // 尝试加载草稿
+        const draft = loadDraft(projectId)
+        if (draft) {
+          form.setFieldsValue({
+            project_id: projectId,
+            ...draft
+          })
+          message.info('已加载上次保存的草稿')
+        } else {
+          form.setFieldsValue({
+            project_id: projectId
+          })
+        }
       }
     }
   }, [fetchProjects, defaultProjectId, form, id])
+
+  // 设置网页标题
+  useEffect(() => {
+    const projectId = form.getFieldValue('project_id') || defaultProjectId
+    if (projectId && projects.length > 0) {
+      const project = projects.find(p => p.id === parseInt(projectId, 10))
+      const projectName = project?.name || '未知项目'
+      const pageTitle = isEditMode ? '编辑任务' : '创建任务'
+      document.title = `${projectName} - ${pageTitle} - Todo for AI`
+    } else {
+      const pageTitle = isEditMode ? '编辑任务' : '创建任务'
+      document.title = `${pageTitle} - Todo for AI`
+    }
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [projects, isEditMode, form, defaultProjectId])
+
+
 
   const loadTask = async (taskId: number) => {
     try {
@@ -78,12 +152,12 @@ const CreateTask: React.FC = () => {
         })
       } else {
         message.error('任务不存在')
-        navigate('/tasks')
+        navigate('/todo-for-ai/pages/tasks')
       }
     } catch (error) {
       console.error('加载任务失败:', error)
       message.error('加载任务失败')
-      navigate('/tasks')
+      navigate('/todo-for-ai/pages/tasks')
     } finally {
       setLoading(false)
     }
@@ -110,13 +184,17 @@ const CreateTask: React.FC = () => {
         result = await updateTask(parseInt(id, 10), taskData)
         if (result) {
           message.success('任务更新成功')
-          navigate(`/tasks/${id}`)
+          navigate(`/todo-for-ai/pages/tasks/${id}`)
         }
       } else {
         result = await createTask(taskData as CreateTaskData)
         if (result) {
+          // 清除草稿
+          if (taskData.project_id) {
+            clearDraft(taskData.project_id)
+          }
           message.success('任务创建成功')
-          navigate(`/tasks/${result.id}`)
+          navigate(`/todo-for-ai/pages/tasks/${result.id}`)
         }
       }
     } catch (error) {
@@ -137,13 +215,23 @@ const CreateTask: React.FC = () => {
       <Breadcrumb style={{ marginBottom: '24px' }}>
         <Breadcrumb.Item>
           <HomeOutlined />
-          <span onClick={() => navigate('/')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
+          <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
             首页
           </span>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          <span onClick={() => navigate('/tasks')} style={{ cursor: 'pointer' }}>
-            任务管理
+          <span
+            onClick={() => {
+              const projectId = form.getFieldValue('project_id') || defaultProjectId
+              if (projectId) {
+                navigate(`/todo-for-ai/pages/projects/${projectId}?tab=tasks`)
+              } else {
+                navigate('/todo-for-ai/pages/projects')
+              }
+            }}
+            style={{ cursor: 'pointer' }}
+          >
+            项目任务列表
           </span>
         </Breadcrumb.Item>
         <Breadcrumb.Item>{isEditMode ? '编辑任务' : '新建任务'}</Breadcrumb.Item>
@@ -171,6 +259,20 @@ const CreateTask: React.FC = () => {
             is_ai_task: true, // 默认选中分配给AI
           }}
           onFinish={handleSubmit}
+          onValuesChange={(changedValues, allValues) => {
+            // 实时保存草稿（仅在新建模式下）
+            if (!isEditMode && allValues.project_id) {
+              saveDraft(allValues.project_id, {
+                title: allValues.title,
+                content: allValues.content,
+                status: allValues.status,
+                priority: allValues.priority,
+                due_date: allValues.due_date,
+                tags: allValues.tags,
+                is_ai_task: allValues.is_ai_task
+              })
+            }
+          }}
         >
           {/* 主要内容区域 - 居中布局 */}
           <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -224,13 +326,11 @@ const CreateTask: React.FC = () => {
             <Card
               title={
                 <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1890ff' }}>
-                  📝 任务内容 (重点区域)
+                  📝 任务内容
                 </div>
               }
               style={{
-                marginBottom: '16px',
-                border: '2px solid #1890ff',
-                borderRadius: '8px'
+                marginBottom: '16px'
               }}
             >
               <Form.Item
@@ -238,18 +338,14 @@ const CreateTask: React.FC = () => {
                 tooltip="支持Markdown格式，详细描述任务内容、需求和说明"
                 rules={[{ required: true, message: '请输入任务内容' }]}
               >
-                <MarkdownEditor
-                  placeholder="请详细描述任务内容（支持Markdown格式）...
-
-这里是任务的核心内容区域，请详细描述：
-- 任务的具体要求
-- 需要完成的功能
-- 相关的技术细节
-- 预期的结果
-
-支持Markdown格式，可以使用标题、列表、代码块等格式化内容。"
-                  height={700}
+                <MilkdownEditor
+                  value={form.getFieldValue('content') || ''}
+                  onChange={(value) => form.setFieldsValue({ content: value || '' })}
+                  autoHeight={true}
+                  minHeight={300}
+                  maxHeight={800}
                   preview="live"
+                  hideToolbar={false}
                 />
               </Form.Item>
             </Card>

@@ -31,7 +31,15 @@
     "directory": "todo-mcp"
   },
   "dependencies": {
+    "@milkdown/core": "^7.15.2",
+    "@milkdown/ctx": "^7.15.2",
+    "@milkdown/plugin-listener": "^7.15.2",
+    "@milkdown/preset-commonmark": "^7.15.2",
+    "@milkdown/preset-gfm": "^7.15.2",
+    "@milkdown/react": "^7.15.2",
+    "@milkdown/theme-nord": "^7.15.2",
     "@modelcontextprotocol/sdk": "^0.5.0",
+    "@uiw/react-md-editor": "^4.0.8",
     "axios": "^1.6.0",
     "dotenv": "^16.3.0"
   },

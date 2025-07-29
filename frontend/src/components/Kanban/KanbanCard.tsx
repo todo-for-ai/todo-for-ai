@@ -181,33 +181,30 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
         alignItems: 'center'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {/* 工时信息 */}
-          {task.estimated_hours && (
-            <span style={{ 
-              fontSize: '11px', 
-              color: '#8c8c8c',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '2px'
-            }}>
-              <ClockCircleOutlined />
-              {task.estimated_hours}h
-            </span>
-          )}
+          {/* 任务ID */}
+          <span style={{
+            fontSize: '11px',
+            color: '#8c8c8c',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '2px'
+          }}>
+            #{task.id}
+          </span>
         </div>
-        
-        {/* 负责人头像 */}
-        {task.assignee && (
-          <Tooltip title={task.assignee}>
-            <Avatar 
-              size={20} 
+
+        {/* AI任务标识 */}
+        {task.is_ai_task && (
+          <Tooltip title="AI执行任务">
+            <Avatar
+              size={20}
               icon={<UserOutlined />}
-              style={{ 
-                backgroundColor: '#1890ff',
+              style={{
+                backgroundColor: '#52c41a',
                 fontSize: '10px'
               }}
             >
-              {task.assignee.charAt(0).toUpperCase()}
+              AI
             </Avatar>
           </Tooltip>
         )}

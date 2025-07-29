@@ -41,7 +41,8 @@ def list_projects():
         if archived == 'true':
             query = query.filter_by(status=ProjectStatus.ARCHIVED)
         elif archived == 'false':
-            query = query.filter(Project.status != ProjectStatus.ARCHIVED)
+            # 只显示活跃项目，排除已归档和已删除的项目
+            query = query.filter_by(status=ProjectStatus.ACTIVE)
 
         # 是否有未完成任务筛选
         has_pending_tasks = request.args.get('has_pending_tasks')

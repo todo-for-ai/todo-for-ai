@@ -86,12 +86,12 @@ def register_blueprints(app):
     from api.mcp import mcp_bp
     from api.docs import docs_bp
 
-    app.register_blueprint(projects_bp, url_prefix='/api/projects')
-    app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
-    app.register_blueprint(context_rules_bp, url_prefix='/api/context-rules')
-    app.register_blueprint(tokens_bp, url_prefix='/api/tokens')
-    app.register_blueprint(mcp_bp, url_prefix='/api/mcp')
-    app.register_blueprint(docs_bp, url_prefix='/api/docs')
+    app.register_blueprint(projects_bp, url_prefix='/todo-for-ai/api/v1/projects')
+    app.register_blueprint(tasks_bp, url_prefix='/todo-for-ai/api/v1/tasks')
+    app.register_blueprint(context_rules_bp, url_prefix='/todo-for-ai/api/v1/context-rules')
+    app.register_blueprint(tokens_bp, url_prefix='/todo-for-ai/api/v1/tokens')
+    app.register_blueprint(mcp_bp, url_prefix='/todo-for-ai/api/v1/mcp')
+    app.register_blueprint(docs_bp, url_prefix='/todo-for-ai/api/v1/docs')
 
 
 
