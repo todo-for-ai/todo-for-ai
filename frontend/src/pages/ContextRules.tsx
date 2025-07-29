@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
-import { 
-  Typography, 
-  Button, 
-  Table, 
-  Space, 
-  Tag, 
-  Modal, 
-  Form, 
-  Input, 
-  Select, 
+import { useNavigate } from 'react-router-dom'
+import {
+  Typography,
+  Button,
+  Table,
+  Space,
+  Tag,
+  Modal,
+  Select,
   Switch,
-  message, 
+  message,
   Popconfirm,
   Tabs,
   Card,
@@ -24,8 +23,7 @@ import {
   ReloadOutlined,
   CopyOutlined,
   FileTextOutlined,
-  GlobalOutlined,
-  ProjectOutlined
+  GlobalOutlined
 } from '@ant-design/icons'
 import { useContextRuleStore, useProjectStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
@@ -33,17 +31,16 @@ import type { ContextRule, CreateContextRuleData, UpdateContextRuleData } from '
 
 const { Title, Paragraph } = Typography
 const { Option } = Select
-const { TextArea } = Input
-const { TabPane } = Tabs
+
 
 const ContextRules = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false)
+  const navigate = useNavigate()
   const [isDetailVisible, setIsDetailVisible] = useState(false)
   const [isPreviewVisible, setIsPreviewVisible] = useState(false)
-  const [editingRule, setEditingRule] = useState<ContextRule | null>(null)
+
   const [viewingRule, setViewingRule] = useState<ContextRule | null>(null)
-  const [activeTab, setActiveTab] = useState('all')
-  const [form] = Form.useForm()
+
+
 
   const {
     contextRules,
@@ -71,9 +68,11 @@ const ContextRules = () => {
   } = useProjectStore()
 
   useEffect(() => {
+    // 设置查询参数只获取全局规则（使用scope=global而不是rule_type）
+    setQueryParams({ scope: 'global' })
     fetchContextRules()
     fetchProjects()
-  }, [fetchContextRules, fetchProjects])
+  }, [fetchContextRules, fetchProjects, setQueryParams])
 
   useEffect(() => {
     if (error) {
@@ -92,26 +91,9 @@ const ContextRules = () => {
     }
   }, [])
 
-  const handleCreate = () => {
-    setEditingRule(null)
-    form.resetFields()
-    form.setFieldsValue({ rule_type: 'global', priority: 100, is_active: true })
-    setIsModalVisible(true)
-  }
 
-  const handleEdit = (rule: ContextRule) => {
-    setEditingRule(rule)
-    form.setFieldsValue({
-      name: rule.name,
-      description: rule.description,
-      content: rule.content,
-      rule_type: rule.rule_type,
-      project_id: rule.project_id,
-      priority: rule.priority,
-      is_active: rule.is_active,
-    })
-    setIsModalVisible(true)
-  }
+
+
 
   const handleView = (rule: ContextRule) => {
     setViewingRule(rule)
@@ -143,68 +125,9 @@ const ContextRules = () => {
     }
   }
 
-  const handleModalOk = async () => {
-    try {
-      const values = await form.validateFields()
-      const ruleData: CreateContextRuleData | UpdateContextRuleData = {
-        name: values.name,
-        description: values.description || '',
-        content: values.content,
-        rule_type: values.rule_type,
-        project_id: values.rule_type === 'project' ? values.project_id : undefined,
-        priority: values.priority || 100,
-        is_active: values.is_active !== false,
-      }
 
-      let success = false
-      if (editingRule) {
-        const result = await updateContextRule(editingRule.id, ruleData)
-        success = !!result
-        if (success) {
-          message.success('上下文规则更新成功')
-        }
-      } else {
-        const result = await createContextRule(ruleData as CreateContextRuleData)
-        success = !!result
-        if (success) {
-          message.success('上下文规则创建成功')
-        }
-      }
 
-      if (success) {
-        setIsModalVisible(false)
-        form.resetFields()
-        setEditingRule(null)
-      }
-    } catch (error) {
-      console.error('Form validation failed:', error)
-    }
-  }
 
-  const handleModalCancel = () => {
-    setIsModalVisible(false)
-    form.resetFields()
-    setEditingRule(null)
-  }
-
-  const handleTabChange = (key: string) => {
-    setActiveTab(key)
-    const newParams: any = { page: 1 }
-    
-    if (key === 'global') {
-      newParams.rule_type = 'global'
-      newParams.project_id = undefined
-    } else if (key === 'project') {
-      newParams.rule_type = 'project'
-      newParams.project_id = undefined
-    } else {
-      newParams.rule_type = undefined
-      newParams.project_id = undefined
-    }
-    
-    setQueryParams(newParams)
-    fetchContextRules()
-  }
 
   const handlePreview = async (projectId?: number) => {
     await previewMergedRules(projectId)
@@ -250,36 +173,6 @@ const ContextRules = () => {
           )}
         </div>
       ),
-    },
-    {
-      title: '类型',
-      dataIndex: 'rule_type',
-      key: 'rule_type',
-      width: 100,
-      render: (type: string) => (
-        <Tag 
-          icon={type === 'global' ? <GlobalOutlined /> : <ProjectOutlined />}
-          color={type === 'global' ? 'blue' : 'green'}
-        >
-          {type === 'global' ? '全局' : '项目'}
-        </Tag>
-      ),
-    },
-    {
-      title: '所属项目',
-      dataIndex: 'project',
-      key: 'project',
-      width: 120,
-      render: (project: any, record: ContextRule) => {
-        if (record.rule_type === 'global') {
-          return <Tag color="blue">全局规则</Tag>
-        }
-        return project ? (
-          <Tag color={project.color}>{project.name}</Tag>
-        ) : (
-          <Tag>未知项目</Tag>
-        )
-      },
     },
     {
       title: '优先级',
@@ -328,11 +221,11 @@ const ContextRules = () => {
           >
             查看
           </Button>
-          <Button 
-            type="text" 
-            icon={<EditOutlined />} 
+          <Button
+            type="text"
+            icon={<EditOutlined />}
             size="small"
-            onClick={() => handleEdit(record)}
+            onClick={() => navigate(`/todo-for-ai/pages/context-rules/${record.id}/edit`)}
           >
             编辑
           </Button>
@@ -360,11 +253,8 @@ const ContextRules = () => {
     },
   ]
 
-  const filteredRules = contextRules.filter(rule => {
-    if (activeTab === 'global') return rule.rule_type === 'global'
-    if (activeTab === 'project') return rule.rule_type === 'project'
-    return true
-  })
+  // 后端已经通过scope=global过滤了全局规则，这里直接使用
+  const filteredRules = contextRules
 
   return (
     <div className="page-container">
@@ -372,10 +262,10 @@ const ContextRules = () => {
         <div className="flex-between">
           <div>
             <Title level={2} className="page-title">
-              上下文规则管理
+              全局上下文规则
             </Title>
             <Paragraph className="page-description">
-              配置全局和项目级别的上下文规则，为AI提供准确的执行指导
+              配置全局上下文规则，为AI提供准确的执行指导
             </Paragraph>
           </div>
           <Space>
@@ -392,10 +282,10 @@ const ContextRules = () => {
             >
               刷新
             </Button>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<PlusOutlined />}
-              onClick={handleCreate}
+              onClick={() => navigate('/todo-for-ai/pages/context-rules/create')}
             >
               新建规则
             </Button>
@@ -403,11 +293,7 @@ const ContextRules = () => {
         </div>
       </div>
 
-      <Tabs activeKey={activeTab} onChange={handleTabChange} style={{ marginBottom: '16px' }}>
-        <TabPane tab="全部规则" key="all" />
-        <TabPane tab="全局规则" key="global" />
-        <TabPane tab="项目规则" key="project" />
-      </Tabs>
+
 
       <Table 
         columns={columns} 
@@ -426,124 +312,7 @@ const ContextRules = () => {
         onChange={handleTableChange}
       />
 
-      {/* 创建/编辑规则模态框 */}
-      <Modal
-        title={editingRule ? '编辑上下文规则' : '新建上下文规则'}
-        open={isModalVisible}
-        onOk={handleModalOk}
-        onCancel={handleModalCancel}
-        confirmLoading={loading}
-        width={900}
-        style={{ top: 20 }}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            rule_type: 'global',
-            priority: 100,
-            is_active: true,
-          }}
-        >
-          <Form.Item
-            label="规则名称"
-            name="name"
-            rules={[
-              { required: true, message: '请输入规则名称' },
-              { max: 100, message: '规则名称不能超过100个字符' },
-            ]}
-          >
-            <Input placeholder="请输入规则名称" />
-          </Form.Item>
 
-          <Form.Item
-            label="规则描述"
-            name="description"
-            rules={[
-              { max: 500, message: '规则描述不能超过500个字符' },
-            ]}
-          >
-            <TextArea 
-              rows={2} 
-              placeholder="请输入规则描述（可选）"
-              showCount
-              maxLength={500}
-            />
-          </Form.Item>
-
-          <Space style={{ width: '100%' }} size="large">
-            <Form.Item
-              label="规则类型"
-              name="rule_type"
-              style={{ flex: 1 }}
-              rules={[{ required: true, message: '请选择规则类型' }]}
-            >
-              <Select>
-                <Option value="global">全局规则</Option>
-                <Option value="project">项目规则</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label="所属项目"
-              name="project_id"
-              style={{ flex: 1 }}
-              dependencies={['rule_type']}
-              rules={[
-                ({ getFieldValue }) => ({
-                  required: getFieldValue('rule_type') === 'project',
-                  message: '项目规则必须选择所属项目',
-                }),
-              ]}
-            >
-              <Select 
-                placeholder="请选择项目"
-                disabled={form.getFieldValue('rule_type') === 'global'}
-                allowClear
-              >
-                {projects.map(project => (
-                  <Option key={project.id} value={project.id}>
-                    {project.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Space>
-
-          <Space style={{ width: '100%' }} size="large">
-            <Form.Item
-              label="优先级"
-              name="priority"
-              style={{ flex: 1 }}
-              help="数值越大优先级越高，建议：全局规则 50-100，项目规则 100-200"
-            >
-              <Input type="number" placeholder="请输入优先级" />
-            </Form.Item>
-
-            <Form.Item
-              label="启用状态"
-              name="is_active"
-              valuePropName="checked"
-              style={{ flex: 1 }}
-            >
-              <Switch />
-            </Form.Item>
-          </Space>
-
-          <Form.Item
-            label="规则内容"
-            name="content"
-            rules={[
-              { required: true, message: '请输入规则内容' },
-            ]}
-          >
-            <MarkdownEditor
-              height={300}
-              placeholder="请输入上下文规则内容，支持Markdown格式..."
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
 
       {/* 规则详情抽屉 */}
       <Drawer
@@ -560,11 +329,11 @@ const ContextRules = () => {
         extra={
           viewingRule && (
             <Space>
-              <Button 
+              <Button
                 icon={<EditOutlined />}
                 onClick={() => {
                   setIsDetailVisible(false)
-                  handleEdit(viewingRule)
+                  navigate(`/todo-for-ai/pages/context-rules/${viewingRule?.id}/edit`)
                 }}
               >
                 编辑
@@ -579,11 +348,8 @@ const ContextRules = () => {
               <Title level={3}>{viewingRule.name}</Title>
               <div style={{ marginBottom: '16px' }}>
                 <Space wrap>
-                  <Tag 
-                    icon={viewingRule.rule_type === 'global' ? <GlobalOutlined /> : <ProjectOutlined />}
-                    color={viewingRule.rule_type === 'global' ? 'blue' : 'green'}
-                  >
-                    {viewingRule.rule_type === 'global' ? '全局规则' : '项目规则'}
+                  <Tag icon={<GlobalOutlined />} color="blue">
+                    全局规则
                   </Tag>
                   <Tag color={viewingRule.is_active ? 'success' : 'default'}>
                     {viewingRule.is_active ? '已启用' : '已禁用'}
@@ -613,9 +379,7 @@ const ContextRules = () => {
                 <div>
                   <strong>创建者：</strong> {viewingRule.created_by || '未知'}
                 </div>
-                <div>
-                  <strong>所属项目：</strong> {viewingRule.project?.name || '全局规则'}
-                </div>
+
               </div>
             </div>
 
@@ -660,43 +424,52 @@ const ContextRules = () => {
           </Space>
         </div>
 
-        <Tabs defaultActiveKey="content">
-          <TabPane tab="合并内容" key="content">
-            <MarkdownEditor
-              value={previewContent}
-              readOnly
-              height={500}
-              hideToolbar
-              preview="preview"
-            />
-          </TabPane>
-          <TabPane tab="规则列表" key="rules">
-            <div style={{ maxHeight: 500, overflowY: 'auto' }}>
-              {previewRules.map(rule => (
-                <Card key={rule.id} size="small" style={{ marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <strong>{rule.name}</strong>
-                      <div style={{ fontSize: '12px', color: '#666' }}>
-                        {rule.description}
+        <Tabs
+          defaultActiveKey="content"
+          items={[
+            {
+              key: 'content',
+              label: '合并内容',
+              children: (
+                <MarkdownEditor
+                  value={previewContent}
+                  readOnly
+                  height={500}
+                  hideToolbar
+                  preview="preview"
+                />
+              )
+            },
+            {
+              key: 'rules',
+              label: '规则列表',
+              children: (
+                <div style={{ maxHeight: 500, overflowY: 'auto' }}>
+                  {previewRules.map(rule => (
+                    <Card key={rule.id} size="small" style={{ marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <strong>{rule.name}</strong>
+                          <div style={{ fontSize: '12px', color: '#666' }}>
+                            {rule.description}
+                          </div>
+                        </div>
+                        <Space>
+                          <Tag color="blue">
+                            全局
+                          </Tag>
+                          <Tag color={rule.priority >= 200 ? 'red' : rule.priority >= 100 ? 'orange' : 'green'}>
+                            {rule.priority}
+                          </Tag>
+                        </Space>
                       </div>
-                    </div>
-                    <Space>
-                      <Tag 
-                        color={rule.rule_type === 'global' ? 'blue' : 'green'}
-                      >
-                        {rule.rule_type === 'global' ? '全局' : '项目'}
-                      </Tag>
-                      <Tag color={rule.priority >= 200 ? 'red' : rule.priority >= 100 ? 'orange' : 'green'}>
-                        {rule.priority}
-                      </Tag>
-                    </Space>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </TabPane>
-        </Tabs>
+                    </Card>
+                  ))}
+                </div>
+              )
+            }
+          ]}
+        />
       </Modal>
     </div>
   )

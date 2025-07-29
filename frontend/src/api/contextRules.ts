@@ -8,12 +8,14 @@ export interface ContextRule {
   name: string
   description: string
   content: string
-  rule_type: 'global' | 'project'
   priority: number
   is_active: boolean
+  apply_to_tasks: boolean
+  apply_to_projects: boolean
   created_at: string
   updated_at: string
   created_by: string
+  is_global: boolean
   project?: {
     id: number
     name: string
@@ -26,9 +28,10 @@ export interface CreateContextRuleData {
   name: string
   description?: string
   content: string
-  rule_type: 'global' | 'project'
   priority?: number
   is_active?: boolean
+  apply_to_tasks?: boolean
+  apply_to_projects?: boolean
 }
 
 export interface UpdateContextRuleData {
@@ -37,6 +40,14 @@ export interface UpdateContextRuleData {
   content?: string
   priority?: number
   is_active?: boolean
+  apply_to_tasks?: boolean
+  apply_to_projects?: boolean
+}
+
+export interface BuildContextResponse {
+  context_string: string
+  rules_applied: number
+  rules: ContextRule[]
 }
 
 export interface ContextRuleQueryParams {
@@ -44,8 +55,11 @@ export interface ContextRuleQueryParams {
   per_page?: number
   search?: string
   project_id?: number
-  rule_type?: 'global' | 'project'
+  scope?: 'global' | 'project'
+
   is_active?: boolean
+  apply_to_tasks?: boolean
+  apply_to_projects?: boolean
   sort_by?: string
   sort_order?: 'asc' | 'desc'
 }
@@ -132,7 +146,7 @@ export class ContextRulesApi {
   // 导出上下文规则
   async exportContextRules(params?: { project_id?: number; rule_type?: string }) {
     const queryParams = new URLSearchParams()
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -140,9 +154,18 @@ export class ContextRulesApi {
         }
       })
     }
-    
+
     const url = `/context-rules/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     return api.download(url, 'context-rules.json')
+  }
+
+  // 构建项目上下文字符串（用于任务详情页预览）
+  async buildProjectContext(projectId: number, forTasks: boolean = true, forProjects: boolean = false) {
+    return api.post<BuildContextResponse>('/context-rules/build-context', {
+      project_id: projectId,
+      for_tasks: forTasks,
+      for_projects: forProjects
+    })
   }
 }
 

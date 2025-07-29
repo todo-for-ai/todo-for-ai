@@ -21,11 +21,13 @@
     "@milkdown/preset-gfm": "^7.15.2",
     "@milkdown/react": "^7.15.2",
     "@milkdown/theme-nord": "^7.15.2",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "antd": "^5.26.6",
     "axios": "^1.11.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.1",
+    "react-syntax-highlighter": "^15.6.1",
     "zustand": "^5.0.6"
   },
   "devDependencies": {

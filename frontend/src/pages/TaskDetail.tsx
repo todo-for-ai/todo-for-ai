@@ -15,7 +15,8 @@ import {
   Col,
   Divider,
   Popconfirm,
-  Select
+  Select,
+  Collapse
 } from 'antd'
 import {
   EditOutlined,
@@ -27,11 +28,15 @@ import {
   FileTextOutlined,
   PlusOutlined,
   LeftOutlined,
-  RightOutlined
+  RightOutlined,
+  SettingOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons'
 import { useTaskStore, useProjectStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
 import type { Task } from '../api/tasks'
+import { contextRulesApi, type BuildContextResponse } from '../api/contextRules'
+import type { ApiResponse } from '../api/client'
 import dayjs from 'dayjs'
 import styles from './TaskDetail.module.css'
 
@@ -43,15 +48,22 @@ const TaskDetail: React.FC = () => {
   const [task, setTask] = useState<Task | null>(null)
   const [loading, setLoading] = useState(true)
   const [projectTasks, setProjectTasks] = useState<Task[]>([])
+  const [projectContext, setProjectContext] = useState<ApiResponse<BuildContextResponse> | null>(null)
+  const [contextLoading, setContextLoading] = useState(false)
 
-  const { getTask, deleteTask, fetchTasks } = useTaskStore()
-  const { projects } = useProjectStore()
+  const { getTask, deleteTask, fetchTasksByParams } = useTaskStore()
+  const { projects, fetchProjects } = useProjectStore()
 
   useEffect(() => {
     if (id) {
       loadTask(parseInt(id, 10))
     }
   }, [id])
+
+  // 加载项目列表
+  useEffect(() => {
+    fetchProjects()
+  }, [fetchProjects])
 
   // 设置网页标题
   useEffect(() => {
@@ -95,20 +107,49 @@ const TaskDetail: React.FC = () => {
     }
   }, [projectTasks, task])
 
+  // 从localStorage加载任务筛选条件
+  const loadTaskFiltersFromStorage = () => {
+    try {
+      const saved = localStorage.getItem('project-task-filters')
+      if (saved) {
+        return { ...JSON.parse(saved) }
+      }
+    } catch (error) {
+      console.warn('Failed to load task filters from localStorage:', error)
+    }
+    // 默认筛选条件：只显示待办任务
+    return {
+      status: 'todo,in_progress,review',
+      priority: '',
+      search: '',
+      sort_by: 'created_at',
+      sort_order: 'desc' as 'desc' | 'asc'
+    }
+  }
+
   const loadTask = async (taskId: number) => {
     try {
       setLoading(true)
       const result = await getTask(taskId)
       if (result) {
         setTask(result)
-        // 加载同项目的所有任务，用于上一个/下一个任务导航
-        const projectTasksResult = await fetchTasks({
+        // 从localStorage获取用户在列表页设置的筛选条件
+        const taskFilters = loadTaskFiltersFromStorage()
+
+        // 加载同项目的任务，使用与列表页相同的筛选和排序条件
+        const projectTasksResult = await fetchTasksByParams({
           project_id: result.project_id,
-          sort_by: 'created_at',
-          sort_order: 'desc'
+          status: taskFilters.status,
+          priority: taskFilters.priority,
+          search: taskFilters.search,
+          sort_by: taskFilters.sort_by,
+          sort_order: taskFilters.sort_order
         })
-        if (projectTasksResult) {
-          setProjectTasks(projectTasksResult)
+        setProjectTasks(projectTasksResult)
+
+        // 加载项目上下文规则
+        if (result.project_id) {
+          loadProjectContext(result.project_id)
         }
       } else {
         message.error('任务不存在')
@@ -120,6 +161,19 @@ const TaskDetail: React.FC = () => {
       navigate('/todo-for-ai/pages/tasks')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadProjectContext = async (projectId: number) => {
+    try {
+      setContextLoading(true)
+      const result = await contextRulesApi.buildProjectContext(projectId, true, false)
+      setProjectContext(result)
+    } catch (error) {
+      console.error('加载项目上下文失败:', error)
+      // 不显示错误消息，因为这不是关键功能
+    } finally {
+      setContextLoading(false)
     }
   }
 
@@ -481,7 +535,7 @@ ${task.content || '无详细内容'}
               <Progress
                 type="circle"
                 size={60}
-                percent={task.completion_rate || 0}
+                percent={task.status === 'done' ? (task.completion_rate || 100) : (task.completion_rate || 0)}
                 status={task.status === 'done' ? 'success' : 'active'}
                 strokeWidth={8}
                 className={styles.circleProgress}
@@ -664,12 +718,9 @@ ${task.content || '无详细内容'}
               <Descriptions.Item label="截止时间">
                 {task.due_date ? dayjs(task.due_date).format('YYYY-MM-DD') : '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="实际工时">
-                {task.actual_hours ? `${task.actual_hours} 小时` : '-'}
-              </Descriptions.Item>
               <Descriptions.Item label="完成进度">
                 <Progress
-                  percent={task.completion_rate || 0}
+                  percent={task.status === 'done' ? (task.completion_rate || 100) : (task.completion_rate || 0)}
                   size="small"
                   status={task.status === 'done' ? 'success' : 'active'}
                 />
@@ -705,9 +756,10 @@ ${task.content || '无详细内容'}
         {task.content ? (
           <div className={styles.markdownContainer}>
             <MarkdownEditor
+              key={`task-content-${task.id}`}
               value={task.content}
               readOnly
-              height={600}
+              autoHeight={true}
               hideToolbar
               preview="preview"
             />
@@ -720,6 +772,101 @@ ${task.content || '无详细内容'}
           </div>
         )}
       </Card>
+
+      {/* 项目上下文规则预览 */}
+      <Card className={styles.contentCard}>
+        <Title level={3} className={styles.contentTitle}>
+          <Space>
+            <SettingOutlined />
+            项目上下文规则预览
+          </Space>
+        </Title>
+        <Paragraph type="secondary" style={{ marginBottom: '16px' }}>
+          以下是此任务在MCP执行时会应用的项目上下文规则，这些规则会被自动拼接到任务内容后面。
+        </Paragraph>
+
+        {contextLoading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <Spin size="large" />
+            <div style={{ marginTop: '16px' }}>正在加载项目上下文规则...</div>
+          </div>
+        ) : projectContext && projectContext.data && projectContext.data.context_string ? (
+          <Collapse
+            items={[
+              {
+                key: 'context',
+                label: (
+                  <Space>
+                    <span>项目上下文规则</span>
+                    <Tag color="blue">{projectContext.data.rules.length} 条规则</Tag>
+                  </Space>
+                ),
+                children: (
+                  <div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <Tag color="green">应用的规则列表：</Tag>
+                      {projectContext.data.rules.map(rule => (
+                        <Tag key={rule.id} color="blue">
+                          {rule.name}
+                        </Tag>
+                      ))}
+                    </div>
+                    <div className={styles.markdownContainer}>
+                      <MarkdownEditor
+                        key={`project-context-${task.id}`}
+                        value={projectContext.data.context_string}
+                        readOnly
+                        autoHeight={true}
+                        hideToolbar
+                        preview="preview"
+                      />
+                    </div>
+                  </div>
+                )
+              }
+            ]}
+            defaultActiveKey={[]}
+            ghost
+          />
+        ) : (
+          <div className={styles.emptyContent}>
+            <SettingOutlined className={styles.emptyIcon} />
+            <div className={styles.emptyTitle}>暂无项目上下文规则</div>
+            <div className={styles.emptySubtitle}>此项目尚未配置上下文规则</div>
+          </div>
+        )}
+      </Card>
+
+      {/* 任务执行反馈 */}
+      {task.feedback_content && (
+        <Card className={styles.contentCard}>
+          <Title level={3} className={styles.contentTitle}>
+            <Space>
+              <CheckCircleOutlined />
+              任务执行反馈
+            </Space>
+          </Title>
+          <Paragraph type="secondary" style={{ marginBottom: '16px' }}>
+            AI执行任务后的反馈信息，包含任务的具体执行情况和结果。
+            {task.feedback_at && (
+              <span style={{ marginLeft: '8px' }}>
+                反馈时间：{dayjs(task.feedback_at).format('YYYY-MM-DD HH:mm:ss')}
+              </span>
+            )}
+          </Paragraph>
+
+          <div className={styles.markdownContainer}>
+            <MarkdownEditor
+              key={`task-feedback-${task.id}`}
+              value={task.feedback_content}
+              readOnly
+              autoHeight={true}
+              hideToolbar
+              preview="preview"
+            />
+          </div>
+        </Card>
+      )}
     </div>
   )
 }

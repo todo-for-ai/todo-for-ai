@@ -10,13 +10,14 @@ export interface Task {
   status: 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled'
   priority: 'low' | 'medium' | 'high' | 'urgent'
   due_date?: string
-  actual_hours?: number
   completion_rate: number
   completed_at?: string
   tags: string[]
   created_at: string
   updated_at: string
   created_by: string
+  feedback_content?: string
+  feedback_at?: string
   project?: {
     id: number
     name: string
@@ -47,7 +48,6 @@ export interface UpdateTaskData {
   status?: 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled'
   priority?: 'low' | 'medium' | 'high' | 'urgent'
   due_date?: string
-  actual_hours?: number
   completion_rate?: number
   tags?: string[]
 }

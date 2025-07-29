@@ -28,6 +28,7 @@ interface TaskState {
   
   // API操作
   fetchTasks: () => Promise<void>
+  fetchTasksByParams: (params: TaskQueryParams) => Promise<Task[]>
   fetchTask: (id: number) => Promise<void>
   getTask: (id: number) => Promise<Task | null>
   createTask: (data: CreateTaskData) => Promise<Task | null>
@@ -73,7 +74,7 @@ export const useTaskStore = create<TaskState>()(
       fetchTasks: async () => {
         const { queryParams } = get()
         set({ loading: true, error: null })
-        
+
         try {
           const response = await tasksApi.getTasks(queryParams)
           set({
@@ -86,6 +87,16 @@ export const useTaskStore = create<TaskState>()(
             error: error.response?.data?.error?.message || '获取任务列表失败',
             loading: false,
           })
+        }
+      },
+
+      fetchTasksByParams: async (params) => {
+        try {
+          const response = await tasksApi.getTasks(params)
+          return response.data?.items || []
+        } catch (error: any) {
+          console.error('获取任务列表失败:', error)
+          return []
         }
       },
 
