@@ -14,6 +14,7 @@ import {
   ApiOutlined,
 } from '@ant-design/icons'
 
+
 const { Header, Sider, Content } = Layout
 const { Title } = Typography
 
@@ -129,7 +130,7 @@ const AppLayout = () => {
           />
           
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ marginRight: '16px', color: '#666' }}>
+            <span style={{ color: '#666' }}>
               欢迎使用 Todo for AI
             </span>
           </div>

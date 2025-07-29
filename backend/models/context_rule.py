@@ -2,18 +2,9 @@
 上下文规则模型
 """
 
-import enum
-from sqlalchemy import Column, String, Text, Enum, Integer, ForeignKey, Boolean
+from sqlalchemy import Column, String, Text, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .base import BaseModel
-
-
-class RuleType(enum.Enum):
-    """规则类型枚举"""
-    SYSTEM = 'system'
-    INSTRUCTION = 'instruction'
-    CONSTRAINT = 'constraint'
-    EXAMPLE = 'example'
 
 
 class ContextRule(BaseModel):
@@ -25,12 +16,6 @@ class ContextRule(BaseModel):
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=True, comment='项目ID (NULL表示全局规则)')
     name = Column(String(255), nullable=False, comment='规则名称')
     description = Column(Text, comment='规则描述')
-    rule_type = Column(
-        Enum(RuleType), 
-        default=RuleType.INSTRUCTION, 
-        nullable=False,
-        comment='规则类型'
-    )
     content = Column(Text, nullable=False, comment='规则内容')
     
     # 配置选项
@@ -49,40 +34,35 @@ class ContextRule(BaseModel):
     def to_dict(self, include_project=False):
         """转换为字典"""
         result = super().to_dict()
-        result['rule_type'] = self.rule_type.value if self.rule_type else None
         result['is_global'] = self.project_id is None
-        
+
         if include_project and self.project:
             result['project'] = {
                 'id': self.project.id,
                 'name': self.project.name,
                 'color': self.project.color
             }
-        
+
         return result
     
     @classmethod
-    def get_global_rules(cls, rule_type=None, active_only=True):
+    def get_global_rules(cls, active_only=True):
         """获取全局规则"""
         query = cls.query.filter_by(project_id=None)
-        
+
         if active_only:
             query = query.filter_by(is_active=True)
-        if rule_type:
-            query = query.filter_by(rule_type=rule_type)
-        
+
         return query.order_by(cls.priority.desc(), cls.created_at.asc()).all()
     
     @classmethod
-    def get_project_rules(cls, project_id, rule_type=None, active_only=True):
+    def get_project_rules(cls, project_id, active_only=True):
         """获取项目规则"""
         query = cls.query.filter_by(project_id=project_id)
-        
+
         if active_only:
             query = query.filter_by(is_active=True)
-        if rule_type:
-            query = query.filter_by(rule_type=rule_type)
-        
+
         return query.order_by(cls.priority.desc(), cls.created_at.asc()).all()
     
     @classmethod
@@ -121,47 +101,13 @@ class ContextRule(BaseModel):
             return ""
         
         context_parts = []
-        
-        # 按类型分组
-        rule_groups = {
-            RuleType.SYSTEM: [],
-            RuleType.INSTRUCTION: [],
-            RuleType.CONSTRAINT: [],
-            RuleType.EXAMPLE: []
-        }
-        
+
+        # 直接按优先级顺序构建上下文字符串
         for rule in rules:
-            rule_groups[rule.rule_type].append(rule)
-        
-        # 构建上下文字符串
-        if rule_groups[RuleType.SYSTEM]:
-            context_parts.append("## 系统规则")
-            for rule in rule_groups[RuleType.SYSTEM]:
-                context_parts.append(f"### {rule.name}")
-                context_parts.append(rule.content)
-                context_parts.append("")
-        
-        if rule_groups[RuleType.INSTRUCTION]:
-            context_parts.append("## 指令规则")
-            for rule in rule_groups[RuleType.INSTRUCTION]:
-                context_parts.append(f"### {rule.name}")
-                context_parts.append(rule.content)
-                context_parts.append("")
-        
-        if rule_groups[RuleType.CONSTRAINT]:
-            context_parts.append("## 约束规则")
-            for rule in rule_groups[RuleType.CONSTRAINT]:
-                context_parts.append(f"### {rule.name}")
-                context_parts.append(rule.content)
-                context_parts.append("")
-        
-        if rule_groups[RuleType.EXAMPLE]:
-            context_parts.append("## 示例")
-            for rule in rule_groups[RuleType.EXAMPLE]:
-                context_parts.append(f"### {rule.name}")
-                context_parts.append(rule.content)
-                context_parts.append("")
-        
+            context_parts.append(f"### {rule.name}")
+            context_parts.append(rule.content)
+            context_parts.append("")
+
         return "\n".join(context_parts).strip()
     
     def activate(self):

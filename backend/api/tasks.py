@@ -225,8 +225,7 @@ def update_task(task_id):
         data = validate_json_request(
             optional_fields=[
                 'title', 'content', 'status', 'priority',
-                'due_date', 'actual_hours',
-                'completion_rate', 'tags'
+                'due_date', 'completion_rate', 'tags'
             ]
         )
         
@@ -275,7 +274,7 @@ def update_task(task_id):
                 return api_error(f"Invalid priority: {data['priority']}", 400)
         
         # 处理其他字段
-        simple_fields = ['title', 'content', 'actual_hours', 'completion_rate', 'tags']
+        simple_fields = ['title', 'content', 'completion_rate', 'tags']
         for field in simple_fields:
             if field in data:
                 old_value = getattr(task, field)

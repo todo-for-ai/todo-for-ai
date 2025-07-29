@@ -7,7 +7,7 @@ Todo for AI - 数据模型包
 from .base import db
 from .project import Project, ProjectStatus
 from .task import Task, TaskStatus, TaskPriority
-from .context_rule import ContextRule, RuleType
+from .context_rule import ContextRule
 from .task_history import TaskHistory, ActionType
 from .attachment import Attachment
 from .api_token import ApiToken

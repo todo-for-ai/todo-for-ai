@@ -154,7 +154,7 @@ def create_project():
         # 验证请求数据
         data = validate_json_request(
             required_fields=['name'],
-            optional_fields=['description', 'color']
+            optional_fields=['description', 'color', 'status', 'github_url', 'local_url', 'production_url', 'project_context']
         )
         
         if isinstance(data, tuple):  # 错误响应
@@ -213,7 +213,7 @@ def update_project(project_id):
         
         # 验证请求数据
         data = validate_json_request(
-            optional_fields=['name', 'description', 'color', 'status']
+            optional_fields=['name', 'description', 'color', 'status', 'github_url', 'local_url', 'production_url', 'project_context']
         )
         
         if isinstance(data, tuple):  # 错误响应

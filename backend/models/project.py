@@ -33,6 +33,8 @@ class Project(BaseModel):
 
     # 扩展信息
     github_url = Column(String(500), comment='GitHub仓库链接')
+    local_url = Column(String(500), comment='本地开发链接')
+    production_url = Column(String(500), comment='生产环境链接')
     project_context = Column(Text, comment='项目级别的上下文信息')
     last_activity_at = Column(DateTime, comment='最后活动时间')
     

@@ -1,8 +1,25 @@
 import React, { useState } from 'react'
 import Toolbar from './Toolbar'
 import { useEditor, useKeyboardShortcuts } from './hooks'
+import { useThemeContext, useThemeClasses } from '../../contexts/ThemeContext'
 import '@milkdown/theme-nord/style.css'
-import '../MilkdownEditor.css'
+import './themes.css'
+
+/**
+ * ========================================
+ * MARKDOWN编辑器核心规则 - 三大法则
+ * ========================================
+ *
+ * 无论是哪个主题，都必须遵循以下三个核心法则：
+ *
+ * 1. 【实时保存】无论是哪个主题，都必须要能够支持内容实时保存，这是核心功能
+ * 2. 【所见即所得】无论是哪个主题，都要能够所见即所得，这是核心功能，不要是源码模式
+ * 3. 【无滚动条】无论是哪个主题，都不要有滚动条，如果内容太长，就直接高度动态自适应变高就可以了，
+ *    我们只需要页面级别的滚动条，不要有Markdown编辑器级别的滚动条，这条也非常重要
+ *
+ * 后续新增主题以及修改主题，都必须遵循这三个法则！
+ * ========================================
+ */
 
 export interface MilkdownEditorProps {
   value?: string
@@ -44,6 +61,9 @@ const MilkdownEditor: React.FC<MilkdownEditorProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [previewMode, setPreviewMode] = useState<'live' | 'edit' | 'preview'>(preview)
 
+  // 使用主题
+  const { getThemeClass } = useThemeClasses()
+
   const {
     editorRef,
     isReady,
@@ -78,11 +98,9 @@ const MilkdownEditor: React.FC<MilkdownEditorProps> = ({
 
   return (
     <div
-      className={`milkdown-editor ${isFullscreen ? 'fullscreen' : ''} ${autoHeight ? 'auto-height' : ''}`}
+      className={getThemeClass(`milkdown-editor ${isFullscreen ? 'fullscreen' : ''} ${autoHeight ? 'auto-height' : ''} ${readOnly ? 'readonly' : ''}`)}
       style={{
-        border: '1px solid #d9d9d9',
-        borderRadius: '8px',
-        overflow: 'hidden',
+        overflow: 'visible',
         ...(isFullscreen && {
           position: 'fixed',
           top: 0,
@@ -90,7 +108,6 @@ const MilkdownEditor: React.FC<MilkdownEditorProps> = ({
           right: 0,
           bottom: 0,
           zIndex: 9999,
-          backgroundColor: '#fff',
         }),
         ...style
       }}
@@ -118,12 +135,12 @@ const MilkdownEditor: React.FC<MilkdownEditorProps> = ({
           minHeight: autoHeight
             ? typeof minHeight === 'number' ? `${minHeight}px` : minHeight
             : undefined,
-          maxHeight: autoHeight && maxHeight
+          maxHeight: autoHeight
+            ? undefined  // autoHeight模式下永远不设置maxHeight，让编辑器完全自适应
+            : maxHeight
             ? typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight
             : undefined,
-          overflow: autoHeight ? 'visible' : 'auto',
-          padding: '16px',
-          backgroundColor: '#fff'
+          overflow: autoHeight ? 'visible' : 'auto'  // autoHeight模式下使用visible，固定高度模式下使用auto
         }}
         data-placeholder={placeholder}
       />

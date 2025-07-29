@@ -5,7 +5,7 @@ MCP (Model Context Protocol) HTTP API接口
 import json
 import asyncio
 from flask import Blueprint, request, jsonify
-from models import db, Project, Task, TaskStatus
+from models import db, Project, Task, TaskStatus, ContextRule
 from api.base import handle_api_error
 from datetime import datetime
 
@@ -167,21 +167,34 @@ def get_project_tasks_by_name(arguments):
 def get_task_by_id(arguments):
     """根据任务ID获取任务详情"""
     task_id = arguments.get('task_id')
-    
+
     if not task_id:
         return {'error': 'task_id is required'}
-    
+
     task = Task.query.get(task_id)
     if not task:
         return {'error': f'Task with ID {task_id} not found'}
-    
+
     # 获取项目信息
     project = Project.query.get(task.project_id)
-    
+
     task_data = task.to_dict()
     task_data['project_name'] = project.name if project else None
     task_data['project_description'] = project.description if project else None
-    
+
+    # 获取项目级别的上下文规则并拼接到任务内容后
+    if project:
+        project_context = ContextRule.build_context_string(
+            project_id=project.id,
+            for_tasks=True,
+            for_projects=False
+        )
+
+        if project_context:
+            # 将项目上下文拼接到任务内容后
+            original_content = task_data.get('content', '')
+            task_data['content'] = f"{original_content}\n\n## 项目上下文规则\n\n{project_context}"
+
     return task_data
 
 

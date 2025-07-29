@@ -185,8 +185,7 @@ class MCPTestClient:
         update_data = {
             "task_id": task_id,
             "status": "in_progress",
-            "completion_rate": 25,
-            "actual_hours": 0.5
+            "completion_rate": 25
         }
         
         result = await self.session.call_tool("update_task", update_data)

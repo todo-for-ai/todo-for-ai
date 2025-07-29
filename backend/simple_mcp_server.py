@@ -490,15 +490,14 @@ class SimpleMCPServer:
         
         # Get global rules
         global_rules = ContextRule.query.filter(
-            ContextRule.rule_type == 'global',
+            ContextRule.project_id == None,
             ContextRule.is_active == True
         ).order_by(ContextRule.priority.desc()).all()
-        
+
         # Get project rules if project_id is provided
         project_rules = []
         if project_id:
             project_rules = ContextRule.query.filter(
-                ContextRule.rule_type == 'project',
                 ContextRule.project_id == project_id,
                 ContextRule.is_active == True
             ).order_by(ContextRule.priority.desc()).all()
