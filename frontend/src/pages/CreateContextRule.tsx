@@ -11,15 +11,13 @@ import {
   Breadcrumb,
   Row,
   Col,
-  Select,
   Switch,
   InputNumber
 } from 'antd'
 import {
   SaveOutlined,
   ArrowLeftOutlined,
-  HomeOutlined,
-  ReloadOutlined
+  HomeOutlined
 } from '@ant-design/icons'
 import { useContextRuleStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
@@ -27,7 +25,7 @@ import type { CreateContextRuleData, UpdateContextRuleData } from '../api/contex
 
 const { Title } = Typography
 const { TextArea } = Input
-const { Option } = Select
+
 
 
 

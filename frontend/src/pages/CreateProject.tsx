@@ -155,40 +155,39 @@ const CreateProject = () => {
   }
 
   return (
-    <div className="page-container">
+    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* 面包屑导航 */}
-      <Card style={{ marginBottom: '16px' }}>
-        <Breadcrumb>
-          <Breadcrumb.Item>
-            <HomeOutlined />
-            <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
-              首页
-            </span>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            <span
-              onClick={() => navigate('/todo-for-ai/pages/projects')}
-              style={{ cursor: 'pointer' }}
-            >
-              项目列表
-            </span>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>{isEditMode ? '编辑项目' : '创建项目'}</Breadcrumb.Item>
-        </Breadcrumb>
-      </Card>
+      <Breadcrumb style={{ marginBottom: '24px' }}>
+        <Breadcrumb.Item>
+          <HomeOutlined />
+          <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
+            首页
+          </span>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <span
+            onClick={() => navigate('/todo-for-ai/pages/projects')}
+            style={{ cursor: 'pointer' }}
+          >
+            项目列表
+          </span>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>{isEditMode ? '编辑项目' : '创建项目'}</Breadcrumb.Item>
+      </Breadcrumb>
 
-      <div className="page-header">
-        <Title level={2} className="page-title">
-          {isEditMode ? '编辑项目' : '创建项目'}
-        </Title>
-      </div>
+      {/* 主要内容区域 - 居中布局 */}
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+          <Title level={2} style={{ margin: 0 }}>
+            {isEditMode ? '编辑项目' : '创建项目'}
+          </Title>
+        </div>
 
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        style={{ maxWidth: '800px' }}
-      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+        >
         <Row gutter={[16, 16]}>
           <Col span={24}>
             <Card title="基本信息">
@@ -309,26 +308,27 @@ const CreateProject = () => {
           </Col>
         </Row>
 
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
-          <Space size="large">
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => navigate('/todo-for-ai/pages/projects')}
-            >
-              返回项目列表
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<SaveOutlined />}
-              loading={loading}
-              size="large"
-            >
-              {isEditMode ? '更新项目' : '创建项目'}
-            </Button>
-          </Space>
-        </div>
-      </Form>
+          <div style={{ marginTop: '24px', textAlign: 'center' }}>
+            <Space size="large">
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate('/todo-for-ai/pages/projects')}
+              >
+                返回项目列表
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SaveOutlined />}
+                loading={loading}
+                size="large"
+              >
+                {isEditMode ? '更新项目' : '创建项目'}
+              </Button>
+            </Space>
+          </div>
+        </Form>
+      </div>
     </div>
   )
 }

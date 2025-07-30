@@ -1,14 +1,29 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Typography, Button, Table, Space, Tag, message, Popconfirm, Select, Card, Row, Col } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined, FilterOutlined, CheckSquareOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined, FilterOutlined, CheckSquareOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons'
 import { useProjectStore } from '../stores'
-import type { Project, CreateProjectData, UpdateProjectData } from '../api/projects'
+import { LinkButton } from '../components/SmartLink'
+import type { Project } from '../api/projects'
 
 const { Title, Paragraph } = Typography
 
 const Projects = () => {
   const navigate = useNavigate()
+
+  // 从localStorage加载视图模式
+  const loadViewModeFromStorage = () => {
+    try {
+      const saved = localStorage.getItem('projects-view-mode')
+      return saved || 'list'
+    } catch (error) {
+      console.warn('Failed to load view mode from localStorage:', error)
+      return 'list'
+    }
+  }
+
+  const [viewMode, setViewMode] = useState<'list' | 'card'>(() => loadViewModeFromStorage() as 'list' | 'card')
+
   // 从localStorage加载筛选条件
   const loadFiltersFromStorage = () => {
     try {
@@ -38,8 +53,6 @@ const Projects = () => {
     pagination,
     // queryParams,
     fetchProjects,
-    createProject,
-    updateProject,
     deleteProject,
     archiveProject,
     setQueryParams,
@@ -47,10 +60,14 @@ const Projects = () => {
   } = useProjectStore()
 
   useEffect(() => {
-    // 应用筛选参数
-    setQueryParams(filters)
+    // 应用筛选参数，并根据视图模式设置分页大小
+    const paramsWithPagination = {
+      ...filters,
+      per_page: viewMode === 'card' ? 100 : 20
+    }
+    setQueryParams(paramsWithPagination)
     fetchProjects()
-  }, [filters, setQueryParams, fetchProjects])
+  }, [filters, viewMode, setQueryParams, fetchProjects])
 
   useEffect(() => {
     if (error) {
@@ -81,6 +98,35 @@ const Projects = () => {
       localStorage.setItem('projects-filters', JSON.stringify(newFilters))
     } catch (error) {
       console.warn('Failed to save filters to localStorage:', error)
+    }
+  }
+
+  const handleViewModeChange = (mode: 'list' | 'card') => {
+    setViewMode(mode)
+
+    // 保存到localStorage
+    try {
+      localStorage.setItem('projects-view-mode', mode)
+    } catch (error) {
+      console.warn('Failed to save view mode to localStorage:', error)
+    }
+
+    // 切换到卡片模式时，调整分页大小
+    if (mode === 'card') {
+      const newParams = {
+        ...filters,
+        per_page: 100
+      }
+      setQueryParams(newParams)
+      fetchProjects()
+    } else {
+      // 切换回列表模式时，恢复默认分页大小
+      const newParams = {
+        ...filters,
+        per_page: 20
+      }
+      setQueryParams(newParams)
+      fetchProjects()
     }
   }
 
@@ -141,13 +187,13 @@ const Projects = () => {
                 flexShrink: 0
               }}
             />
-            <Button
+            <LinkButton
+              to={`/todo-for-ai/pages/projects/${record.id}`}
               type="link"
               style={{ padding: 0, fontWeight: 500, height: 'auto' }}
-              onClick={() => navigate(`/todo-for-ai/pages/projects/${record.id}`)}
             >
               {text}
-            </Button>
+            </LinkButton>
           </div>
           {record.description && (
             <div style={{ color: '#999', fontSize: '12px', marginTop: '4px' }}>
@@ -175,13 +221,14 @@ const Projects = () => {
     {
       title: '任务统计',
       key: 'stats',
-      width: 120,
+      width: 140,
       render: (_: any, record: Project) => {
-        if (record.stats) {
+        if (record.total_tasks && record.total_tasks > 0) {
           return (
             <div style={{ fontSize: '12px' }}>
-              <div>总计: {record.stats.total_tasks}</div>
-              <div style={{ color: '#52c41a' }}>完成: {record.stats.done_tasks}</div>
+              <div>总计: {record.total_tasks}</div>
+              <div style={{ color: '#52c41a' }}>完成: {record.completed_tasks}</div>
+              <div style={{ color: '#fa8c16', fontWeight: 500 }}>待处理: {record.pending_tasks}</div>
             </div>
           )
         }
@@ -228,22 +275,22 @@ const Projects = () => {
       fixed: 'right' as const,
       render: (_: any, record: Project) => (
         <Space size="small">
-          <Button
+          <LinkButton
+            to={`/todo-for-ai/pages/projects/${record.id}`}
             type="text"
             icon={<EyeOutlined />}
             size="small"
-            onClick={() => navigate(`/todo-for-ai/pages/projects/${record.id}`)}
           >
             查看
-          </Button>
-          <Button
+          </LinkButton>
+          <LinkButton
+            to={`/todo-for-ai/pages/projects/${record.id}?tab=tasks`}
             type="text"
             icon={<CheckSquareOutlined />}
             size="small"
-            onClick={() => navigate(`/todo-for-ai/pages/projects/${record.id}?tab=tasks`)}
           >
             任务
-          </Button>
+          </LinkButton>
           <Button
             type="text"
             icon={<EditOutlined />}
@@ -293,6 +340,24 @@ const Projects = () => {
             </Paragraph>
           </div>
           <Space>
+            <Space.Compact>
+              <Button
+                type={viewMode === 'list' ? 'primary' : 'default'}
+                icon={<UnorderedListOutlined />}
+                onClick={() => handleViewModeChange('list')}
+                size="small"
+              >
+                列表
+              </Button>
+              <Button
+                type={viewMode === 'card' ? 'primary' : 'default'}
+                icon={<AppstoreOutlined />}
+                onClick={() => handleViewModeChange('card')}
+                size="small"
+              >
+                卡片
+              </Button>
+            </Space.Compact>
             <Button
               icon={<ReloadOutlined />}
               onClick={() => fetchProjects()}
@@ -432,22 +497,250 @@ const Projects = () => {
           </Row>
         </Card>
 
-      <Table
-        columns={columns}
-        dataSource={projects}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          current: pagination?.page || 1,
-          pageSize: pagination?.per_page || 20,
-          total: pagination?.total || 0,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-          pageSizeOptions: ['10', '20', '50', '100'],
-        }}
-        onChange={handleTableChange}
-      />
+      {viewMode === 'list' ? (
+        <Table
+          columns={columns}
+          dataSource={projects}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            current: pagination?.page || 1,
+            pageSize: pagination?.per_page || 20,
+            total: pagination?.total || 0,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+            pageSizeOptions: ['10', '20', '50', '100'],
+          }}
+          onChange={handleTableChange}
+        />
+      ) : (
+        <div>
+          <Row gutter={[16, 16]}>
+            {projects.map((project) => (
+              <Col key={project.id} xs={12} sm={12} md={8} lg={6} xl={6}>
+                <Card
+                  className="project-card"
+                  style={{
+                    height: '140px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}
+                  bodyStyle={{
+                    padding: '16px',
+                    height: '100%',
+                    background: '#ffffff'
+                  }}
+                  hoverable
+                  onClick={() => navigate(`/todo-for-ai/pages/projects/${project.id}`)}
+                >
+                  <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    {/* 卡片头部 */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      marginBottom: '12px',
+                      paddingBottom: '8px',
+                      borderBottom: '1px solid #f5f5f5'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            backgroundColor: project.color,
+                            flexShrink: 0,
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                          }}
+                        />
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            fontSize: '15px',
+                            color: '#262626',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            flex: 1
+                          }}
+                          title={project.name}
+                        >
+                          {project.name}
+                        </div>
+                      </div>
+                      <Tag
+                        color={project.status === 'active' ? 'green' : 'orange'}
+                        style={{
+                          fontSize: '10px',
+                          padding: '2px 6px',
+                          lineHeight: '16px',
+                          marginLeft: '8px',
+                          borderRadius: '4px',
+                          fontWeight: 500
+                        }}
+                      >
+                        {project.status === 'active' ? '活跃' : '已归档'}
+                      </Tag>
+                    </div>
+
+                    {/* 卡片主体 */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      {/* 项目描述 */}
+                      {project.description && (
+                        <div
+                          style={{
+                            fontSize: '13px',
+                            color: '#595959',
+                            lineHeight: '1.5',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            marginBottom: '12px',
+                            minHeight: '40px'
+                          }}
+                          title={project.description}
+                        >
+                          {project.description}
+                        </div>
+                      )}
+
+                      {/* 任务统计 */}
+                      <div style={{
+                        fontSize: '12px',
+                        marginBottom: '12px',
+                        padding: '6px 8px',
+                        backgroundColor: '#fafafa',
+                        borderRadius: '4px',
+                        border: '1px solid #f0f0f0'
+                      }}>
+                        {project.total_tasks && project.total_tasks > 0 ? (
+                          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                            <span style={{ color: '#595959' }}>
+                              <strong style={{ color: '#1890ff' }}>{project.total_tasks}</strong> 总计
+                            </span>
+                            <span style={{ color: '#595959' }}>
+                              <strong style={{ color: '#52c41a' }}>{project.completed_tasks}</strong> 完成
+                            </span>
+                            <span style={{ color: '#595959' }}>
+                              <strong style={{ color: '#fa8c16' }}>{project.pending_tasks}</strong> 待处理
+                            </span>
+                          </div>
+                        ) : (
+                          <span style={{ color: '#8c8c8c' }}>暂无任务</span>
+                        )}
+                      </div>
+
+                      {/* 卡片底部 */}
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingTop: '8px',
+                        borderTop: '1px solid #f5f5f5'
+                      }}>
+                        <div style={{
+                          fontSize: '11px',
+                          color: '#8c8c8c',
+                          fontWeight: 400
+                        }}>
+                          {project.last_activity_at ? new Date(project.last_activity_at).toLocaleDateString() : '无活动'}
+                        </div>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Space size={2}>
+                            <LinkButton
+                              to={`/todo-for-ai/pages/projects/${project.id}`}
+                              type="text"
+                              size="small"
+                              icon={<EyeOutlined />}
+                              style={{
+                                fontSize: '12px',
+                                padding: '2px 6px',
+                                height: '24px',
+                                color: '#595959',
+                                borderRadius: '4px'
+                              }}
+                              title="查看项目"
+                            />
+                            <LinkButton
+                              to={`/todo-for-ai/pages/projects/${project.id}?tab=tasks`}
+                              type="text"
+                              size="small"
+                              icon={<CheckSquareOutlined />}
+                              style={{
+                                fontSize: '12px',
+                                padding: '2px 6px',
+                                height: '24px',
+                                color: '#595959',
+                                borderRadius: '4px'
+                              }}
+                              title="查看任务"
+                            />
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<EditOutlined />}
+                              style={{
+                                fontSize: '12px',
+                                padding: '2px 6px',
+                                height: '24px',
+                                color: '#595959',
+                                borderRadius: '4px'
+                              }}
+                              onClick={() => handleEdit(project)}
+                              title="编辑项目"
+                            />
+                          </Space>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+
+          {/* 卡片模式的分页 */}
+          <div style={{ marginTop: '24px', textAlign: 'center' }}>
+            <div style={{ display: 'inline-block' }}>
+              <Space direction="vertical" size="small">
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                  第 {((pagination?.page || 1) - 1) * (pagination?.per_page || 100) + 1}-{Math.min((pagination?.page || 1) * (pagination?.per_page || 100), pagination?.total || 0)} 条，共 {pagination?.total || 0} 条
+                </div>
+                <Space>
+                  <Button
+                    size="small"
+                    disabled={!pagination?.has_prev}
+                    onClick={() => {
+                      const newParams = { ...filters, page: (pagination?.page || 1) - 1 }
+                      setQueryParams(newParams)
+                      fetchProjects()
+                    }}
+                  >
+                    上一页
+                  </Button>
+                  <span style={{ fontSize: '12px' }}>
+                    第 {pagination?.page || 1} 页，共 {pagination?.pages || 1} 页
+                  </span>
+                  <Button
+                    size="small"
+                    disabled={!pagination?.has_next}
+                    onClick={() => {
+                      const newParams = { ...filters, page: (pagination?.page || 1) + 1 }
+                      setQueryParams(newParams)
+                      fetchProjects()
+                    }}
+                  >
+                    下一页
+                  </Button>
+                </Space>
+              </Space>
+            </div>
+          </div>
+        </div>
+      )}
 
 
     </div>

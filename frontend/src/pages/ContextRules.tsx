@@ -27,7 +27,7 @@ import {
 } from '@ant-design/icons'
 import { useContextRuleStore, useProjectStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
-import type { ContextRule, CreateContextRuleData, UpdateContextRuleData } from '../api/contextRules'
+import type { ContextRule } from '../api/contextRules'
 
 const { Title, Paragraph } = Typography
 const { Option } = Select
@@ -52,8 +52,6 @@ const ContextRules = () => {
     previewRules,
     // previewLoading,
     fetchContextRules,
-    createContextRule,
-    updateContextRule,
     deleteContextRule,
     toggleContextRule,
     copyContextRule,
