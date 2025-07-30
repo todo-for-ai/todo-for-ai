@@ -48,7 +48,13 @@ apiClient.interceptors.response.use(
         case 401:
           // 未授权，清除token并跳转到登录页
           localStorage.removeItem('auth_token')
-          window.location.href = '/todo-for-ai/pages/login'
+          // 使用动态导入避免循环依赖
+          import('../stores/useAuthStore').then(({ useAuthStore }) => {
+            useAuthStore.getState().clearAuth()
+          })
+          if (!window.location.pathname.includes('/login')) {
+            window.location.href = '/todo-for-ai/pages/login'
+          }
           break
         case 403:
           // 禁止访问
