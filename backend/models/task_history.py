@@ -4,7 +4,7 @@
 
 import enum
 from datetime import datetime
-from sqlalchemy import Column, String, Text, Enum, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Text, Enum, Integer, BigInteger, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from .base import db
 
@@ -25,7 +25,7 @@ class TaskHistory(db.Model):
     __tablename__ = 'task_history'
     
     id = Column(Integer, primary_key=True, autoincrement=True, comment='主键ID')
-    task_id = Column(Integer, ForeignKey('tasks.id'), nullable=False, comment='任务ID')
+    task_id = Column(BigInteger, ForeignKey('tasks.id'), nullable=False, comment='任务ID')
     action = Column(Enum(ActionType), nullable=False, comment='操作类型')
     field_name = Column(String(100), comment='变更字段名')
     old_value = Column(Text, comment='旧值')

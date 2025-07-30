@@ -10,20 +10,31 @@ from datetime import datetime, timedelta
 from models import db, Project, ProjectStatus, Task, TaskStatus
 from .base import api_response, api_error, paginate_query, validate_json_request, get_request_args, APIException
 from app.auth import optional_token_auth
+from app.github_config import require_auth, get_current_user
 
 # 创建蓝图
 projects_bp = Blueprint('projects', __name__)
 
 
 @projects_bp.route('', methods=['GET'])
-@optional_token_auth
+@require_auth
 def list_projects():
     """获取项目列表"""
     try:
         args = get_request_args()
-        
+        current_user = get_current_user()
+
         # 构建查询
         query = Project.query
+
+        # 用户权限控制
+        if current_user:
+            if not current_user.is_admin():
+                # 普通用户只能看到自己的项目
+                query = query.filter_by(owner_id=current_user.id)
+        else:
+            # 未登录用户不能访问项目列表
+            return api_error("Authentication required", 401)
         
         # 状态筛选
         if args['status']:
@@ -147,30 +158,36 @@ def list_projects():
 
 
 @projects_bp.route('', methods=['POST'])
-@optional_token_auth
+@require_auth
 def create_project():
     """创建新项目"""
     try:
+        current_user = get_current_user()
+
         # 验证请求数据
         data = validate_json_request(
             required_fields=['name'],
             optional_fields=['description', 'color', 'status', 'github_url', 'local_url', 'production_url', 'project_context']
         )
-        
+
         if isinstance(data, tuple):  # 错误响应
             return data
-        
-        # 检查项目名称是否已存在
-        existing_project = Project.query.filter_by(name=data['name']).first()
+
+        # 检查项目名称是否已存在（在用户范围内）
+        existing_project = Project.query.filter_by(
+            name=data['name'],
+            owner_id=current_user.id
+        ).first()
         if existing_project:
             return api_error("Project name already exists", 409, "DUPLICATE_NAME")
-        
+
         # 创建项目
         project = Project.create(
             name=data['name'],
             description=data.get('description', ''),
             color=data.get('color', '#1890ff'),
-            created_by='api'  # TODO: 从认证信息获取
+            owner_id=current_user.id,
+            created_by=current_user.email
         )
         
         db.session.commit()
@@ -187,13 +204,23 @@ def create_project():
 
 
 @projects_bp.route('/<int:project_id>', methods=['GET'])
+@require_auth
 def get_project(project_id):
     """获取单个项目详情"""
     try:
+        current_user = get_current_user()
+
         project = Project.query.get(project_id)
         if not project:
             return api_error("Project not found", 404, "PROJECT_NOT_FOUND")
-        
+
+        # 权限检查
+        if current_user:
+            if not current_user.can_access_project(project):
+                return api_error("Access denied", 403)
+        else:
+            return api_error("Authentication required", 401)
+
         return api_response(
             project.to_dict(include_stats=True),
             "Project retrieved successfully"
@@ -204,12 +231,19 @@ def get_project(project_id):
 
 
 @projects_bp.route('/<int:project_id>', methods=['PUT'])
+@require_auth
 def update_project(project_id):
     """更新项目"""
     try:
+        current_user = get_current_user()
+
         project = Project.query.get(project_id)
         if not project:
             return api_error("Project not found", 404, "PROJECT_NOT_FOUND")
+
+        # 权限检查
+        if not current_user.can_access_project(project):
+            return api_error("Access denied", 403)
         
         # 验证请求数据
         data = validate_json_request(

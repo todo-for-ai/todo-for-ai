@@ -9,24 +9,35 @@ from flask import Blueprint, request
 from models import db, Task, TaskStatus, TaskPriority, Project, TaskHistory, ActionType
 from .base import api_response, api_error, paginate_query, validate_json_request, get_request_args
 from app.auth import optional_token_auth
+from app.github_config import require_auth, get_current_user
 
 # 创建蓝图
 tasks_bp = Blueprint('tasks', __name__)
 
 
 @tasks_bp.route('', methods=['GET'])
-@optional_token_auth
+@require_auth
 def list_tasks():
     """获取任务列表"""
     try:
         args = get_request_args()
-        
+        current_user = get_current_user()
+
         # 构建查询
         query = Task.query
+
+        # 用户权限控制
+        if current_user:
+            if not current_user.is_admin():
+                # 普通用户只能看到自己相关的任务
+                query = query.join(Project).filter(Project.owner_id == current_user.id)
+        else:
+            # 未登录用户不能访问任务列表
+            return api_error("Authentication required", 401)
         
         # 项目筛选
         if args['project_id']:
-            query = query.filter_by(project_id=args['project_id'])
+            query = query.filter(Task.project_id == args['project_id'])
         
         # 状态筛选
         if args['status']:
