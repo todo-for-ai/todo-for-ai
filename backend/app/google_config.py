@@ -72,14 +72,15 @@ class GoogleService:
         try:
             google_id = str(google_user_info['id'])
             email = google_user_info.get('email')
-            
+
             if not email:
                 current_app.logger.error("Google用户信息中缺少邮箱")
                 return None
-            
+
             # 首先尝试通过google_id查找用户
             user = User.query.filter_by(google_id=google_id).first()
-            
+            is_new_user = user is None
+
             # 如果没有找到，尝试通过邮箱查找（可能是已存在的用户）
             if not user:
                 user = User.query.filter_by(email=email).first()
@@ -88,7 +89,8 @@ class GoogleService:
                     user.google_id = google_id
                     user.provider = 'google'
                     user.provider_user_id = google_id
-            
+                    is_new_user = False  # 不是新用户，只是绑定了Google账号
+
             if user:
                 # 更新现有用户信息
                 user.update_from_google(google_user_info)
@@ -97,9 +99,15 @@ class GoogleService:
                 user = User.create_from_google(google_user_info)
                 from models import db
                 db.session.add(user)
+                is_new_user = True
 
             from models import db
             db.session.commit()
+
+            # 为新用户自动创建API Token
+            if is_new_user:
+                self._create_default_api_token(user)
+
             return user
         except Exception as e:
             current_app.logger.error(f"创建或更新Google用户失败: {str(e)}")
@@ -123,6 +131,36 @@ class GoogleService:
         except Exception as e:
             current_app.logger.error(f"生成Google用户令牌失败: {str(e)}")
             return None
+
+    def _create_default_api_token(self, user):
+        """为新用户创建默认的API Token"""
+        try:
+            from models import ApiToken, db
+
+            # 检查用户是否已有API Token
+            existing_token = ApiToken.query.filter_by(user_id=user.id).first()
+            if existing_token:
+                return  # 已有Token，不需要创建
+
+            # 生成永不过期的默认Token
+            api_token, token = ApiToken.generate_token(
+                name="默认Token",
+                description="系统自动生成的默认API Token，用于MCP客户端认证",
+                expires_days=None  # 永不过期
+            )
+
+            # 设置用户ID
+            api_token.user_id = user.id
+
+            db.session.add(api_token)
+            db.session.commit()
+
+            current_app.logger.info(f"为用户 {user.email} 创建了默认API Token")
+
+        except Exception as e:
+            current_app.logger.error(f"创建默认API Token失败: {str(e)}")
+            from models import db
+            db.session.rollback()
 
 
 # 创建全局Google服务实例

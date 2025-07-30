@@ -98,9 +98,10 @@ class GitHubService:
             email = github_user_info.get('email', f"{username}@github.local")
             avatar_url = github_user_info.get('avatar_url')
             name = github_user_info.get('name', username)
-            
+
             user = User.query.filter_by(github_id=github_id).first()
-            
+            is_new_user = user is None
+
             if user:
                 user.username = username
                 user.email = email
@@ -121,6 +122,11 @@ class GitHubService:
 
             from models import db
             db.session.commit()
+
+            # 为新用户自动创建API Token
+            if is_new_user:
+                self._create_default_api_token(user)
+
             return user
         except Exception as e:
             current_app.logger.error(f"创建或更新用户失败: {str(e)}")
@@ -142,6 +148,36 @@ class GitHubService:
         except Exception as e:
             current_app.logger.error(f"生成令牌失败: {str(e)}")
             return None
+
+    def _create_default_api_token(self, user):
+        """为新用户创建默认的API Token"""
+        try:
+            from models import ApiToken, db
+
+            # 检查用户是否已有API Token
+            existing_token = ApiToken.query.filter_by(user_id=user.id).first()
+            if existing_token:
+                return  # 已有Token，不需要创建
+
+            # 生成永不过期的默认Token
+            api_token, token = ApiToken.generate_token(
+                name="默认Token",
+                description="系统自动生成的默认API Token，用于MCP客户端认证",
+                expires_days=None  # 永不过期
+            )
+
+            # 设置用户ID
+            api_token.user_id = user.id
+
+            db.session.add(api_token)
+            db.session.commit()
+
+            current_app.logger.info(f"为用户 {user.email} 创建了默认API Token")
+
+        except Exception as e:
+            current_app.logger.error(f"创建默认API Token失败: {str(e)}")
+            from models import db
+            db.session.rollback()
 
 
 github_service = GitHubService()

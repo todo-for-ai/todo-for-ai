@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Layout, Menu, Typography, Space } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
@@ -7,9 +7,11 @@ import {
   RobotOutlined,
   AppstoreOutlined,
   ApiOutlined,
+  PushpinOutlined,
 } from '@ant-design/icons'
 import { UserAvatar } from '../UserProfile'
 import { LinkButton } from '../SmartLink'
+import { pinsApi, type UserProjectPin } from '../../api/pins'
 import './TopNavigation.css'
 
 const { Header } = Layout
@@ -18,6 +20,37 @@ const { Title } = Typography
 const TopNavigation: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const [pinnedProjects, setPinnedProjects] = useState<UserProjectPin[]>([])
+
+  // 加载Pin的项目
+  useEffect(() => {
+    const loadPinnedProjects = async () => {
+      try {
+        console.log('开始加载Pin项目...')
+        const response = await pinsApi.getUserPins()
+        console.log('Pin API Response:', response)
+        console.log('Response type:', typeof response)
+        console.log('Response keys:', response ? Object.keys(response) : 'null')
+
+        if (response && response.pins) {
+          console.log('Pin projects:', response.pins)
+          response.pins.forEach((pin, index) => {
+            console.log(`Pin ${index}:`, pin)
+            console.log(`Pin ${index} project:`, pin.project)
+          })
+          setPinnedProjects(response.pins)
+        } else {
+          console.log('No pins found or invalid response')
+          setPinnedProjects([])
+        }
+      } catch (error) {
+        console.error('Failed to load pinned projects:', error)
+        setPinnedProjects([])
+      }
+    }
+
+    loadPinnedProjects()
+  }, [])
 
   // 主要菜单项（左侧）
   const mainMenuItems = [
@@ -31,6 +64,12 @@ const TopNavigation: React.FC = () => {
       icon: <ProjectOutlined />,
       label: '项目管理',
     },
+    // 添加Pin的项目菜单项
+    ...pinnedProjects.map(pin => ({
+      key: `/todo-for-ai/pages/projects/${pin.project?.id || pin.project_id}`,
+      icon: <PushpinOutlined style={{ color: pin.project?.color || '#1890ff' }} />,
+      label: pin.project?.name || `项目 ${pin.project_id}`,
+    }))
   ]
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -89,7 +128,14 @@ const TopNavigation: React.FC = () => {
       </div>
 
       {/* 中间：主要菜单 + 文档链接 - 居中显示 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '48px' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '24px',
+        flex: '1',
+        justifyContent: 'center',
+        maxWidth: 'calc(100% - 400px)' // 为左右两侧留出空间
+      }}>
         {/* 主要菜单 */}
         <Menu
           mode="horizontal"
@@ -99,8 +145,10 @@ const TopNavigation: React.FC = () => {
           style={{
             border: 'none',
             background: 'transparent',
-            minWidth: '200px'
+            minWidth: 'auto',
+            flex: '1 1 auto'
           }}
+          overflowedIndicator={null}
         />
 
         {/* 文档链接 */}

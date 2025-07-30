@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  Card, 
-  Tabs, 
-  Form, 
-  Input, 
-  Button, 
-  Avatar, 
-  Typography, 
-  Space, 
+import {
+  Card,
+  Tabs,
+  Form,
+  Input,
+  Button,
+  Avatar,
+  Typography,
+  Space,
   Divider,
   message,
-  Upload,
   Row,
   Col
 } from 'antd'
-import { 
-  UserOutlined, 
-  SettingOutlined, 
+import {
+  UserOutlined,
   KeyOutlined,
-  UploadOutlined,
   EditOutlined,
   SaveOutlined
 } from '@ant-design/icons'
@@ -32,7 +29,7 @@ const Profile = () => {
   const { user, updateUser, isLoading } = useAuthStore()
   const [form] = Form.useForm()
   const [isEditing, setIsEditing] = useState(false)
-  const [uploading, setUploading] = useState(false)
+
 
   useEffect(() => {
     if (user) {
@@ -67,17 +64,7 @@ const Profile = () => {
     }
   }
 
-  const handleAvatarUpload = async (file: File) => {
-    setUploading(true)
-    try {
-      // TODO: 实现头像上传功能
-      message.info('头像上传功能待实现')
-    } catch (error) {
-      message.error('头像上传失败')
-    } finally {
-      setUploading(false)
-    }
-  }
+
 
   if (!user) {
     return <div>Loading...</div>
@@ -101,22 +88,7 @@ const Profile = () => {
                 icon={<UserOutlined />}
                 style={{ marginBottom: 16 }}
               />
-              <Upload
-                showUploadList={false}
-                beforeUpload={(file) => {
-                  handleAvatarUpload(file)
-                  return false
-                }}
-                accept="image/*"
-              >
-                <Button 
-                  icon={<UploadOutlined />} 
-                  loading={uploading}
-                  size="small"
-                >
-                  更换头像
-                </Button>
-              </Upload>
+
               
               <Divider />
               
@@ -276,21 +248,7 @@ const Profile = () => {
               <APITokenManager />
             </TabPane>
 
-            <TabPane
-              tab={
-                <span>
-                  <SettingOutlined />
-                  偏好设置
-                </span>
-              }
-              key="preferences"
-            >
-              <Card title="系统偏好">
-                <Paragraph>
-                  偏好设置功能正在开发中...
-                </Paragraph>
-              </Card>
-            </TabPane>
+
           </Tabs>
         </Col>
       </Row>

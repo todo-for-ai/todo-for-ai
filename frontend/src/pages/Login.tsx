@@ -56,7 +56,7 @@ const Login: React.FC = () => {
             Todo for AI
           </Title>
           <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
-            智能任务管理系统
+            AI任务管理系统
           </Paragraph>
         </div>
 
@@ -134,7 +134,24 @@ const Login: React.FC = () => {
 
           <div style={{ textAlign: 'center', marginTop: 24 }}>
             <Paragraph style={{ fontSize: 12, color: '#999', margin: 0 }}>
-              登录即表示您同意我们的服务条款和隐私政策
+              登录即表示您同意我们的
+              <a
+                href="/todo-for-ai/pages/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#1890ff', textDecoration: 'none' }}
+              >
+                服务条款
+              </a>
+              和
+              <a
+                href="/todo-for-ai/pages/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#1890ff', textDecoration: 'none' }}
+              >
+                隐私政策
+              </a>
             </Paragraph>
           </div>
         </Space>

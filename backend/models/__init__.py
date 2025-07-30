@@ -12,6 +12,7 @@ from .context_rule import ContextRule
 from .task_history import TaskHistory, ActionType
 from .attachment import Attachment
 from .api_token import ApiToken
+from .user_project_pin import UserProjectPin
 
 __all__ = [
     'db',
@@ -29,4 +30,5 @@ __all__ = [
     'ActionType',
     'Attachment',
     'ApiToken',
+    'UserProjectPin',
 ]

@@ -151,25 +151,30 @@ def renew_token(token_id):
 
 
 @tokens_bp.route('/<int:token_id>', methods=['DELETE'])
-@token_required
+@require_auth
 def delete_token(token_id):
     """删除（停用）Token"""
     try:
-        api_token = ApiToken.query.get_or_404(token_id)
-        
-        # 不能删除当前使用的token
-        current_token = get_current_token()
-        if current_token and current_token.id == token_id:
+        user_id = g.current_user.id
+
+        # 查找token，确保只能删除自己的token
+        api_token = ApiToken.query.filter_by(
+            id=token_id,
+            user_id=user_id
+        ).first()
+
+        if not api_token:
             return jsonify({
-                'error': 'Cannot delete the token currently being used'
-            }), 400
-        
+                'error': 'Token not found'
+            }), 404
+
+        # 软删除（设置为非活跃状态）
         api_token.deactivate()
-        
+
         return jsonify({
             'message': 'Token deactivated successfully'
         })
-    
+
     except Exception as e:
         db.session.rollback()
         return handle_api_error(e)
