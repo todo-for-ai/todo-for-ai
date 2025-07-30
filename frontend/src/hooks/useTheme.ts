@@ -22,13 +22,8 @@ const DEFAULT_OPTIONS: Required<ThemeOptions> = {
 export const useTheme = (options: ThemeOptions = {}) => {
   const config = { ...DEFAULT_OPTIONS, ...options }
 
-  // 初始化主题管理器
-  useEffect(() => {
-    // 注册预设主题到主题管理器
-    themes.forEach(theme => {
-      themeManager.registerTheme({ theme })
-    })
-  }, [])
+  // 先设置默认主题，避免初始化时的问题
+  const [currentTheme, setCurrentTheme] = useState<Theme>(getDefaultTheme)
 
   // 检测系统深色模式
   const [systemDarkMode, setSystemDarkMode] = useState(() => {
@@ -37,18 +32,25 @@ export const useTheme = (options: ThemeOptions = {}) => {
     }
     return false
   })
-  
+
   // 获取初始主题 (使用主题管理器)
   const getInitialTheme = useCallback((): Theme => {
     if (typeof window === 'undefined') {
       return getDefaultTheme()
     }
 
+    console.log('🔍 正在恢复主题设置...')
+
     // 尝试从主题管理器恢复
     const restoredThemeId = themeManager.restoreThemeFromStorage()
+    console.log('📦 从存储中恢复的主题ID:', restoredThemeId)
+
     if (restoredThemeId) {
       const theme = themeManager.getAllThemes().find(t => t.id === restoredThemeId)
-      if (theme) return theme
+      if (theme) {
+        console.log('✅ 成功恢复主题:', theme.name)
+        return theme
+      }
     }
 
     // 如果启用了跟随系统深色模式
@@ -61,10 +63,29 @@ export const useTheme = (options: ThemeOptions = {}) => {
 
     // 返回默认主题
     const defaultTheme = themeManager.getAllThemes().find(t => t.id === config.defaultThemeId)
-    return defaultTheme || getDefaultTheme()
+    const finalTheme = defaultTheme || getDefaultTheme()
+    console.log('🎨 使用默认主题:', finalTheme.name)
+    return finalTheme
   }, [config, systemDarkMode])
 
-  const [currentTheme, setCurrentTheme] = useState<Theme>(getInitialTheme)
+  // 初始化主题管理器和恢复主题
+  useEffect(() => {
+    console.log('🚀 初始化主题管理器...')
+
+    // 注册预设主题到主题管理器
+    themes.forEach(theme => {
+      themeManager.registerTheme({ theme })
+    })
+
+    // 恢复保存的主题
+    const initialTheme = getInitialTheme()
+    setCurrentTheme(initialTheme)
+
+    // 应用主题到主题管理器
+    themeManager.setTheme(initialTheme.id, 'auto')
+
+    console.log('✅ 主题管理器初始化完成')
+  }, [])
   
   // 监听系统深色模式变化
   useEffect(() => {
@@ -106,14 +127,19 @@ export const useTheme = (options: ThemeOptions = {}) => {
   
   // 切换主题 (使用主题管理器)
   const setTheme = useCallback(async (themeId: string) => {
+    console.log('🎨 切换主题到:', themeId)
+
     const success = await themeManager.setTheme(themeId, 'user')
     if (success) {
       const newTheme = themeManager.getCurrentTheme()
       if (newTheme) {
+        console.log('✅ 主题切换成功:', newTheme.name)
         setCurrentTheme(newTheme)
         // 应用CSS变量
         cssVariableManager.applyThemeVariables(newTheme)
       }
+    } else {
+      console.error('❌ 主题切换失败:', themeId)
     }
   }, [])
 

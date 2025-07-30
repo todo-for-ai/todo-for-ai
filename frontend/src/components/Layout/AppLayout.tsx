@@ -1,144 +1,37 @@
-import { useState } from 'react'
-import { Layout, Menu, Typography, Button } from 'antd'
-import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import {
-  DashboardOutlined,
-  ProjectOutlined,
-  SettingOutlined,
-  RobotOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  AppstoreOutlined,
-  FileTextOutlined,
-  ApiOutlined,
-} from '@ant-design/icons'
+import React from 'react'
+import { Layout } from 'antd'
+import { Outlet } from 'react-router-dom'
+import TopNavigation from './TopNavigation'
 
-
-const { Header, Sider, Content } = Layout
-const { Title } = Typography
+const { Content } = Layout
 
 const AppLayout = () => {
-  const [collapsed, setCollapsed] = useState(false)
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  const menuItems = [
-    {
-      key: '/todo-for-ai/pages',
-      icon: <DashboardOutlined />,
-      label: '仪表板',
-    },
-    {
-      key: '/todo-for-ai/pages/projects',
-      icon: <ProjectOutlined />,
-      label: '项目管理',
-    },
-    {
-      key: '/todo-for-ai/pages/context-rules',
-      icon: <FileTextOutlined />,
-      label: '上下文规则',
-    },
-    {
-      key: '/todo-for-ai/pages/mcp-installation',
-      icon: <AppstoreOutlined />,
-      label: 'MCP安装文档',
-    },
-    {
-      key: '/todo-for-ai/pages/api-documentation',
-      icon: <ApiOutlined />,
-      label: 'HTTP API文档',
-    },
-    {
-      key: '/todo-for-ai/pages/settings',
-      icon: <SettingOutlined />,
-      label: '系统设置',
-    },
-  ]
-
-  const handleMenuClick = ({ key }: { key: string }) => {
-    navigate(key)
-  }
-
   return (
-    <Layout className="app-layout">
-      <Sider 
-        trigger={null} 
-        collapsible 
-        collapsed={collapsed}
+    <Layout className="app-layout" style={{ minHeight: '100vh' }}>
+      {/* 顶部导航栏 */}
+      <TopNavigation />
+
+      {/* 主要内容区域 */}
+      <Content
         style={{
-          background: '#fff',
-          boxShadow: '2px 0 8px rgba(0, 0, 0, 0.06)',
+          marginTop: '64px', // 为固定的顶部导航栏留出空间
+          padding: '24px',
+          minHeight: 'calc(100vh - 64px)',
+          background: '#f5f5f5',
         }}
       >
-        <div style={{ 
-          padding: '16px', 
-          textAlign: 'center',
-          borderBottom: '1px solid #f0f0f0',
-          marginBottom: '8px'
-        }}>
-          <RobotOutlined 
-            style={{ 
-              fontSize: collapsed ? '24px' : '32px', 
-              color: '#1890ff',
-              transition: 'all 0.2s'
-            }} 
-          />
-          {!collapsed && (
-            <Title 
-              level={4} 
-              style={{ 
-                margin: '8px 0 0 0', 
-                color: '#1890ff',
-                fontSize: '16px'
-              }}
-            >
-              Todo for AI
-            </Title>
-          )}
-        </div>
-        
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={handleMenuClick}
-          style={{ border: 'none' }}
-        />
-      </Sider>
-      
-      <Layout>
-        <Header 
-          className="app-header"
-          style={{ 
-            padding: '0 24px',
+        <div
+          style={{
             background: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
+            borderRadius: '8px',
+            padding: '24px',
+            minHeight: 'calc(100vh - 112px)', // 减去顶部导航栏和padding
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
           }}
         >
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: '16px',
-              width: 64,
-              height: 64,
-            }}
-          />
-          
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ color: '#666' }}>
-              欢迎使用 Todo for AI
-            </span>
-          </div>
-        </Header>
-        
-        <Content className="app-content">
           <Outlet />
-        </Content>
-      </Layout>
+        </div>
+      </Content>
     </Layout>
   )
 }

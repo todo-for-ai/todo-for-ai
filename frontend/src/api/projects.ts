@@ -16,6 +16,10 @@ export interface Project {
   production_url?: string
   project_context?: string
   last_activity_at?: string
+  // 统计信息字段
+  total_tasks?: number
+  completed_tasks?: number
+  pending_tasks?: number
   stats?: {
     total_tasks: number
     todo_tasks: number

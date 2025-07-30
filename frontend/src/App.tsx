@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from './components/Layout'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { AuthGuard } from './components/AuthGuard'
 import {
   Dashboard,
   Projects,
   ProjectDetail,
   CreateProject,
-  Tasks,
   TaskDetail,
   CreateTask,
   Settings,
@@ -15,6 +15,8 @@ import {
   MCPInstallation,
   APIDocumentation
 } from './pages'
+import Login from './pages/Login'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -22,20 +24,27 @@ function App() {
       enablePersistence: true,
       defaultThemeId: 'default',
       followSystemDarkMode: true,
-      storageKey: 'todo-for-ai-theme'
+      storageKey: 'milkdown-theme-id'
     }}>
       <Router>
         <Routes>
           {/* 根目录重定向 */}
           <Route path="/" element={<Navigate to="/todo-for-ai/pages" replace />} />
 
-          <Route path="/todo-for-ai/pages" element={<AppLayout />}>
+          {/* 登录页面 - 不需要认证 */}
+          <Route path="/todo-for-ai/pages/login" element={<Login />} />
+
+          {/* 主应用 - 需要认证 */}
+          <Route path="/todo-for-ai/pages" element={
+            <AuthGuard>
+              <AppLayout />
+            </AuthGuard>
+          }>
             <Route index element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/create" element={<CreateProject />} />
             <Route path="projects/:id" element={<ProjectDetail />} />
             <Route path="projects/:id/edit" element={<CreateProject />} />
-            <Route path="tasks" element={<Tasks />} />
             <Route path="tasks/create" element={<CreateTask />} />
             <Route path="tasks/:id" element={<TaskDetail />} />
             <Route path="tasks/:id/edit" element={<CreateTask />} />
@@ -45,6 +54,7 @@ function App() {
             <Route path="mcp-installation" element={<MCPInstallation />} />
             <Route path="api-documentation" element={<APIDocumentation />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
           {/* 捕获所有未匹配的路由，重定向到首页 */}
