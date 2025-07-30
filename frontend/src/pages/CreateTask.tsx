@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom'
 import {
   Typography,
@@ -13,7 +13,6 @@ import {
   Row,
   Col,
   Checkbox,
-  InputNumber,
   Breadcrumb
 } from 'antd'
 import {
@@ -22,7 +21,8 @@ import {
   HomeOutlined,
   PlusOutlined,
   CopyOutlined,
-  FileAddOutlined
+  FileAddOutlined,
+  EyeOutlined
 } from '@ant-design/icons'
 import { useTaskStore, useProjectStore } from '../stores'
 import MilkdownEditor from '../components/MilkdownEditor'
@@ -43,11 +43,47 @@ const CreateTask: React.FC = () => {
   const [editorContent, setEditorContent] = useState('')
   const [taskLoaded, setTaskLoaded] = useState(false)
 
+  // 防抖保存的定时器引用
+  const saveDraftTimeoutRef = useRef<number | undefined>(undefined)
+
   const { createTask, updateTask, getTask } = useTaskStore()
   const { projects, fetchProjects } = useProjectStore()
 
   // 从URL参数获取默认项目ID
   const defaultProjectId = searchParams.get('project_id')
+
+  // 防抖保存函数 - 避免频繁保存干扰用户输入
+  const debouncedSaveDraft = useCallback((content: string) => {
+    // 清除之前的定时器
+    if (saveDraftTimeoutRef.current) {
+      clearTimeout(saveDraftTimeoutRef.current)
+    }
+
+    // 设置新的定时器
+    saveDraftTimeoutRef.current = window.setTimeout(() => {
+      const currentValues = form.getFieldsValue()
+      if (currentValues.project_id) {
+        const projectId = parseInt(currentValues.project_id, 10)
+        const draftKey = getDraftKey(projectId)
+        const draftData = {
+          title: currentValues.title,
+          content: content,
+          status: currentValues.status,
+          priority: currentValues.priority,
+          due_date: currentValues.due_date,
+          tags: currentValues.tags,
+          is_ai_task: currentValues.is_ai_task
+        }
+
+        try {
+          localStorage.setItem(draftKey, JSON.stringify(draftData))
+          console.log('📝 草稿已保存 (防抖):', draftKey)
+        } catch (error) {
+          console.warn('保存草稿失败:', error)
+        }
+      }
+    }, 500) // 500ms防抖延迟，避免频繁保存
+  }, [form])
 
   // 实时保存草稿功能
   const getDraftKey = (projectId: number) => {
@@ -392,6 +428,13 @@ const CreateTask: React.FC = () => {
     navigate(`/todo-for-ai/pages/tasks/create?project_id=${currentProjectId}&copy=true`)
   }
 
+  // 查看任务详情
+  const handleViewTaskDetail = () => {
+    if (id) {
+      navigate(`/todo-for-ai/pages/tasks/${id}`)
+    }
+  }
+
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* 面包屑导航 */}
@@ -420,10 +463,32 @@ const CreateTask: React.FC = () => {
         <Breadcrumb.Item>{isEditMode ? '编辑任务' : '新建任务'}</Breadcrumb.Item>
       </Breadcrumb>
 
-      {/* 快捷操作按钮 */}
+      {/* 页面标题区域 - 符合UI设计对齐原则 */}
       <Card style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* 返回按钮 - 移到左上角标题左边 */}
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => {
+              const projectId = form.getFieldValue('project_id') || defaultProjectId
+              if (projectId) {
+                navigate(`/todo-for-ai/pages/projects/${projectId}`)
+              } else {
+                navigate('/todo-for-ai/pages/tasks')
+              }
+            }}
+            style={{
+              fontSize: '16px',
+              height: '40px',
+              padding: '0 12px'
+            }}
+          >
+            返回项目任务列表
+          </Button>
+
+          {/* 页面标题 */}
+          <div style={{ flex: 1 }}>
             <Title level={2} style={{ margin: 0 }}>
               <PlusOutlined style={{ marginRight: '12px' }} />
               {isEditMode ? '编辑任务' : '新建任务'}
@@ -435,83 +500,10 @@ const CreateTask: React.FC = () => {
               </span>
             </Paragraph>
           </div>
-
-          {/* 编辑模式下的快捷操作按钮 */}
-          {isEditMode && (
-            <div>
-              <Space>
-                <Button
-                  icon={<FileAddOutlined />}
-                  onClick={handleCreateNewTask}
-                  type="default"
-                >
-                  新建任务
-                </Button>
-                <Button
-                  icon={<CopyOutlined />}
-                  onClick={handleCopyTask}
-                  type="default"
-                >
-                  从此任务创建新任务
-                </Button>
-              </Space>
-            </div>
-          )}
-          <Space>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => {
-                const projectId = form.getFieldValue('project_id') || defaultProjectId
-                if (projectId) {
-                  navigate(`/todo-for-ai/pages/projects/${projectId}?tab=tasks`)
-                } else {
-                  navigate('/todo-for-ai/pages/projects')
-                }
-              }}
-            >
-              返回项目任务列表
-            </Button>
-            {!isEditMode && (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  // 清除当前草稿
-                  const projectId = form.getFieldValue('project_id') || defaultProjectId
-                  if (projectId) {
-                    clearDraft(parseInt(projectId, 10))
-                  }
-
-                  // 创建新的会话ID
-                  sessionStorage.removeItem('newTaskSessionId')
-
-                  // 重置表单为新建任务
-                  form.resetFields()
-                  setEditorContent('')
-                  form.setFieldsValue({
-                    status: 'todo',
-                    priority: 'medium',
-                    is_ai_task: true,
-                    project_id: defaultProjectId ? parseInt(defaultProjectId, 10) : undefined
-                  })
-
-                  message.success('已清除草稿，重新开始创建任务')
-                }}
-              >
-                重新开始
-              </Button>
-            )}
-            <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              loading={loading}
-              onClick={handleSubmitAndEdit}
-            >
-              {isEditMode ? '保存 (Ctrl+S)' : '创建并编辑 (Ctrl+S)'}
-            </Button>
-          </Space>
         </div>
       </Card>
+
+
 
       {/* 表单内容 */}
       <Card>
@@ -524,7 +516,7 @@ const CreateTask: React.FC = () => {
             is_ai_task: true, // 默认选中分配给AI
           }}
           onFinish={handleSubmit}
-          onValuesChange={(changedValues, allValues) => {
+          onValuesChange={(_changedValues, allValues) => {
             // 实时保存草稿（仅在新建模式下）
             if (!isEditMode && allValues.project_id) {
               saveDraft(allValues.project_id, {
@@ -598,6 +590,85 @@ const CreateTask: React.FC = () => {
                 marginBottom: '16px'
               }}
             >
+              {/* 操作按钮行 - 放在编辑器标题下面的单独一行 */}
+              <div style={{
+                marginBottom: '16px',
+                padding: '12px 16px',
+                backgroundColor: '#fafafa',
+                borderRadius: '6px',
+                border: '1px solid #f0f0f0'
+              }}>
+                <Space wrap>
+                  {/* 编辑模式下的操作按钮 */}
+                  {isEditMode && (
+                    <>
+                      <Button
+                        icon={<EyeOutlined />}
+                        onClick={handleViewTaskDetail}
+                        type="primary"
+                      >
+                        任务详情
+                      </Button>
+                      <Button
+                        icon={<FileAddOutlined />}
+                        onClick={handleCreateNewTask}
+                        type="default"
+                      >
+                        新建任务
+                      </Button>
+                      <Button
+                        icon={<CopyOutlined />}
+                        onClick={handleCopyTask}
+                        type="default"
+                      >
+                        从此任务创建新任务
+                      </Button>
+                    </>
+                  )}
+
+                  {/* 保存按钮 - 所有模式都显示 */}
+                  <Button
+                    type="primary"
+                    icon={<SaveOutlined />}
+                    loading={loading}
+                    onClick={handleSubmitAndEdit}
+                  >
+                    {isEditMode ? '保存 (Ctrl+S)' : '创建并编辑 (Ctrl+S)'}
+                  </Button>
+
+                  {/* 新建模式下的重新开始按钮 */}
+                  {!isEditMode && (
+                    <Button
+                      icon={<PlusOutlined />}
+                      onClick={() => {
+                        // 清除当前草稿
+                        const projectId = form.getFieldValue('project_id') || defaultProjectId
+                        if (projectId) {
+                          clearDraft(parseInt(projectId, 10))
+                        }
+
+                        // 创建新的会话ID
+                        sessionStorage.removeItem('newTaskSessionId')
+
+                        // 重置表单为新建任务
+                        form.resetFields()
+                        setEditorContent('')
+                        form.setFieldsValue({
+                          status: 'todo',
+                          priority: 'medium',
+                          is_ai_task: true,
+                          project_id: defaultProjectId ? parseInt(defaultProjectId, 10) : undefined
+                        })
+
+                        message.success('已清除草稿，重新开始创建任务')
+                      }}
+                    >
+                      重新开始
+                    </Button>
+                  )}
+                </Space>
+              </div>
+
               <Form.Item
                 name="content"
                 tooltip="支持Markdown格式，详细描述任务内容、需求和说明"
@@ -608,26 +679,21 @@ const CreateTask: React.FC = () => {
                   <MilkdownEditor
                     value={editorContent}
                     onChange={(value) => {
-                      setEditorContent(value || '')
-                      form.setFieldsValue({ content: value || '' })
+                      // 修复：避免循环更新，使用更智能的状态管理
+                      const newValue = value || ''
 
-                      // 手动触发实时保存（仅在新建模式下）
-                      if (!isEditMode) {
-                        // 延迟保存，确保表单值已更新
-                        setTimeout(() => {
-                          const currentValues = form.getFieldsValue()
-                          if (currentValues.project_id) {
-                            saveDraft(currentValues.project_id, {
-                              title: currentValues.title,
-                              content: value || '',
-                              status: currentValues.status,
-                              priority: currentValues.priority,
-                              due_date: currentValues.due_date,
-                              tags: currentValues.tags,
-                              is_ai_task: currentValues.is_ai_task
-                            })
-                          }
-                        }, 100)
+                      // 只有在内容真正变化时才更新状态
+                      if (newValue !== editorContent) {
+                        setEditorContent(newValue)
+
+                        // 使用静默更新，避免触发onValuesChange
+                        form.setFieldValue('content', newValue)
+
+                        // 手动触发实时保存（仅在新建模式下）
+                        if (!isEditMode) {
+                          // 使用防抖保存，避免频繁保存干扰用户输入
+                          debouncedSaveDraft(newValue)
+                        }
                       }
                     }}
                     onSave={handleSubmitAndEdit}

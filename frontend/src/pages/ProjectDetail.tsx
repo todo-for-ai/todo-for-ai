@@ -16,9 +16,7 @@ import {
   message,
   Select,
   Popconfirm,
-  Progress,
-  Input,
-  DatePicker
+  Input
 } from 'antd'
 import {
   ArrowLeftOutlined,
@@ -28,13 +26,9 @@ import {
   CheckCircleOutlined,
   PlusOutlined,
   CopyOutlined,
-  RobotOutlined,
-  AppstoreOutlined,
   EyeOutlined,
   DeleteOutlined,
   ReloadOutlined,
-  FileTextOutlined,
-  SearchOutlined,
   FilterOutlined,
   GithubOutlined,
   LinkOutlined,
@@ -44,6 +38,7 @@ import { useProjectStore, useTaskStore, useContextRuleStore } from '../stores'
 import { KanbanBoard } from '../components/Kanban'
 import { TaskContentSummary } from '../components/TaskContentPreview'
 import { MarkdownEditor } from '../components/MarkdownEditor'
+import { LinkButton } from '../components/SmartLink'
 import type { Task } from '../api/tasks'
 import type { ContextRule } from '../api/contextRules'
 
@@ -73,13 +68,48 @@ const ProjectDetail = () => {
       status: 'todo,in_progress,review',
       priority: '',
       search: '',
-      sort_by: 'created_at',
+      sort_by: 'updated_at',
       sort_order: 'desc' as 'desc' | 'asc'
+    }
+  }
+
+  // 从localStorage加载分页设置
+  const loadPaginationFromStorage = () => {
+    try {
+      const saved = localStorage.getItem('project-task-pagination')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        return {
+          pageSize: parsed.pageSize || 100, // 默认100条每页
+          current: 1 // 总是从第一页开始
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load pagination from localStorage:', error)
+    }
+    return {
+      pageSize: 100, // 默认100条每页
+      current: 1
+    }
+  }
+
+  // 保存分页设置到localStorage
+  const savePaginationToStorage = (pageSize: number) => {
+    try {
+      const paginationSettings = { pageSize }
+      localStorage.setItem('project-task-pagination', JSON.stringify(paginationSettings))
+      console.log('📄 分页设置已保存:', paginationSettings)
+    } catch (error) {
+      console.warn('Failed to save pagination to localStorage:', error)
     }
   }
 
   // 任务筛选和搜索状态
   const [taskFilters, setTaskFilters] = useState(loadTaskFiltersFromStorage)
+  const [paginationSettings, setPaginationSettings] = useState(loadPaginationFromStorage())
+
+  // 多选任务状态
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([])
 
 
 
@@ -96,9 +126,8 @@ const ProjectDetail = () => {
     loading: tasksLoading,
     error: tasksError,
     pagination,
+    queryParams,
     fetchTasks,
-    createTask,
-    updateTask,
     deleteTask,
     updateTaskStatus,
     setQueryParams,
@@ -108,7 +137,7 @@ const ProjectDetail = () => {
   useEffect(() => {
     if (id) {
       fetchProject(parseInt(id))
-      // 设置任务查询参数
+      // 设置任务查询参数，使用保存的分页大小
       const queryParams = {
         project_id: parseInt(id),
         status: taskFilters.status,
@@ -116,12 +145,13 @@ const ProjectDetail = () => {
         search: taskFilters.search,
         sort_by: taskFilters.sort_by,
         sort_order: taskFilters.sort_order,
-        per_page: 20
+        per_page: paginationSettings.pageSize, // 使用保存的分页大小
+        page: 1 // 重新加载时从第一页开始
       }
       setQueryParams(queryParams)
       fetchTasks()
     }
-  }, [id, taskFilters, fetchProject, fetchTasks, setQueryParams])
+  }, [id, taskFilters, paginationSettings.pageSize, fetchProject, fetchTasks, setQueryParams])
 
   // 设置网页标题
   useEffect(() => {
@@ -179,7 +209,8 @@ const ProjectDetail = () => {
         search: taskFilters.search,
         sort_by: taskFilters.sort_by,
         sort_order: taskFilters.sort_order,
-        per_page: 20
+        per_page: paginationSettings.pageSize, // 使用保存的分页大小
+        page: 1 // 刷新时从第一页开始
       }
       setQueryParams(queryParams)
 
@@ -198,20 +229,62 @@ const ProjectDetail = () => {
 
   // 处理表格变化（排序、分页）
   const handleTableChange = (pagination: any, _filters: any, sorter: any) => {
-    const newFilters = { ...taskFilters }
+    console.log('📊 表格变化:', { pagination, sorter })
 
+    const newFilters = { ...taskFilters }
+    let needsRefresh = false
+
+    // 处理排序变化
     if (sorter.field) {
       newFilters.sort_by = sorter.field
       newFilters.sort_order = sorter.order === 'ascend' ? 'asc' : 'desc'
+      needsRefresh = true
     }
 
-    setTaskFilters(newFilters)
+    // 处理分页大小变化
+    if (pagination.pageSize !== paginationSettings.pageSize) {
+      console.log('📄 分页大小变化:', pagination.pageSize)
+      const newPaginationSettings = {
+        pageSize: pagination.pageSize,
+        current: 1 // 改变分页大小时从第一页开始
+      }
+      setPaginationSettings(newPaginationSettings)
+      savePaginationToStorage(pagination.pageSize)
+      needsRefresh = true
+    }
 
-    // 保存到localStorage
-    try {
-      localStorage.setItem('project-task-filters', JSON.stringify(newFilters))
-    } catch (error) {
-      console.warn('Failed to save task filters to localStorage:', error)
+    // 处理页码变化
+    if (pagination.current !== (queryParams.page || 1)) {
+      console.log('📄 页码变化:', pagination.current)
+      needsRefresh = true
+    }
+
+    // 更新筛选条件
+    if (needsRefresh) {
+      setTaskFilters(newFilters)
+
+      // 保存筛选条件到localStorage
+      try {
+        localStorage.setItem('project-task-filters', JSON.stringify(newFilters))
+      } catch (error) {
+        console.warn('Failed to save task filters to localStorage:', error)
+      }
+
+      // 更新查询参数并重新获取数据
+      if (id) {
+        const newQueryParams = {
+          project_id: parseInt(id),
+          status: newFilters.status,
+          priority: newFilters.priority,
+          search: newFilters.search,
+          sort_by: newFilters.sort_by,
+          sort_order: newFilters.sort_order,
+          per_page: pagination.pageSize || paginationSettings.pageSize,
+          page: pagination.current || 1
+        }
+        setQueryParams(newQueryParams)
+        fetchTasks()
+      }
     }
   }
 
@@ -228,18 +301,62 @@ const ProjectDetail = () => {
     const success = await deleteTask(task.id)
     if (success) {
       message.success('任务删除成功')
+      // 如果删除的任务在选中列表中，也要移除
+      setSelectedTaskIds(prev => prev.filter(id => id !== task.id))
     }
+  }
+
+  // 处理任务多选
+  const handleTaskSelection = {
+    selectedRowKeys: selectedTaskIds,
+    onChange: (selectedRowKeys: React.Key[]) => {
+      setSelectedTaskIds(selectedRowKeys as number[])
+    },
+    onSelectAll: (selected: boolean, selectedRows: Task[], changeRows: Task[]) => {
+      if (selected) {
+        // 全选：添加当前页面所有任务
+        const newSelectedIds = [...selectedTaskIds, ...changeRows.map(task => task.id)]
+        setSelectedTaskIds([...new Set(newSelectedIds)]) // 去重
+      } else {
+        // 取消全选：移除当前页面所有任务
+        const changeRowIds = changeRows.map(task => task.id)
+        setSelectedTaskIds(prev => prev.filter(id => !changeRowIds.includes(id)))
+      }
+    },
+    onSelect: (record: Task, selected: boolean) => {
+      if (selected) {
+        setSelectedTaskIds(prev => [...prev, record.id])
+      } else {
+        setSelectedTaskIds(prev => prev.filter(id => id !== record.id))
+      }
+    },
+  }
+
+  // 清除选中
+  const handleClearSelection = () => {
+    setSelectedTaskIds([])
   }
 
   const handleCopyProjectPrompt = () => {
     if (!currentProject) return
 
-    // 获取待执行的任务
-    const pendingTasks = tasks.filter(task =>
-      ['todo', 'in_progress', 'review'].includes(task.status)
-    )
+    // 根据是否有选中任务来决定要执行的任务
+    let targetTasks: Task[]
+    let promptTitle: string
 
-    const prompt = `请帮我执行项目"${currentProject.name}"中的所有待办任务：
+    if (selectedTaskIds.length > 0) {
+      // 如果有选中任务，只处理选中的任务
+      targetTasks = tasks.filter(task => selectedTaskIds.includes(task.id))
+      promptTitle = `请帮我执行项目"${currentProject.name}"中的指定任务：`
+    } else {
+      // 如果没有选中任务，处理所有待执行任务
+      targetTasks = tasks.filter(task =>
+        ['todo', 'in_progress', 'review'].includes(task.status)
+      )
+      promptTitle = `请帮我执行项目"${currentProject.name}"中的所有待办任务：`
+    }
+
+    const prompt = `${promptTitle}
 
 **项目信息**:
 - 项目名称: ${currentProject.name}
@@ -247,7 +364,7 @@ const ProjectDetail = () => {
 - GitHub仓库: ${currentProject.github_url || '无'}
 - 项目上下文: ${currentProject.project_context || '无'}
 
-**待执行任务数量**: ${pendingTasks.length}个
+**${selectedTaskIds.length > 0 ? '指定' : '待执行'}任务数量**: ${targetTasks.length}个
 
 **执行指引**:
 1. 请使用MCP工具连接到Todo系统: http://localhost:50110
@@ -260,14 +377,17 @@ const ProjectDetail = () => {
 6. 继续执行下一个任务，直到所有任务完成
 
 **任务概览**:
-${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
+${targetTasks.length > 0 ? targetTasks.map((task, index) =>
   `${index + 1}. [${task.priority === 'low' ? '低' : task.priority === 'medium' ? '中' : task.priority === 'high' ? '高' : '紧急'}] ${task.title} (ID: ${task.id})`
 ).join('\n') : '暂无待执行任务'}
 
 请开始执行这个项目的任务，并在每个任务完成后提交反馈。`
 
     navigator.clipboard.writeText(prompt).then(() => {
-      message.success('项目执行提示词已复制到剪贴板')
+      const message_text = selectedTaskIds.length > 0
+        ? `已复制${targetTasks.length}个指定任务的执行提示词到剪贴板`
+        : '项目执行提示词已复制到剪贴板'
+      message.success(message_text)
     }).catch(() => {
       message.error('复制失败，请手动复制')
     })
@@ -331,19 +451,19 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
           <Tag color="blue" style={{ fontSize: '10px', padding: '2px 6px', margin: 0, flexShrink: 0 }}>
             #{record.id}
           </Tag>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <Button
+          <div style={{ flex: 1, minWidth: 0, color: getTaskTitleColor(record.status) }}>
+            <LinkButton
+              to={`/todo-for-ai/pages/tasks/${record.id}`}
               type="link"
               style={{
                 padding: 0,
                 fontWeight: 500,
                 height: 'auto',
-                color: getTaskTitleColor(record.status)
+                color: 'inherit'
               }}
-              onClick={() => navigate(`/todo-for-ai/pages/tasks/${record.id}`)}
             >
               {text}
-            </Button>
+            </LinkButton>
             {record.description && (
               <div style={{ color: '#999', fontSize: '12px', marginTop: '4px' }}>
                 {record.description.length > 50
@@ -377,9 +497,9 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
       ),
     },
     {
-      title: '创建时间',
-      dataIndex: 'created_at',
-      key: 'created_at',
+      title: '最后修改时间',
+      dataIndex: 'updated_at',
+      key: 'updated_at',
       width: 160,
       sorter: true,
       render: (date: string) => {
@@ -411,22 +531,22 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
       width: 180,
       render: (_: any, record: Task) => (
         <Space size="small">
-          <Button
+          <LinkButton
+            to={`/todo-for-ai/pages/tasks/${record.id}`}
             type="text"
             icon={<EyeOutlined />}
             size="small"
-            onClick={() => navigate(`/todo-for-ai/pages/tasks/${record.id}`)}
           >
             查看
-          </Button>
-          <Button
+          </LinkButton>
+          <LinkButton
+            to={`/todo-for-ai/pages/tasks/${record.id}/edit`}
             type="text"
             icon={<EditOutlined />}
             size="small"
-            onClick={() => navigate(`/todo-for-ai/pages/tasks/${record.id}/edit`)}
           >
             编辑
-          </Button>
+          </LinkButton>
           <Popconfirm
             title="确定要删除这个任务吗？"
             description="删除后无法恢复，请谨慎操作。"
@@ -470,17 +590,17 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
       <div className="page-header">
         <div className="flex-between">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <div 
-                style={{ 
-                  width: '16px', 
-                  height: '16px', 
-                  borderRadius: '50%', 
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+              <div
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
                   backgroundColor: currentProject.color,
                   flexShrink: 0
-                }} 
+                }}
               />
-              <Title level={2} className="page-title" style={{ margin: 0 }}>
+              <Title level={3} className="page-title" style={{ margin: 0, fontSize: '18px' }}>
                 {currentProject.name}
               </Title>
               <Tag color={currentProject.status === 'active' ? 'green' : 'orange'}>
@@ -493,15 +613,41 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
               </Paragraph>
             )}
           </div>
-          <Space>
+          <Space size="small">
             <Button
+              size="small"
               icon={<CopyOutlined />}
               onClick={handleCopyProjectPrompt}
-              title="复制AI执行项目任务的提示词"
+              title={selectedTaskIds.length > 0
+                ? `复制选中的${selectedTaskIds.length}个任务的执行提示词`
+                : "复制AI执行项目任务的提示词"
+              }
             >
               复制AI Prompt
+              {selectedTaskIds.length > 0 && (
+                <span style={{
+                  marginLeft: '4px',
+                  backgroundColor: '#1890ff',
+                  color: 'white',
+                  borderRadius: '10px',
+                  padding: '0 6px',
+                  fontSize: '12px'
+                }}>
+                  {selectedTaskIds.length}
+                </span>
+              )}
             </Button>
+            {selectedTaskIds.length > 0 && (
+              <Button
+                size="small"
+                onClick={handleClearSelection}
+                title="清除选中的任务"
+              >
+                清除选中
+              </Button>
+            )}
             <Button
+              size="small"
               icon={<EditOutlined />}
               onClick={() => navigate(`/todo-for-ai/pages/projects/${id}/edit`)}
             >
@@ -509,6 +655,7 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
             </Button>
             <Button
               type="primary"
+              size="small"
               icon={<PlusOutlined />}
               onClick={() => navigate(`/todo-for-ai/pages/tasks/create?project_id=${id}`)}
             >
@@ -518,44 +665,48 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
         </div>
       </div>
 
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[8, 8]} style={{ marginBottom: '12px' }}>
         <Col xs={24} sm={12} md={6}>
-          <Card>
+          <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
               title="总任务数"
               value={stats.total_tasks}
-              prefix={<CheckSquareOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              prefix={<CheckSquareOutlined style={{ fontSize: '14px' }} />}
+              valueStyle={{ color: '#1890ff', fontSize: '18px' }}
+              style={{ textAlign: 'center' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card>
+          <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
               title="待办任务"
               value={stats.todo_tasks}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              prefix={<ClockCircleOutlined style={{ fontSize: '14px' }} />}
+              valueStyle={{ color: '#faad14', fontSize: '18px' }}
+              style={{ textAlign: 'center' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card>
+          <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
               title="进行中"
               value={stats.in_progress_tasks}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              prefix={<ClockCircleOutlined style={{ fontSize: '14px' }} />}
+              valueStyle={{ color: '#1890ff', fontSize: '18px' }}
+              style={{ textAlign: 'center' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card>
+          <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
               title="已完成"
               value={stats.done_tasks}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              prefix={<CheckCircleOutlined style={{ fontSize: '14px' }} />}
+              valueStyle={{ color: '#52c41a', fontSize: '18px' }}
+              style={{ textAlign: 'center' }}
             />
           </Card>
         </Col>
@@ -693,20 +844,21 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
         <TabPane tab="任务列表" key="tasks">
           <Card>
             {/* 筛选控件 */}
-            <Card style={{ marginBottom: 16, backgroundColor: '#fafafa' }}>
-              <Row gutter={16} align="middle">
-                <Col span={4}>
-                  <Space>
-                    <FilterOutlined />
-                    <span>筛选条件:</span>
+            <Card style={{ marginBottom: 6, backgroundColor: '#fafafa' }} bodyStyle={{ padding: '6px 12px' }}>
+              <Row gutter={6} align="middle" style={{ minHeight: '28px' }}>
+                <Col span={3}>
+                  <Space size={4}>
+                    <FilterOutlined style={{ fontSize: '12px' }} />
+                    <span style={{ fontSize: '12px' }}>筛选:</span>
                   </Space>
                 </Col>
                 <Col span={4}>
                   <Select
+                    size="small"
                     placeholder="任务状态"
                     value={taskFilters.status}
                     onChange={(value) => handleFilterChange('status', value)}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', height: '22px' }}
                     allowClear
                   >
                     <Option value="">全部状态</Option>
@@ -718,12 +870,13 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
                     <Option value="cancelled">已取消</Option>
                   </Select>
                 </Col>
-                <Col span={4}>
+                <Col span={3}>
                   <Select
+                    size="small"
                     placeholder="优先级"
                     value={taskFilters.priority}
                     onChange={(value) => handleFilterChange('priority', value)}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', height: '22px' }}
                     allowClear
                   >
                     <Option value="">全部优先级</Option>
@@ -733,38 +886,42 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
                     <Option value="urgent">紧急</Option>
                   </Select>
                 </Col>
-                <Col span={4}>
+                <Col span={3}>
                   <Select
+                    size="small"
                     placeholder="排序方式"
                     value={taskFilters.sort_by}
                     onChange={(value) => handleFilterChange('sort_by', value)}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', height: '22px' }}
                   >
+                    <Option value="updated_at">最后修改时间</Option>
                     <Option value="created_at">创建时间</Option>
-                    <Option value="updated_at">更新时间</Option>
                     <Option value="due_date">截止时间</Option>
                     <Option value="priority">优先级</Option>
                     <Option value="status">状态</Option>
                     <Option value="title">标题</Option>
                   </Select>
                 </Col>
-                <Col span={4}>
+                <Col span={3}>
                   <Select
+                    size="small"
                     placeholder="排序顺序"
                     value={taskFilters.sort_order}
                     onChange={(value) => handleFilterChange('sort_order', value)}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', height: '22px' }}
                   >
                     <Option value="desc">降序</Option>
                     <Option value="asc">升序</Option>
                   </Select>
                 </Col>
-                <Col span={3}>
+                <Col span={4}>
                   <Search
+                    size="small"
                     placeholder="搜索任务标题或描述"
                     value={taskFilters.search}
                     onChange={(e) => handleFilterChange('search', e.target.value)}
                     onSearch={(value) => handleFilterChange('search', value)}
+                    style={{ height: '22px' }}
                     allowClear
                   />
                 </Col>
@@ -772,10 +929,10 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
                   <Button
                     type="link"
                     size="small"
-                    icon={<ReloadOutlined />}
+                    icon={<ReloadOutlined style={{ fontSize: '12px' }} />}
                     onClick={handleRefreshTasks}
                     loading={tasksLoading}
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: '11px', height: '22px', padding: '0 4px' }}
                     title="刷新任务列表"
                   >
                     刷新
@@ -789,14 +946,23 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
               dataSource={tasks}
               rowKey="id"
               loading={tasksLoading}
+              size="small"
+              rowSelection={handleTaskSelection}
               pagination={{
                 current: pagination?.page || 1,
-                pageSize: pagination?.per_page || 20,
+                pageSize: pagination?.per_page || paginationSettings.pageSize,
                 total: pagination?.total || 0,
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-                pageSizeOptions: ['10', '20', '50', '100'],
+                pageSizeOptions: ['10', '20', '50', '100', '200'],
+                size: 'small',
+                defaultPageSize: 100, // 设置默认分页大小为100
+                onShowSizeChange: (current, size) => {
+                  console.log('📄 分页大小直接变化:', { current, size })
+                  // 这个回调会在用户直接选择分页大小时触发
+                  // handleTableChange 也会被调用，所以这里不需要额外处理
+                }
               }}
               onChange={handleTableChange}
             />

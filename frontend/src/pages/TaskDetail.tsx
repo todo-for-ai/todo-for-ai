@@ -13,7 +13,6 @@ import {
   message,
   Row,
   Col,
-  Divider,
   Popconfirm,
   Select,
   Collapse
@@ -24,7 +23,6 @@ import {
   ArrowLeftOutlined,
   HomeOutlined,
   CopyOutlined,
-  BranchesOutlined,
   FileTextOutlined,
   PlusOutlined,
   LeftOutlined,
@@ -232,14 +230,28 @@ const TaskDetail: React.FC = () => {
     if (!task) return
 
     try {
-      // 这里需要调用更新任务状态的API
-      // 暂时使用updateTask方法，需要确保后端支持
-      const { updateTask } = useTaskStore.getState()
-      await updateTask(task.id, { status: newStatus as 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled' })
+      // 计算新状态对应的进度
+      const newProgress = getTaskProgress(newStatus, task.completion_rate)
 
-      // 更新本地状态
-      setTask({ ...task, status: newStatus as 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled' })
-      message.success('任务状态已更新')
+      // 准备更新数据
+      const updateData: any = {
+        status: newStatus as 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled'
+      }
+
+      // 如果进度需要更新，也一起更新
+      if (newProgress !== task.completion_rate) {
+        updateData.completion_rate = newProgress
+      }
+
+      // 调用更新任务的API
+      const { updateTask } = useTaskStore.getState()
+      const updatedTask = await updateTask(task.id, updateData)
+
+      if (updatedTask) {
+        // 更新本地状态
+        setTask(updatedTask)
+        message.success(`任务状态已更新为"${getStatusText(newStatus)}"${newProgress !== task.completion_rate ? `，进度已更新为${newProgress}%` : ''}`)
+      }
     } catch (error) {
       console.error('更新任务状态失败:', error)
       message.error('更新任务状态失败')
@@ -406,6 +418,24 @@ ${task.content || '无详细内容'}
     return <Tag color={config.color}>{config.text}</Tag>
   }
 
+  // 根据任务状态计算进度条百分比
+  const getTaskProgress = (status: string, completion_rate?: number) => {
+    switch (status) {
+      case 'todo':
+        return 0 // 待办：0%
+      case 'in_progress':
+        return completion_rate || 25 // 进行中：使用completion_rate或默认25%
+      case 'review':
+        return completion_rate || 80 // 待审核：使用completion_rate或默认80%
+      case 'done':
+        return 100 // 已完成：100%
+      case 'cancelled':
+        return completion_rate || 0 // 已取消：使用completion_rate或0%
+      default:
+        return completion_rate || 0
+    }
+  }
+
   const getPriorityTag = (priority: string) => {
     const priorityConfig = {
       low: { color: 'green', text: '低优先级' },
@@ -444,15 +474,24 @@ ${task.content || '无详细内容'}
       <Card className={styles.topNavCard} style={{ marginBottom: '16px' }}>
         <Row justify="space-between" align="middle">
           <Col>
-            {/* 左上角：上一个任务按钮 */}
-            <Button
-              icon={<LeftOutlined />}
-              onClick={handlePreviousTask}
-              disabled={getCurrentTaskIndex() <= 0}
-              title="上一个任务 (←键)"
-            >
-              上一个任务
-            </Button>
+            {/* 左上角：上一个任务 + 返回项目任务列表按钮 - 符合用户操作习惯 */}
+            <Space>
+              <Button
+                icon={<LeftOutlined />}
+                onClick={handlePreviousTask}
+                disabled={getCurrentTaskIndex() <= 0}
+                title="上一个任务 (←键)"
+              >
+                上一个任务
+              </Button>
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)}
+                title="返回项目任务列表"
+              >
+                返回项目任务列表
+              </Button>
+            </Space>
           </Col>
           <Col>
             {/* 中间：面包屑导航 */}
@@ -475,77 +514,80 @@ ${task.content || '无详细内容'}
             </Breadcrumb>
           </Col>
           <Col>
-            {/* 右上角：返回项目任务列表 + 下一个任务按钮 */}
-            <Space>
-              <Button
-                icon={<ArrowLeftOutlined />}
-                onClick={() => navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)}
-              >
-                返回项目任务列表
-              </Button>
-              <Button
-                icon={<RightOutlined />}
-                onClick={handleNextTask}
-                disabled={getCurrentTaskIndex() >= projectTasks.length - 1 || getCurrentTaskIndex() === -1}
-                title="下一个任务 (→键)"
-              >
-                下一个任务
-              </Button>
-            </Space>
+            {/* 右上角：下一个任务按钮 */}
+            <Button
+              icon={<RightOutlined />}
+              onClick={handleNextTask}
+              disabled={getCurrentTaskIndex() >= projectTasks.length - 1 || getCurrentTaskIndex() === -1}
+              title="下一个任务 (→键)"
+            >
+              下一个任务
+            </Button>
           </Col>
         </Row>
       </Card>
 
       {/* 页面标题和状态 */}
       <Card className={styles.titleCard}>
-        <Row gutter={[24, 16]} align="middle">
-          <Col flex="auto">
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+        <Row gutter={[24, 16]}>
+          <Col span={24}>
+            {/* 任务标题行 - 单独一行，符合UI设计对齐原则 */}
+            <div className={styles.taskTitleRow}>
               {/* 任务ID徽标 */}
-              <div style={{
-                backgroundColor: '#1890ff',
-                color: 'white',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                marginRight: '12px',
-                minWidth: '40px',
-                textAlign: 'center'
-              }}>
+              <div className={styles.taskIdBadge}>
                 #{task.id}
               </div>
-              <FileTextOutlined className={styles.titleIcon} />
-              <Title level={2} className={styles.titleText}>
-                {task.title}
-              </Title>
-              <div style={{ marginLeft: '16px' }}>
-                {getStatusTag(task.status)}
+              {/* 任务标题 - 支持省略号和tooltip */}
+              <div className={styles.taskTitleContainer}>
+                <Title
+                  level={2}
+                  className={styles.taskTitle}
+                  title={task.title} // 鼠标悬停时显示完整标题
+                  ellipsis={{
+                    tooltip: task.title.length > 50 ? task.title : false
+                  }}
+                >
+                  {task.title}
+                </Title>
               </div>
             </div>
+
+            {/* 状态和其他信息行 */}
+            <div className={styles.taskMetaRow}>
+              <Space size="middle" wrap>
+                {getStatusTag(task.status)}
+                {getPriorityTag(task.priority)}
+                {task.due_date && (
+                  <Tag icon={<FileTextOutlined />} color="default">
+                    截止：{dayjs(task.due_date).format('MM-DD')}
+                  </Tag>
+                )}
+              </Space>
+            </div>
+
             {task.description && (
               <Paragraph type="secondary" className={styles.titleDescription}>
                 {task.description}
               </Paragraph>
             )}
           </Col>
-          <Col>
-            <div className={styles.statusProgress}>
-              {getPriorityTag(task.priority)}
-              <Progress
-                type="circle"
-                size={60}
-                percent={task.status === 'done' ? (task.completion_rate || 100) : (task.completion_rate || 0)}
-                status={task.status === 'done' ? 'success' : 'active'}
-                strokeWidth={8}
-                className={styles.circleProgress}
-              />
-            </div>
-          </Col>
         </Row>
+
+        {/* 底部进度条 - 紧贴Card底部 */}
+        <div className={styles.bottomProgressBar}>
+          <Progress
+            percent={getTaskProgress(task.status, task.completion_rate)}
+            status={task.status === 'done' ? 'success' : task.status === 'cancelled' ? 'exception' : 'active'}
+            strokeWidth={4}
+            showInfo={false}
+            className={styles.titleCardProgress}
+          />
+        </div>
       </Card>
+
+
         
-      {/* 操作按钮组 */}
+      {/* 操作按钮组 - 符合UI设计亲密性原则，相关操作放在一起 */}
       <Card className={styles.actionCard}>
         <Row gutter={[16, 16]} className={styles.actionGrid}>
           {/* 任务状态快捷修改 */}
@@ -564,12 +606,11 @@ ${task.content || '无详细内容'}
             </Select>
           </Col>
 
-          {/* 主要操作 */}
-          <Col xs={24} sm={12} md={8} className={styles.actionCol}>
-            <div className={styles.actionSection}>主要操作</div>
-            <Space>
+          {/* 任务操作 - 合并所有操作按钮 */}
+          <Col xs={24} sm={12} md={16} className={styles.actionCol}>
+            <div className={styles.actionSection}>任务操作</div>
+            <div className={styles.taskActionButtons}>
               <Button
-                type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleCreateTask}
               >
@@ -581,31 +622,26 @@ ${task.content || '无详细内容'}
               >
                 编辑
               </Button>
-            </Space>
-          </Col>
-
-          {/* 删除操作 */}
-          <Col xs={24} sm={12} md={8} className={styles.actionCol}>
-            <div className={styles.actionSection}>危险操作</div>
-            <Popconfirm
-              title="确定要删除这个任务吗？"
-              description="删除后无法恢复，请谨慎操作。"
-              onConfirm={handleDelete}
-              okText="确定"
-              cancelText="取消"
-            >
-              <Button
-                danger
-                icon={<DeleteOutlined />}
+              <Popconfirm
+                title="确定要删除这个任务吗？"
+                description="删除后无法恢复，请谨慎操作。"
+                onConfirm={handleDelete}
+                okText="确定"
+                cancelText="取消"
               >
-                删除任务
-              </Button>
-            </Popconfirm>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                >
+                  删除任务
+                </Button>
+              </Popconfirm>
+            </div>
           </Col>
         </Row>
       </Card>
 
-      {/* 复制提示词面板 */}
+      {/* 复制提示词面板 - 符合UI设计重复原则，统一按钮样式 */}
       <Card className={styles.actionCard}>
         <Title level={4} style={{ marginBottom: '16px', color: '#1890ff' }}>
           <CopyOutlined style={{ marginRight: '8px' }} />
@@ -648,7 +684,6 @@ ${task.content || '无详细内容'}
               icon={<CopyOutlined />}
               onClick={handleCopyTaskCompletionPrompt}
               block
-              type="primary"
               title="复制任务完成检查和关闭的提示词"
             >
               复制任务完成检查提示词
@@ -664,8 +699,6 @@ ${task.content || '无详细内容'}
               icon={<CopyOutlined />}
               onClick={handleCopyQuickCompletePrompt}
               block
-              type="primary"
-              danger
               title="复制快速完成并关闭任务的提示词"
             >
               复制快速完成任务提示词
@@ -720,9 +753,9 @@ ${task.content || '无详细内容'}
               </Descriptions.Item>
               <Descriptions.Item label="完成进度">
                 <Progress
-                  percent={task.status === 'done' ? (task.completion_rate || 100) : (task.completion_rate || 0)}
+                  percent={getTaskProgress(task.status, task.completion_rate)}
                   size="small"
-                  status={task.status === 'done' ? 'success' : 'active'}
+                  status={task.status === 'done' ? 'success' : task.status === 'cancelled' ? 'exception' : 'active'}
                 />
               </Descriptions.Item>
               <Descriptions.Item label="创建时间">
@@ -806,8 +839,13 @@ ${task.content || '无详细内容'}
                     <div style={{ marginBottom: '16px' }}>
                       <Tag color="green">应用的规则列表：</Tag>
                       {projectContext.data.rules.map(rule => (
-                        <Tag key={rule.id} color="blue">
-                          {rule.name}
+                        <Tag
+                          key={rule.id}
+                          color={rule.is_global ? 'purple' : 'blue'}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => navigate(`/todo-for-ai/pages/context-rules/${rule.id}/edit`)}
+                        >
+                          {rule.is_global ? '🌐' : '📁'} {rule.name}
                         </Tag>
                       ))}
                     </div>

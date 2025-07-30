@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, Tabs, Typography, Alert, Divider, Space, Tag, Button, message } from 'antd'
 import {
   ApiOutlined,
@@ -21,16 +21,16 @@ const { TabPane } = Tabs
 const APIDocumentation: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview')
 
-  const codeStyle = {
-    backgroundColor: '#f6f8fa',
-    padding: '12px',
-    borderRadius: '6px',
-    fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-    fontSize: '13px',
-    lineHeight: '1.45',
-    overflow: 'auto',
-    position: 'relative' as const
-  }
+  // const codeStyle = {
+  //   backgroundColor: '#f6f8fa',
+  //   padding: '12px',
+  //   borderRadius: '6px',
+  //   fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+  //   fontSize: '13px',
+  //   lineHeight: '1.45',
+  //   overflow: 'auto',
+  //   position: 'relative' as const
+  // }
 
   const jsonStyle = {
     backgroundColor: '#f8f9fa',
@@ -97,6 +97,16 @@ const APIDocumentation: React.FC = () => {
       )}
     </div>
   )
+
+  // 设置网页标题
+  useEffect(() => {
+    document.title = 'HTTP API文档 - Todo for AI'
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [])
 
   return (
     <div style={{ padding: '24px' }}>

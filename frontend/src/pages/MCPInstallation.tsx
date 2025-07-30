@@ -1,18 +1,29 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Card, Tabs, Typography, Alert, Divider, Space, Tag } from 'antd'
-import { 
-  ApiOutlined, 
-  DownloadOutlined, 
-  SettingOutlined, 
+import {
+  ApiOutlined,
+  DownloadOutlined,
+  SettingOutlined,
   CodeOutlined,
   CheckCircleOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  KeyOutlined
 } from '@ant-design/icons'
 
 const { Title, Paragraph, Text } = Typography
 const { TabPane } = Tabs
 
 const MCPInstallation: React.FC = () => {
+  // 设置网页标题
+  useEffect(() => {
+    document.title = 'MCP安装文档 - Todo for AI'
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [])
+
   const codeStyle = {
     backgroundColor: '#f6f8fa',
     padding: '12px',
@@ -109,13 +120,111 @@ const MCPInstallation: React.FC = () => {
           </Card>
         </TabPane>
 
-        <TabPane 
+        <TabPane
+          tab={
+            <span>
+              <KeyOutlined />
+              API Token
+            </span>
+          }
+          key="api-token"
+        >
+          <Card>
+            <Title level={3}>
+              <KeyOutlined style={{ color: '#1890ff', marginRight: '8px' }} />
+              API Token 配置
+            </Title>
+
+            <Alert
+              message="重要提醒"
+              description="从版本2.0开始，MCP服务器需要API Token进行身份认证，确保数据安全和访问控制。"
+              type="warning"
+              style={{ marginBottom: '24px' }}
+              showIcon
+            />
+
+            <Title level={4}>1. 创建API Token</Title>
+            <ol>
+              <li>登录Todo for AI系统</li>
+              <li>点击右上角用户头像，选择"个人中心"</li>
+              <li>切换到"API Token"标签页</li>
+              <li>点击"创建Token"按钮</li>
+              <li>填写Token名称（如：MCP Client Token）</li>
+              <li>设置过期时间（可选，留空表示永不过期）</li>
+              <li>点击"创建Token"</li>
+              <li><strong>重要：</strong>立即复制并保存Token，它只会显示一次</li>
+            </ol>
+
+            <Title level={4} style={{ marginTop: '24px' }}>2. 配置Token</Title>
+            <Paragraph>
+              将获取的API Token配置到MCP客户端中，有两种方式：
+            </Paragraph>
+
+            <Title level={5}>方式一：命令行参数（推荐）</Title>
+            <div style={codeStyle}>
+              node /path/to/your/todo-for-ai/todo-mcp/dist/index.js --api-token=tfa_your_token_here
+            </div>
+
+            <Title level={5}>方式二：环境变量</Title>
+            <div style={codeStyle}>
+              export TODO_API_TOKEN=tfa_your_token_here<br/>
+              node /path/to/your/todo-for-ai/todo-mcp/dist/index.js
+            </div>
+
+            <Title level={4} style={{ marginTop: '24px' }}>3. 权限说明</Title>
+            <ul>
+              <li><strong>项目访问：</strong>只能访问自己创建的项目</li>
+              <li><strong>任务管理：</strong>可以创建、查看、更新自己项目中的任务</li>
+              <li><strong>上下文规则：</strong>可以查看和应用项目的上下文规则</li>
+              <li><strong>管理员：</strong>拥有所有项目和任务的访问权限</li>
+            </ul>
+
+            <Title level={4} style={{ marginTop: '24px' }}>4. 完整配置示例</Title>
+            <Paragraph>
+              以下是一个完整的Claude Desktop配置示例：
+            </Paragraph>
+            <div style={configStyle}>
+{`{
+  "mcpServers": {
+    "todo-for-ai": {
+      "command": "node",
+      "args": [
+        "/Users/cc11001100/github/ai-coding-labs/todo-for-ai/todo-mcp/dist/index.js"
+      ],
+      "env": {
+        "TODO_API_BASE_URL": "http://localhost:50110",
+        "TODO_API_TOKEN": "AmXxPQulszHqGd_VbEiO748DSseIGJZppjtMI53lm84",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}`}
+            </div>
+
+            <Alert
+              message="安全提醒"
+              description={
+                <div>
+                  <p>• 请妥善保管您的API Token，不要分享给他人</p>
+                  <p>• 如果Token泄露，请立即在个人中心删除并重新创建</p>
+                  <p>• 建议定期更换API Token以提高安全性</p>
+                  <p>• 请将示例中的路径替换为你的实际项目路径</p>
+                </div>
+              }
+              type="info"
+              style={{ marginTop: '16px' }}
+              showIcon
+            />
+          </Card>
+        </TabPane>
+
+        <TabPane
           tab={
             <span>
               <DownloadOutlined />
               安装步骤
             </span>
-          } 
+          }
           key="installation"
         >
           <Card>
@@ -178,7 +287,10 @@ npm link`}
 {`{
   "mcpServers": {
     "todo-for-ai": {
-      "command": "todo-for-ai-mcp",
+      "command": "node",
+      "args": [
+        "/path/to/your/todo-for-ai/todo-mcp/dist/index.js"
+      ],
       "env": {
         "TODO_API_BASE_URL": "http://localhost:50110",
         "LOG_LEVEL": "info"
@@ -189,16 +301,49 @@ npm link`}
             </div>
 
             <Title level={4} style={{ marginTop: '24px' }}>高级配置（带认证）</Title>
+            <Alert
+              message="API Token 认证"
+              description={
+                <div>
+                  <p>从版本2.0开始，MCP服务器支持API Token认证，提供更安全的访问控制。</p>
+                  <p>请在个人中心创建API Token，然后在配置中使用。</p>
+                </div>
+              }
+              type="warning"
+              style={{ marginBottom: '16px' }}
+              showIcon
+            />
             <div style={configStyle}>
 {`{
   "mcpServers": {
     "todo-for-ai": {
-      "command": "todo-for-ai-mcp",
+      "command": "node",
+      "args": [
+        "/path/to/your/todo-for-ai/todo-mcp/dist/index.js",
+        "--api-token=your-api-token-here"
+      ],
       "env": {
         "TODO_API_BASE_URL": "http://localhost:50110",
-        "TODO_API_TOKEN": "your-api-token",
-        "TODO_API_TIMEOUT": "15000",
-        "LOG_LEVEL": "debug"
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}`}
+            </div>
+
+            <Title level={5} style={{ marginTop: '16px' }}>或者使用环境变量方式：</Title>
+            <div style={configStyle}>
+{`{
+  "mcpServers": {
+    "todo-for-ai": {
+      "command": "node",
+      "args": [
+        "/path/to/your/todo-for-ai/todo-mcp/dist/index.js"
+      ],
+      "env": {
+        "TODO_API_BASE_URL": "http://localhost:50110",
+        "TODO_API_TOKEN": "your-api-token-here",
+        "LOG_LEVEL": "info"
       }
     }
   }
