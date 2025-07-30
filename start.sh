@@ -233,12 +233,9 @@ main() {
         echo ""
         echo -e "${GREEN}🎉 系统启动完成！${NC}"
         show_status
-        
+
+        # 直接显示实时日志
         echo ""
-        echo -e "${YELLOW}按 Ctrl+C 停止监控，或按 Enter 查看实时日志...${NC}"
-        read -r
-        
-        # 显示实时日志
         echo -e "${BLUE}📋 实时日志 (Ctrl+C 退出):${NC}"
         tail -f "$PROJECT_ROOT/logs/backend.log" "$PROJECT_ROOT/logs/frontend.log" 2>/dev/null || true
     else

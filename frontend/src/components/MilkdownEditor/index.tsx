@@ -95,55 +95,85 @@ const MilkdownEditorCore: React.FC<MilkdownEditorProps> = ({
   const currentValueRef = useRef(value)
 
   // 实时保存回调 - 符合三大法则第一条：实时保存
+  // 修复：移除value依赖，避免回调频繁重新创建导致编辑器不稳定
   const handleContentChange = useCallback((markdown: string) => {
     currentValueRef.current = markdown
-    if (onChange && markdown !== value) {
+    if (onChange) {
       onChange(markdown)
     }
-  }, [onChange, value])
+  }, [onChange])
 
   // 获取编辑器实例 - 用于动态更新内容
   const { get } = useEditor((root) => {
+    console.log('🔧 创建Milkdown编辑器，初始值:', value)
+
     return Editor
       .make()
-      .config(nord) // 首先配置主题 - 按照官方示例顺序
       .config(ctx => {
         ctx.set(rootCtx, root)
-        ctx.set(defaultValueCtx, value)
+        ctx.set(defaultValueCtx, value || '')
 
         // 设置placeholder - 提升用户体验
         if (placeholder) {
           root.setAttribute('data-placeholder', placeholder)
         }
       })
-      .use(commonmark) // 基础Markdown支持 - 所见即所得的核心，包含输入规则
-      .use(gfm) // GitHub Flavored Markdown扩展 - 增强所见即所得功能
+      .use(commonmark) // 基础Markdown支持 - 所见即所得的核心
+      .use(gfm) // GitHub Flavored Markdown扩展
+      .use(listener) // 监听器插件 - 实现实时保存功能
       .use(history) // 历史记录支持
       .use(clipboard) // 剪贴板支持
-      .use(cursor) // 光标支持 - 确保正确的编辑器行为
-      .use(listener) // 添加listener插件 - 实现实时保存功能
+      .use(cursor) // 光标支持
+      .config(nord) // 主题配置
       .config(ctx => {
         // 配置实时保存监听器 - 符合三大法则第一条：实时保存
         ctx.get(listenerCtx).markdownUpdated((_ctx, markdown, prevMarkdown) => {
+          console.log('📝 内容变化:', { markdown, prevMarkdown })
           if (markdown !== prevMarkdown) {
             handleContentChange(markdown)
           }
         })
       })
-  }, []) // 使用空依赖数组，避免频繁重新创建编辑器
+  }, []) // 移除依赖数组，避免频繁重新创建编辑器
 
   // 当外部value变化时，使用Milkdown API更新内容
+  // 修复：添加防抖和更智能的更新逻辑，避免频繁的replaceAll导致光标跳动
+  const updateTimeoutRef = useRef<number | undefined>(undefined)
+
   useEffect(() => {
+    // 清除之前的更新定时器
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current)
+    }
+
     if (get && value !== currentValueRef.current) {
-      try {
-        const editor = get()
-        if (editor) {
-          // 使用replaceAll API更新内容 - 确保所见即所得功能正常工作
-          editor.action(replaceAll(value || ''))
-          currentValueRef.current = value
+      // 使用防抖，避免快速连续的更新
+      updateTimeoutRef.current = window.setTimeout(() => {
+        try {
+          console.log('🔄 更新编辑器内容:', { value, current: currentValueRef.current })
+          const editor = get()
+          if (editor) {
+            // 只有在内容确实不同时才更新，避免不必要的replaceAll
+            const trimmedValue = (value || '').trim()
+            const trimmedCurrent = (currentValueRef.current || '').trim()
+
+            if (trimmedValue !== trimmedCurrent) {
+              editor.action(replaceAll(value || ''))
+              currentValueRef.current = value
+              console.log('✅ 编辑器内容更新成功')
+            }
+          } else {
+            console.warn('⚠️ 编辑器实例不存在')
+          }
+        } catch (error) {
+          console.error('❌ 更新编辑器内容失败:', error)
         }
-      } catch (error) {
-        console.warn('更新编辑器内容失败:', error)
+      }, 50) // 50ms防抖延迟
+    }
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
       }
     }
   }, [value, get])
