@@ -153,6 +153,8 @@ const CreateTask: React.FC = () => {
 
       // 检查是否是复制任务模式
       const isCopyMode = searchParams.get('copy') === 'true'
+      const isContinueMode = searchParams.get('continue') === 'true'
+
       if (isCopyMode) {
         try {
           const copyDataStr = sessionStorage.getItem('copyTaskData')
@@ -171,6 +173,30 @@ const CreateTask: React.FC = () => {
           console.error('Failed to load copy data:', error)
           message.error('复制任务数据失败')
         }
+      } else if (isContinueMode) {
+        // 连续创建模式：恢复用户偏好设置
+        try {
+          const savedPriority = localStorage.getItem('createTask_priority') || 'medium'
+          const savedIsAiTask = localStorage.getItem('createTask_isAiTask') === 'true'
+
+          form.setFieldsValue({
+            project_id: defaultProjectId ? parseInt(defaultProjectId, 10) : undefined,
+            status: 'todo',
+            priority: savedPriority,
+            is_ai_task: savedIsAiTask
+          })
+
+          message.success('已准备好创建新任务，保留了您的偏好设置')
+        } catch (error) {
+          console.error('Failed to load user preferences:', error)
+          // 如果加载偏好失败，使用默认值
+          form.setFieldsValue({
+            project_id: defaultProjectId ? parseInt(defaultProjectId, 10) : undefined,
+            status: 'todo',
+            priority: 'medium',
+            is_ai_task: true
+          })
+        }
       } else {
         // 设置默认项目
         if (defaultProjectId) {
@@ -186,8 +212,15 @@ const CreateTask: React.FC = () => {
             setEditorContent(draft.content || '')
             message.info('已加载上次保存的草稿')
           } else {
+            // 加载用户偏好设置
+            const savedPriority = localStorage.getItem('createTask_priority') || 'medium'
+            const savedIsAiTask = localStorage.getItem('createTask_isAiTask') === 'true'
+
             form.setFieldsValue({
-              project_id: projectId
+              project_id: projectId,
+              status: 'todo',
+              priority: savedPriority,
+              is_ai_task: savedIsAiTask
             })
           }
         }
@@ -213,6 +246,21 @@ const CreateTask: React.FC = () => {
       document.title = 'Todo for AI'
     }
   }, [projects, isEditMode, form, defaultProjectId])
+
+  // 为没有默认项目ID的新建任务恢复用户偏好设置
+  useEffect(() => {
+    if (!isEditMode && !defaultProjectId && !searchParams.get('copy') && !searchParams.get('continue')) {
+      // 只在普通新建任务模式下，且没有项目ID时恢复偏好设置
+      const savedPriority = localStorage.getItem('createTask_priority') || 'medium'
+      const savedIsAiTask = localStorage.getItem('createTask_isAiTask') === 'true'
+
+      form.setFieldsValue({
+        status: 'todo',
+        priority: savedPriority,
+        is_ai_task: savedIsAiTask
+      })
+    }
+  }, [isEditMode, defaultProjectId, searchParams, form])
 
   // 快捷键保存：创建任务后立即进入编辑模式
   const handleSubmitAndEdit = useCallback(async () => {
@@ -428,6 +476,51 @@ const CreateTask: React.FC = () => {
     navigate(`/todo-for-ai/pages/tasks/create?project_id=${currentProjectId}&copy=true`)
   }
 
+  // 创建此任务后再创建新任务
+  const handleCreateAndContinue = async () => {
+    try {
+      setLoading(true)
+      const values = await form.validateFields()
+
+      const taskData = {
+        project_id: values.project_id,
+        title: values.title?.trim() || undefined,
+        content: values.content?.trim() || undefined,
+        status: values.status || 'todo',
+        priority: values.priority || 'medium',
+        due_date: values.due_date ? values.due_date.format('YYYY-MM-DD') : undefined,
+        tags: values.tags || [],
+        is_ai_task: values.is_ai_task || false,
+      }
+
+      const result = await createTask(taskData as CreateTaskData)
+      if (result) {
+        // 清除草稿
+        if (taskData.project_id) {
+          clearDraft(taskData.project_id)
+        }
+
+        // 保存用户的偏好设置到localStorage
+        localStorage.setItem('createTask_priority', taskData.priority)
+        localStorage.setItem('createTask_isAiTask', String(taskData.is_ai_task))
+
+        message.success('任务创建成功，正在准备创建新任务...')
+
+        // 跳转到新的创建任务页面
+        if (taskData.project_id) {
+          navigate(`/todo-for-ai/pages/tasks/create?project_id=${taskData.project_id}&continue=true`)
+        } else {
+          navigate('/todo-for-ai/pages/tasks/create?continue=true')
+        }
+      }
+    } catch (error) {
+      console.error('创建任务失败:', error)
+      message.error('创建任务失败，请重试')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // 查看任务详情
   const handleViewTaskDetail = () => {
     if (id) {
@@ -516,7 +609,7 @@ const CreateTask: React.FC = () => {
             is_ai_task: true, // 默认选中分配给AI
           }}
           onFinish={handleSubmit}
-          onValuesChange={(_changedValues, allValues) => {
+          onValuesChange={(changedValues, allValues) => {
             // 实时保存草稿（仅在新建模式下）
             if (!isEditMode && allValues.project_id) {
               saveDraft(allValues.project_id, {
@@ -528,6 +621,16 @@ const CreateTask: React.FC = () => {
                 tags: allValues.tags,
                 is_ai_task: allValues.is_ai_task
               })
+            }
+
+            // 保存用户偏好设置（仅在新建模式下）
+            if (!isEditMode) {
+              if (changedValues.priority !== undefined) {
+                localStorage.setItem('createTask_priority', changedValues.priority)
+              }
+              if (changedValues.is_ai_task !== undefined) {
+                localStorage.setItem('createTask_isAiTask', String(changedValues.is_ai_task))
+              }
             }
           }}
         >
@@ -665,6 +768,28 @@ const CreateTask: React.FC = () => {
                     >
                       重新开始
                     </Button>
+                  )}
+
+                  {/* 新建模式下的快捷创建按钮 */}
+                  {!isEditMode && (
+                    <>
+                      <Button
+                        type="primary"
+                        icon={<SaveOutlined />}
+                        loading={loading}
+                        onClick={handleSubmit}
+                      >
+                        创建任务
+                      </Button>
+                      <Button
+                        type="default"
+                        icon={<PlusOutlined />}
+                        loading={loading}
+                        onClick={handleCreateAndContinue}
+                      >
+                        创建此任务后再创建新任务
+                      </Button>
+                    </>
                   )}
                 </Space>
               </div>

@@ -86,7 +86,7 @@
 /* 菜单项激活状态 */
 .top-navigation .ant-menu-item-selected {
   background-color: #e6f7ff !important;
-  border-bottom: 2px solid #1890ff !important;
+  /* 移除重复的下划线，Ant Design已经提供了默认的下划线效果 */
 }
 
 /* Logo区域悬停效果 */

@@ -17,6 +17,8 @@ import {
 } from './pages'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
+import TermsOfService from './pages/TermsOfService'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 function App() {
   return (
@@ -31,8 +33,10 @@ function App() {
           {/* 根目录重定向 */}
           <Route path="/" element={<Navigate to="/todo-for-ai/pages" replace />} />
 
-          {/* 登录页面 - 不需要认证 */}
+          {/* 公开页面 - 不需要认证 */}
           <Route path="/todo-for-ai/pages/login" element={<Login />} />
+          <Route path="/todo-for-ai/pages/terms" element={<TermsOfService />} />
+          <Route path="/todo-for-ai/pages/privacy" element={<PrivacyPolicy />} />
 
           {/* 主应用 - 需要认证 */}
           <Route path="/todo-for-ai/pages" element={

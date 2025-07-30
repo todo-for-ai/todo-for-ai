@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Spin, Result, Button } from 'antd'
+import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/useAuthStore'
 
 interface AuthGuardProps {
@@ -54,18 +55,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
       return <>{fallback}</>
     }
 
-    return (
-      <Result
-        status="403"
-        title="需要登录"
-        subTitle="请先登录以访问此页面"
-        extra={
-          <Button type="primary" href="/todo-for-ai/pages/login">
-            立即登录
-          </Button>
-        }
-      />
-    )
+    // 直接重定向到登录页面
+    return <Navigate to="/todo-for-ai/pages/login" replace />
   }
 
   // 需要管理员权限但用户不是管理员

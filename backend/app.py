@@ -99,6 +99,7 @@ def register_blueprints(app):
     from api.tokens import tokens_bp
     from api.mcp import mcp_bp
     from api.docs import docs_bp
+    from api.pins import pins_bp
 
     app.register_blueprint(auth_bp, url_prefix='/todo-for-ai/api/v1/auth')
     app.register_blueprint(projects_bp, url_prefix='/todo-for-ai/api/v1/projects')
@@ -107,6 +108,7 @@ def register_blueprints(app):
     app.register_blueprint(tokens_bp, url_prefix='/todo-for-ai/api/v1/tokens')
     app.register_blueprint(mcp_bp, url_prefix='/todo-for-ai/api/v1/mcp')
     app.register_blueprint(docs_bp, url_prefix='/todo-for-ai/api/v1/docs')
+    app.register_blueprint(pins_bp, url_prefix='/todo-for-ai/api/v1/pins')
 
 
 
@@ -131,6 +133,11 @@ def register_commands(app):
 
 # 创建应用实例
 app = create_app()
+
+# 在应用启动时创建数据库表
+with app.app_context():
+    db.create_all()
+    print('✅ 数据库表已创建/更新')
 
 
 if __name__ == '__main__':

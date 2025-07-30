@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Typography,
@@ -32,11 +32,14 @@ import {
   FilterOutlined,
   GithubOutlined,
   LinkOutlined,
-  GlobalOutlined
+  GlobalOutlined,
+  PushpinOutlined,
+  PushpinFilled
 } from '@ant-design/icons'
 import { useProjectStore, useTaskStore, useContextRuleStore } from '../stores'
 import { KanbanBoard } from '../components/Kanban'
 import { TaskContentSummary } from '../components/TaskContentPreview'
+import { pinsApi } from '../api/pins'
 import { MarkdownEditor } from '../components/MarkdownEditor'
 import { LinkButton } from '../components/SmartLink'
 import type { Task } from '../api/tasks'
@@ -111,7 +114,9 @@ const ProjectDetail = () => {
   // 多选任务状态
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([])
 
-
+  // Pin状态
+  const [isPinned, setIsPinned] = useState(false)
+  const [pinLoading, setPinLoading] = useState(false)
 
   const {
     currentProject,
@@ -134,6 +139,22 @@ const ProjectDetail = () => {
     clearError: clearTasksError,
   } = useTaskStore()
 
+  // 检查项目Pin状态
+  const checkPinStatus = useCallback(async () => {
+    if (!id) return
+    try {
+      const response = await pinsApi.checkPinStatus(parseInt(id))
+      if (response && typeof response.is_pinned === 'boolean') {
+        setIsPinned(response.is_pinned)
+      } else {
+        setIsPinned(false)
+      }
+    } catch (error) {
+      console.error('Failed to check pin status:', error)
+      setIsPinned(false)
+    }
+  }, [id])
+
   useEffect(() => {
     if (id) {
       fetchProject(parseInt(id))
@@ -152,6 +173,11 @@ const ProjectDetail = () => {
       fetchTasks()
     }
   }, [id, taskFilters, paginationSettings.pageSize, fetchProject, fetchTasks, setQueryParams])
+
+  // 检查Pin状态
+  useEffect(() => {
+    checkPinStatus()
+  }, [checkPinStatus])
 
   // 设置网页标题
   useEffect(() => {
@@ -391,6 +417,33 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
     }).catch(() => {
       message.error('复制失败，请手动复制')
     })
+  }
+
+
+
+  // 切换Pin状态
+  const handleTogglePin = async () => {
+    if (!id) return
+
+    setPinLoading(true)
+    try {
+      if (isPinned) {
+        await pinsApi.unpinProject(parseInt(id))
+        setIsPinned(false)
+        message.success('已取消Pin项目')
+      } else {
+        await pinsApi.pinProject(parseInt(id))
+        setIsPinned(true)
+        message.success('已Pin项目到导航栏')
+      }
+      // 刷新导航栏（通过重新加载页面或者使用状态管理）
+      window.location.reload()
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || '操作失败'
+      message.error(errorMessage)
+    } finally {
+      setPinLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -646,6 +699,16 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                 清除选中
               </Button>
             )}
+            <Button
+              size="small"
+              icon={isPinned ? <PushpinFilled /> : <PushpinOutlined />}
+              onClick={handleTogglePin}
+              loading={pinLoading}
+              title={isPinned ? "取消Pin项目" : "Pin项目到导航栏"}
+              type={isPinned ? "primary" : "default"}
+            >
+              {isPinned ? "已Pin" : "Pin"}
+            </Button>
             <Button
               size="small"
               icon={<EditOutlined />}

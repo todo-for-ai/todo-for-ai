@@ -45,6 +45,8 @@ export const APITokenManager: React.FC = () => {
   const [createModalVisible, setCreateModalVisible] = useState(false)
   const [tokenModalVisible, setTokenModalVisible] = useState(false)
   const [newToken, setNewToken] = useState<string>('')
+  const [viewTokenModalVisible, setViewTokenModalVisible] = useState(false)
+  const [viewingToken, setViewingToken] = useState<APIToken | null>(null)
   const [form] = Form.useForm()
 
   useEffect(() => {
@@ -93,6 +95,17 @@ export const APITokenManager: React.FC = () => {
     } catch (error: any) {
       message.error('删除Token失败')
     }
+  }
+
+  const handleViewToken = (token: APIToken) => {
+    setViewingToken(token)
+    setViewTokenModalVisible(true)
+  }
+
+  const handleCopyTokenPrefix = (token: APIToken) => {
+    // 复制Token前缀（这是我们能安全显示的部分）
+    copyToClipboard(`${token.prefix}***`)
+    message.info('已复制Token前缀到剪贴板')
   }
 
   const copyToClipboard = (text: string) => {
@@ -183,6 +196,26 @@ export const APITokenManager: React.FC = () => {
       key: 'actions',
       render: (record: APIToken) => (
         <Space size="small">
+          <Tooltip title="查看Token详情">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              size="small"
+              onClick={() => handleViewToken(record)}
+            >
+              查看
+            </Button>
+          </Tooltip>
+          <Tooltip title="复制Token前缀">
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => handleCopyTokenPrefix(record)}
+            >
+              复制
+            </Button>
+          </Tooltip>
           <Popconfirm
             title="确定要删除这个Token吗？"
             description="删除后将无法恢复，使用此Token的应用将无法访问。"
@@ -191,9 +224,9 @@ export const APITokenManager: React.FC = () => {
             cancelText="取消"
             icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
           >
-            <Button 
-              type="text" 
-              danger 
+            <Button
+              type="text"
+              danger
               icon={<DeleteOutlined />}
               size="small"
             >
@@ -223,7 +256,7 @@ export const APITokenManager: React.FC = () => {
       >
         <Alert
           message="API Token 用于MCP客户端认证"
-          description="创建Token后请妥善保管，Token只在创建时显示一次。您可以使用Token通过MCP协议访问Todo for AI的功能。"
+          description="创建Token后请妥善保管，Token只在创建时显示一次。您可以使用Token通过MCP协议访问Todo for AI的功能。点击'查看'按钮可以查看Token的详细信息。"
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
@@ -350,6 +383,88 @@ export const APITokenManager: React.FC = () => {
         >
           复制Token
         </Button>
+      </Modal>
+
+      {/* 查看Token详情模态框 */}
+      <Modal
+        title="Token详情"
+        open={viewTokenModalVisible}
+        onCancel={() => {
+          setViewTokenModalVisible(false)
+          setViewingToken(null)
+        }}
+        footer={[
+          <Button key="close" onClick={() => {
+            setViewTokenModalVisible(false)
+            setViewingToken(null)
+          }}>
+            关闭
+          </Button>
+        ]}
+        width={600}
+      >
+        {viewingToken && (
+          <div>
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <div>
+                <Text strong>名称：</Text>
+                <Text>{viewingToken.name}</Text>
+              </div>
+
+              {viewingToken.description && (
+                <div>
+                  <Text strong>描述：</Text>
+                  <Text>{viewingToken.description}</Text>
+                </div>
+              )}
+
+              <div>
+                <Text strong>Token前缀：</Text>
+                <Text code>{viewingToken.prefix}***</Text>
+              </div>
+
+              <div>
+                <Text strong>状态：</Text>
+                {!viewingToken.is_active ? (
+                  <Tag color="red">已禁用</Tag>
+                ) : isExpired(viewingToken.expires_at) ? (
+                  <Tag color="orange">已过期</Tag>
+                ) : (
+                  <Tag color="green">活跃</Tag>
+                )}
+              </div>
+
+              <div>
+                <Text strong>创建时间：</Text>
+                <Text>{formatDate(viewingToken.created_at)}</Text>
+              </div>
+
+              <div>
+                <Text strong>过期时间：</Text>
+                <Text type={isExpired(viewingToken.expires_at) ? 'danger' : 'secondary'}>
+                  {viewingToken.expires_at ? formatDate(viewingToken.expires_at) : '永不过期'}
+                </Text>
+              </div>
+
+              <div>
+                <Text strong>最后使用：</Text>
+                <Text type="secondary">{formatDate(viewingToken.last_used_at)}</Text>
+              </div>
+
+              <div>
+                <Text strong>使用次数：</Text>
+                <Text>{viewingToken.usage_count || 0}</Text>
+              </div>
+
+              <Alert
+                message="安全提示"
+                description="出于安全考虑，完整的Token只在创建时显示一次。如果您忘记了Token，请删除此Token并创建新的。"
+                type="info"
+                showIcon
+              />
+            </Space>
+          </div>
+        )}
       </Modal>
     </div>
   )
