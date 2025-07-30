@@ -1,0 +1,102 @@
+/* 顶部导航栏样式 */
+.top-navigation {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0 24px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 居中对齐 */
+  border-bottom: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  height: 64px;
+}
+
+/* 用户区域样式 */
+.header-user-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.welcome-text {
+  color: #666;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+/* Logo区域样式 */
+.logo-section {
+  position: absolute;
+  left: 24px;
+}
+
+/* 用户区域样式 */
+.header-user-section {
+  position: absolute;
+  right: 24px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .top-navigation {
+    padding: 0 16px;
+  }
+
+  .logo-section {
+    left: 16px;
+  }
+
+  .header-user-section {
+    right: 16px;
+  }
+
+  .welcome-text {
+    display: none;
+  }
+
+  /* 在小屏幕上隐藏文档链接的文字，只显示图标 */
+  .top-navigation .ant-btn span:not(.anticon) {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .top-navigation {
+    padding: 0 12px;
+  }
+
+  .logo-section {
+    left: 12px;
+  }
+
+  .header-user-section {
+    right: 12px;
+  }
+
+  /* 在更小的屏幕上隐藏部分文档链接 */
+  .top-navigation .ant-btn:last-child {
+    display: none;
+  }
+}
+
+/* 菜单项激活状态 */
+.top-navigation .ant-menu-item-selected {
+  background-color: #e6f7ff !important;
+  border-bottom: 2px solid #1890ff !important;
+}
+
+/* Logo区域悬停效果 */
+.top-navigation .logo-section:hover {
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+/* 文档链接悬停效果 */
+.top-navigation .ant-btn:hover {
+  color: #1890ff !important;
+  background-color: #f0f8ff !important;
+}
