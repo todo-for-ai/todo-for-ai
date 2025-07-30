@@ -28,7 +28,7 @@ export interface Project {
 }
 
 export interface Task {
-  id: number;
+  id: number; // Note: This is bigint in database but JavaScript number can handle up to 2^53-1
   project_id: number;
   title: string;
   description?: string;

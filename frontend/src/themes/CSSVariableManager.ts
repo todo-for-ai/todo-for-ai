@@ -282,10 +282,10 @@ export class CSSVariableManager {
   /**
    * 移除CSS变量
    */
-  private removeVariable(name: string): void {
-    this.root.style.removeProperty(name)
-    this.appliedVariables.delete(name)
-  }
+  // private removeVariable(name: string): void {
+  //   this.root.style.removeProperty(name)
+  //   this.appliedVariables.delete(name)
+  // }
 
   /**
    * 清除主题变量

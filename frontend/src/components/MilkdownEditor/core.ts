@@ -118,9 +118,19 @@ export class MilkdownEditorCore {
       return false
     }
 
-    // 如果内容不同，重新创建编辑器（简单但稳定的方法）
+    // 修复：避免频繁重新创建编辑器，只在必要时才重新创建
     if (this.currentContent !== content) {
-      return await this.recreate(content)
+      try {
+        // 尝试使用温和的方式更新内容，而不是完全重新创建
+        const { replaceAll } = await import('@milkdown/kit/utils')
+        this.editor.action(replaceAll(content || ''))
+        this.currentContent = content
+        return true
+      } catch (error) {
+        console.warn('温和更新失败，尝试重新创建编辑器:', error)
+        // 只有在温和更新失败时才重新创建
+        return await this.recreate(content)
+      }
     }
     return true
   }
