@@ -1,0 +1,387 @@
+/* 方格纸主题专用样式 */
+
+/* 主题根容器 - 纯白背景 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid {
+  background-color: #FEFEFE !important;
+  
+  /* 轻微的纸张质感 */
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(45, 55, 72, 0.01) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(45, 55, 72, 0.01) 0%, transparent 50%);
+}
+
+/* 编辑器容器背景 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid .milkdown-editor {
+  background: #FEFEFE !important;
+  
+  /* 方格纸边框效果 */
+  box-shadow: 
+    inset 0 0 15px rgba(45, 55, 72, 0.05),
+    0 3px 12px rgba(45, 55, 72, 0.08) !important;
+  
+  border-radius: 8px !important;
+  border: 2px solid #E2E8F0 !important;
+  margin: 20px !important;
+}
+
+/* 编辑器内容区域 - 方格背景效果 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid .milkdown-editor-wrapper .milkdown .ProseMirror {
+  /* 方格背景 - 20px x 20px 网格 */
+  background-image: 
+    linear-gradient(rgba(226, 232, 240, 0.6) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.6) 1px, transparent 1px),
+    /* 每5格一条粗线 */
+    linear-gradient(rgba(226, 232, 240, 0.9) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.9) 1px, transparent 1px) !important;
+  
+  background-size: 
+    20px 20px,
+    20px 20px,
+    100px 100px,
+    100px 100px !important;
+  
+  background-position: 
+    0 0,
+    0 0,
+    0 0,
+    0 0 !important;
+  
+  /* 手写字体效果 */
+  font-family: "Segoe Print", "Comic Sans MS", "Brush Script MT", "楷体", "KaiTi", cursive, sans-serif !important;
+  color: #2D3748 !important;
+  font-size: 16px !important;
+  
+  /* 清晰的墨水效果 */
+  text-shadow: 0.5px 0.5px 0.8px rgba(45, 55, 72, 0.15) !important;
+  
+  /* 行高 */
+  line-height: 1.6 !important;
+  
+  /* 内边距 - 对齐网格 */
+  padding: 40px !important;
+  
+  /* 字间距 */
+  letter-spacing: 0.5px !important;
+  
+  /* 背景色 */
+  background-color: #FEFEFE !important;
+}
+
+/* 标题样式 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid h1 {
+  color: #1A202C !important;
+  font-weight: 600 !important;
+  position: relative;
+  margin-bottom: 2em !important;
+  font-size: 2.2em !important;
+  text-shadow: 1px 1px 1.5px rgba(26, 32, 44, 0.2) !important;
+}
+
+/* 一级标题网格对齐下划线 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      #2D3748 0px,
+      #2D3748 10px,
+      transparent 10px,
+      transparent 20px
+    );
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid h2 {
+  color: #1A202C !important;
+  font-weight: 550 !important;
+  position: relative;
+  padding-left: 25px !important;
+  font-size: 1.6em !important;
+  margin: 1.5em 0 1em 0 !important;
+}
+
+/* 二级标题方格标记 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid #4A5568;
+  background: 
+    linear-gradient(45deg, transparent 30%, #4A5568 30%, #4A5568 70%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, #4A5568 30%, #4A5568 70%, transparent 70%);
+  background-size: 8px 8px;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid h3 {
+  color: #1A202C !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+  font-size: 1.3em !important;
+  margin: 1.2em 0 0.8em 0 !important;
+  text-decoration: underline !important;
+  text-decoration-color: #4A5568 !important;
+  text-underline-offset: 4px !important;
+  text-decoration-style: dotted !important;
+}
+
+/* 段落样式 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid p {
+  color: #2D3748 !important;
+  margin-bottom: 1.4em !important;
+  font-size: 16px !important;
+  /* 对齐网格 - 每行20px */
+  line-height: 20px !important;
+  margin-top: 20px !important;
+}
+
+/* 列表样式 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid ul {
+  margin: 20px 0 !important;
+  padding-left: 2.5em !important;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid ul li {
+  color: #2D3748 !important;
+  position: relative;
+  margin-bottom: 10px !important;
+  list-style: none !important;
+  line-height: 20px !important;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid ul li::before {
+  content: "■";
+  color: #4A5568;
+  font-size: 0.8em;
+  position: absolute;
+  left: -1.8em;
+  top: 0;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid ol {
+  margin: 20px 0 !important;
+  padding-left: 2.5em !important;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid ol li {
+  color: #2D3748 !important;
+  margin-bottom: 10px !important;
+  line-height: 20px !important;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid ol li::marker {
+  font-family: inherit;
+  font-weight: 600;
+  color: #4A5568;
+}
+
+/* 引用块样式 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid blockquote {
+  background: #F7FAFC !important;
+  border-left: 6px solid #4A5568 !important;
+  border-radius: 0 8px 8px 0 !important;
+  padding: 20px 25px !important;
+  margin: 20px 0 !important;
+  color: #1A202C !important;
+  
+  /* 方格纸便签效果 */
+  box-shadow: 
+    inset 0 0 0 1px rgba(74, 85, 104, 0.1),
+    3px 3px 10px rgba(45, 55, 72, 0.1);
+  
+  position: relative;
+  
+  /* 内部小方格 */
+  background-image: 
+    linear-gradient(rgba(226, 232, 240, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+/* 引用块方格角标 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid blockquote::before {
+  content: '▣';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 24px;
+  height: 24px;
+  background: #4A5568;
+  color: white;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* 代码块方格纸效果 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid pre {
+  background: #F7FAFC !important;
+  border: 2px solid #E2E8F0 !important;
+  border-radius: 6px !important;
+  padding: 20px !important;
+  margin: 20px 0 !important;
+  position: relative;
+  
+  /* 方格纸阴影 */
+  box-shadow: 
+    0 3px 6px rgba(45, 55, 72, 0.1),
+    0 0 0 1px rgba(226, 232, 240, 0.4);
+  
+  /* 内部小方格 */
+  background-image: 
+    linear-gradient(rgba(226, 232, 240, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.4) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+/* 代码块顶部打孔效果 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid pre::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 6px;
+  height: 6px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1px;
+  box-shadow: 
+    15px 0 0 #FFFFFF, 15px 0 0 1px #E2E8F0,
+    30px 0 0 #FFFFFF, 30px 0 0 1px #E2E8F0,
+    45px 0 0 #FFFFFF, 45px 0 0 1px #E2E8F0;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid code {
+  background: #F7FAFC !important;
+  color: #2D3748 !important;
+  padding: 3px 6px !important;
+  border-radius: 3px !important;
+  font-family: "Courier New", Monaco, Menlo, monospace !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+/* 分割线方格效果 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid hr {
+  border: none !important;
+  height: 2px !important;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      #4A5568 0px,
+      #4A5568 10px,
+      transparent 10px,
+      transparent 20px
+    ) !important;
+  margin: 40px 0 !important;
+  opacity: 0.7;
+}
+
+/* 链接样式 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid a {
+  color: #3182CE !important;
+  text-decoration: underline !important;
+  text-decoration-style: solid !important;
+  text-underline-offset: 3px !important;
+  text-decoration-thickness: 1px !important;
+  transition: all 0.3s ease !important;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid a:hover {
+  color: #2C5282 !important;
+  text-decoration-thickness: 2px !important;
+  text-shadow: 0 0 3px rgba(49, 130, 206, 0.3);
+  background: rgba(190, 227, 248, 0.3) !important;
+  padding: 1px 3px !important;
+  border-radius: 2px !important;
+}
+
+/* 选中文本浅蓝色高亮效果 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid ::selection {
+  background: #BEE3F8 !important;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(190, 227, 248, 0.8);
+}
+
+/* 表格样式 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: #FEFEFE !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 3px 10px rgba(45, 55, 72, 0.1) !important;
+  margin: 20px 0 !important;
+  border: 2px solid #E2E8F0 !important;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid th,
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid td {
+  border: 1px solid #E2E8F0 !important;
+  padding: 12px 16px !important;
+  color: #2D3748 !important;
+  
+  /* 单元格内方格 */
+  background-image: 
+    linear-gradient(rgba(226, 232, 240, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.2) 1px, transparent 1px);
+  background-size: 5px 5px;
+}
+
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid th {
+  background: #F7FAFC !important;
+  font-weight: 600 !important;
+  color: #1A202C !important;
+}
+
+/* 输入时的方格动画 */
+.milkdown-theme-container.theme-handwriting-grid,
+.milkdown-editor-themed.theme-handwriting-grid .ProseMirror-focused {
+  animation: grid-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes grid-glow {
+  0%, 100% { 
+    text-shadow: 0.5px 0.5px 0.8px rgba(45, 55, 72, 0.15); 
+  }
+  50% { 
+    text-shadow: 0.5px 0.5px 1.5px rgba(45, 55, 72, 0.25); 
+  }
+}

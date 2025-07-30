@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 服务标识符 -->
+    <key>Label</key>
+    <string>com.todoforai.user</string>
+    
+    <!-- 程序路径和参数 -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/cc11001100/github/ai-coding-labs/todo-for-ai/start-service.sh</string>
+    </array>
+    
+    <!-- 工作目录 -->
+    <key>WorkingDirectory</key>
+    <string>/Users/cc11001100/github/ai-coding-labs/todo-for-ai</string>
+    
+    <!-- 开机自启动 -->
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <!-- 保持运行状态 -->
+    <key>KeepAlive</key>
+    <dict>
+        <!-- 如果进程意外退出，自动重启 -->
+        <key>SuccessfulExit</key>
+        <false/>
+        <!-- 每30秒检查一次进程状态 -->
+        <key>Crashed</key>
+        <true/>
+    </dict>
+    
+    <!-- 标准输出日志 -->
+    <key>StandardOutPath</key>
+    <string>/Users/cc11001100/github/ai-coding-labs/todo-for-ai/logs/service.log</string>
+    
+    <!-- 标准错误日志 -->
+    <key>StandardErrorPath</key>
+    <string>/Users/cc11001100/github/ai-coding-labs/todo-for-ai/logs/service-error.log</string>
+    
+    <!-- 环境变量 -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>/Users/cc11001100</string>
+        <key>TODOFORAI_SERVICE_MODE</key>
+        <string>daemon</string>
+    </dict>
+    
+    <!-- 启动延迟（秒） -->
+    <key>StartInterval</key>
+    <integer>10</integer>
+    
+    <!-- 超时设置 -->
+    <key>TimeOut</key>
+    <integer>30</integer>
+    
+    <!-- 退出超时 -->
+    <key>ExitTimeOut</key>
+    <integer>20</integer>
+    
+    <!-- 禁用在安全模式下运行 -->
+    <key>Disabled</key>
+    <false/>
+    
+    <!-- 启用调试模式 -->
+    <key>Debug</key>
+    <false/>
+</dict>
+</plist>

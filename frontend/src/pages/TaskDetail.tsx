@@ -235,10 +235,10 @@ const TaskDetail: React.FC = () => {
       // 这里需要调用更新任务状态的API
       // 暂时使用updateTask方法，需要确保后端支持
       const { updateTask } = useTaskStore.getState()
-      await updateTask(task.id, { status: newStatus })
+      await updateTask(task.id, { status: newStatus as 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled' })
 
       // 更新本地状态
-      setTask({ ...task, status: newStatus })
+      setTask({ ...task, status: newStatus as 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled' })
       message.success('任务状态已更新')
     } catch (error) {
       console.error('更新任务状态失败:', error)

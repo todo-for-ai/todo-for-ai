@@ -120,12 +120,14 @@ const CreateProject = () => {
 
       let success = false
       if (isEditMode && id) {
-        success = await updateProject(parseInt(id, 10), projectData)
+        const result = await updateProject(parseInt(id, 10), projectData as UpdateProjectData)
+        success = !!result
         if (success) {
           message.success('项目更新成功')
         }
       } else {
-        success = await createProject(projectData)
+        const result = await createProject(projectData as CreateProjectData)
+        success = !!result
         if (success) {
           message.success('项目创建成功')
         }

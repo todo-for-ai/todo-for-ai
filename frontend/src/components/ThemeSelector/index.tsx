@@ -31,7 +31,7 @@ interface ThemeSelectorProps {
 
 const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   mode = 'button',
-  showPreview = true,
+  // showPreview = true,  // 暂时注释掉未使用的参数
   showDescription = true,
   style,
   className,
@@ -178,17 +178,17 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   // 下拉菜单模式
   if (mode === 'dropdown') {
     return (
-      <Dropdown
-        menu={{ items: dropdownItems }}
-        placement="bottomRight"
-        trigger={['click']}
-        style={style}
-        className={className}
-      >
-        <Button icon={<BgColorsOutlined />} size={size}>
-          主题: {currentTheme.name}
-        </Button>
-      </Dropdown>
+      <div style={style} className={className}>
+        <Dropdown
+          menu={{ items: dropdownItems }}
+          placement="bottomRight"
+          trigger={['click']}
+        >
+          <Button icon={<BgColorsOutlined />} size={size}>
+            主题: {currentTheme.name}
+          </Button>
+        </Dropdown>
+      </div>
     )
   }
 

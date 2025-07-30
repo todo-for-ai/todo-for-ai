@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import type { Theme, ThemeOptions, ThemeChangeEvent } from '../types/theme'
+import type {
+  Theme,
+  ThemeOptions,
+  ThemeCategory,
+  ThemeTag,
+  TypewriterTheme
+} from '../types/theme'
 import { themes, getThemeById, getDefaultTheme } from '../themes/presets'
+import { themeManager } from '../themes/ThemeManager'
+import { cssVariableManager } from '../themes/CSSVariableManager'
 
 // 默认配置
 const DEFAULT_OPTIONS: Required<ThemeOptions> = {
@@ -10,10 +18,18 @@ const DEFAULT_OPTIONS: Required<ThemeOptions> = {
   storageKey: 'milkdown-editor-theme'
 }
 
-// 主题管理Hook
+// 主题管理Hook (增强版)
 export const useTheme = (options: ThemeOptions = {}) => {
   const config = { ...DEFAULT_OPTIONS, ...options }
-  
+
+  // 初始化主题管理器
+  useEffect(() => {
+    // 注册预设主题到主题管理器
+    themes.forEach(theme => {
+      themeManager.registerTheme({ theme })
+    })
+  }, [])
+
   // 检测系统深色模式
   const [systemDarkMode, setSystemDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -22,41 +38,32 @@ export const useTheme = (options: ThemeOptions = {}) => {
     return false
   })
   
-  // 获取初始主题
+  // 获取初始主题 (使用主题管理器)
   const getInitialTheme = useCallback((): Theme => {
     if (typeof window === 'undefined') {
       return getDefaultTheme()
     }
-    
-    // 尝试从本地存储获取
-    if (config.enablePersistence) {
-      try {
-        const stored = localStorage.getItem(config.storageKey)
-        if (stored) {
-          const { themeId, timestamp } = JSON.parse(stored)
-          // 检查存储的主题是否仍然有效（7天内）
-          if (Date.now() - timestamp < 7 * 24 * 60 * 60 * 1000) {
-            const theme = getThemeById(themeId)
-            if (theme) return theme
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to load theme from storage:', error)
-      }
+
+    // 尝试从主题管理器恢复
+    const restoredThemeId = themeManager.restoreThemeFromStorage()
+    if (restoredThemeId) {
+      const theme = themeManager.getAllThemes().find(t => t.id === restoredThemeId)
+      if (theme) return theme
     }
-    
+
     // 如果启用了跟随系统深色模式
     if (config.followSystemDarkMode) {
       if (systemDarkMode) {
-        const darkTheme = getThemeById('dark')
+        const darkTheme = themeManager.getAllThemes().find(t => t.id === 'dark')
         if (darkTheme) return darkTheme
       }
     }
-    
+
     // 返回默认主题
-    return getThemeById(config.defaultThemeId) || getDefaultTheme()
+    const defaultTheme = themeManager.getAllThemes().find(t => t.id === config.defaultThemeId)
+    return defaultTheme || getDefaultTheme()
   }, [config, systemDarkMode])
-  
+
   const [currentTheme, setCurrentTheme] = useState<Theme>(getInitialTheme)
   
   // 监听系统深色模式变化
@@ -80,10 +87,11 @@ export const useTheme = (options: ThemeOptions = {}) => {
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [config.followSystemDarkMode])
   
-  // 保存主题到本地存储
+  // 保存主题到本地存储 (暂时未使用)
+  /*
   const saveThemeToStorage = useCallback((theme: Theme) => {
     if (!config.enablePersistence || typeof window === 'undefined') return
-    
+
     try {
       const data = {
         themeId: theme.id,
@@ -94,31 +102,27 @@ export const useTheme = (options: ThemeOptions = {}) => {
       console.warn('Failed to save theme to storage:', error)
     }
   }, [config])
+  */
   
-  // 切换主题
-  const setTheme = useCallback((themeId: string) => {
-    const newTheme = getThemeById(themeId)
-    if (!newTheme) {
-      console.warn(`Theme with id "${themeId}" not found`)
-      return
+  // 切换主题 (使用主题管理器)
+  const setTheme = useCallback(async (themeId: string) => {
+    const success = await themeManager.setTheme(themeId, 'user')
+    if (success) {
+      const newTheme = themeManager.getCurrentTheme()
+      if (newTheme) {
+        setCurrentTheme(newTheme)
+        // 应用CSS变量
+        cssVariableManager.applyThemeVariables(newTheme)
+      }
     }
-    
-    const previousTheme = currentTheme
-    setCurrentTheme(newTheme)
-    saveThemeToStorage(newTheme)
-    
-    // 触发主题变更事件
-    const event: ThemeChangeEvent = {
-      previousTheme,
-      currentTheme: newTheme,
-      timestamp: Date.now()
+  }, [])
+
+  // 应用当前主题的CSS变量
+  useEffect(() => {
+    if (currentTheme) {
+      cssVariableManager.applyThemeVariables(currentTheme)
     }
-    
-    // 可以在这里添加全局事件分发
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('themeChange', { detail: event }))
-    }
-  }, [currentTheme, saveThemeToStorage])
+  }, [currentTheme])
   
   // 切换深色模式
   const toggleDarkMode = useCallback(() => {
@@ -126,23 +130,49 @@ export const useTheme = (options: ThemeOptions = {}) => {
     setTheme(targetThemeId)
   }, [currentTheme.isDark, setTheme])
   
-  // 获取下一个主题
+  // 获取下一个主题 (使用主题管理器)
   const getNextTheme = useCallback((): Theme => {
-    const currentIndex = themes.findIndex(theme => theme.id === currentTheme.id)
-    const nextIndex = (currentIndex + 1) % themes.length
-    return themes[nextIndex]
+    const allThemes = themeManager.getAllThemes()
+    const currentIndex = allThemes.findIndex(theme => theme.id === currentTheme.id)
+    const nextIndex = (currentIndex + 1) % allThemes.length
+    return allThemes[nextIndex]
   }, [currentTheme.id])
-  
+
   // 循环切换主题
   const cycleTheme = useCallback(() => {
     const nextTheme = getNextTheme()
     setTheme(nextTheme.id)
   }, [getNextTheme, setTheme])
-  
+
   // 重置为默认主题
   const resetTheme = useCallback(() => {
     setTheme(config.defaultThemeId)
   }, [config.defaultThemeId, setTheme])
+
+  // 新增：根据分类获取主题
+  const getThemesByCategory = useCallback((category: ThemeCategory): Theme[] => {
+    return themeManager.getThemesByCategory(category)
+  }, [])
+
+  // 新增：根据标签获取主题
+  const getThemesByTag = useCallback((tag: ThemeTag): Theme[] => {
+    return themeManager.getThemesByTag(tag)
+  }, [])
+
+  // 新增：注册主题
+  const registerTheme = useCallback((theme: Theme): void => {
+    themeManager.registerTheme({ theme })
+  }, [])
+
+  // 新增：注销主题
+  const unregisterTheme = useCallback((themeId: string): boolean => {
+    return themeManager.unregisterTheme(themeId)
+  }, [])
+
+  // 新增：判断是否为打字机主题
+  const isTypewriterTheme = useCallback((theme: Theme): theme is TypewriterTheme => {
+    return themeManager.isTypewriterTheme(theme)
+  }, [])
   
   // 获取主题CSS变量
   const getCSSVariables = useCallback((theme: Theme = currentTheme) => {
@@ -184,19 +214,18 @@ export const useTheme = (options: ThemeOptions = {}) => {
   // 应用CSS变量到文档
   const applyCSSVariables = useCallback((theme: Theme = currentTheme) => {
     if (typeof document === 'undefined') return
-    
+
     const variables = getCSSVariables(theme)
     const root = document.documentElement
-    
+
     Object.entries(variables).forEach(([key, value]) => {
       root.style.setProperty(key, value)
     })
-    
-    // 添加主题类名
-    root.className = root.className.replace(/theme-\w+/g, '')
-    root.classList.add(`theme-${theme.id}`)
-    
-    // 设置深色模式类名
+
+    // 不再将主题类名应用到document.documentElement
+    // 主题类名将通过ThemeManager应用到特定容器
+
+    // 设置深色模式类名（保留在根元素，因为这是全局状态）
     if (theme.isDark) {
       root.classList.add('dark-theme')
     } else {
@@ -209,37 +238,68 @@ export const useTheme = (options: ThemeOptions = {}) => {
     applyCSSVariables(currentTheme)
   }, [currentTheme, applyCSSVariables])
   
-  // 可用主题列表
-  const availableThemes = useMemo(() => themes, [])
-  
+  // 可用主题列表 (使用主题管理器)
+  // 使用状态来跟踪主题列表的变化
+  const [availableThemes, setAvailableThemes] = useState<Theme[]>(() => themeManager.getAllThemes())
+
+  // 监听主题注册变化
+  useEffect(() => {
+    const updateAvailableThemes = () => {
+      const themes = themeManager.getAllThemes()
+      setAvailableThemes(prevThemes => {
+        // 只有当主题列表真正发生变化时才更新状态
+        if (prevThemes.length !== themes.length ||
+            prevThemes.some((theme, index) => theme.id !== themes[index]?.id)) {
+          return themes
+        }
+        return prevThemes
+      })
+    }
+
+    // 初始更新
+    updateAvailableThemes()
+
+    // 设置一个较长间隔的定时器来检查主题列表变化
+    // 这是一个临时解决方案，更好的方法是让ThemeManager支持事件监听
+    const interval = setInterval(updateAvailableThemes, 1000)
+
+    // 清理定时器
+    return () => clearInterval(interval)
+  }, [])
+
   // 当前是否为深色模式
   const isDarkMode = useMemo(() => currentTheme.isDark, [currentTheme.isDark])
-  
+
   return {
     // 当前主题
     currentTheme,
-    
+
     // 可用主题列表
     availableThemes,
-    
+
     // 主题切换方法
     setTheme,
     toggleDarkMode,
     cycleTheme,
     resetTheme,
-    
+
     // 状态
     isDarkMode,
     systemDarkMode,
-    
+
     // 工具方法
     getCSSVariables,
     applyCSSVariables,
     getNextTheme,
-    
-    // 主题查找
-    getThemeById: (id: string) => getThemeById(id),
-    
+
+    // 主题查找和管理 (新增)
+    getThemeById: (id: string) => themeManager.getAllThemes().find(t => t.id === id),
+    getThemesByCategory,
+    getThemesByTag,
+    registerTheme,
+    unregisterTheme,
+    isTypewriterTheme,
+
     // 配置
     config
   }

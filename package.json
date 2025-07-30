@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@milkdown/kit": "^7.14.0",
+    "@milkdown/react": "^7.14.0",
+    "@milkdown/theme-nord": "^7.14.0"
+  }
+}

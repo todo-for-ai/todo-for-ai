@@ -1,3 +1,26 @@
+/**
+ * ========================================
+ * MARKDOWN编辑器主题样式 - 三大法则 + 禁用规则
+ * ========================================
+ *
+ * 【三大法则】此样式文件必须遵循Markdown编辑器的三大法则：
+ *
+ * 1. 【实时保存】样式不影响实时保存功能，保持编辑器响应性
+ * 2. 【所见即所得】样式确保Markdown语法正确渲染为HTML样式
+ * 3. 【无滚动条】绝对不能添加任何可能产生滚动条的样式
+ *    - 不设置固定高度和overflow: auto/scroll
+ *    - 不添加滚动条相关样式
+ *    - 让内容自然流动，高度自适应
+ *
+ * 【禁用规则】
+ * ❌ 严禁使用 @uiw/react-md-editor 相关样式
+ * ❌ 严禁使用任何其他Markdown编辑器的样式
+ * ❌ 严禁添加滚动条样式
+ *
+ * 重要：任何违反这些法则和禁用规则的样式修改都是不被允许的！
+ * ========================================
+ */
+
 /* 主题化的Markdown编辑器样式 */
 /* 使用CSS变量来支持动态主题切换 */
 
@@ -35,11 +58,47 @@
   border-radius: inherit;
 }
 
+/* 修复选择器，匹配实际的DOM结构：.milkdown-editor-wrapper > .milkdown > .ProseMirror */
+.milkdown-editor-wrapper .milkdown .ProseMirror {
+  outline: none !important;
+  border: none !important;
+  background: transparent !important;
+  min-height: 300px !important; /* 增加最低高度，提供更好的编辑体验 */
+  font-family: var(--theme-font-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+  font-size: var(--theme-font-font-size, 15px) !important;
+  line-height: var(--theme-font-line-height, 1.7) !important;
+  color: var(--theme-color-text-primary, #2c3e50) !important;
+  padding: var(--theme-spacing-editor-padding, 20px) !important;
+  border-radius: inherit !important;
+  transition: all var(--theme-animation-transition-duration, 0.2s) var(--theme-animation-easing, ease) !important;
+  font-weight: var(--theme-font-font-weight, 400) !important;
+  letter-spacing: var(--theme-font-letter-spacing, 0.3px) !important;
+}
+
+/* 通用ProseMirror选择器 - 确保在任何容器下都能工作 */
+.ProseMirror.editor {
+  outline: none !important;
+  border: none !important;
+  background: transparent !important;
+  min-height: 300px !important;
+  font-family: var(--theme-font-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+  font-size: var(--theme-font-font-size, 15px) !important;
+  line-height: var(--theme-font-line-height, 1.7) !important;
+  color: var(--theme-color-text-primary, #2c3e50) !important;
+  padding: var(--theme-spacing-editor-padding, 20px) !important;
+  border-radius: inherit !important;
+  transition: all var(--theme-animation-transition-duration, 0.2s) var(--theme-animation-easing, ease) !important;
+  font-weight: var(--theme-font-font-weight, 400) !important;
+  letter-spacing: var(--theme-font-letter-spacing, 0.3px) !important;
+}
+
+/* 保持向后兼容性 */
 .milkdown-editor .milkdown .editor {
   outline: none;
   border: none;
   background: transparent;
-  min-height: 200px;
+  min-height: 300px;
+  font-family: var(--theme-font-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: var(--theme-font-font-size, 15px);
   line-height: var(--theme-font-line-height, 1.7);
   color: var(--theme-color-text-primary, #2c3e50);
@@ -371,22 +430,8 @@
   color: var(--theme-color-primary, #1890ff);
 }
 
-/* 滚动条样式 */
-.milkdown-editor .milkdown .editor::-webkit-scrollbar {
-  width: 8px;
-}
-
-.milkdown-editor .milkdown .editor::-webkit-scrollbar-track {
-  background: var(--theme-color-surface, #f1f5f9);
-  border-radius: 4px;
-}
-
-.milkdown-editor .milkdown .editor::-webkit-scrollbar-thumb {
-  background: var(--theme-color-border, linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%));
-  border-radius: 4px;
-  transition: background var(--theme-animation-transition-duration, 0.2s) var(--theme-animation-easing, ease);
-}
-
-.milkdown-editor .milkdown .editor::-webkit-scrollbar-thumb:hover {
-  background: var(--theme-color-text-muted, linear-gradient(135deg, #a0aec0 0%, #718096 100%));
-}
+/*
+ * 滚动条样式已移除 - 遵循无滚动条法则
+ * 编辑器高度自适应，不产生滚动条
+ * 如需滚动，使用页面级别的滚动条
+ */

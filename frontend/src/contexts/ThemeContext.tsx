@@ -1,4 +1,5 @@
-import React, { createContext, useContext, ReactNode } from 'react'
+import React, { createContext, useContext } from 'react'
+import type { ReactNode } from 'react'
 import type { ThemeContextType, ThemeOptions } from '../types/theme'
 import { useTheme } from '../hooks/useTheme'
 
@@ -23,7 +24,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     availableThemes: themeHook.availableThemes,
     setTheme: themeHook.setTheme,
     isDarkMode: themeHook.isDarkMode,
-    toggleDarkMode: themeHook.toggleDarkMode
+    toggleDarkMode: themeHook.toggleDarkMode,
+    getThemesByCategory: themeHook.getThemesByCategory,
+    getThemesByTag: themeHook.getThemesByTag,
+    registerTheme: themeHook.registerTheme,
+    unregisterTheme: themeHook.unregisterTheme,
+    isTypewriterTheme: themeHook.isTypewriterTheme
   }
   
   return (

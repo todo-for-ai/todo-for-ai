@@ -1,3 +1,23 @@
+/**
+ * ========================================
+ * MARKDOWN编辑器HOOKS - 三大法则 + 禁用规则
+ * ========================================
+ *
+ * 【三大法则】此文件的hooks必须遵循Markdown编辑器的三大法则：
+ *
+ * 1. 【实时保存】提供实时保存相关的hooks和状态管理
+ * 2. 【所见即所得】确保编辑器hooks支持所见即所得功能
+ * 3. 【无滚动条】hooks不产生滚动条相关的副作用
+ *
+ * 【禁用规则】
+ * ❌ 严禁使用 @uiw/react-md-editor 相关hooks
+ * ❌ 严禁使用任何其他Markdown编辑器的hooks
+ * ❌ 必须使用Milkdown相关的hooks和API
+ *
+ * 重要：任何违反这些法则和禁用规则的修改都是不被允许的！
+ * ========================================
+ */
+
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { message } from 'antd'
 import { MilkdownEditorCore } from './core'
@@ -146,7 +166,6 @@ export const useEditor = (options: UseEditorOptions) => {
 
 export const useKeyboardShortcuts = (
   onSave: () => void,
-  onTogglePreview: () => void,
   onToggleFullscreen: () => void
 ) => {
   useEffect(() => {
@@ -157,12 +176,7 @@ export const useKeyboardShortcuts = (
             e.preventDefault()
             onSave()
             break
-          case 'Enter':
-            if (e.shiftKey) {
-              e.preventDefault()
-              onTogglePreview()
-            }
-            break
+          // 移除预览模式切换快捷键，因为Milkdown本身就是所见即所得
         }
       }
       if (e.key === 'F11') {
@@ -173,5 +187,5 @@ export const useKeyboardShortcuts = (
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [onSave, onTogglePreview, onToggleFullscreen])
+  }, [onSave, onToggleFullscreen])
 }

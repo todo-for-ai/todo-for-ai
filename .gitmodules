@@ -1,0 +1,6 @@
+[submodule "docs/Milkdown/examples"]
+	path = docs/Milkdown/examples
+	url = https://github.com/Milkdown/examples.git
+[submodule "docs/Milkdown/website"]
+	path = docs/Milkdown/website
+	url = https://github.com/Milkdown/website.git

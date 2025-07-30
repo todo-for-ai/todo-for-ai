@@ -75,7 +75,7 @@ const Dashboard = () => {
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={12}>
-          <Card title="最近项目" bordered={false}>
+          <Card title="最近项目" variant="borderless">
             <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
               <ProjectOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
               <div>暂无项目数据</div>
@@ -83,7 +83,7 @@ const Dashboard = () => {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title="最近任务" bordered={false}>
+          <Card title="最近任务" variant="borderless">
             <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
               <CheckSquareOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
               <div>暂无任务数据</div>

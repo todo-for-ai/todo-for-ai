@@ -7,6 +7,7 @@ export interface Task {
   project_id: number
   title: string
   content: string
+  description?: string  // 添加缺失的description属性
   status: 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled'
   priority: 'low' | 'medium' | 'high' | 'urgent'
   due_date?: string
@@ -18,6 +19,10 @@ export interface Task {
   created_by: string
   feedback_content?: string
   feedback_at?: string
+  is_ai_task?: boolean  // 添加缺失的is_ai_task属性
+  related_files?: string[]  // 添加缺失的related_files属性
+  creator_type?: string  // 添加缺失的creator_type属性
+  creator_identifier?: string  // 添加缺失的creator_identifier属性
   project?: {
     id: number
     name: string
@@ -35,21 +40,29 @@ export interface CreateTaskData {
   project_id: number
   title?: string
   content?: string
+  description?: string  // 添加description属性
   status?: 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled'
   priority?: 'low' | 'medium' | 'high' | 'urgent'
   due_date?: string
   tags?: string[]
   is_ai_task?: boolean
+  related_files?: string[]  // 添加related_files属性
+  creator_type?: string  // 添加creator_type属性
+  creator_identifier?: string  // 添加creator_identifier属性
 }
 
 export interface UpdateTaskData {
   title?: string
   content?: string
+  description?: string  // 添加description属性
   status?: 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled'
   priority?: 'low' | 'medium' | 'high' | 'urgent'
   due_date?: string
   completion_rate?: number
   tags?: string[]
+  is_ai_task?: boolean  // 添加is_ai_task属性
+  related_files?: string[]  // 添加related_files属性
+  created_by?: string  // 添加created_by属性
 }
 
 export interface TaskQueryParams {
