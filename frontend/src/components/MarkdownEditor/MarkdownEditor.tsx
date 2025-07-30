@@ -1,3 +1,24 @@
+/**
+ * ========================================
+ * MARKDOWN编辑器包装组件 - 三大法则 + 禁用规则
+ * ========================================
+ *
+ * 【三大法则】此组件必须遵循Markdown编辑器的三大法则：
+ *
+ * 1. 【实时保存】支持实时保存功能，传递给MilkdownEditor
+ * 2. 【所见即所得】使用MilkdownEditor实现所见即所得
+ * 3. 【无滚动条】不产生滚动条，保持高度自适应
+ *
+ * 【禁用规则】
+ * ❌ 严禁使用 @uiw/react-md-editor
+ * ❌ 严禁使用任何其他Markdown编辑器替代MilkdownEditor
+ * ❌ 严禁添加预览模式切换功能
+ * ❌ 必须使用MilkdownEditor作为唯一的Markdown编辑器
+ *
+ * 重要：任何违反这些法则和禁用规则的修改都是不被允许的！
+ * ========================================
+ */
+
 import { useState } from 'react'
 import { Button, Tooltip, message, Modal, Tabs } from 'antd'
 import {
@@ -39,7 +60,6 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   autoSaveInterval = 30000, // 30秒
   readOnly = false,
   hideToolbar = false,
-  preview = 'live',
   taskId,
   enableImageUpload = false,
 }) => {
@@ -75,11 +95,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         autoHeight={autoHeight}
         readOnly={readOnly}
         hideToolbar={hideToolbar}
-        preview={preview}
         autoSave={autoSave}
         autoSaveInterval={autoSaveInterval}
-        taskId={taskId}
-        enableImageUpload={enableImageUpload}
       />
 
       {/* 图片上传按钮 - 如果启用了图片上传且没有隐藏工具栏 */}

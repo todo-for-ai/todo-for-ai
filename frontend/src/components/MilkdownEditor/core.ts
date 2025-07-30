@@ -1,26 +1,44 @@
-import { Editor, rootCtx, defaultValueCtx, editorViewOptionsCtx } from '@milkdown/core'
-import { commonmark } from '@milkdown/preset-commonmark'
-import { gfm } from '@milkdown/preset-gfm'
-import { nord } from '@milkdown/theme-nord'
-import { listener, listenerCtx } from '@milkdown/plugin-listener'
-import { history } from '@milkdown/plugin-history'
-import { clipboard } from '@milkdown/plugin-clipboard'
-import { cursor } from '@milkdown/plugin-cursor'
-
 /**
  * ========================================
- * MARKDOWN编辑器核心配置 - 三大法则
+ * MARKDOWN编辑器核心配置 - 三大法则 + 禁用规则
  * ========================================
  *
- * 此文件负责Milkdown编辑器的核心配置，必须确保：
+ * 【三大法则】此文件负责Milkdown编辑器的核心配置，必须确保：
  *
  * 1. 【实时保存】通过listener插件监听内容变化，实现实时保存
- * 2. 【所见即所得】通过commonmark和gfm插件确保Markdown语法正确渲染为HTML
- * 3. 【无滚动条】编辑器本身不设置固定高度，由外层容器控制高度自适应
+ *    - 使用listenerCtx.markdownUpdated监听内容变化
+ *    - 每次内容变化都触发onChange回调
+ *    - 确保实时保存功能正常工作
  *
- * 重要提醒：修改此文件时必须确保上述三个法则不被破坏！
+ * 2. 【所见即所得】通过commonmark和gfm插件确保Markdown语法正确渲染为HTML
+ *    - Milkdown本身就是所见即所得编辑器
+ *    - 使用commonmark插件支持基础Markdown语法
+ *    - 使用gfm插件支持GitHub Flavored Markdown扩展
+ *    - 用户输入Markdown语法时立即渲染为对应样式
+ *
+ * 3. 【无滚动条】编辑器本身不设置固定高度，由外层容器控制高度自适应
+ *    - 编辑器容器不设置固定高度
+ *    - 不使用overflow: auto或scroll
+ *    - 让内容自然流动，高度完全自适应
+ *
+ * 【禁用规则】
+ * ❌ 严禁使用 @uiw/react-md-editor
+ * ❌ 严禁使用任何其他Markdown编辑器替代Milkdown
+ * ❌ 必须使用Milkdown实现所见即所得功能
+ *
+ * 重要提醒：修改此文件时必须确保上述三个法则和禁用规则不被破坏！
+ * 任何违反这些规则的配置修改都是不被允许的！
  * ========================================
  */
+
+import { Editor, rootCtx, defaultValueCtx, editorViewOptionsCtx } from '@milkdown/kit/core'
+import { commonmark } from '@milkdown/kit/preset/commonmark'
+import { gfm } from '@milkdown/kit/preset/gfm'
+import { nord } from '@milkdown/theme-nord'
+import { listener, listenerCtx } from '@milkdown/kit/plugin/listener'
+import { history } from '@milkdown/kit/plugin/history'
+import { clipboard } from '@milkdown/kit/plugin/clipboard'
+import { cursor } from '@milkdown/kit/plugin/cursor'
 
 export interface EditorConfig {
   container: HTMLElement
@@ -53,8 +71,9 @@ export class MilkdownEditorCore {
       // 清理容器
       this.clearContainer()
 
-      // 创建编辑器 - 确保所见即所得模式
+      // 创建编辑器 - 按照官方文档的正确配置方式
       this.editor = Editor.make()
+        .config(nord)  // 首先配置主题
         .config((ctx) => {
           ctx.set(rootCtx, this.container)
           ctx.set(defaultValueCtx, initialValue)
@@ -66,8 +85,15 @@ export class MilkdownEditorCore {
               class: 'milkdown-editor-content'
             }
           })
-
-          // 设置监听器
+        })
+        .use(commonmark)  // 基础Markdown支持 - 这是最重要的插件
+        .use(gfm)  // GitHub Flavored Markdown扩展
+        .use(listener)  // 监听器 - 用于实时保存
+        .use(history)  // 历史记录
+        .use(clipboard)  // 剪贴板支持
+        .use(cursor)  // 光标支持
+        .config((ctx) => {
+          // 设置监听器 - 实现实时保存功能（必须在use(listener)之后配置）
           ctx.get(listenerCtx).markdownUpdated((_ctx, markdown, prevMarkdown) => {
             if (markdown !== prevMarkdown) {
               this.currentContent = markdown
@@ -75,13 +101,6 @@ export class MilkdownEditorCore {
             }
           })
         })
-        .use(nord)  // 主题
-        .use(listener)  // 监听器
-        .use(commonmark)  // 基础Markdown支持 - 包含标题、列表、粗体等
-        .use(gfm)  // GitHub Flavored Markdown扩展 - 包含表格、删除线等
-        .use(history)  // 历史记录
-        .use(clipboard)  // 剪贴板支持
-        .use(cursor)  // 光标支持
 
       await this.editor.create()
       this.isInitializing = false

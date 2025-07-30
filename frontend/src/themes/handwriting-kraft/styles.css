@@ -1,0 +1,419 @@
+/* 复古牛皮纸主题专用样式 */
+
+/* 主题根容器 - 牛皮纸背景 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft {
+  background-color: #D2B48C !important;
+  
+  /* 牛皮纸纹理效果 */
+  background-image: 
+    radial-gradient(circle at 15% 30%, rgba(139, 69, 19, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 85% 70%, rgba(160, 82, 45, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 10%, rgba(101, 67, 33, 0.04) 0%, transparent 40%),
+    /* 老化斑点效果 */
+    radial-gradient(circle at 20% 80%, rgba(139, 69, 19, 0.12) 0%, transparent 20%),
+    radial-gradient(circle at 80% 20%, rgba(160, 82, 45, 0.10) 0%, transparent 25%);
+}
+
+/* 编辑器容器背景 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft .milkdown-editor {
+  background: #D2B48C !important;
+  
+  /* 复古纸张边缘效果 */
+  box-shadow: 
+    inset 0 0 40px rgba(139, 69, 19, 0.2),
+    0 6px 20px rgba(101, 67, 33, 0.25) !important;
+  
+  border-radius: 15px !important;
+  border: 3px solid rgba(205, 133, 63, 0.6) !important;
+  margin: 25px !important;
+  
+  /* 老化边缘效果 */
+  position: relative;
+}
+
+/* 纸张磨损边缘效果 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft .milkdown-editor::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: linear-gradient(45deg, 
+    rgba(139, 69, 19, 0.1) 0%, 
+    transparent 20%, 
+    transparent 80%, 
+    rgba(160, 82, 45, 0.1) 100%);
+  border-radius: 18px;
+  z-index: -1;
+}
+
+/* 编辑器内容区域 - 复古横线效果 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft .milkdown-editor-wrapper .milkdown .ProseMirror {
+  /* 复古横线背景 */
+  background-image: 
+    repeating-linear-gradient(
+      transparent,
+      transparent 1.5em,
+      rgba(205, 133, 63, 0.7) 1.5em,
+      rgba(205, 133, 63, 0.7) calc(1.5em + 2px)
+    ) !important;
+  background-size: 100% 1.7em !important;
+  background-position: 0 0.85em !important;
+  
+  /* 复古手写字体效果 */
+  font-family: "Brush Script MT", "Lucida Handwriting", "Segoe Print", "楷体", "KaiTi", cursive, serif !important;
+  color: #654321 !important;
+  font-size: 18px !important;
+  
+  /* 深棕色墨水效果 */
+  text-shadow: 1.2px 1.2px 1.5px rgba(101, 67, 33, 0.3) !important;
+  
+  /* 行高匹配横线 */
+  line-height: 1.7 !important;
+  
+  /* 内边距 */
+  padding: 45px !important;
+  
+  /* 字间距 */
+  letter-spacing: 1px !important;
+  
+  /* 背景色 */
+  background-color: #D2B48C !important;
+}
+
+/* 复古装饰边框 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft .milkdown-editor-wrapper .milkdown .ProseMirror::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  border: 2px solid rgba(139, 69, 19, 0.3);
+  border-radius: 10px;
+  pointer-events: none;
+  
+  /* 装饰角落 */
+  background-image: 
+    radial-gradient(circle at 0 0, rgba(139, 69, 19, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 100% 0, rgba(139, 69, 19, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 0 100%, rgba(139, 69, 19, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(139, 69, 19, 0.2) 0%, transparent 50%);
+  background-size: 30px 30px;
+  background-repeat: no-repeat;
+  background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+}
+
+/* 标题样式 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft h1 {
+  color: #4A2C17 !important;
+  font-weight: 700 !important;
+  position: relative;
+  margin-bottom: 2.5em !important;
+  font-size: 2.5em !important;
+  text-shadow: 2px 2px 3px rgba(74, 44, 23, 0.4) !important;
+  font-family: "Brush Script MT", "Lucida Handwriting", serif !important;
+}
+
+/* 一级标题复古装饰线 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft h1::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: 
+    linear-gradient(90deg, #8B4513 0%, rgba(139, 69, 19, 0.5) 50%, #8B4513 100%),
+    linear-gradient(90deg, transparent 0%, #CD853F 20%, #CD853F 80%, transparent 100%);
+  background-size: 100% 4px, 100% 2px;
+  background-position: 0 0, 0 6px;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  transform: rotate(-1deg);
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft h2 {
+  color: #4A2C17 !important;
+  font-weight: 650 !important;
+  position: relative;
+  padding-left: 40px !important;
+  font-size: 1.8em !important;
+  margin: 2em 0 1.5em 0 !important;
+}
+
+/* 二级标题复古装饰 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft h2::before {
+  content: '❦';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5em;
+  color: #8B4513;
+  text-shadow: 1px 1px 2px rgba(139, 69, 19, 0.5);
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft h3 {
+  color: #4A2C17 !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+  font-size: 1.5em !important;
+  margin: 1.8em 0 1.2em 0 !important;
+  text-decoration: underline !important;
+  text-decoration-color: #8B4513 !important;
+  text-underline-offset: 6px !important;
+  text-decoration-style: wavy !important;
+}
+
+/* 段落样式 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft p {
+  color: #654321 !important;
+  margin-bottom: 1.8em !important;
+  text-indent: 3em !important; /* 首行缩进 */
+  font-size: 17px !important;
+  line-height: 1.8 !important;
+}
+
+/* 列表样式 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft ul {
+  margin: 2em 0 !important;
+  padding-left: 3.5em !important;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft ul li {
+  color: #654321 !important;
+  position: relative;
+  margin-bottom: 1.2em !important;
+  list-style: none !important;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft ul li::before {
+  content: "❋";
+  color: #8B4513;
+  font-size: 1.3em;
+  position: absolute;
+  left: -2em;
+  top: 0;
+  text-shadow: 1px 1px 1px rgba(139, 69, 19, 0.3);
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft ol {
+  margin: 2em 0 !important;
+  padding-left: 3.5em !important;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft ol li {
+  color: #654321 !important;
+  margin-bottom: 1.2em !important;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft ol li::marker {
+  font-family: "Brush Script MT", serif;
+  font-weight: 700;
+  color: #8B4513;
+  font-size: 1.2em;
+}
+
+/* 引用块样式 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft blockquote {
+  background: #F5DEB3 !important;
+  border-left: 10px solid #8B4513 !important;
+  border-radius: 0 20px 20px 0 !important;
+  padding: 35px 40px !important;
+  margin: 40px 0 !important;
+  color: #4A2C17 !important;
+  font-style: italic !important;
+  font-size: 1.1em !important;
+  
+  /* 复古羊皮纸效果 */
+  box-shadow: 
+    inset 0 0 0 3px rgba(139, 69, 19, 0.15),
+    6px 6px 20px rgba(101, 67, 33, 0.25);
+  
+  position: relative;
+}
+
+/* 引用块复古印章效果 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft blockquote::before {
+  content: '※';
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, #8B4513 0%, #654321 100%);
+  color: #F5DEB3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8em;
+  font-weight: bold;
+  box-shadow: 3px 3px 8px rgba(101, 67, 33, 0.4);
+  transform: rotate(15deg);
+}
+
+/* 代码块羊皮纸效果 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft pre {
+  background: #F5DEB3 !important;
+  border: 3px solid #CD853F !important;
+  border-radius: 12px !important;
+  padding: 30px !important;
+  margin: 35px 0 !important;
+  position: relative;
+  
+  /* 羊皮纸阴影 */
+  box-shadow: 
+    0 6px 12px rgba(101, 67, 33, 0.2),
+    inset 0 0 0 2px rgba(205, 133, 63, 0.3);
+}
+
+/* 羊皮纸卷边效果 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft pre::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 20px;
+  right: 20px;
+  height: 10px;
+  background: 
+    radial-gradient(ellipse at center, rgba(205, 133, 63, 0.6) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft code {
+  background: #F5DEB3 !important;
+  color: #8B4513 !important;
+  padding: 5px 10px !important;
+  border-radius: 6px !important;
+  font-family: "Courier New", Monaco, Menlo, monospace !important;
+  border: 2px solid #CD853F !important;
+  font-weight: 600 !important;
+}
+
+/* 分割线复古效果 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft hr {
+  border: none !important;
+  height: 6px !important;
+  background: 
+    linear-gradient(90deg, transparent 0%, #8B4513 10%, #CD853F 50%, #8B4513 90%, transparent 100%) !important;
+  margin: 50px 0 !important;
+  border-radius: 3px !important;
+  transform: rotate(-0.8deg);
+  opacity: 0.8;
+  position: relative;
+}
+
+/* 分割线装饰 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft hr::before {
+  content: '❦';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #D2B48C;
+  color: #8B4513;
+  padding: 5px 10px;
+  font-size: 1.2em;
+}
+
+/* 链接样式 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft a {
+  color: #8B4513 !important;
+  text-decoration: underline !important;
+  text-decoration-style: double !important;
+  text-underline-offset: 5px !important;
+  text-decoration-thickness: 2px !important;
+  transition: all 0.4s ease !important;
+  font-weight: 600 !important;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft a:hover {
+  color: #654321 !important;
+  text-decoration-thickness: 3px !important;
+  text-shadow: 0 0 8px rgba(139, 69, 19, 0.5);
+  background: rgba(245, 222, 179, 0.6) !important;
+  padding: 3px 6px !important;
+  border-radius: 5px !important;
+}
+
+/* 选中文本卡其色高亮效果 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft ::selection {
+  background: #F0E68C !important;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px rgba(240, 230, 140, 0.7);
+}
+
+/* 表格样式 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: #F5DEB3 !important;
+  border-radius: 15px !important;
+  overflow: hidden !important;
+  box-shadow: 0 6px 20px rgba(101, 67, 33, 0.25) !important;
+  margin: 35px 0 !important;
+  border: 3px solid #8B4513 !important;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft th,
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft td {
+  border: 2px solid #CD853F !important;
+  padding: 18px 24px !important;
+  color: #654321 !important;
+}
+
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft th {
+  background: #DEB887 !important;
+  font-weight: 700 !important;
+  color: #4A2C17 !important;
+  font-size: 1.1em !important;
+}
+
+/* 输入时的复古动画 */
+.milkdown-theme-container.theme-handwriting-kraft,
+.milkdown-editor-themed.theme-handwriting-kraft .ProseMirror-focused {
+  animation: kraft-glow 2s ease-in-out infinite;
+}
+
+@keyframes kraft-glow {
+  0%, 100% { 
+    text-shadow: 1.2px 1.2px 1.5px rgba(101, 67, 33, 0.3); 
+  }
+  50% { 
+    text-shadow: 1.2px 1.2px 3px rgba(101, 67, 33, 0.5); 
+  }
+}

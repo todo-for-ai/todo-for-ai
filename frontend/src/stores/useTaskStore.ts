@@ -246,7 +246,9 @@ export const useTaskStore = create<TaskState>()(
 
       assignTask: async (id, assignee) => {
         try {
-          const response = await tasksApi.assignTask(id, assignee)
+          // 暂时注释掉assignTask调用，因为API中没有这个方法
+          // const response = await tasksApi.assignTask(id, assignee)
+          const response = await tasksApi.updateTask(id, { created_by: assignee })
           const updatedTask = response.data
           
           if (updatedTask) {

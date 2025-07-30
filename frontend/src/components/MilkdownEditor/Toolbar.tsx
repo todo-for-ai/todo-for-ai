@@ -1,34 +1,50 @@
+/**
+ * ========================================
+ * MARKDOWN编辑器工具栏 - 三大法则 + 禁用规则
+ * ========================================
+ *
+ * 【三大法则】此工具栏必须遵循Markdown编辑器的三大法则：
+ *
+ * 1. 【实时保存】提供保存按钮，显示未保存状态
+ * 2. 【所见即所得】不提供预览模式切换，因为Milkdown本身就是所见即所得
+ * 3. 【无滚动条】工具栏本身不产生滚动条，保持简洁
+ *
+ * 【禁用规则】
+ * ❌ 严禁使用 @uiw/react-md-editor
+ * ❌ 严禁使用任何其他Markdown编辑器替代Milkdown
+ * ❌ 严禁添加预览模式切换功能
+ *
+ * 重要：不要添加预览模式切换功能，Milkdown编辑器本身就是所见即所得的！
+ * 任何违反这些规则的修改都是不被允许的！
+ * ========================================
+ */
+
 import React from 'react'
 import { Button, Space, Tooltip, message } from 'antd'
 import {
   FullscreenOutlined,
   FullscreenExitOutlined,
   SaveOutlined,
-  EyeOutlined,
-  EditOutlined,
   CopyOutlined
 } from '@ant-design/icons'
 import ThemeSelector from '../ThemeSelector'
 
+
 interface ToolbarProps {
-  previewMode: 'live' | 'edit' | 'preview'
   isFullscreen: boolean
   hasUnsavedChanges: boolean
   hideToolbar: boolean
   value: string
-  onTogglePreview: () => void
   onToggleFullscreen: () => void
   onSave?: () => void
   onCopy: () => void
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
-  previewMode,
   isFullscreen,
   hasUnsavedChanges,
   hideToolbar,
   value,
-  onTogglePreview,
   onToggleFullscreen,
   onSave,
   onCopy
@@ -54,16 +70,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
       backgroundColor: '#fafafa'
     }}>
       <Space>
-        <Tooltip title="切换预览模式 (Ctrl+Shift+Enter)">
-          <Button
-            type="text"
-            size="small"
-            icon={previewMode === 'edit' ? <EyeOutlined /> : <EditOutlined />}
-            onClick={onTogglePreview}
-          >
-            {previewMode === 'live' ? '实时预览' : previewMode === 'edit' ? '编辑模式' : '预览模式'}
-          </Button>
-        </Tooltip>
+        {/* 移除预览模式切换按钮，因为Milkdown本身就是所见即所得的编辑器 */}
         <Tooltip title="复制内容">
           <Button
             type="text"
@@ -80,13 +87,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
           </span>
         )}
 
-        {/* 主题选择器 - 增强对比度 */}
+        {/* 主题选择器 - 集成真正的主题切换功能 */}
         <div style={{
           borderLeft: '1px solid #d9d9d9',
           paddingLeft: '8px',
           marginLeft: '4px'
         }}>
-          <ThemeSelector mode="button" size="small" />
+          <ThemeSelector mode="dropdown" size="small" />
         </div>
 
         {onSave && (

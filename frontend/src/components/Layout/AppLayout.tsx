@@ -4,7 +4,6 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   DashboardOutlined,
   ProjectOutlined,
-  CheckSquareOutlined,
   SettingOutlined,
   RobotOutlined,
   MenuFoldOutlined,

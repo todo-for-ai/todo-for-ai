@@ -682,7 +682,7 @@ ${pendingTasks.length > 0 ? pendingTasks.map((task, index) =>
                     value={currentProject.project_context}
                     readOnly={true}
                     hideToolbar={true}
-                    height="auto"
+                    height={400}
                   />
                 </Card>
               </Col>

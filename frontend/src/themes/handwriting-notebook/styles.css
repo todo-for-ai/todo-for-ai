@@ -1,0 +1,338 @@
+/* 经典笔记本主题专用样式 */
+
+/* 主题根容器 - 纯白背景 */
+.milkdown-theme-container.theme-handwriting-notebook,
+.milkdown-editor-themed.theme-handwriting-notebook {
+  background-color: #FFFFFF !important;
+
+  /* 轻微的纸张质感 */
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.02) 0%, transparent 50%);
+}
+
+/* 编辑器容器背景 */
+.theme-handwriting-notebook .milkdown-editor {
+  background: #FFFFFF !important;
+  
+  /* 笔记本边框效果 */
+  box-shadow: 
+    inset 0 0 20px rgba(59, 130, 246, 0.08),
+    0 4px 15px rgba(30, 58, 138, 0.1) !important;
+  
+  border-radius: 10px !important;
+  border: 3px solid #3B82F6 !important;
+  margin: 20px !important;
+}
+
+/* 编辑器内容区域 - 蓝色横线笔记本效果 */
+.theme-handwriting-notebook .milkdown-editor-wrapper .milkdown .ProseMirror {
+  /* 蓝色横线背景 */
+  background-image: 
+    repeating-linear-gradient(
+      transparent,
+      transparent 1.4em,
+      #3B82F6 1.4em,
+      #3B82F6 calc(1.4em + 2px)
+    ) !important;
+  background-size: 100% 1.6em !important;
+  background-position: 0 0.8em !important;
+  
+  /* 手写字体效果 */
+  font-family: "Segoe Print", "Comic Sans MS", "Brush Script MT", "楷体", "KaiTi", cursive, sans-serif !important;
+  color: #1E3A8A !important;
+  font-size: 17px !important;
+  
+  /* 蓝墨水效果 */
+  text-shadow: 0.8px 0.8px 1px rgba(30, 58, 138, 0.25) !important;
+  
+  /* 行高匹配横线 */
+  line-height: 1.6 !important;
+  
+  /* 内边距 */
+  padding: 35px !important;
+  
+  /* 字间距 */
+  letter-spacing: 0.6px !important;
+  
+  /* 背景色 */
+  background-color: #FFFFFF !important;
+}
+
+/* 左边距红线（经典笔记本特色） */
+.theme-handwriting-notebook .milkdown-editor-wrapper .milkdown .ProseMirror::before {
+  content: '';
+  position: absolute;
+  left: 60px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #EF4444;
+  z-index: 1;
+}
+
+/* 标题样式 */
+.theme-handwriting-notebook h1 {
+  color: #1E40AF !important;
+  font-weight: 650 !important;
+  position: relative;
+  margin-bottom: 2em !important;
+  font-size: 2.3em !important;
+  text-shadow: 1px 1px 2px rgba(30, 64, 175, 0.3) !important;
+}
+
+/* 一级标题双下划线 */
+.theme-handwriting-notebook h1::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: 
+    linear-gradient(90deg, #3B82F6 0%, rgba(59, 130, 246, 0.3) 100%),
+    linear-gradient(90deg, #3B82F6 0%, rgba(59, 130, 246, 0.3) 100%);
+  background-size: 100% 2px, 100% 2px;
+  background-position: 0 0, 0 4px;
+  background-repeat: no-repeat;
+}
+
+.theme-handwriting-notebook h2 {
+  color: #1E40AF !important;
+  font-weight: 600 !important;
+  position: relative;
+  padding-left: 30px !important;
+  font-size: 1.7em !important;
+  margin: 1.8em 0 1.2em 0 !important;
+}
+
+/* 二级标题蓝色方块 */
+.theme-handwriting-notebook h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+  border-radius: 3px;
+  box-shadow: 2px 2px 4px rgba(30, 58, 138, 0.3);
+}
+
+.theme-handwriting-notebook h3 {
+  color: #1E40AF !important;
+  font-style: italic !important;
+  font-weight: 550 !important;
+  font-size: 1.4em !important;
+  margin: 1.4em 0 1em 0 !important;
+  text-decoration: underline !important;
+  text-decoration-color: #3B82F6 !important;
+  text-underline-offset: 5px !important;
+}
+
+/* 段落样式 */
+.theme-handwriting-notebook p {
+  color: #1E3A8A !important;
+  margin-bottom: 1.5em !important;
+  text-indent: 2.8em !important; /* 首行缩进 */
+  font-size: 16px !important;
+  margin-left: 20px !important; /* 避开红线 */
+}
+
+/* 列表样式 */
+.theme-handwriting-notebook ul {
+  margin: 1.8em 0 !important;
+  padding-left: 3em !important;
+  margin-left: 20px !important; /* 避开红线 */
+}
+
+.theme-handwriting-notebook ul li {
+  color: #1E3A8A !important;
+  position: relative;
+  margin-bottom: 1em !important;
+  list-style: none !important;
+}
+
+.theme-handwriting-notebook ul li::before {
+  content: "●";
+  color: #3B82F6;
+  font-size: 1.4em;
+  position: absolute;
+  left: -1.8em;
+  top: 0;
+}
+
+.theme-handwriting-notebook ol {
+  margin: 1.8em 0 !important;
+  padding-left: 3em !important;
+  margin-left: 20px !important; /* 避开红线 */
+}
+
+.theme-handwriting-notebook ol li {
+  color: #1E3A8A !important;
+  margin-bottom: 1em !important;
+}
+
+.theme-handwriting-notebook ol li::marker {
+  font-family: inherit;
+  font-weight: 700;
+  color: #3B82F6;
+  font-size: 1.1em;
+}
+
+/* 引用块样式 */
+.theme-handwriting-notebook blockquote {
+  background: #F8FAFC !important;
+  border-left: 8px solid #3B82F6 !important;
+  border-radius: 0 15px 15px 0 !important;
+  padding: 30px 35px !important;
+  margin: 35px 20px !important; /* 避开红线 */
+  color: #1E40AF !important;
+  font-style: italic !important;
+  font-size: 1.05em !important;
+  
+  /* 笔记本便签效果 */
+  box-shadow: 
+    inset 0 0 0 2px rgba(59, 130, 246, 0.1),
+    5px 5px 15px rgba(30, 58, 138, 0.15);
+  
+  position: relative;
+}
+
+/* 引用块蓝色角标 */
+.theme-handwriting-notebook blockquote::before {
+  content: '"';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 30px;
+  height: 30px;
+  background: #3B82F6;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+/* 代码块便签纸效果 */
+.theme-handwriting-notebook pre {
+  background: #F1F5F9 !important;
+  border: 2px solid #CBD5E1 !important;
+  border-radius: 10px !important;
+  padding: 25px !important;
+  margin: 30px 20px !important; /* 避开红线 */
+  position: relative;
+  
+  /* 蓝色便签纸阴影 */
+  box-shadow: 
+    0 4px 8px rgba(30, 58, 138, 0.12),
+    0 0 0 1px rgba(203, 213, 225, 0.4);
+}
+
+/* 便签纸顶部打孔效果 */
+.theme-handwriting-notebook pre::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 8px;
+  height: 8px;
+  background: #FFFFFF;
+  border: 2px solid #CBD5E1;
+  border-radius: 50%;
+  box-shadow: 
+    20px 0 0 #FFFFFF, 20px 0 0 2px #CBD5E1,
+    40px 0 0 #FFFFFF, 40px 0 0 2px #CBD5E1;
+}
+
+.theme-handwriting-notebook code {
+  background: #F1F5F9 !important;
+  color: #1E40AF !important;
+  padding: 4px 8px !important;
+  border-radius: 5px !important;
+  font-family: "Courier New", Monaco, Menlo, monospace !important;
+  border: 1px solid #CBD5E1 !important;
+  font-weight: 500 !important;
+}
+
+/* 分割线手绘效果 */
+.theme-handwriting-notebook hr {
+  border: none !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, transparent 0%, #3B82F6 20%, #3B82F6 80%, transparent 100%) !important;
+  margin: 45px 20px !important; /* 避开红线 */
+  border-radius: 2px !important;
+  transform: rotate(-0.3deg);
+  opacity: 0.8;
+}
+
+/* 链接样式 */
+.theme-handwriting-notebook a {
+  color: #1E3A8A !important;
+  text-decoration: underline !important;
+  text-decoration-style: solid !important;
+  text-underline-offset: 4px !important;
+  text-decoration-thickness: 2px !important;
+  text-decoration-color: #3B82F6 !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
+}
+
+.theme-handwriting-notebook a:hover {
+  color: #1E40AF !important;
+  text-decoration-thickness: 3px !important;
+  text-shadow: 0 0 5px rgba(30, 58, 138, 0.4);
+  background: rgba(59, 130, 246, 0.1) !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+}
+
+/* 选中文本蓝色高亮效果 */
+.theme-handwriting-notebook ::selection {
+  background: #DBEAFE !important;
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px rgba(219, 234, 254, 0.8);
+}
+
+/* 表格样式 */
+.theme-handwriting-notebook table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: #FEFEFE !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15) !important;
+  margin: 30px 20px !important; /* 避开红线 */
+  border: 2px solid #3B82F6 !important;
+}
+
+.theme-handwriting-notebook th,
+.theme-handwriting-notebook td {
+  border: 1px solid #CBD5E1 !important;
+  padding: 15px 20px !important;
+  color: #1E3A8A !important;
+}
+
+.theme-handwriting-notebook th {
+  background: #EFF6FF !important;
+  font-weight: 700 !important;
+  color: #1E40AF !important;
+}
+
+/* 输入时的蓝色动画 */
+.theme-handwriting-notebook .ProseMirror-focused {
+  animation: notebook-glow 3s ease-in-out infinite;
+}
+
+@keyframes notebook-glow {
+  0%, 100% { 
+    text-shadow: 0.8px 0.8px 1px rgba(30, 58, 138, 0.25); 
+  }
+  50% { 
+    text-shadow: 0.8px 0.8px 2px rgba(30, 58, 138, 0.4); 
+  }
+}

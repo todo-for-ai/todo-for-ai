@@ -1,0 +1,387 @@
+/**
+ * 经典打字机主题样式
+ * Classic Typewriter Theme Styles
+ */
+
+/* 主题根样式 */
+.theme-typewriter-classic {
+  /* 应用纸质纹理背景 */
+  background-image: var(--typewriter-paper-texture, none);
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  background-color: var(--theme-color-background);
+  
+  /* 字体设置 */
+  font-family: var(--theme-font-font-family);
+  font-size: var(--theme-font-font-size);
+  line-height: var(--theme-font-line-height);
+  letter-spacing: var(--theme-font-letter-spacing);
+  color: var(--theme-color-text-primary);
+}
+
+/* 编辑器容器样式 */
+.theme-typewriter-classic .milkdown-editor-wrapper {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.theme-typewriter-classic .milkdown-editor-container {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* 编辑器内容区域 */
+.theme-typewriter-classic .milkdown-editor-content {
+  /* 纸张效果 */
+  max-width: 800px;
+  margin: 40px auto;
+  padding: var(--theme-spacing-editor-padding);
+  background: var(--theme-color-editor-background);
+  border: var(--theme-border-border-width) solid var(--theme-color-editor-border);
+  border-radius: var(--theme-border-border-radius);
+  box-shadow: var(--theme-shadow-editor-shadow);
+  position: relative;
+  
+  /* 确保内容自适应高度 */
+  min-height: 600px;
+  height: auto;
+  overflow: visible;
+}
+
+/* 纸张边缘效果 */
+.theme-typewriter-classic .milkdown-editor-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--theme-color-border) 20%, 
+    var(--theme-color-border) 80%, 
+    transparent 100%
+  );
+}
+
+.theme-typewriter-classic .milkdown-editor-content::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--theme-color-border) 20%, 
+    var(--theme-color-border) 80%, 
+    transparent 100%
+  );
+}
+
+/* ProseMirror 编辑器样式 */
+.theme-typewriter-classic .ProseMirror {
+  outline: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: var(--theme-color-text-primary);
+  font-family: var(--theme-font-font-family);
+  font-size: var(--theme-font-font-size);
+  line-height: var(--theme-font-line-height);
+  letter-spacing: var(--theme-font-letter-spacing);
+}
+
+/* 焦点行效果 */
+.theme-typewriter-classic .ProseMirror-focused {
+  position: relative;
+}
+
+/* 当前行高亮效果 */
+.theme-typewriter-classic .ProseMirror-focused .current-line {
+  background: var(--typewriter-focus-color, var(--theme-color-editor-focus-background));
+  border-left: var(--typewriter-focus-marker-width, 4px) solid var(--typewriter-focus-marker-color, var(--theme-color-primary));
+  margin-left: calc(-1 * var(--typewriter-focus-marker-width, 4px));
+  padding-left: var(--typewriter-focus-marker-width, 4px);
+  box-shadow: 0 0 10px rgba(210, 105, 30, 0.2);
+  position: relative;
+  z-index: 2;
+  transition: all var(--theme-animation-transition-duration) var(--theme-animation-easing);
+}
+
+/* 渐变淡化效果 */
+.theme-typewriter-classic .fade-content {
+  opacity: var(--typewriter-fade-opacity, 0.3);
+  transition: opacity var(--typewriter-fade-duration, 0.3s) var(--typewriter-fade-easing, ease-out);
+}
+
+.theme-typewriter-classic .fade-content.focus-nearby {
+  opacity: 0.6;
+}
+
+/* 光标样式 */
+.theme-typewriter-classic .ProseMirror-cursor {
+  border-left: 2px solid var(--theme-color-caret-color);
+  margin-left: -1px;
+  pointer-events: none;
+}
+
+/* 呼吸灯光标动画 */
+.theme-typewriter-classic .ProseMirror-focused .ProseMirror-cursor {
+  animation: cursor-breathing var(--typewriter-breathing-duration, 1.5s) ease-in-out infinite;
+}
+
+@keyframes cursor-breathing {
+  0%, 100% { 
+    opacity: 1; 
+    border-color: var(--theme-color-caret-color);
+  }
+  50% { 
+    opacity: 0.3; 
+    border-color: var(--theme-color-primary);
+  }
+}
+
+/* 段落样式 */
+.theme-typewriter-classic .ProseMirror p {
+  margin: var(--theme-spacing-paragraph-margin);
+  text-indent: 2em; /* 首行缩进 */
+  text-align: justify; /* 两端对齐 */
+  word-spacing: 0.1em;
+}
+
+.theme-typewriter-classic .ProseMirror p:first-child {
+  margin-top: 0;
+}
+
+.theme-typewriter-classic .ProseMirror p:last-child {
+  margin-bottom: 0;
+}
+
+/* 标题样式 */
+.theme-typewriter-classic .ProseMirror h1,
+.theme-typewriter-classic .ProseMirror h2,
+.theme-typewriter-classic .ProseMirror h3,
+.theme-typewriter-classic .ProseMirror h4,
+.theme-typewriter-classic .ProseMirror h5,
+.theme-typewriter-classic .ProseMirror h6 {
+  font-family: var(--theme-font-font-family);
+  font-weight: var(--theme-font-heading-weight);
+  line-height: var(--theme-font-heading-line-height);
+  letter-spacing: var(--theme-font-heading-letter-spacing);
+  color: var(--theme-color-text-primary);
+  margin-top: var(--theme-spacing-heading-margin-top);
+  margin-bottom: var(--theme-spacing-heading-margin-bottom);
+  text-align: center;
+  text-indent: 0; /* 标题不缩进 */
+}
+
+.theme-typewriter-classic .ProseMirror h1 {
+  font-size: var(--theme-font-h1-size);
+  border-bottom: 3px double var(--theme-color-primary);
+  padding-bottom: 0.5em;
+}
+
+.theme-typewriter-classic .ProseMirror h2 {
+  font-size: var(--theme-font-h2-size);
+  border-bottom: 2px solid var(--theme-color-primary);
+  padding-bottom: 0.3em;
+}
+
+.theme-typewriter-classic .ProseMirror h3 {
+  font-size: var(--theme-font-h3-size);
+  border-bottom: 1px solid var(--theme-color-primary);
+  padding-bottom: 0.2em;
+}
+
+.theme-typewriter-classic .ProseMirror h4 {
+  font-size: var(--theme-font-h4-size);
+}
+
+.theme-typewriter-classic .ProseMirror h5 {
+  font-size: var(--theme-font-h5-size);
+}
+
+.theme-typewriter-classic .ProseMirror h6 {
+  font-size: var(--theme-font-h6-size);
+}
+
+/* 引用块样式 */
+.theme-typewriter-classic .ProseMirror blockquote {
+  margin: var(--theme-spacing-blockquote-margin);
+  padding: var(--theme-spacing-blockquote-padding);
+  background: var(--theme-color-blockquote-background);
+  border-left: 4px solid var(--theme-color-blockquote-border);
+  border-radius: var(--theme-border-blockquote-radius);
+  font-style: italic;
+  color: var(--theme-color-blockquote-text);
+  position: relative;
+}
+
+.theme-typewriter-classic .ProseMirror blockquote::before {
+  content: '"';
+  font-size: 3em;
+  color: var(--theme-color-primary);
+  position: absolute;
+  left: -0.3em;
+  top: -0.2em;
+  font-family: serif;
+  line-height: 1;
+}
+
+.theme-typewriter-classic .ProseMirror blockquote p {
+  text-indent: 0; /* 引用内容不缩进 */
+  margin: 0.5em 0;
+}
+
+/* 代码样式 */
+.theme-typewriter-classic .ProseMirror code {
+  background: var(--theme-color-code-background);
+  color: var(--theme-color-code-text);
+  padding: 2px 6px;
+  border-radius: var(--theme-border-small-radius);
+  font-family: var(--theme-font-code-font-family);
+  font-size: var(--theme-font-code-size);
+  border: 1px solid var(--theme-color-border);
+}
+
+/* 代码块样式 */
+.theme-typewriter-classic .ProseMirror pre {
+  margin: var(--theme-spacing-code-block-margin);
+  padding: var(--theme-spacing-code-block-padding);
+  background: var(--theme-color-code-block-background);
+  border: var(--theme-border-border-width) solid var(--theme-color-code-block-border);
+  border-radius: var(--theme-border-code-block-radius);
+  box-shadow: var(--theme-shadow-code-block-shadow);
+  overflow-x: auto;
+  position: relative;
+}
+
+.theme-typewriter-classic .ProseMirror pre::before {
+  content: '> ';
+  color: var(--theme-color-primary);
+  font-weight: bold;
+  position: absolute;
+  left: 8px;
+  top: 8px;
+}
+
+.theme-typewriter-classic .ProseMirror pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 1.5em;
+  display: block;
+  color: var(--theme-color-code-text);
+  font-family: var(--theme-font-code-font-family);
+  font-size: var(--theme-font-code-size);
+}
+
+/* 列表样式 */
+.theme-typewriter-classic .ProseMirror ul,
+.theme-typewriter-classic .ProseMirror ol {
+  margin: var(--theme-spacing-list-margin);
+  padding-left: 2em;
+}
+
+.theme-typewriter-classic .ProseMirror li {
+  margin: var(--theme-spacing-list-item-margin);
+}
+
+.theme-typewriter-classic .ProseMirror li p {
+  text-indent: 0; /* 列表项不缩进 */
+}
+
+/* 链接样式 */
+.theme-typewriter-classic .ProseMirror a {
+  color: var(--theme-color-link-color);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  transition: color var(--theme-animation-fast-transition);
+}
+
+.theme-typewriter-classic .ProseMirror a:hover {
+  color: var(--theme-color-link-hover-color);
+  text-decoration-style: solid;
+}
+
+/* 表格样式 */
+.theme-typewriter-classic .ProseMirror table {
+  margin: var(--theme-spacing-table-margin);
+  border-collapse: collapse;
+  width: 100%;
+  border: var(--theme-border-border-width) solid var(--theme-color-border);
+}
+
+.theme-typewriter-classic .ProseMirror th,
+.theme-typewriter-classic .ProseMirror td {
+  padding: var(--theme-spacing-table-cell-padding);
+  border: var(--theme-border-border-width) solid var(--theme-color-border);
+  text-align: left;
+}
+
+.theme-typewriter-classic .ProseMirror th {
+  background: var(--theme-color-surface);
+  font-weight: var(--theme-font-bold-weight);
+  text-align: center;
+}
+
+/* 选中文本样式 */
+.theme-typewriter-classic .ProseMirror ::selection {
+  background: var(--theme-color-selection-background);
+}
+
+/* 水平分割线 */
+.theme-typewriter-classic .ProseMirror hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--theme-color-primary) 20%, 
+    var(--theme-color-primary) 80%, 
+    transparent 100%
+  );
+  margin: 2em 0;
+  position: relative;
+}
+
+.theme-typewriter-classic .ProseMirror hr::before {
+  content: '§';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--theme-color-background);
+  color: var(--theme-color-primary);
+  padding: 0 0.5em;
+  font-size: 1.2em;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .theme-typewriter-classic .milkdown-editor-content {
+    max-width: 100%;
+    margin: 20px;
+    padding: 40px 20px;
+  }
+  
+  .theme-typewriter-classic .ProseMirror p {
+    text-indent: 1em; /* 移动端减少缩进 */
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .theme-typewriter-classic .milkdown-editor-content {
+    box-shadow: none;
+    border: none;
+    background: white;
+  }
+  
+  .theme-typewriter-classic .ProseMirror {
+    color: black;
+  }
+}

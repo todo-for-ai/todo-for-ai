@@ -75,8 +75,8 @@ export const useProjectStore = create<ProjectState>()(
         try {
           const response = await projectsApi.getProjects(queryParams)
           set({
-            projects: response.data || [],
-            pagination: response.pagination || null,
+            projects: Array.isArray(response.data) ? response.data : (response.data as any)?.data || [],
+            pagination: (response.data as any)?.pagination || null,
             loading: false,
           })
         } catch (error: any) {

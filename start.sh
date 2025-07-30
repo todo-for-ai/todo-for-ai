@@ -5,6 +5,13 @@
 
 set -e
 
+# 检查是否在Service模式下运行
+if [ "${TODOFORAI_SERVICE_MODE}" = "daemon" ]; then
+    echo "检测到Service模式，使用专用启动脚本..."
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    exec "$SCRIPT_DIR/start-service.sh" "$@"
+fi
+
 # 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'

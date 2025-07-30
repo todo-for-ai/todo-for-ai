@@ -633,7 +633,6 @@ const CreateTask: React.FC = () => {
                     onSave={handleSubmitAndEdit}
                     autoHeight={true}
                     minHeight={300}
-                    preview="live"
                     hideToolbar={false}
                   />
                 ) : (

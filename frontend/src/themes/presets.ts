@@ -1,4 +1,10 @@
 import type { Theme } from '../types/theme'
+import classicTypewriterTheme from './typewriter/classic'
+import darkTypewriterTheme from './typewriter/dark'
+import handwritingClassicTheme from './handwriting-classic'
+import handwritingNotebookTheme from './handwriting-notebook'
+import handwritingKraftTheme from './handwriting-kraft'
+import handwritingGridTheme from './handwriting-grid'
 
 // 默认主题（当前样式的优化版本）
 export const defaultTheme: Theme = {
@@ -475,7 +481,13 @@ export const themes: Theme[] = [
   minimalTheme,
   comfortTheme,
   highContrastTheme,
-  vintageTheme
+  vintageTheme,
+  classicTypewriterTheme,
+  darkTypewriterTheme,
+  handwritingClassicTheme,
+  handwritingNotebookTheme,
+  handwritingKraftTheme,
+  handwritingGridTheme
 ]
 
 // 根据ID获取主题
