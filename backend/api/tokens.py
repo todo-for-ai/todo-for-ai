@@ -2,24 +2,26 @@
 API Token管理接口
 """
 
-from flask import Blueprint, request, jsonify
-from models import db, ApiToken
+from flask import Blueprint, request, jsonify, g
+from models import db, ApiToken, User
 from app.auth import token_required, get_current_token
+from app.github_config import require_auth, get_current_user
 from api.base import handle_api_error
 
 tokens_bp = Blueprint('tokens', __name__)
 
 
 @tokens_bp.route('', methods=['GET'])
-@token_required
+@require_auth
 def list_tokens():
-    """获取Token列表"""
+    """获取当前用户的Token列表"""
     try:
         page = request.args.get('page', 1, type=int)
         per_page = min(request.args.get('per_page', 20, type=int), 100)
-        
-        # 查询tokens
-        query = ApiToken.query.filter_by(is_active=True)
+
+        # 查询当前用户的tokens
+        user_id = g.current_user.id
+        query = ApiToken.query.filter_by(user_id=user_id, is_active=True)
         
         # 分页
         pagination = query.paginate(
@@ -47,29 +49,32 @@ def list_tokens():
 
 
 @tokens_bp.route('', methods=['POST'])
-@token_required
+@require_auth
 def create_token():
     """创建新的API Token"""
     try:
         data = request.get_json()
-        
+
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-        
+
         name = data.get('name')
         if not name:
             return jsonify({'error': 'Token name is required'}), 400
-        
+
         description = data.get('description')
         expires_days = data.get('expires_days')
-        
+
         # 生成token
         api_token, token = ApiToken.generate_token(
             name=name,
             description=description,
             expires_days=expires_days
         )
-        
+
+        # 设置用户ID
+        api_token.user_id = g.current_user.id
+
         db.session.add(api_token)
         db.session.commit()
         

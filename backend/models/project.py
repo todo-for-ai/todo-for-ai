@@ -3,7 +3,7 @@
 """
 
 import enum
-from sqlalchemy import Column, String, Text, Enum, DateTime
+from sqlalchemy import Column, String, Text, Enum, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import BaseModel
 
@@ -19,7 +19,10 @@ class Project(BaseModel):
     """项目模型"""
     
     __tablename__ = 'projects'
-    
+
+    # 用户关联
+    owner_id = Column(Integer, ForeignKey('users.id'), nullable=False, comment='项目所有者ID')
+
     # 基本信息
     name = Column(String(255), nullable=False, comment='项目名称')
     description = Column(Text, comment='项目描述')
@@ -39,8 +42,9 @@ class Project(BaseModel):
     last_activity_at = Column(DateTime, comment='最后活动时间')
     
     # 关系
+    owner = relationship('User', back_populates='projects')
     tasks = relationship(
-        'Task', 
+        'Task',
         back_populates='project',
         cascade='all, delete-orphan',
         lazy='dynamic'

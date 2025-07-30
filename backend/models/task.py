@@ -4,7 +4,7 @@
 
 import enum
 from datetime import datetime
-from sqlalchemy import Column, String, Text, Enum, Integer, ForeignKey, DateTime, DECIMAL, JSON, Boolean
+from sqlalchemy import Column, String, Text, Enum, Integer, BigInteger, ForeignKey, DateTime, DECIMAL, JSON, Boolean
 from sqlalchemy.orm import relationship
 from .base import BaseModel
 
@@ -28,11 +28,16 @@ class TaskPriority(enum.Enum):
 
 class Task(BaseModel):
     """任务模型"""
-    
+
     __tablename__ = 'tasks'
-    
+
+    # 重写id字段为BigInteger以支持大量任务
+    id = Column(BigInteger, primary_key=True, autoincrement=True, comment='主键ID')
+
     # 基本信息
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, comment='所属项目ID')
+    assignee_id = Column(Integer, ForeignKey('users.id'), nullable=True, comment='任务分配者ID')
+    creator_id = Column(Integer, ForeignKey('users.id'), nullable=True, comment='任务创建者ID')
     title = Column(String(500), nullable=False, comment='任务标题')
     content = Column(Text, comment='任务详细内容 (Markdown)')
     
@@ -66,6 +71,8 @@ class Task(BaseModel):
     
     # 关系
     project = relationship('Project', back_populates='tasks')
+    assignee = relationship('User', back_populates='tasks', foreign_keys=[assignee_id])
+    creator = relationship('User', back_populates='created_tasks', foreign_keys=[creator_id])
     history = relationship(
         'TaskHistory',
         back_populates='task',

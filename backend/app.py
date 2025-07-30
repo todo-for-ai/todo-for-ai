@@ -18,6 +18,8 @@ from flask_migrate import Migrate
 from models import db
 from app.config import config
 from app.middleware import setup_all_middleware
+from app.github_config import github_service
+from app.google_config import google_service
 
 
 def create_app(config_name=None):
@@ -34,7 +36,18 @@ def create_app(config_name=None):
     # 初始化扩展
     db.init_app(app)
     CORS(app, origins=app.config['CORS_ORIGINS'])
-    
+
+    # 初始化OAuth服务
+    github_service.init_app(app)
+
+    # 初始化Google OAuth服务（如果配置了的话）
+    try:
+        google_service.init_app(app)
+    except ValueError as e:
+        # Google OAuth配置缺失，跳过初始化
+        app.logger.warning(f"Google OAuth未配置: {e}")
+        pass
+
     # 数据库迁移
     migrate = Migrate(app, db)
 
@@ -79,6 +92,7 @@ def register_blueprints(app):
         })
     
     # 注册API蓝图
+    from api.auth import auth_bp
     from api.projects import projects_bp
     from api.tasks import tasks_bp
     from api.context_rules import context_rules_bp
@@ -86,6 +100,7 @@ def register_blueprints(app):
     from api.mcp import mcp_bp
     from api.docs import docs_bp
 
+    app.register_blueprint(auth_bp, url_prefix='/todo-for-ai/api/v1/auth')
     app.register_blueprint(projects_bp, url_prefix='/todo-for-ai/api/v1/projects')
     app.register_blueprint(tasks_bp, url_prefix='/todo-for-ai/api/v1/tasks')
     app.register_blueprint(context_rules_bp, url_prefix='/todo-for-ai/api/v1/context-rules')

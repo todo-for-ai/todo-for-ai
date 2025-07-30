@@ -5,6 +5,7 @@ Todo for AI - 数据模型包
 """
 
 from .base import db
+from .user import User, UserRole, UserStatus
 from .project import Project, ProjectStatus
 from .task import Task, TaskStatus, TaskPriority
 from .context_rule import ContextRule
@@ -14,6 +15,9 @@ from .api_token import ApiToken
 
 __all__ = [
     'db',
+    'User',
+    'UserRole',
+    'UserStatus',
     'Project',
     'ProjectStatus',
     'Task',

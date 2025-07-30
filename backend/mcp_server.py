@@ -37,7 +37,7 @@ spec = importlib.util.spec_from_file_location("app_module", "app.py")
 app_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(app_module)
 create_app = app_module.create_app
-from models import db, Project, Task, ContextRule
+from models import db, Project, Task, ContextRule, ApiToken, User
 
 # Configure logging
 logging.basicConfig(
@@ -48,12 +48,69 @@ logger = logging.getLogger(__name__)
 
 class TodoMCPServer:
     """MCP Server for Todo for AI system"""
-    
-    def __init__(self):
+
+    def __init__(self, api_token: Optional[str] = None):
         self.app = create_app()
         self.server = Server("todo-for-ai")
+        self.api_token = api_token
+        self.current_user = None
+        self._authenticate()
         self._setup_handlers()
-    
+
+    def _authenticate(self):
+        """验证API Token并设置当前用户"""
+        if not self.api_token:
+            logger.warning("No API token provided - running in unauthenticated mode")
+            return
+
+        with self.app.app_context():
+            try:
+                # 验证API Token
+                api_token_obj = ApiToken.verify_token(self.api_token)
+                if not api_token_obj:
+                    logger.error("Invalid or expired API token")
+                    raise ValueError("Invalid or expired API token")
+
+                # 设置当前用户
+                self.current_user = api_token_obj.user
+                if not self.current_user:
+                    logger.error("API token has no associated user")
+                    raise ValueError("API token has no associated user")
+
+                logger.info(f"Authenticated as user: {self.current_user.email} (ID: {self.current_user.id})")
+
+            except Exception as e:
+                logger.error(f"Authentication failed: {str(e)}")
+                raise
+
+    def _check_permission(self, resource_type: str, resource_id: Optional[int] = None) -> bool:
+        """检查用户是否有权限访问指定资源"""
+        if not self.current_user:
+            logger.warning("No authenticated user - denying access")
+            return False
+
+        # 管理员有所有权限
+        if self.current_user.role == 'admin':
+            return True
+
+        # 检查资源权限
+        if resource_type == 'project' and resource_id:
+            project = Project.query.get(resource_id)
+            if project and project.creator_id == self.current_user.id:
+                return True
+        elif resource_type == 'task' and resource_id:
+            task = Task.query.get(resource_id)
+            if task:
+                # 检查是否是任务创建者或项目创建者
+                if task.creator_id == self.current_user.id:
+                    return True
+                if task.project and task.project.creator_id == self.current_user.id:
+                    return True
+
+        # 默认拒绝访问
+        logger.warning(f"Access denied for user {self.current_user.id} to {resource_type} {resource_id}")
+        return False
+
     def _setup_handlers(self):
         """Setup MCP protocol handlers"""
         
@@ -451,6 +508,14 @@ class TodoMCPServer:
         """Get detailed information about a specific project"""
         try:
             project_id = arguments['project_id']
+
+            # 检查权限
+            if not self._check_permission('project', project_id):
+                return CallToolResult(
+                    content=[TextContent(type="text", text="Access denied: You don't have permission to access this project")],
+                    isError=True
+                )
+
             project = Project.query.get(project_id)
 
             if not project:
@@ -510,11 +575,19 @@ class TodoMCPServer:
     async def _create_project(self, arguments: Dict[str, Any]) -> CallToolResult:
         """Create a new project"""
         try:
+            # 检查是否有认证用户
+            if not self.current_user:
+                return CallToolResult(
+                    content=[TextContent(type="text", text="Authentication required to create projects")],
+                    isError=True
+                )
+
             project = Project(
                 name=arguments['name'],
                 description=arguments.get('description', ''),
                 color=arguments.get('color', '#1890ff'),
-                created_by='mcp-client'
+                creator_id=self.current_user.id,
+                created_by=f'mcp-client-{self.current_user.email}'
             )
 
             db.session.add(project)
@@ -544,11 +617,30 @@ class TodoMCPServer:
     async def _list_tasks(self, arguments: Dict[str, Any]) -> CallToolResult:
         """List tasks with optional filtering"""
         try:
-            query = Task.query.join(Project)
+            # 基础查询，只显示用户有权限的任务
+            if self.current_user:
+                if self.current_user.role == 'admin':
+                    # 管理员可以看到所有任务
+                    query = Task.query.join(Project)
+                else:
+                    # 普通用户只能看到自己创建的项目中的任务
+                    query = Task.query.join(Project).filter(Project.creator_id == self.current_user.id)
+            else:
+                return CallToolResult(
+                    content=[TextContent(type="text", text="Authentication required to list tasks")],
+                    isError=True
+                )
 
             # Apply filters
             if 'project_id' in arguments:
-                query = query.filter(Task.project_id == arguments['project_id'])
+                project_id = arguments['project_id']
+                # 检查项目权限
+                if not self._check_permission('project', project_id):
+                    return CallToolResult(
+                        content=[TextContent(type="text", text="Access denied: You don't have permission to access this project's tasks")],
+                        isError=True
+                    )
+                query = query.filter(Task.project_id == project_id)
 
             if 'status' in arguments:
                 query = query.filter(Task.status == arguments['status'])
@@ -1067,8 +1159,28 @@ async def main():
     """Main entry point for the MCP server"""
     logger.info("Starting Todo for AI MCP Server...")
 
+    # 从命令行参数获取API Token
+    api_token = None
+    if len(sys.argv) > 1:
+        for arg in sys.argv[1:]:
+            if arg.startswith('--api-token='):
+                api_token = arg.split('=', 1)[1]
+                break
+            elif arg.startswith('--api_token='):
+                api_token = arg.split('=', 1)[1]
+                break
+
+    # 从环境变量获取API Token（如果命令行没有提供）
+    if not api_token:
+        api_token = os.environ.get('TODO_API_TOKEN')
+
+    if api_token:
+        logger.info("API Token provided - running in authenticated mode")
+    else:
+        logger.warning("No API Token provided - running in unauthenticated mode (limited functionality)")
+
     # Create server instance
-    mcp_server = TodoMCPServer()
+    mcp_server = TodoMCPServer(api_token=api_token)
 
     # Setup stdio server
     async with stdio_server(mcp_server.server) as streams:

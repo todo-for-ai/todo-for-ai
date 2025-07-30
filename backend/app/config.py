@@ -47,6 +47,13 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or SECRET_KEY
     JWT_ACCESS_TOKEN_EXPIRES = 3600  # 1 hour
     JWT_REFRESH_TOKEN_EXPIRES = 2592000  # 30 days
+
+    # Auth0 配置
+    AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN')
+    AUTH0_CLIENT_ID = os.environ.get('AUTH0_CLIENT_ID')
+    AUTH0_CLIENT_SECRET = os.environ.get('AUTH0_CLIENT_SECRET')
+    AUTH0_AUDIENCE = os.environ.get('AUTH0_AUDIENCE')
+    AUTH0_CALLBACK_URL = os.environ.get('AUTH0_CALLBACK_URL', 'http://localhost:50110/todo-for-ai/api/v1/auth/callback')
     
     # 分页配置
     ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE', 20))

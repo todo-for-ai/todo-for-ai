@@ -15,7 +15,7 @@ class Attachment(db.Model):
     __tablename__ = 'attachments'
     
     id = Column(Integer, primary_key=True, autoincrement=True, comment='主键ID')
-    task_id = Column(Integer, ForeignKey('tasks.id'), nullable=False, comment='任务ID')
+    task_id = Column(BigInteger, ForeignKey('tasks.id'), nullable=False, comment='任务ID')
     filename = Column(String(255), nullable=False, comment='文件名')
     original_filename = Column(String(255), nullable=False, comment='原始文件名')
     file_path = Column(String(500), nullable=False, comment='文件路径')

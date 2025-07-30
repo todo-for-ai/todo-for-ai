@@ -5,7 +5,8 @@ API Token模型
 import secrets
 import hashlib
 from datetime import datetime, timedelta
-from sqlalchemy import Column, String, DateTime, Boolean, Text, Integer
+from sqlalchemy import Column, String, DateTime, Boolean, Text, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
@@ -13,7 +14,10 @@ class ApiToken(BaseModel):
     """API Token模型"""
     
     __tablename__ = 'api_tokens'
-    
+
+    # 用户关联
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=True, comment='Token所有者ID')
+
     # Token信息
     name = Column(String(255), nullable=False, comment='Token名称')
     token_hash = Column(String(64), nullable=False, unique=True, comment='Token哈希值')
@@ -27,7 +31,10 @@ class ApiToken(BaseModel):
     
     # 使用统计
     usage_count = Column(Integer, default=0, comment='使用次数')
-    
+
+    # 关系
+    user = relationship('User', back_populates='api_tokens')
+
     def __repr__(self):
         return f'<ApiToken {self.id}: {self.name}>'
     
