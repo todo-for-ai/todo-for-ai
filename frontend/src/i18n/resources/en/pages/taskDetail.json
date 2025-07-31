@@ -1,0 +1,122 @@
+{
+  "title": "Task Details",
+  "pageTitle": "Task Details - Todo for AI",
+  "navigation": {
+    "home": "Home",
+    "projectTaskList": "Project Task List",
+    "previousTask": "Previous Task",
+    "nextTask": "Next Task",
+    "returnToProjectTaskList": "Return to Project Task List"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete Task",
+    "createTask": "Create Task",
+    "taskStatus": "Task Status",
+    "taskActions": "Task Actions"
+  },
+  "status": {
+    "todo": "To Do",
+    "inProgress": "In Progress",
+    "review": "Review",
+    "done": "Done",
+    "cancelled": "Cancelled",
+    "selectStatus": "Select Task Status"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent",
+    "lowPriority": "Low Priority",
+    "mediumPriority": "Medium Priority",
+    "highPriority": "High Priority"
+  },
+  "copyPrompts": {
+    "title": "Copy Prompt Tools",
+    "mcpExecution": "MCP Tool Execution",
+    "mcpPromptButton": "Copy MCP Tool Execution Prompt",
+    "mcpPromptDesc": "Use MCP tools to automatically get task information and execute, suitable for AI assistants like Claude that support MCP",
+    "aiExecution": "General AI Assistant Execution",
+    "aiPromptButton": "Copy Complete Task Execution Prompt",
+    "aiPromptDesc": "Contains complete task information and execution requirements, suitable for all AI assistants like ChatGPT, Claude",
+    "taskCompletion": "Task Completion Check",
+    "completionPromptButton": "Copy Task Completion Check Prompt",
+    "completionPromptDesc": "Check if task is completed, automatically close task and submit report if completed",
+    "quickComplete": "Quick Complete Task",
+    "quickCompleteButton": "Copy Quick Complete Task Prompt",
+    "quickCompleteDesc": "Execute task directly and close immediately after completion, suitable for simple quick tasks"
+  },
+  "taskInfo": {
+    "title": "Task Information",
+    "project": "Project",
+    "status": "Status",
+    "priority": "Priority",
+    "dueDate": "Due Date",
+    "progress": "Progress",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "createdBy": "Created By",
+    "tags": "Tags",
+    "unknownProject": "Unknown Project"
+  },
+  "taskContent": {
+    "title": "Task Content",
+    "empty": {
+      "title": "No detailed content",
+      "subtitle": "Click edit button to add task content"
+    }
+  },
+  "projectContext": {
+    "title": "Project Context Rules Preview",
+    "description": "The following are the project context rules that will be applied when this task is executed in MCP, these rules will be automatically appended to the task content.",
+    "loading": "Loading project context rules...",
+    "rulesLabel": "Project Context Rules",
+    "appliedRules": "Applied Rules List:",
+    "empty": {
+      "title": "No project context rules",
+      "subtitle": "This project has not configured context rules yet"
+    }
+  },
+  "taskFeedback": {
+    "title": "Task Execution Feedback",
+    "description": "Feedback information after AI task execution, including specific execution status and results.",
+    "feedbackTime": "Feedback Time:"
+  },
+  "messages": {
+    "taskNotFound": "Task not found",
+    "returnToTaskList": "Return to Task List",
+    "loadTaskFailed": "Failed to load task",
+    "loadProjectContextFailed": "Failed to load project context",
+    "deleteSuccess": "Task deleted successfully",
+    "deleteFailed": "Failed to delete task",
+    "statusUpdateSuccess": "Task status updated to",
+    "progressUpdateSuccess": ", progress updated to",
+    "statusUpdateFailed": "Failed to update task status",
+    "mcpPromptCopied": "MCP execution task prompt copied to clipboard",
+    "aiPromptCopied": "AI assistant execution task prompt copied to clipboard",
+    "completionPromptCopied": "Task completion confirmation prompt copied to clipboard",
+    "quickCompletePromptCopied": "Quick complete task prompt copied to clipboard",
+    "copyFailed": "Copy failed",
+    "copyFailedManual": "Copy failed, please copy manually"
+  },
+  "tooltips": {
+    "previousTask": "Previous Task (← key)",
+    "nextTask": "Next Task (→ key)",
+    "returnToProjectTaskList": "Return to Project Task List",
+    "createTask": "Create new task - Green indicates positive creation action",
+    "editTask": "Edit current task - Orange indicates neutral modification action",
+    "deleteTask": "Delete current task - Red indicates dangerous deletion action",
+    "mcpPrompt": "Copy MCP tool execution task prompt, suitable for AI assistants that support MCP protocol",
+    "aiPrompt": "Copy complete task information execution prompt, suitable for all AI assistants",
+    "completionPrompt": "Copy task completion check and close prompt",
+    "quickCompletePrompt": "Copy quick complete and close task prompt"
+  },
+  "confirmations": {
+    "deleteTitle": "Are you sure you want to delete this task?",
+    "deleteDescription": "This action cannot be undone, please proceed with caution.",
+    "confirmText": "Confirm",
+    "cancelText": "Cancel"
+  },
+  "dueDateFormat": "Due: {date}"
+}

@@ -1,0 +1,86 @@
+{
+  "pageTitle": {
+    "create": "Create Context Rule - Todo for AI",
+    "edit": "Edit Context Rule - Todo for AI",
+    "editWithName": "{{name}} - Edit Context Rule - Todo for AI"
+  },
+  "title": {
+    "create": "Create Context Rule",
+    "createProject": "Create Project Context Rule",
+    "createGlobal": "Create Global Context Rule",
+    "edit": "Edit Context Rule"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "projects": "Projects",
+    "projectContextRules": "Project Context Rules",
+    "globalContextRules": "Global Context Rules",
+    "createRule": "Create Rule",
+    "editRule": "Edit Rule"
+  },
+  "form": {
+    "sections": {
+      "basicInfo": "Basic Information",
+      "content": "Rule Content",
+      "configuration": "Rule Configuration"
+    },
+    "fields": {
+      "name": {
+        "label": "Rule Name",
+        "placeholder": "Please enter rule name",
+        "required": "Please enter rule name",
+        "maxLength": "Rule name cannot exceed 255 characters"
+      },
+      "description": {
+        "label": "Rule Description",
+        "placeholder": "Please enter rule description"
+      },
+      "content": {
+        "label": "Rule Content",
+        "placeholder": "Please enter rule content...",
+        "required": "Please enter rule content",
+        "help": "Write rule content in Markdown format, supports code blocks, lists, links, etc."
+      },
+      "priority": {
+        "label": "Priority",
+        "placeholder": "0",
+        "help": "Higher numbers have higher priority"
+      },
+      "isActive": {
+        "label": "Status",
+        "enabled": "Enabled",
+        "disabled": "Disabled"
+      },
+      "applyToTasks": {
+        "label": "Apply to Task Queries",
+        "help": "Apply this rule when AI queries task details",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "applyToProjects": {
+        "label": "Apply to Project Queries",
+        "help": "Apply this rule when AI queries project information",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "isPublic": {
+        "label": "Visibility",
+        "help": "Public rules will be displayed in the rule marketplace for other users to copy",
+        "public": "Public",
+        "private": "Private"
+      }
+    }
+  },
+  "buttons": {
+    "cancel": "Cancel",
+    "create": "Create Rule",
+    "update": "Update Rule"
+  },
+  "messages": {
+    "createSuccess": "Context rule created successfully",
+    "updateSuccess": "Context rule updated successfully",
+    "saveError": "Failed to save context rule",
+    "loadError": "Failed to load context rule",
+    "loading": "Loading rule content..."
+  }
+}
