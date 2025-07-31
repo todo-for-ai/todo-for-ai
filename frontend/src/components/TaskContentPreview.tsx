@@ -94,7 +94,7 @@ export const TaskContentSummary: React.FC<TaskContentSummaryProps> = ({
     )
   }
 
-  // 提取纯文本内容（去除Markdown语法）
+  // 提取纯文本内容（去除Markdown语法和HTML标签）
   const plainText = content
     .replace(/#{1,6}\s+/g, '') // 移除标题标记
     .replace(/\*\*(.*?)\*\*/g, '$1') // 移除粗体标记
@@ -102,7 +102,11 @@ export const TaskContentSummary: React.FC<TaskContentSummaryProps> = ({
     .replace(/`(.*?)`/g, '$1') // 移除代码标记
     .replace(/\[(.*?)\]\(.*?\)/g, '$1') // 移除链接，保留文本
     .replace(/!\[.*?\]\(.*?\)/g, '') // 移除图片
+    .replace(/<[^>]*>/g, '') // 移除HTML标签
+    .replace(/&[a-zA-Z0-9#]+;/g, '') // 移除HTML实体
+    .replace(/\\([#*`\[\]()_~])/g, '$1') // 移除转义字符，保留原字符
     .replace(/\n+/g, ' ') // 将换行符替换为空格
+    .replace(/\s+/g, ' ') // 将多个空格合并为一个
     .trim()
 
   const summary = plainText.length > maxLength
