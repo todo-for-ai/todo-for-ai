@@ -59,6 +59,15 @@
       "label": "项目上下文",
       "placeholder": "输入项目的背景信息、技术栈、开发规范等上下文信息...",
       "help": "这些信息将帮助AI更好地理解项目背景，提供更准确的建议"
+    },
+    "status": {
+      "label": "项目状态",
+      "help": "设置项目的当前状态",
+      "options": {
+        "active": "活跃",
+        "archived": "已归档",
+        "deleted": "已删除"
+      }
     }
   },
   "buttons": {
