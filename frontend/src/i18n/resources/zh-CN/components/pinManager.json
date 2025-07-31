@@ -1,0 +1,30 @@
+{
+  "title": "管理Pin项目",
+  "description": "拖拽项目来调整Pin在导航栏中的显示顺序，顺序会实时保存。点击删除按钮可以取消Pin项目。",
+  "pinnedCount": "已Pin {{count}}/10 个项目",
+  "loading": "正在加载Pin项目...",
+  "empty": {
+    "title": "暂无Pin的项目",
+    "description": "在项目详情页面点击Pin按钮可以将项目添加到导航栏"
+  },
+  "item": {
+    "projectId": "项目ID: {{id}}",
+    "order": "排序: {{order}}"
+  },
+  "confirm": {
+    "unpin": "确定要取消Pin这个项目吗？",
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "messages": {
+    "loadFailed": "加载Pin列表失败",
+    "unpinSuccess": "已取消Pin项目",
+    "unpinFailed": "取消Pin失败",
+    "pinSuccess": "已Pin项目到导航栏",
+    "pinFailed": "操作失败",
+    "pinLimitReached": "最多只能Pin 10个项目，请先取消一些Pin项目"
+  },
+  "buttons": {
+    "close": "关闭"
+  }
+}
