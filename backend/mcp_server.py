@@ -810,6 +810,14 @@ class TodoMCPServer:
             # Get AI identifier
             ai_identifier = arguments.get('ai_identifier', 'MCP Client')
 
+            # 确定创建者ID：优先使用当前用户，否则使用项目所有者
+            creator_id = None
+            if self.current_user:
+                creator_id = self.current_user.id
+            else:
+                # 如果没有当前用户，使用项目所有者作为创建者
+                creator_id = project.owner_id
+
             task = Task(
                 project_id=arguments['project_id'],
                 title=arguments['title'],
@@ -821,11 +829,20 @@ class TodoMCPServer:
                 created_by='mcp-client',
                 creator_type='ai',
                 creator_identifier=ai_identifier,
+                creator_id=creator_id,  # 设置创建者ID
                 is_ai_task=arguments.get('is_ai_task', True)
             )
 
             db.session.add(task)
             db.session.commit()
+
+            # 记录用户活跃度
+            if creator_id:
+                from models import UserActivity
+                try:
+                    UserActivity.record_activity(creator_id, 'task_created')
+                except Exception as e:
+                    logger.warning(f"Failed to record user activity: {str(e)}")
 
             task_data = {
                 'id': task.id,
@@ -867,6 +884,10 @@ class TodoMCPServer:
                     isError=True
                 )
 
+            # 跟踪是否有状态变更
+            status_changed = False
+            old_status = task.status
+
             # Update fields if provided
             if 'title' in arguments:
                 task.title = arguments['title']
@@ -875,11 +896,14 @@ class TodoMCPServer:
             if 'content' in arguments:
                 task.content = arguments['content']
             if 'status' in arguments:
-                task.status = arguments['status']
+                new_status = arguments['status']
+                if str(old_status) != str(new_status):
+                    status_changed = True
+                task.status = new_status
                 # Set completion date if task is marked as done
-                if arguments['status'] == 'done' and task.completed_at is None:
+                if new_status == 'done' and task.completed_at is None:
                     task.completed_at = datetime.utcnow()
-                elif arguments['status'] != 'done':
+                elif new_status != 'done':
                     task.completed_at = None
             if 'priority' in arguments:
                 task.priority = arguments['priority']
@@ -905,6 +929,28 @@ class TodoMCPServer:
 
             task.updated_at = datetime.utcnow()
             db.session.commit()
+
+            # 记录用户活跃度
+            user_id = None
+            if task.creator_id:
+                user_id = task.creator_id
+            elif self.current_user:
+                user_id = self.current_user.id
+            elif task.project and task.project.owner_id:
+                user_id = task.project.owner_id
+
+            if user_id:
+                from models import UserActivity
+                try:
+                    if status_changed:
+                        UserActivity.record_activity(user_id, 'task_status_changed')
+                        # 如果任务状态变为完成，额外记录完成任务活跃度
+                        if 'status' in arguments and arguments['status'] == 'done':
+                            UserActivity.record_activity(user_id, 'task_completed')
+                    else:
+                        UserActivity.record_activity(user_id, 'task_updated')
+                except Exception as e:
+                    logger.warning(f"Failed to record user activity: {str(e)}")
 
             return CallToolResult(
                 content=[TextContent(
@@ -1235,6 +1281,10 @@ class TodoMCPServer:
                     )]
                 )
 
+            # 跟踪状态变更
+            old_status = task.status
+            status_changed = str(old_status) != str(status)
+
             # Update task with feedback
             task.feedback_content = feedback_content
             task.feedback_at = datetime.utcnow()
@@ -1244,6 +1294,28 @@ class TodoMCPServer:
             project.last_activity_at = datetime.utcnow()
 
             db.session.commit()
+
+            # 记录用户活跃度
+            user_id = None
+            if task.creator_id:
+                user_id = task.creator_id
+            elif self.current_user:
+                user_id = self.current_user.id
+            elif project.owner_id:
+                user_id = project.owner_id
+
+            if user_id:
+                from models import UserActivity
+                try:
+                    if status_changed:
+                        UserActivity.record_activity(user_id, 'task_status_changed')
+                        # 如果任务状态变为完成，额外记录完成任务活跃度
+                        if status == 'done':
+                            UserActivity.record_activity(user_id, 'task_completed')
+                    else:
+                        UserActivity.record_activity(user_id, 'task_updated')
+                except Exception as e:
+                    logger.warning(f"Failed to record user activity: {str(e)}")
 
             result_data = {
                 'task_id': task_id,

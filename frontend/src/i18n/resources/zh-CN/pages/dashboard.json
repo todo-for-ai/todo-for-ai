@@ -52,5 +52,39 @@
     "noDescription": "无描述",
     "unknownProject": "未知项目",
     "totalTasks": "总任务数"
+  },
+  "heatmap": {
+    "title": "活跃度热力图",
+    "subtitle": "过去一年的活跃度",
+    "loading": "正在加载活跃度热力图...",
+    "loadError": "加载活跃度热力图失败",
+    "weekLabel": "周",
+    "weekdays": {
+      "sunday": "日",
+      "monday": "一",
+      "tuesday": "二",
+      "wednesday": "三",
+      "thursday": "四",
+      "friday": "五",
+      "saturday": "六"
+    },
+    "activity": {
+      "none": "无活动",
+      "single": "1次活动",
+      "multiple": "{count}次活动"
+    },
+    "legend": {
+      "less": "少",
+      "more": "多"
+    },
+    "tooltip": {
+      "noActivity": "无活动",
+      "taskCreated": "创建任务",
+      "taskUpdated": "更新任务",
+      "taskStatusChanged": "状态变更",
+      "taskCompleted": "完成任务",
+      "totalActivity": "总活跃度",
+      "activeTime": "活跃时间"
+    }
   }
 }
