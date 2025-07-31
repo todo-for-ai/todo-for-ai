@@ -1,0 +1,59 @@
+{
+  "title": "User Management",
+  "description": "Manage all users in the system, including viewing user information and managing user status",
+  "stats": {
+    "totalUsers": "Total Users",
+    "activeUsers": "Active Users",
+    "suspendedUsers": "Suspended Users",
+    "admins": "Administrators"
+  },
+  "table": {
+    "columns": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "lastLogin": "Last Login",
+      "createdAt": "Registered",
+      "actions": "Actions"
+    },
+    "pagination": {
+      "total": "{{start}}-{{end}} of {{total}} items"
+    }
+  },
+  "roles": {
+    "admin": "Administrator",
+    "user": "User",
+    "viewer": "Viewer"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended"
+  },
+  "actions": {
+    "suspend": "Suspend",
+    "activate": "Activate",
+    "refresh": "Refresh",
+    "self": "Self"
+  },
+  "search": {
+    "placeholder": "Search by email, username or name"
+  },
+  "filters": {
+    "status": "Filter by Status",
+    "role": "Filter by Role"
+  },
+  "confirm": {
+    "suspend": "Are you sure you want to suspend this user?",
+    "suspendDescription": "After suspension, the user will not be able to login or use the system",
+    "activate": "Are you sure you want to activate this user?",
+    "activateDescription": "After activation, the user can login and use the system normally",
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "messages": {
+    "loadFailed": "Failed to load user list",
+    "statusUpdated": "User status updated successfully",
+    "updateFailed": "Failed to update user status"
+  }
+}

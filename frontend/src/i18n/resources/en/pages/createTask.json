@@ -1,0 +1,110 @@
+{
+  "title": {
+    "create": "Create Task",
+    "edit": "Edit Task"
+  },
+  "pageTitle": {
+    "create": "Create Task - Todo for AI",
+    "edit": "Edit Task - Todo for AI"
+  },
+  "navigation": {
+    "home": "Home",
+    "projectTaskList": "Project Task List",
+    "returnToProjectTaskList": "Return to Project Task List"
+  },
+  "description": {
+    "create": "Create new task with Markdown format detailed content editing support",
+    "edit": "Edit task information with Markdown format detailed content editing support"
+  },
+  "shortcuts": {
+    "save": "Shortcut: Ctrl+S",
+    "createAndEdit": "create and enter edit mode",
+    "saveAndStay": "save and stay in edit page"
+  },
+  "form": {
+    "basicInfo": "Basic Information",
+    "project": {
+      "label": "Project",
+      "placeholder": "Please select project",
+      "required": "Please select a project"
+    },
+    "title": {
+      "label": "Task Title",
+      "placeholder": "Please enter task title (optional)",
+      "tooltip": "Optional field, will be auto-generated from content if not provided"
+    },
+    "assignToAI": "Assign to AI",
+    "content": {
+      "title": "Task Content",
+      "tooltip": "Supports Markdown format, describe task content, requirements and instructions in detail",
+      "required": "Please enter task content",
+      "loading": "Loading task content..."
+    },
+    "settings": {
+      "title": "Task Settings",
+      "status": {
+        "label": "Status",
+        "todo": "To Do",
+        "inProgress": "In Progress",
+        "review": "Review",
+        "done": "Done",
+        "cancelled": "Cancelled"
+      },
+      "priority": {
+        "label": "Priority",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "urgent": "Urgent"
+      },
+      "dueDate": {
+        "label": "Due Date",
+        "placeholder": "Please select due date"
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "Please enter tags"
+      }
+    }
+  },
+  "actions": {
+    "editMode": {
+      "taskDetail": "Task Details",
+      "newTask": "New Task",
+      "copyTask": "Create New Task from This Task",
+      "save": "Save (Ctrl+S)"
+    },
+    "createMode": {
+      "create": "Create Task",
+      "createAndEdit": "Create and Edit (Ctrl+S)",
+      "createAndContinue": "Create This Task Then Create New Task",
+      "restart": "Restart"
+    },
+    "common": {
+      "return": "Return",
+      "update": "Update Task"
+    }
+  },
+  "messages": {
+    "draftSaved": "📝 Draft saved (debounced):",
+    "draftLoaded": "Loaded previously saved draft",
+    "editDraftLoaded": "Unsaved edit draft loaded",
+    "unsavedChanges": "Unsaved changes detected, please save in time",
+    "copyDataLoaded": "Task data copied, please modify and save",
+    "copyDataFailed": "Failed to copy task data",
+    "continueReady": "Ready to create new task, your preferences have been retained",
+    "taskNotFound": "Task not found",
+    "loadTaskFailed": "Failed to load task",
+    "createSuccess": "Task created successfully",
+    "createAndEditSuccess": "Task created successfully, entering edit mode",
+    "updateSuccess": "Task updated successfully",
+    "saveSuccess": "Task saved successfully",
+    "createFailed": "Failed to create task, please try again",
+    "updateFailed": "Failed to update task, please try again",
+    "saveFailed": "Failed to save task, please try again",
+    "createAndContinueSuccess": "Task created successfully, preparing to create new task...",
+    "restartSuccess": "Draft cleared, restarting task creation",
+    "formValidationError": "Please check form: {error}"
+  },
+  "unknownProject": "Unknown Project"
+}
