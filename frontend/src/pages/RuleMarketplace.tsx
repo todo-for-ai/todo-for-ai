@@ -16,7 +16,8 @@ import {
   Form,
   Radio,
   Tooltip,
-  Empty
+  Empty,
+  Button
 } from 'antd'
 import {
   SearchOutlined,
@@ -27,11 +28,14 @@ import {
   ProjectOutlined,
   HeartOutlined,
   BarChartOutlined,
-  GithubOutlined
+  GithubOutlined,
+  BranchesOutlined
 } from '@ant-design/icons'
 import { useContextRuleStore, useProjectStore } from '../stores'
 import { fetchApiClient } from '../api/fetchClient'
 import { useTranslation } from '../i18n/hooks/useTranslation'
+import { MarkdownEditor } from '../components/MarkdownEditor'
+import { ComplianceNotice } from '../components/ComplianceNotice'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
@@ -80,6 +84,10 @@ const RuleMarketplace: React.FC = () => {
   const [copyModalVisible, setCopyModalVisible] = useState(false)
   const [selectedRule, setSelectedRule] = useState<PublicRule | null>(null)
   const [copyForm] = Form.useForm()
+
+  // 预览规则的模态框
+  const [previewModalVisible, setPreviewModalVisible] = useState(false)
+  const [previewRule, setPreviewRule] = useState<PublicRule | null>(null)
 
   // 设置网页标题
   useEffect(() => {
@@ -187,41 +195,9 @@ const RuleMarketplace: React.FC = () => {
   }
 
   // 预览规则内容
-  const previewRule = (rule: PublicRule) => {
-    Modal.info({
-      title: t('preview.title', { name: rule.name }),
-      width: 800,
-      content: (
-        <div>
-          <div style={{ marginBottom: 16 }}>
-            <Text strong>{t('preview.description')}</Text>
-            <Paragraph>{rule.description || t('preview.noDescription')}</Paragraph>
-          </div>
-          <div style={{ marginBottom: 16 }}>
-            <Text strong>{t('preview.content')}</Text>
-            <pre style={{ 
-              background: '#f5f5f5', 
-              padding: 12, 
-              borderRadius: 4,
-              whiteSpace: 'pre-wrap',
-              maxHeight: 400,
-              overflow: 'auto'
-            }}>
-              {rule.content}
-            </pre>
-          </div>
-          <div>
-            <Space>
-              <Tag color={rule.is_global ? 'blue' : 'green'}>
-                {rule.is_global ? '全局规则' : '项目规则'}
-              </Tag>
-              <Tag>优先级: {rule.priority}</Tag>
-              <Tag>使用次数: {rule.usage_count}</Tag>
-            </Space>
-          </div>
-        </div>
-      )
-    })
+  const handlePreviewRule = (rule: PublicRule) => {
+    setPreviewRule(rule)
+    setPreviewModalVisible(true)
   }
 
   return (
@@ -232,6 +208,9 @@ const RuleMarketplace: React.FC = () => {
         <Text type="secondary">
           {t('subtitle')}
         </Text>
+        <div style={{ marginTop: '12px' }}>
+          <ComplianceNotice />
+        </div>
       </div>
 
       {/* 搜索和筛选 */}
@@ -277,10 +256,10 @@ const RuleMarketplace: React.FC = () => {
                 hoverable
                 actions={[
                   <Tooltip title={t('actions.preview')}>
-                    <EyeOutlined onClick={() => previewRule(rule)} />
+                    <EyeOutlined onClick={() => handlePreviewRule(rule)} />
                   </Tooltip>,
-                  <Tooltip title={t('actions.copy')}>
-                    <CopyOutlined onClick={() => showCopyModal(rule)} />
+                  <Tooltip title={t('actions.fork')}>
+                    <BranchesOutlined onClick={() => showCopyModal(rule)} />
                   </Tooltip>
                 ]}
                 style={{ height: '100%' }}
@@ -330,12 +309,14 @@ const RuleMarketplace: React.FC = () => {
                           )}
                         </div>
                         
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <BarChartOutlined style={{ color: '#1890ff', fontSize: 12 }} />
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            {rule.usage_count}
-                          </Text>
-                        </div>
+                        <Tooltip title={t('tooltips.usageCount')}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'help' }}>
+                            <BarChartOutlined style={{ color: '#1890ff', fontSize: 12 }} />
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                              {rule.usage_count}
+                            </Text>
+                          </div>
+                        </Tooltip>
                       </div>
                       
                       {rule.project && (
@@ -438,6 +419,48 @@ const RuleMarketplace: React.FC = () => {
               }}
             </Form.Item>
           </Form>
+        )}
+      </Modal>
+
+      {/* 预览规则模态框 */}
+      <Modal
+        title={previewRule ? t('preview.title', { name: previewRule.name }) : ''}
+        open={previewModalVisible}
+        onCancel={() => setPreviewModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setPreviewModalVisible(false)}>
+            {t('common:actions.close')}
+          </Button>
+        ]}
+        width={800}
+      >
+        {previewRule && (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <Text strong>{t('preview.description')}</Text>
+              <Paragraph>{previewRule.description || t('preview.noDescription')}</Paragraph>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <Text strong>{t('preview.content')}</Text>
+              <div style={{ marginTop: 8 }}>
+                <MarkdownEditor
+                  value={previewRule.content}
+                  readOnly
+                  hideToolbar
+                  height={400}
+                />
+              </div>
+            </div>
+            <div>
+              <Space>
+                <Tag color={previewRule.is_global ? 'blue' : 'green'}>
+                  {previewRule.is_global ? t('card.globalRule') : t('card.projectRule')}
+                </Tag>
+                <Tag>{t('card.priority')}: {previewRule.priority}</Tag>
+                <Tag>{t('card.usageCount')}: {previewRule.usage_count}</Tag>
+              </Space>
+            </div>
+          </div>
         )}
       </Modal>
     </div>
