@@ -1,0 +1,151 @@
+/* WeChat Group Widget Styles */
+.wechat-group-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.wechat-group-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #07c160;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.wechat-group-icon:hover {
+  background: #06ad56;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(7, 193, 96, 0.4);
+}
+
+.wechat-group-icon .anticon {
+  font-size: 16px;
+}
+
+.wechat-group-text {
+  white-space: nowrap;
+}
+
+/* QR Code Popup */
+.wechat-group-qr-popup {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 10px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+  animation: fadeInUp 0.3s ease;
+  min-width: 280px;
+}
+
+.qr-popup-content {
+  padding: 0;
+}
+
+.qr-popup-header {
+  background: #07c160;
+  color: white;
+  padding: 12px 16px;
+  margin: 0;
+}
+
+.qr-popup-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+}
+
+.qr-popup-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.qr-code-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  margin-bottom: 12px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.qr-popup-description {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wechat-group-widget {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .wechat-group-icon {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .wechat-group-qr-popup {
+    min-width: 260px;
+    right: -20px;
+  }
+  
+  .qr-code-image {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wechat-group-text {
+    display: none;
+  }
+  
+  .wechat-group-icon {
+    padding: 12px;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    justify-content: center;
+  }
+  
+  .wechat-group-qr-popup {
+    right: -40px;
+    min-width: 240px;
+  }
+  
+  .qr-code-image {
+    width: 160px;
+    height: 160px;
+  }
+}
