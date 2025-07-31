@@ -55,7 +55,9 @@ class ContextRule(BaseModel):
                 'id': self.user.id,
                 'username': self.user.username,
                 'full_name': self.user.full_name,
-                'avatar_url': self.user.avatar_url
+                'avatar_url': self.user.avatar_url,
+                'github_id': self.user.github_id,
+                'provider': self.user.provider
             }
 
         return result
