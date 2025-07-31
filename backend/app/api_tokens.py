@@ -201,6 +201,51 @@ def update_token(token_id):
         }), 500
 
 
+@api_tokens_bp.route('/<int:token_id>/reveal', methods=['GET'])
+@require_auth
+def reveal_token(token_id):
+    """获取解密的完整token"""
+    try:
+        user_id = g.current_user.id
+
+        # 查找token，确保只能查看自己的token
+        api_token = ApiToken.query.filter_by(
+            id=token_id,
+            user_id=user_id,
+            is_active=True
+        ).first()
+
+        if not api_token:
+            return jsonify({
+                'success': False,
+                'error': 'Token not found'
+            }), 404
+
+        # 获取解密的token
+        decrypted_token = api_token.get_decrypted_token()
+
+        if not decrypted_token:
+            return jsonify({
+                'success': False,
+                'error': 'Unable to decrypt token. This token may have been created before encryption was enabled.'
+            }), 400
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'token': decrypted_token,
+                'name': api_token.name,
+                'prefix': api_token.prefix
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @api_tokens_bp.route('/<int:token_id>', methods=['DELETE'])
 @require_auth
 def delete_token(token_id):
