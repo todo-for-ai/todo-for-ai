@@ -1,0 +1,86 @@
+{
+  "pageTitle": {
+    "create": "创建上下文规则 - Todo for AI",
+    "edit": "编辑上下文规则 - Todo for AI",
+    "editWithName": "{{name}} - 编辑上下文规则 - Todo for AI"
+  },
+  "title": {
+    "create": "创建上下文规则",
+    "createProject": "创建项目上下文规则",
+    "createGlobal": "创建全局上下文规则",
+    "edit": "编辑上下文规则"
+  },
+  "breadcrumb": {
+    "home": "首页",
+    "projects": "项目列表",
+    "projectContextRules": "项目上下文规则",
+    "globalContextRules": "全局上下文规则",
+    "createRule": "创建规则",
+    "editRule": "编辑规则"
+  },
+  "form": {
+    "sections": {
+      "basicInfo": "基本信息",
+      "content": "规则内容",
+      "configuration": "规则配置"
+    },
+    "fields": {
+      "name": {
+        "label": "规则名称",
+        "placeholder": "请输入规则名称",
+        "required": "请输入规则名称",
+        "maxLength": "规则名称不能超过255个字符"
+      },
+      "description": {
+        "label": "规则描述",
+        "placeholder": "请输入规则描述"
+      },
+      "content": {
+        "label": "规则内容",
+        "placeholder": "请输入规则内容...",
+        "required": "请输入规则内容",
+        "help": "使用Markdown格式编写规则内容，支持代码块、列表、链接等格式"
+      },
+      "priority": {
+        "label": "优先级",
+        "placeholder": "0",
+        "help": "数字越大优先级越高"
+      },
+      "isActive": {
+        "label": "启用状态",
+        "enabled": "启用",
+        "disabled": "禁用"
+      },
+      "applyToTasks": {
+        "label": "应用到任务查询",
+        "help": "在AI查询任务详情时应用此规则",
+        "yes": "是",
+        "no": "否"
+      },
+      "applyToProjects": {
+        "label": "应用到项目查询",
+        "help": "在AI查询项目信息时应用此规则",
+        "yes": "是",
+        "no": "否"
+      },
+      "isPublic": {
+        "label": "公开设置",
+        "help": "公开的规则会显示在规则广场，其他用户可以复制使用",
+        "public": "公开",
+        "private": "私有"
+      }
+    }
+  },
+  "buttons": {
+    "cancel": "取消",
+    "create": "创建规则",
+    "update": "更新规则"
+  },
+  "messages": {
+    "createSuccess": "上下文规则创建成功",
+    "updateSuccess": "上下文规则更新成功",
+    "saveError": "保存上下文规则失败",
+    "loadError": "加载上下文规则失败",
+    "loading": "正在加载规则内容..."
+  }
+}
