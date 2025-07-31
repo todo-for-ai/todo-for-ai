@@ -1,0 +1,61 @@
+{
+  "title": "用户全局上下文规则",
+  "subtitle": "配置全局上下文规则，为AI提供准确的执行指导",
+  "pageTitle": "上下文规则 - Todo for AI",
+  "buttons": {
+    "refresh": "刷新",
+    "createNew": "新建规则"
+  },
+  "table": {
+    "columns": {
+      "name": "规则名称",
+      "priority": "优先级",
+      "status": "状态",
+      "createdAt": "创建时间",
+      "actions": "操作"
+    },
+    "actions": {
+      "view": "查看",
+      "edit": "编辑",
+      "copy": "复制",
+      "delete": "删除"
+    },
+    "pagination": {
+      "total": "第 {{start}}-{{end}} 条，共 {{total}} 条"
+    }
+  },
+  "status": {
+    "enabled": "已启用",
+    "disabled": "已禁用"
+  },
+  "tags": {
+    "global": "全局规则"
+  },
+  "drawer": {
+    "title": "上下文规则详情",
+    "fields": {
+      "description": "描述：",
+      "createdAt": "创建时间：",
+      "updatedAt": "更新时间：",
+      "createdBy": "创建者：",
+      "unknown": "未知"
+    },
+    "content": {
+      "title": "规则内容"
+    }
+  },
+  "messages": {
+    "deleteSuccess": "上下文规则删除成功",
+    "toggleSuccess": "上下文规则已{{status}}",
+    "copySuccess": "上下文规则复制成功",
+    "copyName": "{{name}} - 副本"
+  },
+  "confirm": {
+    "delete": {
+      "title": "确定要删除这个上下文规则吗？",
+      "description": "删除后无法恢复，请谨慎操作。",
+      "ok": "确定",
+      "cancel": "取消"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "title": "Project Management",
+  "subtitle": "Create and manage your projects, organize tasks and workflows",
+  "pageTitle": "Project List - Todo for AI",
+  "buttons": {
+    "createProject": "New Project",
+    "refresh": "Refresh",
+    "list": "List",
+    "card": "Card",
+    "view": "View",
+    "tasks": "Tasks",
+    "edit": "Edit",
+    "archive": "Archive",
+    "delete": "Delete",
+    "clearSearch": "Clear Search",
+    "createFirst": "Create First Project",
+    "reset": "Reset",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "table": {
+    "columns": {
+      "name": "Project Name",
+      "status": "Status",
+      "stats": "Task Statistics",
+      "lastActivity": "Last Activity",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "status": {
+    "active": "Active",
+    "archived": "Archived",
+    "deleted": "Deleted"
+  },
+  "stats": {
+    "total": "Total",
+    "completed": "Completed",
+    "pending": "Pending",
+    "noTasks": "No tasks"
+  },
+  "search": {
+    "placeholder": "Search project name or description...",
+    "searching": "Searching...",
+    "totalFound": "Found {{total}} projects",
+    "keyword": "Search keyword: \"{{keyword}}\"",
+    "noResults": "No projects found containing \"{{keyword}}\"",
+    "noProjects": "No projects"
+  },
+  "filters": {
+    "title": "Filters:",
+    "projectStatus": "Project Status",
+    "taskSituation": "Task Situation",
+    "activityTime": "Activity Time",
+    "sortBy": "Sort By",
+    "sortOrder": "Sort Order",
+    "options": {
+      "allStatus": "All Status",
+      "activeProjects": "Active Projects (Default)",
+      "archivedProjects": "Archived Projects",
+      "allProjects": "All Projects",
+      "hasPendingTasks": "Has Pending Tasks",
+      "noPendingTasks": "No Pending Tasks",
+      "allTime": "All Time",
+      "todayActivity": "Today's Activity",
+      "recentWeek": "Recent Week",
+      "recentMonth": "Recent Month",
+      "lastActivityTime": "Last Activity Time",
+      "createdTime": "Created Time",
+      "updatedTime": "Updated Time",
+      "projectName": "Project Name",
+      "totalTasks": "Total Tasks",
+      "pendingTasks": "Pending Tasks",
+      "completedTasks": "Completed Tasks",
+      "descOrder": "Descending (New→Old)",
+      "ascOrder": "Ascending (Old→New)"
+    }
+  },
+  "confirm": {
+    "archive": "Are you sure you want to archive this project?",
+    "delete": "Are you sure you want to delete this project?",
+    "deleteDescription": "This action cannot be undone. Please proceed with caution.",
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "messages": {
+    "deleteSuccess": "Project deleted successfully",
+    "archiveSuccess": "Project archived successfully"
+  },
+  "empty": {
+    "noData": "No project data",
+    "noSearchResults": "No projects found containing \"{{keyword}}\"",
+    "noActivity": "No activity"
+  },
+  "pagination": {
+    "showTotal": "{{start}}-{{end}} of {{total}} items",
+    "cardTotal": "{{start}}-{{end}} of {{total}} items",
+    "pageInfo": "Page {{current}} of {{total}}"
+  }
+}

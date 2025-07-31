@@ -1,0 +1,63 @@
+{
+  "title": "Settings",
+  "subtitle": "Configure system parameters and personal preferences",
+  "sections": {
+    "general": "General Settings",
+    "language": "Language Settings",
+    "theme": "Theme Settings",
+    "notifications": "Notification Settings",
+    "security": "Security Settings",
+    "advanced": "Advanced Settings"
+  },
+  "language": {
+    "title": "Interface Language",
+    "description": "Select interface display language",
+    "options": {
+      "zh-CN": "简体中文",
+      "en": "English"
+    }
+  },
+  "theme": {
+    "title": "Theme Mode",
+    "description": "Select interface theme",
+    "options": {
+      "light": "Light Mode",
+      "dark": "Dark Mode",
+      "auto": "Follow System"
+    }
+  },
+  "notifications": {
+    "title": "Notification Settings",
+    "description": "Configure notification preferences",
+    "email": "Email Notifications",
+    "browser": "Browser Notifications",
+    "desktop": "Desktop Notifications",
+    "taskReminders": "Task Reminders",
+    "projectUpdates": "Project Updates",
+    "systemMessages": "System Messages"
+  },
+  "security": {
+    "title": "Security Settings",
+    "description": "Manage account security",
+    "changePassword": "Change Password",
+    "twoFactor": "Two-Factor Authentication",
+    "sessions": "Active Sessions",
+    "apiTokens": "API Tokens"
+  },
+  "advanced": {
+    "title": "Advanced Settings",
+    "description": "Advanced feature configuration",
+    "autoSave": "Auto Save",
+    "autoSaveInterval": "Auto Save Interval",
+    "dataExport": "Data Export",
+    "dataImport": "Data Import",
+    "resetSettings": "Reset Settings"
+  },
+  "messages": {
+    "saveSuccess": "Settings saved successfully",
+    "saveError": "Failed to save settings",
+    "resetConfirm": "Are you sure you want to reset all settings? This action cannot be undone.",
+    "resetSuccess": "Settings reset successfully",
+    "languageChanged": "Language setting has been changed, the page will refresh automatically"
+  }
+}

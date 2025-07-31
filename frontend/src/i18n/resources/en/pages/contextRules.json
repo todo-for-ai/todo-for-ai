@@ -1,0 +1,61 @@
+{
+  "title": "User Global Context Rules",
+  "subtitle": "Configure global context rules to provide accurate execution guidance for AI",
+  "pageTitle": "Context Rules - Todo for AI",
+  "buttons": {
+    "refresh": "Refresh",
+    "createNew": "Create New Rule"
+  },
+  "table": {
+    "columns": {
+      "name": "Rule Name",
+      "priority": "Priority",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "copy": "Copy",
+      "delete": "Delete"
+    },
+    "pagination": {
+      "total": "{{start}}-{{end}} of {{total}} items"
+    }
+  },
+  "status": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "tags": {
+    "global": "Global Rule"
+  },
+  "drawer": {
+    "title": "Context Rule Details",
+    "fields": {
+      "description": "Description:",
+      "createdAt": "Created At:",
+      "updatedAt": "Updated At:",
+      "createdBy": "Created By:",
+      "unknown": "Unknown"
+    },
+    "content": {
+      "title": "Rule Content"
+    }
+  },
+  "messages": {
+    "deleteSuccess": "Context rule deleted successfully",
+    "toggleSuccess": "Context rule {{status}}",
+    "copySuccess": "Context rule copied successfully",
+    "copyName": "{{name}} - Copy"
+  },
+  "confirm": {
+    "delete": {
+      "title": "Are you sure you want to delete this context rule?",
+      "description": "This action cannot be undone. Please proceed with caution.",
+      "ok": "OK",
+      "cancel": "Cancel"
+    }
+  }
+}

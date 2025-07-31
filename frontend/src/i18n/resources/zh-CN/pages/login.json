@@ -1,0 +1,16 @@
+{
+  "pageTitle": "登录 - Todo for AI",
+  "title": "Todo for AI",
+  "subtitle": "AI任务管理系统",
+  "loginFailed": "登录失败",
+  "chooseLoginMethod": "选择登录方式",
+  "loginWithGitHub": "使用 GitHub 登录",
+  "loginWithGmail": "使用 Gmail 登录",
+  "supportedMethods": "支持的登录方式",
+  "agreement": {
+    "text": "登录即表示您同意我们的",
+    "terms": "服务条款",
+    "and": "和",
+    "privacy": "隐私政策"
+  }
+}

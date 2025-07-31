@@ -1,0 +1,82 @@
+{
+  "pageTitle": {
+    "create": "创建项目 - Todo for AI",
+    "edit": "编辑项目 - Todo for AI",
+    "editWithName": "{{name}} - 编辑项目 - Todo for AI"
+  },
+  "breadcrumb": {
+    "home": "首页",
+    "projects": "项目列表",
+    "create": "创建项目",
+    "edit": "编辑项目"
+  },
+  "title": {
+    "create": "创建项目",
+    "edit": "编辑项目"
+  },
+  "sections": {
+    "basicInfo": "基本信息",
+    "linkConfig": "链接配置",
+    "projectContext": "项目上下文"
+  },
+  "form": {
+    "name": {
+      "label": "项目名称",
+      "placeholder": "请输入项目名称",
+      "required": "请输入项目名称",
+      "maxLength": "项目名称不能超过100个字符"
+    },
+    "color": {
+      "label": "项目颜色",
+      "presetLabel": "推荐颜色",
+      "randomButton": "随机",
+      "randomTitle": "随机颜色"
+    },
+    "description": {
+      "label": "项目描述",
+      "placeholder": "请输入项目描述"
+    },
+    "githubUrl": {
+      "label": "GitHub仓库链接",
+      "placeholder": "https://github.com/username/repository",
+      "invalidUrl": "请输入有效的URL",
+      "help": "输入GitHub仓库链接后，可以点击「从GitHub导入」按钮自动填充项目信息",
+      "importButton": "从GitHub导入"
+    },
+    "localUrl": {
+      "label": "本地开发链接",
+      "placeholder": "http://localhost:3000",
+      "help": "本地开发环境的访问地址",
+      "invalidUrl": "请输入有效的URL"
+    },
+    "productionUrl": {
+      "label": "生产环境链接",
+      "placeholder": "https://your-app.com",
+      "help": "生产环境的访问地址",
+      "invalidUrl": "请输入有效的URL"
+    },
+    "projectContext": {
+      "label": "项目上下文",
+      "placeholder": "输入项目的背景信息、技术栈、开发规范等上下文信息...",
+      "help": "这些信息将帮助AI更好地理解项目背景，提供更准确的建议"
+    }
+  },
+  "buttons": {
+    "back": "返回项目列表",
+    "create": "创建项目",
+    "update": "更新项目"
+  },
+  "messages": {
+    "loadFailed": "加载项目失败",
+    "createSuccess": "项目创建成功",
+    "updateSuccess": "项目更新成功",
+    "importSuccess": "成功导入GitHub仓库信息",
+    "importFailed": "导入失败，请检查网络连接",
+    "repoNotFound": "仓库不存在或无法访问",
+    "repoInfoFailed": "获取仓库信息失败"
+  },
+  "github": {
+    "importing": "正在导入...",
+    "parseError": "GitHub链接格式不正确，请输入完整的仓库链接"
+  }
+}

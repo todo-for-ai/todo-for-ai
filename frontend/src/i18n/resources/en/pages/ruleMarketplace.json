@@ -1,0 +1,59 @@
+{
+  "title": "Rule Marketplace",
+  "subtitle": "Discover and copy excellent context rules shared by other users",
+  "pageTitle": "Rule Marketplace - Todo for AI",
+  "search": {
+    "placeholder": "Search rule names, descriptions or content...",
+    "noResults": "No public rules available"
+  },
+  "sort": {
+    "usageCountDesc": "Usage Count (High to Low)",
+    "usageCountAsc": "Usage Count (Low to High)",
+    "createdAtDesc": "Created Time (New to Old)",
+    "createdAtAsc": "Created Time (Old to New)",
+    "updatedAtDesc": "Updated Time (New to Old)",
+    "updatedAtAsc": "Updated Time (Old to New)"
+  },
+  "card": {
+    "noDescription": "No description",
+    "globalRule": "Global Rule",
+    "projectRule": "Project Rule",
+    "priority": "Priority",
+    "usageCount": "Usage Count"
+  },
+  "actions": {
+    "preview": "Preview Rule",
+    "copy": "Copy Rule"
+  },
+  "preview": {
+    "title": "Preview Rule: {{name}}",
+    "description": "Description:",
+    "content": "Rule Content:",
+    "noDescription": "No description"
+  },
+  "copy": {
+    "modal": {
+      "title": "Copy Rule",
+      "nameLabel": "Rule Name",
+      "namePlaceholder": "Please enter rule name",
+      "nameRequired": "Please enter rule name",
+      "typeLabel": "Copy Type",
+      "globalOption": "Copy as Global Rule",
+      "projectOption": "Copy as Project Rule",
+      "targetProjectLabel": "Target Project",
+      "targetProjectPlaceholder": "Please select target project",
+      "targetProjectRequired": "Please select target project",
+      "okText": "Copy",
+      "cancelText": "Cancel",
+      "copyName": "{{name}} - Copy"
+    },
+    "success": "Rule copied successfully!",
+    "error": "Failed to copy rule"
+  },
+  "pagination": {
+    "total": "{{start}}-{{end}} of {{total}} items"
+  },
+  "messages": {
+    "fetchError": "Failed to fetch rule list"
+  }
+}
