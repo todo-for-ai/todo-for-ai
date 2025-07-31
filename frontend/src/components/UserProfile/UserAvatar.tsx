@@ -139,8 +139,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
       icon: <UserSwitchOutlined />,
       label: tn('userMenu.userManagement'),
       onClick: () => {
-        // TODO: 导航到用户管理页面
-        console.log('Navigate to user management')
+        navigate('/todo-for-ai/pages/user-management')
       },
     }] : []),
     {
