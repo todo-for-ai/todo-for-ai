@@ -1,0 +1,95 @@
+/* Footer样式 */
+.app-footer {
+  flex-shrink: 0; /* 防止页脚被压缩 */
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footer-version {
+  font-weight: 500;
+  color: #1890ff;
+}
+
+.footer-separator {
+  color: #d9d9d9;
+  margin: 0 4px;
+}
+
+.footer-copyright {
+  color: #666;
+}
+
+.footer-github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  margin-left: 8px;
+}
+
+.footer-github-link:hover {
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.footer-github-link .anticon {
+  font-size: 14px;
+}
+
+.footer-github-text {
+  font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .app-footer {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  
+  .footer-content {
+    gap: 6px;
+  }
+  
+  .footer-separator {
+    margin: 0 2px;
+  }
+  
+  .footer-github-link {
+    margin-left: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  .app-footer {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+  
+  .footer-content {
+    gap: 4px;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  
+  .footer-separator {
+    display: none;
+  }
+  
+  .footer-github-link {
+    margin-left: 0;
+    margin-top: 2px;
+  }
+  
+  .footer-github-text {
+    display: none;
+  }
+}
