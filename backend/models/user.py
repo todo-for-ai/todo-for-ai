@@ -98,6 +98,12 @@ class User(BaseModel):
         cascade='all, delete-orphan',
         lazy='dynamic'
     )
+    settings = relationship(
+        'UserSettings',
+        back_populates='user',
+        cascade='all, delete-orphan',
+        uselist=False
+    )
     
     def __repr__(self):
         return f'<User {self.id}: {self.email}>'

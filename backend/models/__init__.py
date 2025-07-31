@@ -13,6 +13,8 @@ from .task_history import TaskHistory, ActionType
 from .attachment import Attachment
 from .api_token import ApiToken
 from .user_project_pin import UserProjectPin
+from .user_activity import UserActivity
+from .user_settings import UserSettings
 
 __all__ = [
     'db',
@@ -31,4 +33,5 @@ __all__ = [
     'Attachment',
     'ApiToken',
     'UserProjectPin',
+    'UserActivity',
 ]

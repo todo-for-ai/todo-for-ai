@@ -104,6 +104,8 @@ def register_blueprints(app):
     from api.mcp import mcp_bp
     from api.docs import docs_bp
     from api.pins import pins_bp
+    from api.dashboard import dashboard_bp
+    from api.user_settings import user_settings_bp
 
     app.register_blueprint(auth_bp, url_prefix='/todo-for-ai/api/v1/auth')
     app.register_blueprint(projects_bp, url_prefix='/todo-for-ai/api/v1/projects')
@@ -113,6 +115,8 @@ def register_blueprints(app):
     app.register_blueprint(mcp_bp, url_prefix='/todo-for-ai/api/v1/mcp')
     app.register_blueprint(docs_bp, url_prefix='/todo-for-ai/api/v1/docs')
     app.register_blueprint(pins_bp, url_prefix='/todo-for-ai/api/v1/pins')
+    app.register_blueprint(dashboard_bp, url_prefix='/todo-for-ai/api/v1/dashboard')
+    app.register_blueprint(user_settings_bp, url_prefix='/todo-for-ai/api/v1/user-settings')
 
 
 

@@ -5,6 +5,9 @@ API Token模型
 import secrets
 import hashlib
 from datetime import datetime, timedelta
+from cryptography.fernet import Fernet
+import base64
+import os
 from sqlalchemy import Column, String, DateTime, Boolean, Text, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import BaseModel
@@ -21,6 +24,7 @@ class ApiToken(BaseModel):
     # Token信息
     name = Column(String(255), nullable=False, comment='Token名称')
     token_hash = Column(String(64), nullable=False, unique=True, comment='Token哈希值')
+    token_encrypted = Column(Text, nullable=False, comment='加密的Token值')
     prefix = Column(String(10), nullable=False, comment='Token前缀（用于识别）')
     description = Column(Text, comment='Token描述')
     
@@ -37,6 +41,42 @@ class ApiToken(BaseModel):
 
     def __repr__(self):
         return f'<ApiToken {self.id}: {self.name}>'
+
+    @staticmethod
+    def _get_encryption_key():
+        """获取加密密钥"""
+        # 从环境变量获取密钥，如果没有则生成一个
+        key = os.environ.get('TOKEN_ENCRYPTION_KEY')
+        if not key:
+            # 生成一个新密钥（在生产环境中应该设置环境变量）
+            key = Fernet.generate_key().decode()
+            os.environ['TOKEN_ENCRYPTION_KEY'] = key
+
+        # 确保密钥是bytes格式
+        if isinstance(key, str):
+            key = key.encode()
+
+        return key
+
+    @classmethod
+    def _encrypt_token(cls, token):
+        """加密token"""
+        key = cls._get_encryption_key()
+        f = Fernet(key)
+        encrypted_token = f.encrypt(token.encode())
+        return base64.b64encode(encrypted_token).decode()
+
+    @classmethod
+    def _decrypt_token(cls, encrypted_token):
+        """解密token"""
+        try:
+            key = cls._get_encryption_key()
+            f = Fernet(key)
+            encrypted_bytes = base64.b64decode(encrypted_token.encode())
+            decrypted_token = f.decrypt(encrypted_bytes)
+            return decrypted_token.decode()
+        except Exception:
+            return None
     
     @classmethod
     def generate_token(cls, name, description=None, expires_days=None):
@@ -44,24 +84,28 @@ class ApiToken(BaseModel):
         # 生成随机token
         token = secrets.token_urlsafe(32)
         prefix = token[:8]
-        
+
         # 计算哈希值
         token_hash = hashlib.sha256(token.encode()).hexdigest()
-        
+
+        # 加密token
+        token_encrypted = cls._encrypt_token(token)
+
         # 计算过期时间
         expires_at = None
         if expires_days:
             expires_at = datetime.utcnow() + timedelta(days=expires_days)
-        
+
         # 创建token记录
         api_token = cls(
             name=name,
             token_hash=token_hash,
+            token_encrypted=token_encrypted,
             prefix=prefix,
             description=description,
             expires_at=expires_at
         )
-        
+
         return api_token, token
     
     @classmethod
@@ -108,6 +152,12 @@ class ApiToken(BaseModel):
         if not self.expires_at:
             return False
         return self.expires_at < datetime.utcnow()
+
+    def get_decrypted_token(self):
+        """获取解密的token"""
+        if not self.token_encrypted:
+            return None
+        return self._decrypt_token(self.token_encrypted)
     
     def deactivate(self):
         """停用Token"""
