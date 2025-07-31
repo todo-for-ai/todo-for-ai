@@ -102,7 +102,8 @@ const CreateContextRule = () => {
         priority: formValues.priority || 0,
         is_active: formValues.is_active !== false,
         apply_to_tasks: formValues.apply_to_tasks !== false,
-        apply_to_projects: formValues.apply_to_projects === true
+        apply_to_projects: formValues.apply_to_projects === true,
+        is_public: formValues.is_public === true
       }
 
       // 如果有项目ID，添加到数据中

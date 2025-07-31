@@ -20,10 +20,12 @@ import {
   ReloadOutlined,
   GithubOutlined,
   LinkOutlined,
-  GlobalOutlined
+  GlobalOutlined,
+  ImportOutlined
 } from '@ant-design/icons'
 import { useProjectStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
+import { useTranslation } from '../i18n/hooks/useTranslation'
 import type { CreateProjectData, UpdateProjectData } from '../api/projects'
 
 const { Title } = Typography
@@ -44,9 +46,11 @@ const generateRandomColor = () => {
 const CreateProject = () => {
   const navigate = useNavigate()
   const { id } = useParams()
+  const { t } = useTranslation('createProject')
   const [form] = Form.useForm()
   const [isEditMode, setIsEditMode] = useState(false)
   const [currentColor, setCurrentColor] = useState(generateRandomColor())
+  const [importLoading, setImportLoading] = useState(false)
 
   const {
     loading,
@@ -67,43 +71,48 @@ const CreateProject = () => {
         status: 'active'
       })
     }
-  }, [id, form, currentColor])
+  }, [id, form])
 
   // 设置网页标题
   useEffect(() => {
-    const pageTitle = isEditMode ? '编辑项目' : '创建项目'
     if (isEditMode && currentProject) {
-      document.title = `${currentProject.name} - ${pageTitle} - Todo for AI`
+      document.title = t('pageTitle.editWithName', { name: currentProject.name })
+    } else if (isEditMode) {
+      document.title = t('pageTitle.edit')
     } else {
-      document.title = `${pageTitle} - Todo for AI`
+      document.title = t('pageTitle.create')
     }
-    
+
     return () => {
       document.title = 'Todo for AI'
     }
-  }, [isEditMode, currentProject])
+  }, [isEditMode, currentProject, t])
 
   const loadProject = async (projectId: number) => {
     try {
       await fetchProject(projectId)
-      if (currentProject) {
-        form.setFieldsValue({
-          name: currentProject.name,
-          description: currentProject.description,
-          color: currentProject.color,
-          status: currentProject.status,
-          github_url: currentProject.github_url,
-          local_url: currentProject.local_url,
-          production_url: currentProject.production_url,
-          project_context: currentProject.project_context
-        })
-        setCurrentColor(currentProject.color)
-      }
     } catch (error) {
       console.error('加载项目失败:', error)
-      message.error('加载项目失败')
+      message.error(t('messages.loadFailed'))
     }
   }
+
+  // 监听currentProject变化，更新表单数据
+  useEffect(() => {
+    if (isEditMode && currentProject) {
+      form.setFieldsValue({
+        name: currentProject.name,
+        description: currentProject.description,
+        color: currentProject.color,
+        status: currentProject.status,
+        github_url: currentProject.github_url,
+        local_url: currentProject.local_url,
+        production_url: currentProject.production_url,
+        project_context: currentProject.project_context
+      })
+      setCurrentColor(currentProject.color)
+    }
+  }, [currentProject, isEditMode, form])
 
   const handleSubmit = async (values: any) => {
     try {
@@ -119,22 +128,34 @@ const CreateProject = () => {
       }
 
       let success = false
+      let createdProjectId: number | null = null
+
       if (isEditMode && id) {
         const result = await updateProject(parseInt(id, 10), projectData as UpdateProjectData)
         success = !!result
         if (success) {
-          message.success('项目更新成功')
+          message.success(t('messages.updateSuccess'))
         }
       } else {
         const result = await createProject(projectData as CreateProjectData)
         success = !!result
         if (success) {
-          message.success('项目创建成功')
+          createdProjectId = result.id
+          message.success(t('messages.createSuccess'))
         }
       }
 
       if (success) {
-        navigate('/todo-for-ai/pages/projects')
+        if (isEditMode && id) {
+          // 编辑模式：跳转到项目详情页面
+          navigate(`/todo-for-ai/pages/projects/${id}`)
+        } else if (createdProjectId) {
+          // 创建模式：跳转到新创建项目的详情页面
+          navigate(`/todo-for-ai/pages/projects/${createdProjectId}`)
+        } else {
+          // 备用方案：跳转到项目列表页面
+          navigate('/todo-for-ai/pages/projects')
+        }
       }
     } catch (error) {
       console.error('保存项目失败:', error)
@@ -154,6 +175,70 @@ const CreateProject = () => {
     form.setFieldsValue({ color: colorValue })
   }
 
+  // 从GitHub URL解析owner和repo
+  const parseGitHubUrl = (url: string) => {
+    try {
+      const regex = /github\.com\/([^\/]+)\/([^\/]+)/
+      const match = url.match(regex)
+      if (match) {
+        return {
+          owner: match[1],
+          repo: match[2].replace(/\.git$/, '') // 移除.git后缀
+        }
+      }
+      return null
+    } catch (error) {
+      return null
+    }
+  }
+
+  // 从GitHub导入项目信息
+  const handleImportFromGitHub = async () => {
+    const githubUrl = form.getFieldValue('github_url')
+    if (!githubUrl) {
+      message.warning('请先输入GitHub仓库链接')
+      return
+    }
+
+    const parsed = parseGitHubUrl(githubUrl)
+    if (!parsed) {
+      message.error(t('github.parseError'))
+      return
+    }
+
+    setImportLoading(true)
+    try {
+      // 调用GitHub API获取仓库信息
+      const response = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`)
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          message.error(t('messages.repoNotFound'))
+        } else {
+          message.error(t('messages.repoInfoFailed'))
+        }
+        return
+      }
+
+      const repoData = await response.json()
+
+      // 填充表单数据
+      form.setFieldsValue({
+        name: `${repoData.owner.login}/${repoData.name}`,
+        description: repoData.description || '',
+        github_url: githubUrl,
+        production_url: repoData.homepage || ''
+      })
+
+      message.success(t('messages.importSuccess'))
+    } catch (error) {
+      console.error('GitHub导入失败:', error)
+      message.error(t('messages.importFailed'))
+    } finally {
+      setImportLoading(false)
+    }
+  }
+
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* 面包屑导航 */}
@@ -161,7 +246,7 @@ const CreateProject = () => {
         <Breadcrumb.Item>
           <HomeOutlined />
           <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
-            首页
+            {t('breadcrumb.home')}
           </span>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
@@ -169,17 +254,17 @@ const CreateProject = () => {
             onClick={() => navigate('/todo-for-ai/pages/projects')}
             style={{ cursor: 'pointer' }}
           >
-            项目列表
+            {t('breadcrumb.projects')}
           </span>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>{isEditMode ? '编辑项目' : '创建项目'}</Breadcrumb.Item>
+        <Breadcrumb.Item>{isEditMode ? t('breadcrumb.edit') : t('breadcrumb.create')}</Breadcrumb.Item>
       </Breadcrumb>
 
       {/* 主要内容区域 - 居中布局 */}
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <div style={{ marginBottom: '24px', textAlign: 'center' }}>
           <Title level={2} style={{ margin: 0 }}>
-            {isEditMode ? '编辑项目' : '创建项目'}
+            {isEditMode ? t('title.edit') : t('title.create')}
           </Title>
         </div>
 
@@ -190,22 +275,22 @@ const CreateProject = () => {
         >
         <Row gutter={[16, 16]}>
           <Col span={24}>
-            <Card title="基本信息">
+            <Card title={t('sections.basicInfo')}>
               <Row gutter={[16, 16]}>
                 <Col span={16}>
                   <Form.Item
-                    label="项目名称"
+                    label={t('form.name.label')}
                     name="name"
                     rules={[
-                      { required: true, message: '请输入项目名称' },
-                      { max: 100, message: '项目名称不能超过100个字符' }
+                      { required: true, message: t('form.name.required') },
+                      { max: 100, message: t('form.name.maxLength') }
                     ]}
                   >
-                    <Input placeholder="请输入项目名称" />
+                    <Input placeholder={t('form.name.placeholder')} />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item label="项目颜色" name="color">
+                  <Form.Item label={t('form.color.label')} name="color">
                     <Space>
                       <ColorPicker
                         value={currentColor}
@@ -213,7 +298,7 @@ const CreateProject = () => {
                         showText
                         presets={[
                           {
-                            label: '推荐颜色',
+                            label: t('form.color.presetLabel'),
                             colors: PRESET_COLORS
                           }
                         ]}
@@ -221,18 +306,18 @@ const CreateProject = () => {
                       <Button
                         icon={<ReloadOutlined />}
                         onClick={handleRandomColor}
-                        title="随机颜色"
+                        title={t('form.color.randomTitle')}
                       >
-                        随机
+                        {t('form.color.randomButton')}
                       </Button>
                     </Space>
                   </Form.Item>
                 </Col>
               </Row>
 
-              <Form.Item label="项目描述" name="description">
+              <Form.Item label={t('form.description.label')} name="description">
                 <TextArea
-                  placeholder="请输入项目描述"
+                  placeholder={t('form.description.placeholder')}
                   rows={3}
                   maxLength={500}
                   showCount
@@ -242,46 +327,60 @@ const CreateProject = () => {
           </Col>
 
           <Col span={24}>
-            <Card title="链接配置">
+            <Card title={t('sections.linkConfig')}>
               <Row gutter={[16, 16]}>
                 <Col span={24}>
                   <Form.Item
-                    label="GitHub仓库链接"
+                    label={t('form.githubUrl.label')}
                     name="github_url"
                     rules={[
-                      { type: 'url', message: '请输入有效的URL' }
+                      { type: 'url', message: t('form.githubUrl.invalidUrl') }
                     ]}
+                    help={t('form.githubUrl.help')}
                   >
                     <Input
-                      placeholder="https://github.com/username/repository"
+                      placeholder={t('form.githubUrl.placeholder')}
                       prefix={<GithubOutlined />}
+                      addonAfter={
+                        <Button
+                          type="primary"
+                          icon={<ImportOutlined />}
+                          loading={importLoading}
+                          onClick={handleImportFromGitHub}
+                          size="small"
+                        >
+                          {t('form.githubUrl.importButton')}
+                        </Button>
+                      }
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    label="本地开发链接"
+                    label={t('form.localUrl.label')}
                     name="local_url"
                     rules={[
-                      { type: 'url', message: '请输入有效的URL' }
+                      { type: 'url', message: t('form.localUrl.invalidUrl') }
                     ]}
+                    help={t('form.localUrl.help')}
                   >
                     <Input
-                      placeholder="http://localhost:3000"
+                      placeholder={t('form.localUrl.placeholder')}
                       prefix={<LinkOutlined />}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    label="生产环境链接"
+                    label={t('form.productionUrl.label')}
                     name="production_url"
                     rules={[
-                      { type: 'url', message: '请输入有效的URL' }
+                      { type: 'url', message: t('form.productionUrl.invalidUrl') }
                     ]}
+                    help={t('form.productionUrl.help')}
                   >
                     <Input
-                      placeholder="https://example.com"
+                      placeholder={t('form.productionUrl.placeholder')}
                       prefix={<GlobalOutlined />}
                     />
                   </Form.Item>
@@ -291,17 +390,17 @@ const CreateProject = () => {
           </Col>
 
           <Col span={24}>
-            <Card title="项目上下文">
+            <Card title={t('sections.projectContext')}>
               <Form.Item
-                label="项目上下文信息"
+                label={t('form.projectContext.label')}
                 name="project_context"
-                help="使用Markdown格式描述项目的详细信息、技术栈、开发规范等"
+                help={t('form.projectContext.help')}
               >
                 <MarkdownEditor
                   value={form.getFieldValue('project_context') || ''}
                   onChange={(value) => form.setFieldsValue({ project_context: value })}
                   height={300}
-                  placeholder="请输入项目上下文信息..."
+                  placeholder={t('form.projectContext.placeholder')}
                 />
               </Form.Item>
             </Card>
@@ -314,7 +413,7 @@ const CreateProject = () => {
                 icon={<ArrowLeftOutlined />}
                 onClick={() => navigate('/todo-for-ai/pages/projects')}
               >
-                返回项目列表
+                {t('buttons.back')}
               </Button>
               <Button
                 type="primary"
@@ -323,7 +422,7 @@ const CreateProject = () => {
                 loading={loading}
                 size="large"
               >
-                {isEditMode ? '更新项目' : '创建项目'}
+                {isEditMode ? t('buttons.update') : t('buttons.create')}
               </Button>
             </Space>
           </div>

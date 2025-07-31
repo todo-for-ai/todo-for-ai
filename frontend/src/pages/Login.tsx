@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react'
 import { Card, Button, Typography, Space, Divider, Alert } from 'antd'
-import { GithubOutlined, GoogleOutlined, LoginOutlined } from '@ant-design/icons'
+import { GithubOutlined, GoogleOutlined } from '@ant-design/icons'
 import { useAuthStore } from '../stores/useAuthStore'
+import { useTranslation } from '../i18n/hooks/useTranslation'
+import LanguageSwitch from '../components/LanguageSwitch'
 
 const { Title, Paragraph } = Typography
 
 const Login: React.FC = () => {
   const { loginWithGitHub, loginWithGoogle, isLoading, error, isAuthenticated } = useAuthStore()
+  const { t } = useTranslation('login')
 
   useEffect(() => {
     // 如果已经登录，重定向到主页
@@ -17,13 +20,13 @@ const Login: React.FC = () => {
 
   // 设置网页标题
   useEffect(() => {
-    document.title = '登录 - Todo for AI'
+    document.title = t('pageTitle')
 
     // 组件卸载时恢复默认标题
     return () => {
       document.title = 'Todo for AI'
     }
-  }, [])
+  }, [t])
 
   const handleGitHubLogin = () => {
     loginWithGitHub('/todo-for-ai/pages')
@@ -40,8 +43,14 @@ const Login: React.FC = () => {
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
+      padding: '20px',
+      position: 'relative'
     }}>
+      {/* 语言切换按钮 */}
+      <div style={{ position: 'absolute', top: 20, right: 20 }}>
+        <LanguageSwitch size="small" />
+      </div>
+
       <Card
         style={{
           width: '100%',
@@ -53,16 +62,16 @@ const Login: React.FC = () => {
       >
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
-            Todo for AI
+            {t('title')}
           </Title>
           <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
-            AI任务管理系统
+            {t('subtitle')}
           </Paragraph>
         </div>
 
         {error && (
           <Alert
-            message="登录失败"
+            message={t('loginFailed')}
             description={error}
             type="error"
             showIcon
@@ -73,7 +82,7 @@ const Login: React.FC = () => {
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div>
             <Title level={4} style={{ textAlign: 'center', marginBottom: 16 }}>
-              选择登录方式
+              {t('chooseLoginMethod')}
             </Title>
 
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -92,7 +101,7 @@ const Login: React.FC = () => {
                   borderColor: '#24292e',
                 }}
               >
-                使用 GitHub 登录
+                {t('loginWithGitHub')}
               </Button>
 
               <Button
@@ -110,13 +119,13 @@ const Login: React.FC = () => {
                   color: 'white',
                 }}
               >
-                使用 Gmail 登录
+                {t('loginWithGmail')}
               </Button>
             </Space>
           </div>
 
           <Divider style={{ margin: '16px 0' }}>
-            <span style={{ color: '#999', fontSize: 12 }}>支持的登录方式</span>
+            <span style={{ color: '#999', fontSize: 12 }}>{t('supportedMethods')}</span>
           </Divider>
 
           <div style={{ textAlign: 'center' }}>
@@ -134,23 +143,23 @@ const Login: React.FC = () => {
 
           <div style={{ textAlign: 'center', marginTop: 24 }}>
             <Paragraph style={{ fontSize: 12, color: '#999', margin: 0 }}>
-              登录即表示您同意我们的
+              {t('agreement.text')}
               <a
                 href="/todo-for-ai/pages/terms"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: '#1890ff', textDecoration: 'none' }}
               >
-                服务条款
+                {t('agreement.terms')}
               </a>
-              和
+              {t('agreement.and')}
               <a
                 href="/todo-for-ai/pages/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: '#1890ff', textDecoration: 'none' }}
               >
-                隐私政策
+                {t('agreement.privacy')}
               </a>
             </Paragraph>
           </div>
