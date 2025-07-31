@@ -9,6 +9,7 @@ import {
   CreateProject,
   TaskDetail,
   CreateTask,
+  Kanban,
   Settings,
   ContextRules,
   CreateContextRule,
@@ -53,6 +54,7 @@ function App() {
             <Route path="tasks/create" element={<CreateTask />} />
             <Route path="tasks/:id" element={<TaskDetail />} />
             <Route path="tasks/:id/edit" element={<CreateTask />} />
+            <Route path="kanban" element={<Kanban />} />
             <Route path="context-rules" element={<ContextRules />} />
             <Route path="context-rules/create" element={<CreateContextRule />} />
             <Route path="context-rules/:id/edit" element={<CreateContextRule />} />
