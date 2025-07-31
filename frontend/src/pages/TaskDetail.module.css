@@ -1,7 +1,9 @@
 /* 任务详情页面样式 */
 .taskDetailContainer {
   padding: 24px;
-  max-width: 1400px;
+  width: 80%;
+  min-width: 800px;
+  max-width: 1600px;
   margin: 0 auto;
   background: #f5f5f5;
   min-height: 100vh;
