@@ -23,7 +23,11 @@
   },
   "actions": {
     "preview": "Preview Rule",
-    "copy": "Copy Rule"
+    "copy": "Copy Rule",
+    "fork": "Fork Rule"
+  },
+  "tooltips": {
+    "usageCount": "Number of times this rule has been copied and used by other users"
   },
   "preview": {
     "title": "Preview Rule: {{name}}",
@@ -33,22 +37,22 @@
   },
   "copy": {
     "modal": {
-      "title": "Copy Rule",
+      "title": "Fork Rule",
       "nameLabel": "Rule Name",
       "namePlaceholder": "Please enter rule name",
       "nameRequired": "Please enter rule name",
-      "typeLabel": "Copy Type",
-      "globalOption": "Copy as Global Rule",
-      "projectOption": "Copy as Project Rule",
+      "typeLabel": "Fork Type",
+      "globalOption": "Fork as Global Rule",
+      "projectOption": "Fork as Project Rule",
       "targetProjectLabel": "Target Project",
       "targetProjectPlaceholder": "Please select target project",
       "targetProjectRequired": "Please select target project",
-      "okText": "Copy",
+      "okText": "Fork",
       "cancelText": "Cancel",
-      "copyName": "{{name}} - Copy"
+      "copyName": "{{name}} - Fork"
     },
-    "success": "Rule copied successfully!",
-    "error": "Failed to copy rule"
+    "success": "Rule forked successfully!",
+    "error": "Failed to fork rule"
   },
   "pagination": {
     "total": "{{start}}-{{end}} of {{total}} items"

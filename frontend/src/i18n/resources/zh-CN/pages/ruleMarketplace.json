@@ -23,7 +23,11 @@
   },
   "actions": {
     "preview": "预览规则",
-    "copy": "复制规则"
+    "copy": "复制规则",
+    "fork": "Fork规则"
+  },
+  "tooltips": {
+    "usageCount": "此规则被其他用户复制使用的次数"
   },
   "preview": {
     "title": "预览规则: {{name}}",
@@ -33,22 +37,22 @@
   },
   "copy": {
     "modal": {
-      "title": "复制规则",
+      "title": "Fork规则",
       "nameLabel": "规则名称",
       "namePlaceholder": "请输入规则名称",
       "nameRequired": "请输入规则名称",
-      "typeLabel": "复制类型",
-      "globalOption": "复制为全局规则",
-      "projectOption": "复制为项目规则",
+      "typeLabel": "Fork类型",
+      "globalOption": "Fork为全局规则",
+      "projectOption": "Fork为项目规则",
       "targetProjectLabel": "目标项目",
       "targetProjectPlaceholder": "请选择目标项目",
       "targetProjectRequired": "请选择目标项目",
-      "okText": "复制",
+      "okText": "Fork",
       "cancelText": "取消",
-      "copyName": "{{name}} - 副本"
+      "copyName": "{{name}} - Fork"
     },
-    "success": "规则复制成功！",
-    "error": "复制规则失败"
+    "success": "规则Fork成功！",
+    "error": "Fork规则失败"
   },
   "pagination": {
     "total": "第 {{start}}-{{end}} 条，共 {{total}} 条"
