@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Typography, Button, Table, Space, Tag, message, Popconfirm, Select, Card, Row, Col } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined, FilterOutlined, CheckSquareOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons'
+import { Typography, Button, Table, Space, Tag, message, Popconfirm, Select, Card, Row, Col, Tooltip, Input, Empty } from 'antd'
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined, FilterOutlined, CheckSquareOutlined, UnorderedListOutlined, AppstoreOutlined, SearchOutlined } from '@ant-design/icons'
 import { useProjectStore } from '../stores'
 import { LinkButton } from '../components/SmartLink'
 import type { Project } from '../api/projects'
+import { formatRelativeTime, formatFullDateTime } from '../utils/dateUtils'
+import { useTranslation } from '../i18n/hooks/useTranslation'
 
 const { Title, Paragraph } = Typography
+const { Search } = Input
 
 const Projects = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation('projects')
 
   // 从localStorage加载视图模式
   const loadViewModeFromStorage = () => {
@@ -40,11 +44,13 @@ const Projects = () => {
       has_pending_tasks: '',
       time_range: '',
       sort_by: 'last_activity_at',
-      sort_order: 'desc' as 'desc' | 'asc'
+      sort_order: 'desc' as 'desc' | 'asc',
+      search: ''
     }
   }
 
   const [filters, setFilters] = useState(loadFiltersFromStorage)
+  const [searchValue, setSearchValue] = useState(filters.search || '')
 
   const {
     projects,
@@ -58,6 +64,20 @@ const Projects = () => {
     setQueryParams,
     clearError,
   } = useProjectStore()
+
+  // 防抖搜索函数
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: number
+      return (searchTerm: string) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          handleFilterChange('search', searchTerm)
+        }, 500) // 500ms 防抖延迟
+      }
+    })(),
+    []
+  )
 
   useEffect(() => {
     // 应用筛选参数，并根据视图模式设置分页大小
@@ -78,13 +98,13 @@ const Projects = () => {
 
   // 设置网页标题
   useEffect(() => {
-    document.title = '项目列表 - Todo for AI'
+    document.title = t('pageTitle')
 
     // 组件卸载时恢复默认标题
     return () => {
       document.title = 'Todo for AI'
     }
-  }, [])
+  }, [t])
 
   const handleFilterChange = (key: string, value: any) => {
     const newFilters = {
@@ -99,6 +119,25 @@ const Projects = () => {
     } catch (error) {
       console.warn('Failed to save filters to localStorage:', error)
     }
+  }
+
+  // 处理搜索输入变化
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchValue(value)
+    debouncedSearch(value)
+  }
+
+  // 处理搜索按钮点击或回车
+  const handleSearchSubmit = (value: string) => {
+    setSearchValue(value)
+    handleFilterChange('search', value)
+  }
+
+  // 处理搜索清空
+  const handleSearchClear = () => {
+    setSearchValue('')
+    handleFilterChange('search', '')
   }
 
   const handleViewModeChange = (mode: 'list' | 'card') => {
@@ -141,14 +180,14 @@ const Projects = () => {
   const handleDelete = async (project: Project) => {
     const success = await deleteProject(project.id)
     if (success) {
-      message.success('项目删除成功')
+      message.success(t('messages.deleteSuccess'))
     }
   }
 
   const handleArchive = async (project: Project) => {
     const success = await archiveProject(project.id)
     if (success) {
-      message.success('项目归档成功')
+      message.success(t('messages.archiveSuccess'))
     }
   }
 
@@ -171,7 +210,7 @@ const Projects = () => {
 
   const columns = [
     {
-      title: '项目名称',
+      title: t('table.columns.name'),
       dataIndex: 'name',
       key: 'name',
       sorter: true,
@@ -204,31 +243,31 @@ const Projects = () => {
       ),
     },
     {
-      title: '状态',
+      title: t('table.columns.status'),
       dataIndex: 'status',
       key: 'status',
       width: 100,
       render: (status: string) => {
         const statusConfig = {
-          active: { color: 'green', text: '活跃' },
-          archived: { color: 'orange', text: '已归档' },
-          deleted: { color: 'red', text: '已删除' },
+          active: { color: 'green', text: t('status.active') },
+          archived: { color: 'orange', text: t('status.archived') },
+          deleted: { color: 'red', text: t('status.deleted') },
         }
         const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.active
         return <Tag color={config.color}>{config.text}</Tag>
       },
     },
     {
-      title: '任务统计',
+      title: t('table.columns.stats'),
       key: 'stats',
       width: 140,
       render: (_: any, record: Project) => {
         if (record.total_tasks && record.total_tasks > 0) {
           return (
             <div style={{ fontSize: '12px' }}>
-              <div>总计: {record.total_tasks}</div>
-              <div style={{ color: '#52c41a' }}>完成: {record.completed_tasks}</div>
-              <div style={{ color: '#fa8c16', fontWeight: 500 }}>待处理: {record.pending_tasks}</div>
+              <div>{t('stats.total')}: {record.total_tasks}</div>
+              <div style={{ color: '#52c41a' }}>{t('stats.completed')}: {record.completed_tasks}</div>
+              <div style={{ color: '#fa8c16', fontWeight: 500 }}>{t('stats.pending')}: {record.pending_tasks}</div>
             </div>
           )
         }
@@ -236,7 +275,7 @@ const Projects = () => {
       },
     },
     {
-      title: '最后活动时间',
+      title: t('table.columns.lastActivity'),
       dataIndex: 'last_activity_at',
       key: 'last_activity_at',
       width: 160,
@@ -253,7 +292,7 @@ const Projects = () => {
       },
     },
     {
-      title: '创建时间',
+      title: t('table.columns.createdAt'),
       dataIndex: 'created_at',
       key: 'created_at',
       width: 160,
@@ -269,7 +308,7 @@ const Projects = () => {
       },
     },
     {
-      title: '操作',
+      title: t('table.columns.actions'),
       key: 'action',
       width: 220,
       fixed: 'right' as const,
@@ -281,7 +320,7 @@ const Projects = () => {
             icon={<EyeOutlined />}
             size="small"
           >
-            查看
+            {t('buttons.view')}
           </LinkButton>
           <LinkButton
             to={`/todo-for-ai/pages/projects/${record.id}?tab=tasks`}
@@ -289,7 +328,7 @@ const Projects = () => {
             icon={<CheckSquareOutlined />}
             size="small"
           >
-            任务
+            {t('buttons.tasks')}
           </LinkButton>
           <Button
             type="text"
@@ -297,29 +336,29 @@ const Projects = () => {
             size="small"
             onClick={() => handleEdit(record)}
           >
-            编辑
+            {t('buttons.edit')}
           </Button>
           {record.status === 'active' && (
             <Popconfirm
-              title="确定要归档这个项目吗？"
+              title={t('confirm.archive')}
               onConfirm={() => handleArchive(record)}
-              okText="确定"
-              cancelText="取消"
+              okText={t('confirm.ok')}
+              cancelText={t('confirm.cancel')}
             >
               <Button type="text" size="small">
-                归档
+                {t('buttons.archive')}
               </Button>
             </Popconfirm>
           )}
           <Popconfirm
-            title="确定要删除这个项目吗？"
-            description="删除后无法恢复，请谨慎操作。"
+            title={t('confirm.delete')}
+            description={t('confirm.deleteDescription')}
             onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
+            okText={t('confirm.ok')}
+            cancelText={t('confirm.cancel')}
           >
             <Button type="text" icon={<DeleteOutlined />} size="small" danger>
-              删除
+              {t('buttons.delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -333,10 +372,10 @@ const Projects = () => {
         <div className="flex-between">
           <div>
             <Title level={2} className="page-title">
-              项目管理
+              {t('title')}
             </Title>
             <Paragraph className="page-description">
-              创建和管理你的项目，组织任务和工作流程
+              {t('subtitle')}
             </Paragraph>
           </div>
           <Space>
@@ -347,7 +386,7 @@ const Projects = () => {
                 onClick={() => handleViewModeChange('list')}
                 size="small"
               >
-                列表
+                {t('buttons.list')}
               </Button>
               <Button
                 type={viewMode === 'card' ? 'primary' : 'default'}
@@ -355,7 +394,7 @@ const Projects = () => {
                 onClick={() => handleViewModeChange('card')}
                 size="small"
               >
-                卡片
+                {t('buttons.card')}
               </Button>
             </Space.Compact>
             <Button
@@ -363,16 +402,61 @@ const Projects = () => {
               onClick={() => fetchProjects()}
               loading={loading}
             >
-              刷新
+              {t('buttons.refresh')}
             </Button>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={handleCreate}
             >
-              新建项目
+              {t('buttons.createProject')}
             </Button>
           </Space>
+        </div>
+
+        {/* 搜索区域 */}
+        <div style={{ marginTop: '16px', marginBottom: '8px' }}>
+          <Row gutter={16} align="middle">
+            <Col span={8}>
+              <Search
+                placeholder={t('search.placeholder')}
+                value={searchValue}
+                onChange={handleSearchChange}
+                onSearch={handleSearchSubmit}
+                onClear={handleSearchClear}
+                allowClear
+                enterButton={<SearchOutlined />}
+                size="middle"
+                style={{ width: '100%' }}
+                loading={loading}
+              />
+            </Col>
+            <Col span={16}>
+              <div style={{
+                fontSize: '12px',
+                color: '#666',
+                textAlign: 'right',
+                lineHeight: '32px'
+              }}>
+                {loading ? (
+                  <span style={{ color: '#1890ff' }}>{t('search.searching')}</span>
+                ) : pagination?.total ? (
+                  <>
+                    {t('search.totalFound', { total: pagination.total })}
+                    {filters.search && (
+                      <span style={{ marginLeft: '8px' }}>
+                        {t('search.keyword', { keyword: filters.search })}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span style={{ color: filters.search ? '#ff4d4f' : '#8c8c8c' }}>
+                    {filters.search ? t('search.noResults', { keyword: filters.search }) : t('search.noProjects')}
+                  </span>
+                )}
+              </div>
+            </Col>
+          </Row>
         </div>
       </div>
 
@@ -382,95 +466,95 @@ const Projects = () => {
             <Col span={3}>
               <Space>
                 <FilterOutlined />
-                <span style={{ fontWeight: 500 }}>筛选条件:</span>
+                <span style={{ fontWeight: 500 }}>{t('filters.title')}</span>
               </Space>
             </Col>
             <Col span={4}>
               <div>
                 <div style={{ marginBottom: 4, fontSize: '12px', color: '#666', fontWeight: 500 }}>
-                  项目状态
+                  {t('filters.projectStatus')}
                 </div>
                 <Select
-                  placeholder="选择项目状态"
+                  placeholder={t('filters.projectStatus')}
                   value={filters.archived}
                   onChange={(value) => handleFilterChange('archived', value)}
                   style={{ width: '100%' }}
                 >
-                  <Select.Option value="">全部状态</Select.Option>
-                  <Select.Option value="false">活跃项目（默认）</Select.Option>
-                  <Select.Option value="true">已归档项目</Select.Option>
+                  <Select.Option value="">{t('filters.options.allStatus')}</Select.Option>
+                  <Select.Option value="false">{t('filters.options.activeProjects')}</Select.Option>
+                  <Select.Option value="true">{t('filters.options.archivedProjects')}</Select.Option>
                 </Select>
               </div>
             </Col>
             <Col span={4}>
               <div>
                 <div style={{ marginBottom: 4, fontSize: '12px', color: '#666', fontWeight: 500 }}>
-                  任务情况
+                  {t('filters.taskSituation')}
                 </div>
                 <Select
-                  placeholder="选择任务情况"
+                  placeholder={t('filters.taskSituation')}
                   value={filters.has_pending_tasks}
                   onChange={(value) => handleFilterChange('has_pending_tasks', value)}
                   style={{ width: '100%' }}
                 >
-                  <Select.Option value="">全部项目</Select.Option>
-                  <Select.Option value="true">有待办任务</Select.Option>
-                  <Select.Option value="false">无待办任务</Select.Option>
+                  <Select.Option value="">{t('filters.options.allProjects')}</Select.Option>
+                  <Select.Option value="true">{t('filters.options.hasPendingTasks')}</Select.Option>
+                  <Select.Option value="false">{t('filters.options.noPendingTasks')}</Select.Option>
                 </Select>
               </div>
             </Col>
             <Col span={4}>
               <div>
                 <div style={{ marginBottom: 4, fontSize: '12px', color: '#666', fontWeight: 500 }}>
-                  活动时间
+                  {t('filters.activityTime')}
                 </div>
                 <Select
-                  placeholder="选择时间范围"
+                  placeholder={t('filters.activityTime')}
                   value={filters.time_range}
                   onChange={(value) => handleFilterChange('time_range', value)}
                   style={{ width: '100%' }}
                 >
-                  <Select.Option value="">全部时间</Select.Option>
-                  <Select.Option value="today">今天活动</Select.Option>
-                  <Select.Option value="week">最近一周</Select.Option>
-                  <Select.Option value="month">最近一个月</Select.Option>
+                  <Select.Option value="">{t('filters.options.allTime')}</Select.Option>
+                  <Select.Option value="today">{t('filters.options.todayActivity')}</Select.Option>
+                  <Select.Option value="week">{t('filters.options.recentWeek')}</Select.Option>
+                  <Select.Option value="month">{t('filters.options.recentMonth')}</Select.Option>
                 </Select>
               </div>
             </Col>
             <Col span={4}>
               <div>
                 <div style={{ marginBottom: 4, fontSize: '12px', color: '#666', fontWeight: 500 }}>
-                  排序方式
+                  {t('filters.sortBy')}
                 </div>
                 <Select
-                  placeholder="选择排序字段"
+                  placeholder={t('filters.sortBy')}
                   value={filters.sort_by}
                   onChange={(value) => handleFilterChange('sort_by', value)}
                   style={{ width: '100%' }}
                 >
-                  <Select.Option value="last_activity_at">最后活动时间</Select.Option>
-                  <Select.Option value="created_at">创建时间</Select.Option>
-                  <Select.Option value="updated_at">更新时间</Select.Option>
-                  <Select.Option value="name">项目名称</Select.Option>
-                  <Select.Option value="total_tasks">任务总数</Select.Option>
-                  <Select.Option value="pending_tasks">待办任务数</Select.Option>
-                  <Select.Option value="completed_tasks">已完成任务数</Select.Option>
+                  <Select.Option value="last_activity_at">{t('filters.options.lastActivityTime')}</Select.Option>
+                  <Select.Option value="created_at">{t('filters.options.createdTime')}</Select.Option>
+                  <Select.Option value="updated_at">{t('filters.options.updatedTime')}</Select.Option>
+                  <Select.Option value="name">{t('filters.options.projectName')}</Select.Option>
+                  <Select.Option value="total_tasks">{t('filters.options.totalTasks')}</Select.Option>
+                  <Select.Option value="pending_tasks">{t('filters.options.pendingTasks')}</Select.Option>
+                  <Select.Option value="completed_tasks">{t('filters.options.completedTasks')}</Select.Option>
                 </Select>
               </div>
             </Col>
             <Col span={4}>
               <div>
                 <div style={{ marginBottom: 4, fontSize: '12px', color: '#666', fontWeight: 500 }}>
-                  排序顺序
+                  {t('filters.sortOrder')}
                 </div>
                 <Select
-                  placeholder="选择排序顺序"
+                  placeholder={t('filters.sortOrder')}
                   value={filters.sort_order}
                   onChange={(value) => handleFilterChange('sort_order', value)}
                   style={{ width: '100%' }}
                 >
-                  <Select.Option value="desc">降序（新→旧）</Select.Option>
-                  <Select.Option value="asc">升序（旧→新）</Select.Option>
+                  <Select.Option value="desc">{t('filters.options.descOrder')}</Select.Option>
+                  <Select.Option value="asc">{t('filters.options.ascOrder')}</Select.Option>
                 </Select>
               </div>
             </Col>
@@ -484,14 +568,16 @@ const Projects = () => {
                     has_pending_tasks: '',
                     time_range: '',
                     sort_by: 'last_activity_at',
-                    sort_order: 'desc' as 'desc' | 'asc'
+                    sort_order: 'desc' as 'desc' | 'asc',
+                    search: ''
                   }
                   setFilters(defaultFilters)
+                  setSearchValue('')
                   localStorage.setItem('projects-filters', JSON.stringify(defaultFilters))
                 }}
                 style={{ fontSize: '12px' }}
               >
-                重置
+                {t('buttons.reset')}
               </Button>
             </Col>
           </Row>
@@ -509,15 +595,87 @@ const Projects = () => {
             total: pagination?.total || 0,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+            showTotal: (total, range) => t('pagination.showTotal', { start: range[0], end: range[1], total }),
             pageSizeOptions: ['10', '20', '50', '100'],
           }}
           onChange={handleTableChange}
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  filters.search ? (
+                    <span>
+                      {t('empty.noSearchResults', { keyword: filters.search })}
+                      <br />
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={handleSearchClear}
+                        style={{ padding: 0, marginTop: '8px' }}
+                      >
+                        {t('buttons.clearSearch')}
+                      </Button>
+                    </span>
+                  ) : (
+                    <span>
+                      {t('empty.noData')}
+                      <br />
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={handleCreate}
+                        style={{ padding: 0, marginTop: '8px' }}
+                      >
+                        {t('buttons.createFirst')}
+                      </Button>
+                    </span>
+                  )
+                }
+              />
+            )
+          }}
         />
       ) : (
         <div>
-          <Row gutter={[16, 16]}>
-            {projects.map((project) => (
+          {projects.length === 0 && !loading ? (
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  filters.search ? (
+                    <span>
+                      {t('empty.noSearchResults', { keyword: filters.search })}
+                      <br />
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={handleSearchClear}
+                        style={{ padding: 0, marginTop: '8px' }}
+                      >
+                        {t('buttons.clearSearch')}
+                      </Button>
+                    </span>
+                  ) : (
+                    <span>
+                      {t('empty.noData')}
+                      <br />
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={handleCreate}
+                        style={{ padding: 0, marginTop: '8px' }}
+                      >
+                        {t('buttons.createFirst')}
+                      </Button>
+                    </span>
+                  )
+                }
+              />
+            </div>
+          ) : (
+            <Row gutter={[16, 16]}>
+              {projects.map((project) => (
               <Col key={project.id} xs={12} sm={12} md={8} lg={6} xl={6}>
                 <Card
                   className="project-card"
@@ -581,7 +739,7 @@ const Projects = () => {
                           fontWeight: 500
                         }}
                       >
-                        {project.status === 'active' ? '活跃' : '已归档'}
+                        {project.status === 'active' ? t('status.active') : t('status.archived')}
                       </Tag>
                     </div>
 
@@ -619,17 +777,17 @@ const Projects = () => {
                         {project.total_tasks && project.total_tasks > 0 ? (
                           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                             <span style={{ color: '#595959' }}>
-                              <strong style={{ color: '#1890ff' }}>{project.total_tasks}</strong> 总计
+                              <strong style={{ color: '#1890ff' }}>{project.total_tasks}</strong> {t('stats.total')}
                             </span>
                             <span style={{ color: '#595959' }}>
-                              <strong style={{ color: '#52c41a' }}>{project.completed_tasks}</strong> 完成
+                              <strong style={{ color: '#52c41a' }}>{project.completed_tasks}</strong> {t('stats.completed')}
                             </span>
                             <span style={{ color: '#595959' }}>
-                              <strong style={{ color: '#fa8c16' }}>{project.pending_tasks}</strong> 待处理
+                              <strong style={{ color: '#fa8c16' }}>{project.pending_tasks}</strong> {t('stats.pending')}
                             </span>
                           </div>
                         ) : (
-                          <span style={{ color: '#8c8c8c' }}>暂无任务</span>
+                          <span style={{ color: '#8c8c8c' }}>{t('stats.noTasks')}</span>
                         )}
                       </div>
 
@@ -646,12 +804,18 @@ const Projects = () => {
                           color: '#8c8c8c',
                           fontWeight: 400
                         }}>
-                          {project.last_activity_at ? new Date(project.last_activity_at).toLocaleDateString() : '无活动'}
+                          {project.last_activity_at ? (
+                            <Tooltip title={formatFullDateTime(project.last_activity_at)}>
+                              <span style={{ cursor: 'help' }}>
+                                {formatRelativeTime(project.last_activity_at)}
+                              </span>
+                            </Tooltip>
+                          ) : t('empty.noActivity')}
                         </div>
                         <div onClick={(e) => e.stopPropagation()}>
                           <Space size={2}>
                             <LinkButton
-                              to={`/todo-for-ai/pages/projects/${project.id}`}
+                              to={`/todo-for-ai/pages/projects/${project.id}?tab=overview`}
                               type="text"
                               size="small"
                               icon={<EyeOutlined />}
@@ -662,8 +826,10 @@ const Projects = () => {
                                 color: '#595959',
                                 borderRadius: '4px'
                               }}
-                              title="查看项目"
-                            />
+                              title={t('buttons.view')}
+                            >
+                              {t('buttons.view')}
+                            </LinkButton>
                             <LinkButton
                               to={`/todo-for-ai/pages/projects/${project.id}?tab=tasks`}
                               type="text"
@@ -676,8 +842,10 @@ const Projects = () => {
                                 color: '#595959',
                                 borderRadius: '4px'
                               }}
-                              title="查看任务"
-                            />
+                              title={t('buttons.tasks')}
+                            >
+                              {t('buttons.tasks')}
+                            </LinkButton>
                             <Button
                               type="text"
                               size="small"
@@ -690,7 +858,7 @@ const Projects = () => {
                                 borderRadius: '4px'
                               }}
                               onClick={() => handleEdit(project)}
-                              title="编辑项目"
+                              title={t('buttons.edit')}
                             />
                           </Space>
                         </div>
@@ -701,44 +869,51 @@ const Projects = () => {
               </Col>
             ))}
           </Row>
+          )}
 
           {/* 卡片模式的分页 */}
-          <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <div style={{ display: 'inline-block' }}>
-              <Space direction="vertical" size="small">
-                <div style={{ fontSize: '12px', color: '#666' }}>
-                  第 {((pagination?.page || 1) - 1) * (pagination?.per_page || 100) + 1}-{Math.min((pagination?.page || 1) * (pagination?.per_page || 100), pagination?.total || 0)} 条，共 {pagination?.total || 0} 条
-                </div>
-                <Space>
-                  <Button
-                    size="small"
-                    disabled={!pagination?.has_prev}
-                    onClick={() => {
-                      const newParams = { ...filters, page: (pagination?.page || 1) - 1 }
-                      setQueryParams(newParams)
-                      fetchProjects()
-                    }}
-                  >
-                    上一页
-                  </Button>
-                  <span style={{ fontSize: '12px' }}>
-                    第 {pagination?.page || 1} 页，共 {pagination?.pages || 1} 页
-                  </span>
-                  <Button
-                    size="small"
-                    disabled={!pagination?.has_next}
-                    onClick={() => {
-                      const newParams = { ...filters, page: (pagination?.page || 1) + 1 }
-                      setQueryParams(newParams)
-                      fetchProjects()
-                    }}
-                  >
-                    下一页
-                  </Button>
+          {projects.length > 0 && (
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+              <div style={{ display: 'inline-block' }}>
+                <Space direction="vertical" size="small">
+                  <div style={{ fontSize: '12px', color: '#666' }}>
+                    {t('pagination.cardTotal', {
+                      start: ((pagination?.page || 1) - 1) * (pagination?.per_page || 100) + 1,
+                      end: Math.min((pagination?.page || 1) * (pagination?.per_page || 100), pagination?.total || 0),
+                      total: pagination?.total || 0
+                    })}
+                  </div>
+                  <Space>
+                    <Button
+                      size="small"
+                      disabled={!pagination?.has_prev}
+                      onClick={() => {
+                        const newParams = { ...filters, page: (pagination?.page || 1) - 1 }
+                        setQueryParams(newParams)
+                        fetchProjects()
+                      }}
+                    >
+                      {t('buttons.prev')}
+                    </Button>
+                    <span style={{ fontSize: '12px' }}>
+                      {t('pagination.pageInfo', { current: pagination?.page || 1, total: pagination?.pages || 1 })}
+                    </span>
+                    <Button
+                      size="small"
+                      disabled={!pagination?.has_next}
+                      onClick={() => {
+                        const newParams = { ...filters, page: (pagination?.page || 1) + 1 }
+                        setQueryParams(newParams)
+                        fetchProjects()
+                      }}
+                    >
+                      {t('buttons.next')}
+                    </Button>
+                  </Space>
                 </Space>
-              </Space>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 

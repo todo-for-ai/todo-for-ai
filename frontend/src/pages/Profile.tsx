@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Card,
   Tabs,
@@ -21,6 +21,7 @@ import {
 } from '@ant-design/icons'
 import { useAuthStore } from '../stores/useAuthStore'
 import { APITokenManager } from '../components/APITokenManager'
+import { usePageTranslation } from '../i18n/hooks/useTranslation'
 
 const { Title, Text, Paragraph } = Typography
 const { TabPane } = Tabs
@@ -29,6 +30,7 @@ const Profile = () => {
   const { user, updateUser, isLoading } = useAuthStore()
   const [form] = Form.useForm()
   const [isEditing, setIsEditing] = useState(false)
+  const { tp } = usePageTranslation('profile')
 
 
   useEffect(() => {
@@ -46,35 +48,35 @@ const Profile = () => {
 
   // 设置网页标题
   useEffect(() => {
-    document.title = '个人中心 - Todo for AI'
+    document.title = tp('pageTitle')
 
     // 组件卸载时恢复默认标题
     return () => {
       document.title = 'Todo for AI'
     }
-  }, [])
+  }, [tp])
 
   const handleUpdateProfile = async (values: any) => {
     try {
       await updateUser(values)
-      message.success('个人信息更新成功')
+      message.success(tp('messages.updateSuccess'))
       setIsEditing(false)
     } catch (error: any) {
-      message.error(error.response?.data?.error || '更新失败')
+      message.error(error.response?.data?.error || tp('messages.updateFailed'))
     }
   }
 
 
 
   if (!user) {
-    return <div>Loading...</div>
+    return <div>{tp('messages.loading')}</div>
   }
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <Title level={2}>个人中心</Title>
-        <Paragraph>管理您的个人信息和API Token</Paragraph>
+        <Title level={2}>{tp('title')}</Title>
+        <Paragraph>{tp('subtitle')}</Paragraph>
       </div>
 
       <Row gutter={[24, 24]}>
@@ -100,20 +102,20 @@ const Profile = () => {
               <div style={{ marginTop: 16 }}>
                 <Space direction="vertical" size="small">
                   <Text>
-                    <strong>角色：</strong>
-                    {user.role === 'admin' ? '管理员' : '用户'}
+                    <strong>{tp('userInfo.role')}</strong>
+                    {user.role === 'admin' ? tp('userInfo.roles.admin') : tp('userInfo.roles.user')}
                   </Text>
                   <Text>
-                    <strong>状态：</strong>
-                    {user.status === 'active' ? '活跃' : '非活跃'}
+                    <strong>{tp('userInfo.status')}</strong>
+                    {user.status === 'active' ? tp('userInfo.statuses.active') : tp('userInfo.statuses.inactive')}
                   </Text>
                   <Text>
-                    <strong>注册时间：</strong>
+                    <strong>{tp('userInfo.registeredAt')}</strong>
                     {new Date(user.created_at).toLocaleDateString()}
                   </Text>
                   {user.last_login_at && (
                     <Text>
-                      <strong>最后登录：</strong>
+                      <strong>{tp('userInfo.lastLogin')}</strong>
                       {new Date(user.last_login_at).toLocaleString()}
                     </Text>
                   )}
@@ -129,13 +131,13 @@ const Profile = () => {
               tab={
                 <span>
                   <UserOutlined />
-                  个人信息
+                  {tp('tabs.profile')}
                 </span>
               }
               key="profile"
             >
               <Card
-                title="基本信息"
+                title={tp('basicInfo.title')}
                 extra={
                   <Button
                     type={isEditing ? "primary" : "default"}
@@ -149,7 +151,7 @@ const Profile = () => {
                     }}
                     loading={isLoading}
                   >
-                    {isEditing ? '保存' : '编辑'}
+                    {isEditing ? tp('buttons.save') : tp('buttons.edit')}
                   </Button>
                 }
               >
@@ -162,40 +164,40 @@ const Profile = () => {
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
-                        label="用户名"
+                        label={tp('basicInfo.username')}
                         name="username"
                         rules={[
-                          { required: true, message: '请输入用户名' },
-                          { min: 2, message: '用户名至少2个字符' }
+                          { required: true, message: tp('basicInfo.validation.usernameRequired') },
+                          { min: 2, message: tp('basicInfo.validation.usernameMinLength') }
                         ]}
                       >
-                        <Input placeholder="请输入用户名" />
+                        <Input placeholder={tp('basicInfo.placeholders.username')} />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        label="昵称"
+                        label={tp('basicInfo.nickname')}
                         name="nickname"
                       >
-                        <Input placeholder="请输入昵称" />
+                        <Input placeholder={tp('basicInfo.placeholders.nickname')} />
                       </Form.Item>
                     </Col>
                   </Row>
 
                   <Form.Item
-                    label="全名"
+                    label={tp('basicInfo.fullName')}
                     name="full_name"
                   >
-                    <Input placeholder="请输入全名" />
+                    <Input placeholder={tp('basicInfo.placeholders.fullName')} />
                   </Form.Item>
 
                   <Form.Item
-                    label="个人简介"
+                    label={tp('basicInfo.bio')}
                     name="bio"
                   >
-                    <Input.TextArea 
-                      rows={4} 
-                      placeholder="介绍一下自己..." 
+                    <Input.TextArea
+                      rows={4}
+                      placeholder={tp('basicInfo.placeholders.bio')}
                       maxLength={500}
                       showCount
                     />
@@ -204,18 +206,18 @@ const Profile = () => {
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
-                        label="时区"
+                        label={tp('basicInfo.timezone')}
                         name="timezone"
                       >
-                        <Input placeholder="如：Asia/Shanghai" />
+                        <Input placeholder={tp('basicInfo.placeholders.timezone')} />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        label="语言"
+                        label={tp('basicInfo.language')}
                         name="locale"
                       >
-                        <Input placeholder="如：zh-CN" />
+                        <Input placeholder={tp('basicInfo.placeholders.language')} />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -224,10 +226,10 @@ const Profile = () => {
                     <Form.Item>
                       <Space>
                         <Button type="primary" htmlType="submit" loading={isLoading}>
-                          保存更改
+                          {tp('buttons.saveChanges')}
                         </Button>
                         <Button onClick={() => setIsEditing(false)}>
-                          取消
+                          {tp('buttons.cancel')}
                         </Button>
                       </Space>
                     </Form.Item>
@@ -240,7 +242,7 @@ const Profile = () => {
               tab={
                 <span>
                   <KeyOutlined />
-                  API Token
+                  {tp('tabs.tokens')}
                 </span>
               }
               key="tokens"
