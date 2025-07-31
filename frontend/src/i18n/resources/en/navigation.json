@@ -1,0 +1,62 @@
+{
+  "menu": {
+    "dashboard": "Dashboard",
+    "projects": "Project Management",
+    "rules": "Rule Marketplace",
+    "profile": "Profile",
+    "settings": "Settings",
+    "help": "Help",
+    "about": "About",
+    "mcpDocs": "MCP Installation Docs",
+    "apiDocs": "HTTP API Docs"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "projectDetail": "Project Details",
+    "createProject": "Create Project",
+    "editProject": "Edit Project",
+    "tasks": "Tasks",
+    "taskDetail": "Task Details",
+    "createTask": "Create Task",
+    "editTask": "Edit Task",
+    "rules": "Rules",
+    "ruleDetail": "Rule Details",
+    "createRule": "Create Rule",
+    "editRule": "Edit Rule",
+    "profile": "Profile",
+    "settings": "Settings",
+    "apiTokens": "API Tokens"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "tasks": "Task List",
+    "settings": "Settings",
+    "members": "Members",
+    "activity": "Activity",
+    "statistics": "Statistics",
+    "profile": "Profile",
+    "tokens": "API Tokens",
+    "security": "Security",
+    "notifications": "Notifications"
+  },
+  "userMenu": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "help": "Help Center",
+    "logout": "Logout",
+    "contextRules": "Global Context Rules",
+    "pinManager": "Manage Pinned Projects",
+    "userManagement": "User Management",
+    "admin": "Administrator",
+    "user": "User"
+  },
+  "footer": {
+    "copyright": "Copyright",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "contact": "Contact Us",
+    "support": "Support"
+  }
+}
