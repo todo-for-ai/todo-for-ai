@@ -19,8 +19,10 @@ import {
   ArrowLeftOutlined,
   HomeOutlined
 } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import { useContextRuleStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
+import { ComplianceNotice } from '../components/ComplianceNotice'
 import type { CreateContextRuleData, UpdateContextRuleData } from '../api/contextRules'
 
 const { Title } = Typography
@@ -30,6 +32,7 @@ const { TextArea } = Input
 
 
 const CreateContextRule = () => {
+  const { t } = useTranslation('createContextRule')
   const navigate = useNavigate()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
@@ -116,13 +119,13 @@ const CreateContextRule = () => {
         const result = await updateContextRule(parseInt(id, 10), ruleData)
         success = !!result
         if (success) {
-          message.success('上下文规则更新成功')
+          message.success(t('messages.updateSuccess'))
         }
       } else {
         const result = await createContextRule(ruleData as CreateContextRuleData)
         success = !!result
         if (success) {
-          message.success('上下文规则创建成功')
+          message.success(t('messages.createSuccess'))
         }
       }
 
@@ -136,7 +139,7 @@ const CreateContextRule = () => {
       }
     } catch (error) {
       console.error('保存上下文规则失败:', error)
-      message.error('保存上下文规则失败')
+      message.error(t('messages.saveError'))
     }
   }, [isEditMode, id, projectId, form, updateContextRule, createContextRule, navigate])
 
@@ -161,11 +164,10 @@ const CreateContextRule = () => {
 
   // 设置网页标题
   useEffect(() => {
-    const pageTitle = isEditMode ? '编辑上下文规则' : '创建上下文规则'
     if (isEditMode && currentContextRule) {
-      document.title = `${currentContextRule.name} - ${pageTitle} - Todo for AI`
+      document.title = t('pageTitle.editWithName', { name: currentContextRule.name })
     } else {
-      document.title = `${pageTitle} - Todo for AI`
+      document.title = isEditMode ? t('pageTitle.edit') : t('pageTitle.create')
     }
     
     return () => {
@@ -179,7 +181,7 @@ const CreateContextRule = () => {
       setIsDataLoaded(true)
     } catch (error) {
       console.error('加载上下文规则失败:', error)
-      message.error('加载上下文规则失败')
+      message.error(t('messages.loadError'))
     }
   }
 
@@ -201,7 +203,7 @@ const CreateContextRule = () => {
           <Breadcrumb.Item>
             <HomeOutlined />
             <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
-              首页
+              {t('breadcrumb.home')}
             </span>
           </Breadcrumb.Item>
           {projectId ? (
@@ -211,7 +213,7 @@ const CreateContextRule = () => {
                   onClick={() => navigate('/todo-for-ai/pages/projects')}
                   style={{ cursor: 'pointer' }}
                 >
-                  项目列表
+                  {t('breadcrumb.projects')}
                 </span>
               </Breadcrumb.Item>
               <Breadcrumb.Item>
@@ -219,7 +221,7 @@ const CreateContextRule = () => {
                   onClick={() => navigate(`/todo-for-ai/pages/projects/${projectId}?tab=context`)}
                   style={{ cursor: 'pointer' }}
                 >
-                  项目上下文规则
+                  {t('breadcrumb.projectContextRules')}
                 </span>
               </Breadcrumb.Item>
             </>
@@ -229,17 +231,17 @@ const CreateContextRule = () => {
                 onClick={() => navigate('/todo-for-ai/pages/context-rules')}
                 style={{ cursor: 'pointer' }}
               >
-                全局上下文规则
+                {t('breadcrumb.globalContextRules')}
               </span>
             </Breadcrumb.Item>
           )}
-          <Breadcrumb.Item>{isEditMode ? '编辑规则' : '创建规则'}</Breadcrumb.Item>
+          <Breadcrumb.Item>{isEditMode ? t('breadcrumb.editRule') : t('breadcrumb.createRule')}</Breadcrumb.Item>
         </Breadcrumb>
       </Card>
 
       <div className="page-header">
         <Title level={2} className="page-title">
-          {isEditMode ? '编辑上下文规则' : (projectId ? '创建项目上下文规则' : '创建全局上下文规则')}
+          {isEditMode ? t('title.edit') : (projectId ? t('title.createProject') : t('title.createGlobal'))}
         </Title>
       </div>
 
@@ -252,21 +254,21 @@ const CreateContextRule = () => {
         >
         <Row gutter={[16, 16]}>
           <Col span={24}>
-            <Card title="基本信息">
+            <Card title={t('form.sections.basicInfo')}>
               <Form.Item
-                label="规则名称"
+                label={t('form.fields.name.label')}
                 name="name"
                 rules={[
-                  { required: true, message: '请输入规则名称' },
-                  { max: 255, message: '规则名称不能超过255个字符' }
+                  { required: true, message: t('form.fields.name.required') },
+                  { max: 255, message: t('form.fields.name.maxLength') }
                 ]}
               >
-                <Input placeholder="请输入规则名称" />
+                <Input placeholder={t('form.fields.name.placeholder')} />
               </Form.Item>
 
-              <Form.Item label="规则描述" name="description">
+              <Form.Item label={t('form.fields.description.label')} name="description">
                 <TextArea
-                  placeholder="请输入规则描述"
+                  placeholder={t('form.fields.description.placeholder')}
                   rows={3}
                   maxLength={500}
                   showCount
@@ -276,12 +278,12 @@ const CreateContextRule = () => {
           </Col>
 
           <Col span={24}>
-            <Card title="规则内容">
+            <Card title={t('form.sections.content')}>
               <Form.Item
-                label="规则内容"
+                label={t('form.fields.content.label')}
                 name="content"
-                rules={[{ required: true, message: '请输入规则内容' }]}
-                help="使用Markdown格式编写规则内容，支持代码块、列表、链接等格式"
+                rules={[{ required: true, message: t('form.fields.content.required') }]}
+                help={t('form.fields.content.help')}
               >
                 {/* 只有在非编辑模式或数据已加载时才渲染编辑器 */}
                 {(!isEditMode || (isDataLoaded && currentContextRule)) ? (
@@ -292,7 +294,7 @@ const CreateContextRule = () => {
                     onSave={() => handleSubmit()}
                     autoHeight={true}
                     minHeight={300}
-                    placeholder="请输入规则内容..."
+                    placeholder={t('form.fields.content.placeholder')}
                   />
                 ) : (
                   <div style={{
@@ -304,7 +306,7 @@ const CreateContextRule = () => {
                     border: '1px solid #d9d9d9',
                     borderRadius: '6px'
                   }}>
-                    正在加载规则内容...
+                    {t('messages.loading')}
                   </div>
                 )}
               </Form.Item>
@@ -312,29 +314,32 @@ const CreateContextRule = () => {
           </Col>
 
           <Col span={24}>
-            <Card title="规则配置">
+            <Card title={t('form.sections.configuration')}>
               <Row gutter={[16, 16]}>
                 <Col span={8}>
                   <Form.Item
-                    label="优先级"
+                    label={t('form.fields.priority.label')}
                     name="priority"
-                    help="数字越大优先级越高"
+                    help={t('form.fields.priority.help')}
                   >
                     <InputNumber
                       min={-100}
                       max={100}
-                      placeholder="0"
+                      placeholder={t('form.fields.priority.placeholder')}
                       style={{ width: '100%' }}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
                   <Form.Item
-                    label="启用状态"
+                    label={t('form.fields.isActive.label')}
                     name="is_active"
                     valuePropName="checked"
                   >
-                    <Switch checkedChildren="启用" unCheckedChildren="禁用" />
+                    <Switch
+                      checkedChildren={t('form.fields.isActive.enabled')}
+                      unCheckedChildren={t('form.fields.isActive.disabled')}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -342,22 +347,28 @@ const CreateContextRule = () => {
               <Row gutter={[16, 16]}>
                 <Col span={12}>
                   <Form.Item
-                    label="应用到任务查询"
+                    label={t('form.fields.applyToTasks.label')}
                     name="apply_to_tasks"
                     valuePropName="checked"
-                    help="在AI查询任务详情时应用此规则"
+                    help={t('form.fields.applyToTasks.help')}
                   >
-                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                    <Switch
+                      checkedChildren={t('form.fields.applyToTasks.yes')}
+                      unCheckedChildren={t('form.fields.applyToTasks.no')}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    label="应用到项目查询"
+                    label={t('form.fields.applyToProjects.label')}
                     name="apply_to_projects"
                     valuePropName="checked"
-                    help="在AI查询项目信息时应用此规则"
+                    help={t('form.fields.applyToProjects.help')}
                   >
-                    <Switch checkedChildren="是" unCheckedChildren="否" />
+                    <Switch
+                      checkedChildren={t('form.fields.applyToProjects.yes')}
+                      unCheckedChildren={t('form.fields.applyToProjects.no')}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -365,13 +376,17 @@ const CreateContextRule = () => {
               <Row gutter={[16, 16]}>
                 <Col span={12}>
                   <Form.Item
-                    label="公开设置"
+                    label={t('form.fields.isPublic.label')}
                     name="is_public"
                     valuePropName="checked"
-                    help="公开的规则会显示在规则广场，其他用户可以复制使用"
+                    help={t('form.fields.isPublic.help')}
                   >
-                    <Switch checkedChildren="公开" unCheckedChildren="私有" />
+                    <Switch
+                      checkedChildren={t('form.fields.isPublic.public')}
+                      unCheckedChildren={t('form.fields.isPublic.private')}
+                    />
                   </Form.Item>
+                  <ComplianceNotice />
                 </Col>
               </Row>
             </Card>
@@ -384,7 +399,7 @@ const CreateContextRule = () => {
               icon={<ArrowLeftOutlined />}
               onClick={handleCancel}
             >
-              取消
+              {t('buttons.cancel')}
             </Button>
             <Button
               type="primary"
@@ -393,7 +408,7 @@ const CreateContextRule = () => {
               loading={loading}
               size="large"
             >
-              {isEditMode ? '更新规则' : '创建规则'}
+              {isEditMode ? t('buttons.update') : t('buttons.create')}
             </Button>
           </Space>
         </div>
