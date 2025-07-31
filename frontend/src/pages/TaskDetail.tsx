@@ -35,6 +35,7 @@ import { MarkdownEditor } from '../components/MarkdownEditor'
 import type { Task } from '../api/tasks'
 import { contextRulesApi, type BuildContextResponse } from '../api/contextRules'
 import type { ApiResponse } from '../api/client'
+import { useTranslation, usePageTranslation } from '../i18n/hooks/useTranslation'
 import dayjs from 'dayjs'
 import styles from './TaskDetail.module.css'
 
@@ -51,6 +52,8 @@ const TaskDetail: React.FC = () => {
 
   const { getTask, deleteTask, fetchTasksByParams } = useTaskStore()
   const { projects, fetchProjects } = useProjectStore()
+  const { t: tc } = useTranslation('common')
+  const { t, tp } = usePageTranslation('taskDetail')
 
   useEffect(() => {
     if (id) {
@@ -67,15 +70,15 @@ const TaskDetail: React.FC = () => {
   useEffect(() => {
     if (task && projects.length > 0) {
       const project = projects.find(p => p.id === task.project_id)
-      const projectName = project?.name || '未知项目'
-      document.title = `${projectName} - 任务详情 - Todo for AI`
+      const projectName = project?.name || tp('taskInfo.unknownProject')
+      document.title = `${projectName} - ${tp('title')} - Todo for AI`
     }
 
     // 组件卸载时恢复默认标题
     return () => {
       document.title = 'Todo for AI'
     }
-  }, [task, projects])
+  }, [task, projects, tp])
 
   // 键盘快捷键支持
   useEffect(() => {
@@ -150,12 +153,12 @@ const TaskDetail: React.FC = () => {
           loadProjectContext(result.project_id)
         }
       } else {
-        message.error('任务不存在')
+        message.error(tp('messages.taskNotFound'))
         navigate('/todo-for-ai/pages/tasks')
       }
     } catch (error) {
       console.error('加载任务失败:', error)
-      message.error('加载任务失败')
+      message.error(tp('messages.loadTaskFailed'))
       navigate('/todo-for-ai/pages/tasks')
     } finally {
       setLoading(false)
@@ -186,11 +189,11 @@ const TaskDetail: React.FC = () => {
 
     try {
       await deleteTask(task.id)
-      message.success('任务删除成功')
+      message.success(tp('messages.deleteSuccess'))
       navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)
     } catch (error) {
       console.error('删除任务失败:', error)
-      message.error('删除任务失败')
+      message.error(tp('messages.deleteFailed'))
     }
   }
 
@@ -250,11 +253,13 @@ const TaskDetail: React.FC = () => {
       if (updatedTask) {
         // 更新本地状态
         setTask(updatedTask)
-        message.success(`任务状态已更新为"${getStatusText(newStatus)}"${newProgress !== task.completion_rate ? `，进度已更新为${newProgress}%` : ''}`)
+        const statusText = getStatusText(newStatus)
+        const progressText = newProgress !== task.completion_rate ? tp('messages.progressUpdateSuccess') + `${newProgress}%` : ''
+        message.success(`${tp('messages.statusUpdateSuccess')}"${statusText}"${progressText}`)
       }
     } catch (error) {
       console.error('更新任务状态失败:', error)
-      message.error('更新任务状态失败')
+      message.error(tp('messages.statusUpdateFailed'))
     }
   }
 
@@ -265,9 +270,9 @@ const TaskDetail: React.FC = () => {
     const prompt = `请使用todo-for-ai MCP工具获取任务ID为${task.id}的详细信息，然后执行这个任务，完成后提交任务反馈报告。`
 
     navigator.clipboard.writeText(prompt).then(() => {
-      message.success('MCP执行任务提示词已复制到剪贴板')
+      message.success(tp('messages.mcpPromptCopied'))
     }).catch(() => {
-      message.error('复制失败，请手动复制')
+      message.error(tp('messages.copyFailedManual'))
     })
   }
 
@@ -293,9 +298,9 @@ ${task.content || '无详细内容'}
 请仔细阅读任务内容，按照要求完成任务，并在完成后提供详细的执行报告和结果说明。`
 
     navigator.clipboard.writeText(prompt).then(() => {
-      message.success('AI助手执行任务提示词已复制到剪贴板')
+      message.success(tp('messages.aiPromptCopied'))
     }).catch(() => {
-      message.error('复制失败')
+      message.error(tp('messages.copyFailed'))
     })
   }
 
@@ -328,9 +333,9 @@ ${task.content || '无详细内容'}
 请开始检查并执行相应操作。`
 
     navigator.clipboard.writeText(prompt).then(() => {
-      message.success('任务完成确认提示词已复制到剪贴板')
+      message.success(tp('messages.completionPromptCopied'))
     }).catch(() => {
-      message.error('复制失败')
+      message.error(tp('messages.copyFailed'))
     })
   }
 
@@ -358,9 +363,9 @@ ${task.content || '无详细内容'}
 请开始执行并在完成后立即关闭任务。`
 
     navigator.clipboard.writeText(prompt).then(() => {
-      message.success('快速完成任务提示词已复制到剪贴板')
+      message.success(tp('messages.quickCompletePromptCopied'))
     }).catch(() => {
-      message.error('复制失败')
+      message.error(tp('messages.copyFailed'))
     })
   }
 
@@ -376,14 +381,8 @@ ${task.content || '无详细内容'}
   }
 
   const getStatusText = (status: string) => {
-    const texts = {
-      todo: '待办',
-      in_progress: '进行中',
-      review: '待审核',
-      done: '已完成',
-      cancelled: '已取消'
-    }
-    return texts[status as keyof typeof texts] || status
+    const statusKey = status === 'in_progress' ? 'inProgress' : status
+    return tp(`status.${statusKey}`) || status
   }
 
   const getPriorityColor = (priority: string) => {
@@ -397,25 +396,19 @@ ${task.content || '无详细内容'}
   }
 
   const getPriorityText = (priority: string) => {
-    const texts = {
-      low: '低',
-      medium: '中',
-      high: '高',
-      urgent: '紧急'
-    }
-    return texts[priority as keyof typeof texts] || priority
+    return tp(`priority.${priority}`) || priority
   }
 
   const getStatusTag = (status: string) => {
     const statusConfig = {
-      todo: { color: 'default', text: '待办' },
-      in_progress: { color: 'processing', text: '进行中' },
-      review: { color: 'warning', text: '待审核' },
-      done: { color: 'success', text: '已完成' },
-      cancelled: { color: 'error', text: '已取消' }
+      todo: { color: 'default' },
+      in_progress: { color: 'processing' },
+      review: { color: 'warning' },
+      done: { color: 'success' },
+      cancelled: { color: 'error' }
     }
-    const config = statusConfig[status as keyof typeof statusConfig] || { color: 'default', text: status }
-    return <Tag color={config.color}>{config.text}</Tag>
+    const config = statusConfig[status as keyof typeof statusConfig] || { color: 'default' }
+    return <Tag color={config.color}>{getStatusText(status)}</Tag>
   }
 
   // 根据任务状态计算进度条百分比
@@ -438,13 +431,14 @@ ${task.content || '无详细内容'}
 
   const getPriorityTag = (priority: string) => {
     const priorityConfig = {
-      low: { color: 'green', text: '低优先级' },
-      medium: { color: 'blue', text: '中优先级' },
-      high: { color: 'orange', text: '高优先级' },
-      urgent: { color: 'red', text: '紧急' }
+      low: { color: 'green' },
+      medium: { color: 'blue' },
+      high: { color: 'orange' },
+      urgent: { color: 'red' }
     }
-    const config = priorityConfig[priority as keyof typeof priorityConfig] || { color: 'blue', text: priority }
-    return <Tag color={config.color}>{config.text}</Tag>
+    const config = priorityConfig[priority as keyof typeof priorityConfig] || { color: 'blue' }
+    const text = priority === 'urgent' ? tp('priority.urgent') : tp(`priority.${priority}Priority`)
+    return <Tag color={config.color}>{text}</Tag>
   }
 
   if (loading) {
@@ -458,9 +452,9 @@ ${task.content || '无详细内容'}
   if (!task) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
-        <Title level={3}>任务不存在</Title>
+        <Title level={3}>{tp('messages.taskNotFound')}</Title>
         <Button type="primary" onClick={() => navigate('/todo-for-ai/pages/tasks')}>
-          返回任务列表
+          {tp('messages.returnToTaskList')}
         </Button>
       </div>
     )
@@ -481,25 +475,25 @@ ${task.content || '无详细内容'}
                 icon={<LeftOutlined />}
                 onClick={handlePreviousTask}
                 disabled={getCurrentTaskIndex() <= 0}
-                title="上一个任务 (←键)"
+                title={tp('tooltips.previousTask')}
                 style={{
                   backgroundColor: '#1890ff',
                   borderColor: '#1890ff'
                 }}
               >
-                上一个任务
+                {tp('navigation.previousTask')}
               </Button>
               <Button
                 type="primary"
                 icon={<ArrowLeftOutlined />}
                 onClick={() => navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)}
-                title="返回项目任务列表"
+                title={tp('tooltips.returnToProjectTaskList')}
                 style={{
                   backgroundColor: '#1890ff',
                   borderColor: '#1890ff'
                 }}
               >
-                返回项目任务列表
+                {tp('navigation.returnToProjectTaskList')}
               </Button>
             </Space>
           </Col>
@@ -509,7 +503,7 @@ ${task.content || '无详细内容'}
               <Breadcrumb.Item>
                 <HomeOutlined />
                 <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
-                  首页
+                  {tp('navigation.home')}
                 </span>
               </Breadcrumb.Item>
               <Breadcrumb.Item>
@@ -517,7 +511,7 @@ ${task.content || '无详细内容'}
                   onClick={() => navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)}
                   style={{ cursor: 'pointer' }}
                 >
-                  项目任务列表
+                  {tp('navigation.projectTaskList')}
                 </span>
               </Breadcrumb.Item>
               <Breadcrumb.Item>{task.title}</Breadcrumb.Item>
@@ -530,13 +524,13 @@ ${task.content || '无详细内容'}
               icon={<RightOutlined />}
               onClick={handleNextTask}
               disabled={getCurrentTaskIndex() >= projectTasks.length - 1 || getCurrentTaskIndex() === -1}
-              title="下一个任务 (→键)"
+              title={tp('tooltips.nextTask')}
               style={{
                 backgroundColor: '#1890ff',
                 borderColor: '#1890ff'
               }}
             >
-              下一个任务
+              {tp('navigation.nextTask')}
             </Button>
           </Col>
         </Row>
@@ -574,7 +568,7 @@ ${task.content || '无详细内容'}
                 {getPriorityTag(task.priority)}
                 {task.due_date && (
                   <Tag icon={<FileTextOutlined />} color="default">
-                    截止：{dayjs(task.due_date).format('MM-DD')}
+                    {tp('dueDateFormat', { date: dayjs(task.due_date).format('MM-DD') })}
                   </Tag>
                 )}
               </Space>
@@ -607,58 +601,69 @@ ${task.content || '无详细内容'}
         <Row gutter={[16, 16]} className={styles.actionGrid}>
           {/* 任务状态快捷修改 */}
           <Col xs={24} sm={8} md={6} className={styles.actionCol}>
-            <div className={styles.actionSection}>任务状态</div>
+            <div className={styles.actionSection}>{tp('actions.taskStatus')}</div>
             <Select
               value={task.status}
               onChange={handleStatusChange}
               style={{ width: '100%' }}
-              placeholder="选择任务状态"
+              placeholder={tp('status.selectStatus')}
             >
-              <Select.Option value="todo">待办</Select.Option>
-              <Select.Option value="in_progress">进行中</Select.Option>
-              <Select.Option value="review">待审核</Select.Option>
-              <Select.Option value="done">已完成</Select.Option>
+              <Select.Option value="todo">{tp('status.todo')}</Select.Option>
+              <Select.Option value="in_progress">{tp('status.inProgress')}</Select.Option>
+              <Select.Option value="review">{tp('status.review')}</Select.Option>
+              <Select.Option value="done">{tp('status.done')}</Select.Option>
             </Select>
           </Col>
 
           {/* 任务操作 - 合并所有操作按钮 */}
           <Col xs={24} sm={16} md={18} className={styles.actionCol}>
-            <div className={styles.actionSection}>任务操作</div>
+            <div className={styles.actionSection}>{tp('actions.taskActions')}</div>
             <div className={styles.taskActionButtons}>
+              {/* 创建任务按钮 - 绿色系，表示积极的创建操作 */}
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleCreateTask}
                 style={{
-                  backgroundColor: '#1890ff',
-                  borderColor: '#1890ff'
+                  backgroundColor: '#52c41a',
+                  borderColor: '#52c41a'
                 }}
+                title={tp('tooltips.createTask')}
               >
-                创建任务
+                {tp('actions.createTask')}
               </Button>
+              {/* 编辑任务按钮 - 橙色系，表示中性的修改操作 */}
               <Button
                 type="primary"
                 icon={<EditOutlined />}
                 onClick={handleEdit}
                 style={{
-                  backgroundColor: '#1890ff',
-                  borderColor: '#1890ff'
+                  backgroundColor: '#fa8c16',
+                  borderColor: '#fa8c16'
                 }}
+                title={tp('tooltips.editTask')}
               >
-                编辑
+                {tp('actions.edit')}
               </Button>
+              {/* 删除任务按钮 - 红色系，表示危险的删除操作 */}
               <Popconfirm
-                title="确定要删除这个任务吗？"
-                description="删除后无法恢复，请谨慎操作。"
+                title={tp('confirmations.deleteTitle')}
+                description={tp('confirmations.deleteDescription')}
                 onConfirm={handleDelete}
-                okText="确定"
-                cancelText="取消"
+                okText={tp('confirmations.confirmText')}
+                cancelText={tp('confirmations.cancelText')}
               >
                 <Button
+                  type="primary"
                   danger
                   icon={<DeleteOutlined />}
+                  style={{
+                    backgroundColor: '#ff4d4f',
+                    borderColor: '#ff4d4f'
+                  }}
+                  title={tp('tooltips.deleteTask')}
                 >
-                  删除任务
+                  {tp('actions.delete')}
                 </Button>
               </Popconfirm>
             </div>
@@ -670,86 +675,86 @@ ${task.content || '无详细内容'}
       <Card className={styles.actionCard}>
         <Title level={4} style={{ marginBottom: '16px', color: '#1890ff' }}>
           <CopyOutlined style={{ marginRight: '8px' }} />
-          复制提示词工具
+          {tp('copyPrompts.title')}
         </Title>
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
-            <div className={styles.actionSection}>MCP工具执行</div>
+            <div className={styles.actionSection}>{tp('copyPrompts.mcpExecution')}</div>
             <Button
               type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyMCPPrompt}
               block
-              title="复制MCP工具执行任务的提示词，适用于支持MCP协议的AI助手"
+              title={tp('tooltips.mcpPrompt')}
               style={{
                 backgroundColor: '#1890ff',
                 borderColor: '#1890ff'
               }}
             >
-              复制MCP工具执行提示词
+              {tp('copyPrompts.mcpPromptButton')}
             </Button>
             <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              使用MCP工具自动获取任务信息并执行，适用于Claude等支持MCP的AI助手
+              {tp('copyPrompts.mcpPromptDesc')}
             </div>
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div className={styles.actionSection}>通用AI助手执行</div>
+            <div className={styles.actionSection}>{tp('copyPrompts.aiExecution')}</div>
             <Button
               type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyAIPrompt}
               block
-              title="复制包含完整任务信息的执行提示词，适用于所有AI助手"
+              title={tp('tooltips.aiPrompt')}
               style={{
                 backgroundColor: '#1890ff',
                 borderColor: '#1890ff'
               }}
             >
-              复制完整任务执行提示词
+              {tp('copyPrompts.aiPromptButton')}
             </Button>
             <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              包含完整任务信息和执行要求，适用于ChatGPT、Claude等所有AI助手
+              {tp('copyPrompts.aiPromptDesc')}
             </div>
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div className={styles.actionSection}>任务完成检查</div>
+            <div className={styles.actionSection}>{tp('copyPrompts.taskCompletion')}</div>
             <Button
               type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyTaskCompletionPrompt}
               block
-              title="复制任务完成检查和关闭的提示词"
+              title={tp('tooltips.completionPrompt')}
               style={{
                 backgroundColor: '#1890ff',
                 borderColor: '#1890ff'
               }}
             >
-              复制任务完成检查提示词
+              {tp('copyPrompts.completionPromptButton')}
             </Button>
             <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              检查任务是否完成，如果完成则自动关闭任务并提交报告
+              {tp('copyPrompts.completionPromptDesc')}
             </div>
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div className={styles.actionSection}>一键完成任务</div>
+            <div className={styles.actionSection}>{tp('copyPrompts.quickComplete')}</div>
             <Button
               type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyQuickCompletePrompt}
               block
-              title="复制快速完成并关闭任务的提示词"
+              title={tp('tooltips.quickCompletePrompt')}
               style={{
                 backgroundColor: '#1890ff',
                 borderColor: '#1890ff'
               }}
             >
-              复制快速完成任务提示词
+              {tp('copyPrompts.quickCompleteButton')}
             </Button>
             <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              直接执行任务并在完成后立即关闭，适合简单快速的任务
+              {tp('copyPrompts.quickCompleteDesc')}
             </div>
           </Col>
         </Row>
@@ -757,7 +762,7 @@ ${task.content || '无详细内容'}
 
       {/* 任务信息 */}
       <Card className={styles.infoCard}>
-        <Title level={3} className={styles.infoTitle}>任务信息</Title>
+        <Title level={3} className={styles.infoTitle}>{tp('taskInfo.title')}</Title>
         <Descriptions
           column={{ xs: 1, sm: 2, md: 3 }}
           size="middle"
@@ -767,7 +772,7 @@ ${task.content || '无详细内容'}
             content: { backgroundColor: '#fff' }
           }}
         >
-              <Descriptions.Item label="所属项目">
+              <Descriptions.Item label={tp('taskInfo.project')}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {project && (
                     <div
@@ -780,43 +785,43 @@ ${task.content || '无详细内容'}
                       }}
                     />
                   )}
-                  {project?.name || '未知项目'}
+                  {project?.name || tp('taskInfo.unknownProject')}
                 </div>
               </Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label={tp('taskInfo.status')}>
                 <Tag color={getStatusColor(task.status)}>
                   {getStatusText(task.status)}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="优先级">
+              <Descriptions.Item label={tp('taskInfo.priority')}>
                 <Tag color={getPriorityColor(task.priority)}>
                   {getPriorityText(task.priority)}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="截止时间">
+              <Descriptions.Item label={tp('taskInfo.dueDate')}>
                 {task.due_date ? dayjs(task.due_date).format('YYYY-MM-DD') : '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="完成进度">
+              <Descriptions.Item label={tp('taskInfo.progress')}>
                 <Progress
                   percent={getTaskProgress(task.status, task.completion_rate)}
                   size="small"
                   status={task.status === 'done' ? 'success' : task.status === 'cancelled' ? 'exception' : 'active'}
                 />
               </Descriptions.Item>
-              <Descriptions.Item label="创建时间">
+              <Descriptions.Item label={tp('taskInfo.createdAt')}>
                 {dayjs(task.created_at).format('YYYY-MM-DD HH:mm:ss')}
               </Descriptions.Item>
-              <Descriptions.Item label="更新时间">
+              <Descriptions.Item label={tp('taskInfo.updatedAt')}>
                 {dayjs(task.updated_at).format('YYYY-MM-DD HH:mm:ss')}
               </Descriptions.Item>
-              <Descriptions.Item label="创建者">
+              <Descriptions.Item label={tp('taskInfo.createdBy')}>
                 {task.created_by || '-'}
               </Descriptions.Item>
             </Descriptions>
 
         {task.tags && task.tags.length > 0 && (
           <div className={styles.tagsContainer}>
-            <div className={styles.tagsLabel}>标签</div>
+            <div className={styles.tagsLabel}>{tp('taskInfo.tags')}</div>
             <div>
               {task.tags.map((tag, index) => (
                 <Tag key={index} color="blue" style={{ marginBottom: '4px', marginRight: '8px' }}>
@@ -830,7 +835,7 @@ ${task.content || '无详细内容'}
 
       {/* 任务内容 */}
       <Card className={styles.contentCard}>
-        <Title level={3} className={styles.contentTitle}>任务内容</Title>
+        <Title level={3} className={styles.contentTitle}>{tp('taskContent.title')}</Title>
         {task.content ? (
           <div className={styles.markdownContainer}>
             <MarkdownEditor
@@ -845,8 +850,8 @@ ${task.content || '无详细内容'}
         ) : (
           <div className={styles.emptyContent}>
             <FileTextOutlined className={styles.emptyIcon} />
-            <div className={styles.emptyTitle}>暂无详细内容</div>
-            <div className={styles.emptySubtitle}>点击编辑按钮添加任务内容</div>
+            <div className={styles.emptyTitle}>{tp('taskContent.empty.title')}</div>
+            <div className={styles.emptySubtitle}>{tp('taskContent.empty.subtitle')}</div>
           </div>
         )}
       </Card>
@@ -856,17 +861,17 @@ ${task.content || '无详细内容'}
         <Title level={3} className={styles.contentTitle}>
           <Space>
             <SettingOutlined />
-            项目上下文规则预览
+            {tp('projectContext.title')}
           </Space>
         </Title>
         <Paragraph type="secondary" style={{ marginBottom: '16px' }}>
-          以下是此任务在MCP执行时会应用的项目上下文规则，这些规则会被自动拼接到任务内容后面。
+          {tp('projectContext.description')}
         </Paragraph>
 
         {contextLoading ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <Spin size="large" />
-            <div style={{ marginTop: '16px' }}>正在加载项目上下文规则...</div>
+            <div style={{ marginTop: '16px' }}>{tp('projectContext.loading')}</div>
           </div>
         ) : projectContext && projectContext.data && projectContext.data.context_string ? (
           <Collapse
@@ -875,14 +880,14 @@ ${task.content || '无详细内容'}
                 key: 'context',
                 label: (
                   <Space>
-                    <span>项目上下文规则</span>
+                    <span>{tp('projectContext.rulesLabel')}</span>
                     <Tag color="blue">{projectContext.data.rules.length} 条规则</Tag>
                   </Space>
                 ),
                 children: (
                   <div>
                     <div style={{ marginBottom: '16px' }}>
-                      <Tag color="green">应用的规则列表：</Tag>
+                      <Tag color="green">{tp('projectContext.appliedRules')}</Tag>
                       {projectContext.data.rules.map(rule => (
                         <Tag
                           key={rule.id}
@@ -914,8 +919,8 @@ ${task.content || '无详细内容'}
         ) : (
           <div className={styles.emptyContent}>
             <SettingOutlined className={styles.emptyIcon} />
-            <div className={styles.emptyTitle}>暂无项目上下文规则</div>
-            <div className={styles.emptySubtitle}>此项目尚未配置上下文规则</div>
+            <div className={styles.emptyTitle}>{tp('projectContext.empty.title')}</div>
+            <div className={styles.emptySubtitle}>{tp('projectContext.empty.subtitle')}</div>
           </div>
         )}
       </Card>
@@ -926,14 +931,14 @@ ${task.content || '无详细内容'}
           <Title level={3} className={styles.contentTitle}>
             <Space>
               <CheckCircleOutlined />
-              任务执行反馈
+              {tp('taskFeedback.title')}
             </Space>
           </Title>
           <Paragraph type="secondary" style={{ marginBottom: '16px' }}>
-            AI执行任务后的反馈信息，包含任务的具体执行情况和结果。
+            {tp('taskFeedback.description')}
             {task.feedback_at && (
               <span style={{ marginLeft: '8px' }}>
-                反馈时间：{dayjs(task.feedback_at).format('YYYY-MM-DD HH:mm:ss')}
+                {tp('taskFeedback.feedbackTime')}{dayjs(task.feedback_at).format('YYYY-MM-DD HH:mm:ss')}
               </span>
             )}
           </Paragraph>

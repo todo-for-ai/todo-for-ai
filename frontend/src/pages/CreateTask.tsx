@@ -27,6 +27,9 @@ import {
 import { useTaskStore, useProjectStore } from '../stores'
 import MilkdownEditor from '../components/MilkdownEditor'
 import ResizableContainer from '../components/ResizableContainer'
+import { FeedbackTip } from '../components/FeedbackTip'
+import { UnsavedChangesAlert } from '../components/UnsavedChangesAlert'
+import { useTranslation, usePageTranslation } from '../i18n/hooks/useTranslation'
 
 import type { CreateTaskData } from '../api/tasks'
 import dayjs from 'dayjs'
@@ -46,9 +49,17 @@ const CreateTask: React.FC = () => {
 
   // 防抖保存的定时器引用
   const saveDraftTimeoutRef = useRef<number | undefined>(undefined)
+  // 编辑模式草稿保存的定时器引用
+  const saveEditDraftTimeoutRef = useRef<number | undefined>(undefined)
+  // 原始任务内容（用于版本对比）
+  const [originalTaskContent, setOriginalTaskContent] = useState('')
+  // 是否有未保存的更改
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   const { createTask, updateTask, getTask } = useTaskStore()
   const { projects, fetchProjects } = useProjectStore()
+  const { t: tc } = useTranslation('common')
+  const { t, tp } = usePageTranslation('createTask')
 
   // 从URL参数获取默认项目ID
   const defaultProjectId = searchParams.get('project_id')
@@ -85,6 +96,34 @@ const CreateTask: React.FC = () => {
       }
     }, 500) // 500ms防抖延迟，避免频繁保存
   }, [form])
+
+  // 编辑模式的防抖保存函数
+  const debouncedSaveEditDraft = useCallback((content: string) => {
+    if (!isEditMode || !id) return
+
+    // 清除之前的定时器
+    if (saveEditDraftTimeoutRef.current) {
+      clearTimeout(saveEditDraftTimeoutRef.current)
+    }
+
+    // 设置新的定时器
+    saveEditDraftTimeoutRef.current = window.setTimeout(() => {
+      const currentValues = form.getFieldsValue()
+      const taskId = parseInt(id, 10)
+      const draftData = {
+        title: currentValues.title,
+        content: content,
+        status: currentValues.status,
+        priority: currentValues.priority,
+        due_date: currentValues.due_date,
+        tags: currentValues.tags,
+        is_ai_task: currentValues.is_ai_task,
+      }
+      saveEditDraft(taskId, draftData)
+      // 检查未保存更改
+      checkUnsavedChanges()
+    }, 500) // 500ms防抖延迟
+  }, [isEditMode, id, form, saveEditDraft, checkUnsavedChanges])
 
   // 实时保存草稿功能
   const getDraftKey = (projectId: number) => {
@@ -138,6 +177,74 @@ const CreateTask: React.FC = () => {
     }
   }
 
+  // 编辑模式的草稿保存相关函数
+  const getEditDraftKey = (taskId: number) => {
+    return `task-edit-draft-${taskId}`
+  }
+
+  const saveEditDraft = (taskId: number, formData: any) => {
+    try {
+      const draftKey = getEditDraftKey(taskId)
+      localStorage.setItem(draftKey, JSON.stringify({
+        ...formData,
+        savedAt: new Date().toISOString()
+      }))
+    } catch (error) {
+      console.warn('Failed to save edit draft:', error)
+    }
+  }
+
+  const loadEditDraft = (taskId: number) => {
+    try {
+      const draftKey = getEditDraftKey(taskId)
+      const saved = localStorage.getItem(draftKey)
+      if (saved) {
+        const draft = JSON.parse(saved)
+        return draft
+      }
+    } catch (error) {
+      console.warn('Failed to load edit draft:', error)
+    }
+    return null
+  }
+
+  const clearEditDraft = (taskId: number) => {
+    try {
+      const draftKey = getEditDraftKey(taskId)
+      localStorage.removeItem(draftKey)
+    } catch (error) {
+      console.warn('Failed to clear edit draft:', error)
+    }
+  }
+
+  // 检查是否有未提交的编辑草稿
+  const hasUnsavedEditChanges = (taskId: number, currentContent: string) => {
+    const draft = loadEditDraft(taskId)
+    if (!draft) return false
+
+    // 比较草稿内容与原始内容
+    return draft.content !== originalTaskContent
+  }
+
+  // 检查当前是否有未保存的更改
+  const checkUnsavedChanges = useCallback(() => {
+    if (!isEditMode || !id) {
+      setHasUnsavedChanges(false)
+      return
+    }
+
+    const currentValues = form.getFieldsValue()
+    const currentContent = editorContent
+
+    // 比较当前内容与原始内容
+    const hasChanges = currentContent !== originalTaskContent ||
+                      currentValues.title !== form.getFieldValue('title') ||
+                      currentValues.status !== form.getFieldValue('status') ||
+                      currentValues.priority !== form.getFieldValue('priority')
+
+    setHasUnsavedChanges(hasChanges)
+  }, [isEditMode, id, form, editorContent, originalTaskContent])
+
   useEffect(() => {
     fetchProjects()
   }, [fetchProjects])
@@ -168,11 +275,11 @@ const CreateTask: React.FC = () => {
             setEditorContent(copyData.content || '')
             // 清除sessionStorage中的数据
             sessionStorage.removeItem('copyTaskData')
-            message.success('已复制任务数据，请修改后保存')
+            message.success(tp('messages.copyDataLoaded'))
           }
         } catch (error) {
           console.error('Failed to load copy data:', error)
-          message.error('复制任务数据失败')
+          message.error(tp('messages.copyDataFailed'))
         }
       } else if (isContinueMode) {
         // 连续创建模式：恢复用户偏好设置
@@ -187,7 +294,7 @@ const CreateTask: React.FC = () => {
             is_ai_task: savedIsAiTask
           })
 
-          message.success('已准备好创建新任务，保留了您的偏好设置')
+          message.success(tp('messages.continueReady'))
         } catch (error) {
           console.error('Failed to load user preferences:', error)
           // 如果加载偏好失败，使用默认值
@@ -211,7 +318,7 @@ const CreateTask: React.FC = () => {
               ...draft
             })
             setEditorContent(draft.content || '')
-            message.info('已加载上次保存的草稿')
+            message.info(tp('messages.draftLoaded'))
           } else {
             // 加载用户偏好设置
             const savedPriority = localStorage.getItem('createTask_priority') || 'medium'
@@ -234,11 +341,11 @@ const CreateTask: React.FC = () => {
     const projectId = form.getFieldValue('project_id') || defaultProjectId
     if (projectId && projects.length > 0) {
       const project = projects.find(p => p.id === parseInt(projectId, 10))
-      const projectName = project?.name || '未知项目'
-      const pageTitle = isEditMode ? '编辑任务' : '创建任务'
+      const projectName = project?.name || tp('unknownProject')
+      const pageTitle = isEditMode ? tp('title.edit') : tp('title.create')
       document.title = `${projectName} - ${pageTitle} - Todo for AI`
     } else {
-      const pageTitle = isEditMode ? '编辑任务' : '创建任务'
+      const pageTitle = isEditMode ? tp('title.edit') : tp('title.create')
       document.title = `${pageTitle} - Todo for AI`
     }
 
@@ -246,7 +353,7 @@ const CreateTask: React.FC = () => {
     return () => {
       document.title = 'Todo for AI'
     }
-  }, [projects, isEditMode, form, defaultProjectId])
+  }, [projects, isEditMode, form, defaultProjectId, tp])
 
   // 为没有默认项目ID的新建任务恢复用户偏好设置
   useEffect(() => {
@@ -287,7 +394,13 @@ const CreateTask: React.FC = () => {
         // 编辑模式：保存后留在编辑页面
         result = await updateTask(parseInt(id, 10), taskData)
         if (result) {
-          message.success('任务保存成功')
+          // 清除编辑草稿
+          clearEditDraft(parseInt(id, 10))
+          // 更新原始内容
+          setOriginalTaskContent(taskData.content || '')
+          // 重置未保存更改状态
+          setHasUnsavedChanges(false)
+          message.success(tp('messages.saveSuccess'))
           // 留在当前编辑页面，不跳转
         }
       } else {
@@ -298,7 +411,7 @@ const CreateTask: React.FC = () => {
           if (taskData.project_id) {
             clearDraft(taskData.project_id)
           }
-          message.success('任务创建成功，进入编辑模式')
+          message.success(tp('messages.createAndEditSuccess'))
           navigate(`/todo-for-ai/pages/tasks/${result.id}/edit`)
         }
       }
@@ -319,7 +432,7 @@ const CreateTask: React.FC = () => {
           fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
       } else {
-        message.error(isEditMode ? '保存任务失败，请重试' : '创建任务失败，请重试')
+        message.error(isEditMode ? tp('messages.saveFailed') : tp('messages.createFailed'))
       }
     } finally {
       setLoading(false)
@@ -365,16 +478,43 @@ const CreateTask: React.FC = () => {
 
         form.setFieldsValue(formData)
 
-        // 直接设置编辑器内容状态
-        setEditorContent(task.content || '')
+        // 保存原始内容用于版本对比
+        setOriginalTaskContent(task.content || '')
+
+        // 检查是否有编辑草稿
+        const editDraft = loadEditDraft(taskId)
+        if (editDraft) {
+          // 如果有草稿，使用草稿内容
+          const draftFormData = {
+            project_id: editDraft.project_id || task.project_id,
+            title: editDraft.title || task.title,
+            content: editDraft.content || task.content,
+            status: editDraft.status || task.status,
+            priority: editDraft.priority || task.priority,
+            due_date: editDraft.due_date ? dayjs(editDraft.due_date) : (task.due_date ? dayjs(task.due_date) : null),
+            tags: editDraft.tags || task.tags,
+            is_ai_task: editDraft.is_ai_task !== undefined ? editDraft.is_ai_task : task.is_ai_task,
+          }
+          form.setFieldsValue(draftFormData)
+          setEditorContent(editDraft.content || '')
+
+          // 显示草稿提示
+          if (editDraft.content !== task.content) {
+            message.info(tp('messages.editDraftLoaded'))
+          }
+        } else {
+          // 没有草稿，使用原始内容
+          setEditorContent(task.content || '')
+        }
+
         setTaskLoaded(true)
       } else {
-        message.error('任务不存在')
+        message.error(tp('messages.taskNotFound'))
         navigate('/todo-for-ai/pages/tasks')
       }
     } catch (error) {
       console.error('加载任务失败:', error)
-      message.error('加载任务失败')
+      message.error(tp('messages.loadTaskFailed'))
       navigate('/todo-for-ai/pages/tasks')
     } finally {
       setLoading(false)
@@ -401,7 +541,9 @@ const CreateTask: React.FC = () => {
       if (isEditMode && id) {
         result = await updateTask(parseInt(id, 10), taskData)
         if (result) {
-          message.success('任务更新成功')
+          // 清除编辑草稿
+          clearEditDraft(parseInt(id, 10))
+          message.success(tp('messages.updateSuccess'))
           navigate(`/todo-for-ai/pages/tasks/${id}`)
         }
       } else {
@@ -411,13 +553,13 @@ const CreateTask: React.FC = () => {
           if (taskData.project_id) {
             clearDraft(taskData.project_id)
           }
-          message.success('任务创建成功')
+          message.success(tp('messages.createSuccess'))
           navigate(`/todo-for-ai/pages/tasks/${result.id}`)
         }
       }
     } catch (error) {
       console.error(isEditMode ? '更新任务失败:' : '创建任务失败:', error)
-      message.error(isEditMode ? '更新任务失败，请重试' : '创建任务失败，请重试')
+      message.error(isEditMode ? tp('messages.updateFailed') : tp('messages.createFailed'))
     } finally {
       setLoading(false)
     }
@@ -505,7 +647,7 @@ const CreateTask: React.FC = () => {
         localStorage.setItem('createTask_priority', taskData.priority)
         localStorage.setItem('createTask_isAiTask', String(taskData.is_ai_task))
 
-        message.success('任务创建成功，正在准备创建新任务...')
+        message.success(tp('messages.createAndContinueSuccess'))
 
         // 跳转到新的创建任务页面
         if (taskData.project_id) {
@@ -516,7 +658,7 @@ const CreateTask: React.FC = () => {
       }
     } catch (error) {
       console.error('创建任务失败:', error)
-      message.error('创建任务失败，请重试')
+      message.error(tp('messages.createFailed'))
     } finally {
       setLoading(false)
     }
@@ -536,7 +678,7 @@ const CreateTask: React.FC = () => {
         <Breadcrumb.Item>
           <HomeOutlined />
           <span onClick={() => navigate('/todo-for-ai/pages')} style={{ cursor: 'pointer', marginLeft: '8px' }}>
-            首页
+            {tp('navigation.home')}
           </span>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
@@ -551,10 +693,10 @@ const CreateTask: React.FC = () => {
             }}
             style={{ cursor: 'pointer' }}
           >
-            项目任务列表
+            {tp('navigation.projectTaskList')}
           </span>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>{isEditMode ? '编辑任务' : '新建任务'}</Breadcrumb.Item>
+        <Breadcrumb.Item>{isEditMode ? tp('title.edit') : tp('title.create')}</Breadcrumb.Item>
       </Breadcrumb>
 
       {/* 页面标题区域 - 符合UI设计对齐原则 */}
@@ -578,26 +720,35 @@ const CreateTask: React.FC = () => {
               padding: '0 12px'
             }}
           >
-            返回项目任务列表
+            {tp('navigation.returnToProjectTaskList')}
           </Button>
 
           {/* 页面标题 */}
           <div style={{ flex: 1 }}>
             <Title level={2} style={{ margin: 0 }}>
               <PlusOutlined style={{ marginRight: '12px' }} />
-              {isEditMode ? '编辑任务' : '新建任务'}
+              {isEditMode ? tp('title.edit') : tp('title.create')}
             </Title>
             <Paragraph type="secondary" style={{ margin: '4px 0 0 0' }}>
-              {isEditMode ? '编辑任务信息，支持Markdown格式的详细内容编辑' : '创建新的任务，支持Markdown格式的详细内容编辑'}
+              {isEditMode ? tp('description.edit') : tp('description.create')}
               <span style={{ color: '#1890ff', marginLeft: '8px' }}>
-                💡 快捷键：Ctrl+S {isEditMode ? '保存并留在编辑页面' : '创建并进入编辑模式'}
+                💡 {tp('shortcuts.save')} {isEditMode ? tp('shortcuts.saveAndStay') : tp('shortcuts.createAndEdit')}
               </span>
             </Paragraph>
           </div>
         </div>
       </Card>
 
+      {/* 用户反馈提示 */}
+      <FeedbackTip />
 
+      {/* 未保存更改提示（仅在编辑模式下显示） */}
+      {isEditMode && (
+        <UnsavedChangesAlert
+          visible={hasUnsavedChanges}
+          onSave={handleSaveAndStay}
+        />
+      )}
 
       {/* 表单内容 */}
       <Card>
@@ -611,8 +762,9 @@ const CreateTask: React.FC = () => {
           }}
           onFinish={handleSubmit}
           onValuesChange={(changedValues, allValues) => {
-            // 实时保存草稿（仅在新建模式下）
+            // 实时保存草稿
             if (!isEditMode && allValues.project_id) {
+              // 新建模式：保存到创建草稿
               saveDraft(allValues.project_id, {
                 title: allValues.title,
                 content: allValues.content,
@@ -622,6 +774,20 @@ const CreateTask: React.FC = () => {
                 tags: allValues.tags,
                 is_ai_task: allValues.is_ai_task
               })
+            } else if (isEditMode && id) {
+              // 编辑模式：保存到编辑草稿
+              const taskId = parseInt(id, 10)
+              saveEditDraft(taskId, {
+                title: allValues.title,
+                content: allValues.content,
+                status: allValues.status,
+                priority: allValues.priority,
+                due_date: allValues.due_date,
+                tags: allValues.tags,
+                is_ai_task: allValues.is_ai_task
+              })
+              // 检查未保存更改
+              checkUnsavedChanges()
             }
 
             // 保存用户偏好设置（仅在新建模式下）
@@ -647,11 +813,11 @@ const CreateTask: React.FC = () => {
               <Row gutter={16}>
                 <Col span={8}>
                   <Form.Item
-                    label="所属项目"
+                    label={tp('form.project.label')}
                     name="project_id"
-                    rules={[{ required: true, message: '请选择所属项目' }]}
+                    rules={[{ required: true, message: tp('form.project.required') }]}
                   >
-                    <Select placeholder="请选择项目">
+                    <Select placeholder={tp('form.project.placeholder')}>
                       {projects.map(project => (
                         <Option key={project.id} value={project.id}>
                           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -673,16 +839,16 @@ const CreateTask: React.FC = () => {
                 </Col>
                 <Col span={10}>
                   <Form.Item
-                    label="任务标题"
+                    label={tp('form.title.label')}
                     name="title"
-                    tooltip="可选字段，如果不填写将自动从内容中生成"
+                    tooltip={tp('form.title.tooltip')}
                   >
-                    <Input placeholder="请输入任务标题（可选）" />
+                    <Input placeholder={tp('form.title.placeholder')} />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
                   <Form.Item name="is_ai_task" valuePropName="checked" style={{ marginTop: '30px' }}>
-                    <Checkbox>分配给AI执行</Checkbox>
+                    <Checkbox>{tp('form.assignToAI')}</Checkbox>
                   </Form.Item>
                 </Col>
               </Row>
@@ -692,7 +858,7 @@ const CreateTask: React.FC = () => {
             <Card
               title={
                 <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1890ff' }}>
-                  📝 任务内容
+                  📝 {tp('form.content.title')}
                 </div>
               }
               style={{
@@ -721,7 +887,7 @@ const CreateTask: React.FC = () => {
                           color: '#1890ff'
                         }}
                       >
-                        任务详情
+                        {tp('actions.editMode.taskDetail')}
                       </Button>
                       <Button
                         icon={<FileAddOutlined />}
@@ -733,7 +899,7 @@ const CreateTask: React.FC = () => {
                           color: '#52c41a'
                         }}
                       >
-                        新建任务
+                        {tp('actions.editMode.newTask')}
                       </Button>
                       <Button
                         icon={<CopyOutlined />}
@@ -745,7 +911,7 @@ const CreateTask: React.FC = () => {
                           color: '#fa8c16'
                         }}
                       >
-                        从此任务创建新任务
+                        {tp('actions.editMode.copyTask')}
                       </Button>
                     </>
                   )}
@@ -765,7 +931,7 @@ const CreateTask: React.FC = () => {
                           fontWeight: 'bold'
                         }}
                       >
-                        创建任务
+                        {tp('actions.createMode.create')}
                       </Button>
 
                       {/* 2. 创建并编辑 (Ctrl+S) */}
@@ -780,7 +946,7 @@ const CreateTask: React.FC = () => {
                           fontWeight: 'bold'
                         }}
                       >
-                        创建并编辑 (Ctrl+S)
+                        {tp('actions.createMode.createAndEdit')}
                       </Button>
 
                       {/* 3. 创建此任务后再创建新任务 */}
@@ -795,7 +961,7 @@ const CreateTask: React.FC = () => {
                           fontWeight: 'bold'
                         }}
                       >
-                        创建此任务后再创建新任务
+                        {tp('actions.createMode.createAndContinue')}
                       </Button>
 
                       {/* 4. 重新开始 */}
@@ -822,7 +988,7 @@ const CreateTask: React.FC = () => {
                             project_id: defaultProjectId ? parseInt(defaultProjectId, 10) : undefined
                           })
 
-                          message.success('已清除草稿，重新开始创建任务')
+                          message.success(tp('messages.restartSuccess'))
                         }}
                         style={{
                           backgroundColor: '#ff4d4f',
@@ -830,7 +996,7 @@ const CreateTask: React.FC = () => {
                           fontWeight: 'bold'
                         }}
                       >
-                        重新开始
+                        {tp('actions.createMode.restart')}
                       </Button>
                     </>
                   )}
@@ -848,7 +1014,7 @@ const CreateTask: React.FC = () => {
                         fontWeight: 'bold'
                       }}
                     >
-                      保存 (Ctrl+S)
+                      {tp('actions.editMode.save')}
                     </Button>
                   )}
                 </Space>
@@ -856,8 +1022,8 @@ const CreateTask: React.FC = () => {
 
               <Form.Item
                 name="content"
-                tooltip="支持Markdown格式，详细描述任务内容、需求和说明"
-                rules={[{ required: true, message: '请输入任务内容' }]}
+                tooltip={tp('form.content.tooltip')}
+                rules={[{ required: true, message: tp('form.content.required') }]}
               >
                 {/* 只有在非编辑模式或任务已加载时才渲染编辑器 */}
                 {(!isEditMode || taskLoaded) ? (
@@ -874,10 +1040,13 @@ const CreateTask: React.FC = () => {
                         // 使用静默更新，避免触发onValuesChange
                         form.setFieldValue('content', newValue)
 
-                        // 手动触发实时保存（仅在新建模式下）
+                        // 手动触发实时保存
                         if (!isEditMode) {
-                          // 使用防抖保存，避免频繁保存干扰用户输入
+                          // 新建模式：使用防抖保存，避免频繁保存干扰用户输入
                           debouncedSaveDraft(newValue)
+                        } else {
+                          // 编辑模式：使用编辑草稿保存
+                          debouncedSaveEditDraft(newValue)
                         }
                       }
                     }}
@@ -896,49 +1065,49 @@ const CreateTask: React.FC = () => {
                     border: '1px solid #d9d9d9',
                     borderRadius: '6px'
                   }}>
-                    正在加载任务内容...
+                    {tp('form.content.loading')}
                   </div>
                 )}
               </Form.Item>
             </Card>
 
             {/* 任务设置 - 简化布局 */}
-            <Card title="任务设置" size="small" style={{ marginBottom: '24px' }}>
+            <Card title={tp('form.settings.title')} size="small" style={{ marginBottom: '24px' }}>
               <Row gutter={16}>
                 <Col span={6}>
-                  <Form.Item label="状态" name="status">
+                  <Form.Item label={tp('form.settings.status.label')} name="status">
                     <Select>
-                      <Option value="todo">待办</Option>
-                      <Option value="in_progress">进行中</Option>
-                      <Option value="review">待审核</Option>
-                      <Option value="done">已完成</Option>
-                      <Option value="cancelled">已取消</Option>
+                      <Option value="todo">{tp('form.settings.status.todo')}</Option>
+                      <Option value="in_progress">{tp('form.settings.status.inProgress')}</Option>
+                      <Option value="review">{tp('form.settings.status.review')}</Option>
+                      <Option value="done">{tp('form.settings.status.done')}</Option>
+                      <Option value="cancelled">{tp('form.settings.status.cancelled')}</Option>
                     </Select>
                   </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Form.Item label="优先级" name="priority">
+                  <Form.Item label={tp('form.settings.priority.label')} name="priority">
                     <Select>
-                      <Option value="low">低</Option>
-                      <Option value="medium">中</Option>
-                      <Option value="high">高</Option>
-                      <Option value="urgent">紧急</Option>
+                      <Option value="low">{tp('form.settings.priority.low')}</Option>
+                      <Option value="medium">{tp('form.settings.priority.medium')}</Option>
+                      <Option value="high">{tp('form.settings.priority.high')}</Option>
+                      <Option value="urgent">{tp('form.settings.priority.urgent')}</Option>
                     </Select>
                   </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Form.Item label="截止时间" name="due_date">
+                  <Form.Item label={tp('form.settings.dueDate.label')} name="due_date">
                     <DatePicker
                       style={{ width: '100%' }}
-                      placeholder="请选择截止时间"
+                      placeholder={tp('form.settings.dueDate.placeholder')}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Form.Item label="标签" name="tags">
+                  <Form.Item label={tp('form.settings.tags.label')} name="tags">
                     <Select
                       mode="tags"
-                      placeholder="请输入标签"
+                      placeholder={tp('form.settings.tags.placeholder')}
                       style={{ width: '100%' }}
                     />
                   </Form.Item>
@@ -955,7 +1124,7 @@ const CreateTask: React.FC = () => {
                 icon={<ArrowLeftOutlined />}
                 onClick={handleCancel}
               >
-                返回
+                {tp('actions.common.return')}
               </Button>
               <Button
                 type="primary"
@@ -964,7 +1133,7 @@ const CreateTask: React.FC = () => {
                 loading={loading}
                 htmlType="submit"
               >
-                {isEditMode ? '更新任务' : '创建任务'}
+                {isEditMode ? tp('actions.common.update') : tp('actions.createMode.create')}
               </Button>
             </Space>
           </div>
