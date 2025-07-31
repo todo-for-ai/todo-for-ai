@@ -1,0 +1,96 @@
+{
+  "title": "Project Details",
+  "pageTitle": "Project Details - Todo for AI",
+  "status": {
+    "active": "Active",
+    "archived": "Archived"
+  },
+  "tabs": {
+    "overview": "Project Overview",
+    "tasks": "Task List",
+    "kanban": "Task Board",
+    "context": "Context Rules"
+  },
+  "overview": {
+    "basicInfo": {
+      "title": "Basic Information",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "projectColor": "Project Color",
+      "contextRulesCount": "Context Rules"
+    },
+    "projectLinks": {
+      "title": "Project Links",
+      "githubRepo": "GitHub Repository",
+      "localEnv": "Local Environment",
+      "productionEnv": "Production Environment",
+      "viewRepo": "View Repository",
+      "visitLocal": "Visit Local",
+      "visitOnline": "Visit Online",
+      "notSet": "Not Set"
+    },
+    "projectContext": {
+      "title": "Project Context"
+    }
+  },
+  "tasks": {
+    "filters": {
+      "sortBy": {
+        "updatedAt": "Last Modified Time",
+        "createdAt": "Created Time",
+        "dueDate": "Due Date",
+        "priority": "Priority",
+        "status": "Status",
+        "title": "Title"
+      }
+    }
+  },
+  "contextRules": {
+    "title": "Project Context Rules",
+    "description": "Manage project-level context rules that will be automatically applied during AI queries",
+    "createButton": "Create Context Rule",
+    "table": {
+      "columns": {
+        "createdAt": "Created At"
+      }
+    },
+    "actions": {
+      "enable": "Enable",
+      "disable": "Disable",
+      "delete": "Delete"
+    },
+    "confirm": {
+      "deleteTitle": "Are you sure you want to delete this context rule?",
+      "deleteDescription": "This action cannot be undone. Please proceed with caution.",
+      "ok": "OK",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "deleteSuccess": "Context rule deleted successfully",
+      "enableSuccess": "Context rule enabled",
+      "disableSuccess": "Context rule disabled"
+    },
+    "empty": {
+      "title": "No context rules",
+      "createFirst": "Create the first context rule"
+    },
+    "tags": {
+      "project": "Project"
+    }
+  },
+  "prompt": {
+    "projectInfo": "Project Information",
+    "projectName": "Project Name",
+    "projectDescription": "Project Description",
+    "githubRepo": "GitHub Repository",
+    "projectContext": "Project Context",
+    "noValue": "None",
+    "taskCount": {
+      "specified": "Specified Task Count",
+      "pending": "Pending Task Count"
+    },
+    "executionGuide": "Execution Guide",
+    "taskOverview": "Task Overview"
+  }
+}
