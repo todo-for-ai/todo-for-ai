@@ -1,4 +1,4 @@
-import { api } from './client'
+import { fetchApiClient } from './fetchClient'
 import type { User } from '../stores/useAuthStore'
 
 export interface LoginResponse {
@@ -72,68 +72,67 @@ export class AuthAPI {
    * 登出
    */
   static async logout(returnTo?: string): Promise<LogoutResponse> {
-    const response = await api.post<LogoutResponse>('/auth/logout', {
+    return fetchApiClient.post<LogoutResponse>('/auth/logout', {
       return_to: returnTo || window.location.origin + '/todo-for-ai/pages'
     })
-    return response.data!
   }
 
   /**
    * 获取当前用户信息
    */
   static async getCurrentUser(): Promise<User> {
-    const response = await api.get<User>('/auth/me')
-    return response.data!
+    return fetchApiClient.get<User>('/auth/me')
   }
 
   /**
    * 更新当前用户信息
    */
   static async updateCurrentUser(userData: Partial<User>): Promise<User> {
-    const response = await api.put<User>('/auth/me', userData)
-    return response.data!
+    return fetchApiClient.put<User>('/auth/me', userData)
   }
 
   /**
    * 验证token
    */
   static async verifyToken(token: string): Promise<{ valid: boolean; message: string }> {
-    const response = await api.post<{ valid: boolean; message: string }>('/auth/verify', {
+    return fetchApiClient.post<{ valid: boolean; message: string }>('/auth/verify', {
       token
     })
-    return response.data!
   }
 
   /**
    * 刷新访问令牌
    */
   static async refreshToken(): Promise<{ access_token: string; token_type: string }> {
-    const response = await api.post<{ access_token: string; token_type: string }>('/auth/refresh')
-    return response.data!
+    return fetchApiClient.post<{ access_token: string; token_type: string }>('/auth/refresh')
   }
 
   /**
    * 获取用户列表（管理员功能）
    */
   static async getUsers(params: UserListParams = {}): Promise<UserListResponse> {
-    const response = await api.get<UserListResponse>('/auth/users', { params })
-    return response.data!
+    const queryParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, String(value))
+      }
+    })
+    const url = `/auth/users${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    return fetchApiClient.get<UserListResponse>(url)
   }
 
   /**
    * 获取指定用户信息
    */
   static async getUser(userId: number): Promise<User> {
-    const response = await api.get<User>(`/auth/users/${userId}`)
-    return response.data!
+    return fetchApiClient.get<User>(`/auth/users/${userId}`)
   }
 
   /**
    * 更新用户状态（管理员功能）
    */
   static async updateUserStatus(userId: number, status: UpdateUserStatusRequest['status']): Promise<User> {
-    const response = await api.put<User>(`/auth/users/${userId}/status`, { status })
-    return response.data!
+    return fetchApiClient.put<User>(`/auth/users/${userId}/status`, { status })
   }
 }
 

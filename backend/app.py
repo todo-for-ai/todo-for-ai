@@ -35,7 +35,11 @@ def create_app(config_name=None):
     
     # 初始化扩展
     db.init_app(app)
-    CORS(app, origins=app.config['CORS_ORIGINS'])
+    CORS(app,
+         origins=app.config['CORS_ORIGINS'],
+         supports_credentials=True,
+         allow_headers=['Content-Type', 'Authorization'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 
     # 初始化OAuth服务
     github_service.init_app(app)

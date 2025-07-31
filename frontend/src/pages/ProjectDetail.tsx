@@ -179,6 +179,56 @@ const ProjectDetail = () => {
     checkPinStatus()
   }, [checkPinStatus])
 
+  // 切换Pin状态
+  const handleTogglePin = useCallback(async () => {
+    if (!id) return
+
+    setPinLoading(true)
+    try {
+      if (isPinned) {
+        await pinsApi.unpinProject(parseInt(id))
+        setIsPinned(false)
+        message.success('已取消Pin项目')
+      } else {
+        // 检查Pin数量限制
+        const pinsResponse = await pinsApi.getUserPins()
+        if (pinsResponse && pinsResponse.pins && pinsResponse.pins.length >= 10) {
+          message.warning('最多只能Pin 10个项目，请先取消一些Pin项目')
+          return
+        }
+
+        await pinsApi.pinProject(parseInt(id))
+        setIsPinned(true)
+        message.success('已Pin项目到导航栏')
+      }
+      // 通知导航栏更新（通过自定义事件）
+      window.dispatchEvent(new CustomEvent('pinUpdated'))
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || '操作失败'
+      message.error(errorMessage)
+    } finally {
+      setPinLoading(false)
+    }
+  }, [id, isPinned])
+
+  // 键盘快捷键支持
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl/Cmd + P 快速Pin/取消Pin
+      if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
+        event.preventDefault()
+        if (!pinLoading) {
+          handleTogglePin()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [pinLoading, handleTogglePin])
+
   // 设置网页标题
   useEffect(() => {
     if (currentProject) {
@@ -421,30 +471,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
 
 
 
-  // 切换Pin状态
-  const handleTogglePin = async () => {
-    if (!id) return
 
-    setPinLoading(true)
-    try {
-      if (isPinned) {
-        await pinsApi.unpinProject(parseInt(id))
-        setIsPinned(false)
-        message.success('已取消Pin项目')
-      } else {
-        await pinsApi.pinProject(parseInt(id))
-        setIsPinned(true)
-        message.success('已Pin项目到导航栏')
-      }
-      // 刷新导航栏（通过重新加载页面或者使用状态管理）
-      window.location.reload()
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || '操作失败'
-      message.error(errorMessage)
-    } finally {
-      setPinLoading(false)
-    }
-  }
 
   useEffect(() => {
     if (projectError) {
@@ -706,6 +733,12 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
               loading={pinLoading}
               title={isPinned ? "取消Pin项目" : "Pin项目到导航栏"}
               type={isPinned ? "primary" : "default"}
+              style={{
+                backgroundColor: isPinned ? '#52c41a' : undefined,
+                borderColor: isPinned ? '#52c41a' : undefined,
+                color: isPinned ? '#fff' : undefined,
+                fontWeight: isPinned ? 'bold' : 'normal'
+              }}
             >
               {isPinned ? "已Pin" : "Pin"}
             </Button>

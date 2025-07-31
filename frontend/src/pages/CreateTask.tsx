@@ -26,6 +26,7 @@ import {
 } from '@ant-design/icons'
 import { useTaskStore, useProjectStore } from '../stores'
 import MilkdownEditor from '../components/MilkdownEditor'
+import ResizableContainer from '../components/ResizableContainer'
 
 import type { CreateTaskData } from '../api/tasks'
 import dayjs from 'dayjs'
@@ -634,8 +635,13 @@ const CreateTask: React.FC = () => {
             }
           }}
         >
-          {/* 主要内容区域 - 居中布局 */}
-          <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          {/* 主要内容区域 - 可调整宽度 */}
+          <ResizableContainer
+            defaultWidth={1000}
+            minWidth={600}
+            maxWidth={1400}
+            storageKey="taskEditor_contentWidth"
+          >
             {/* 基本信息 - 紧凑布局 */}
             <Card size="small" style={{ marginBottom: '16px' }}>
               <Row gutter={16}>
@@ -885,7 +891,7 @@ const CreateTask: React.FC = () => {
                 </Col>
               </Row>
             </Card>
-          </div>
+          </ResizableContainer>
 
           {/* 操作按钮 */}
           <div style={{ textAlign: 'center', marginTop: '32px' }}>

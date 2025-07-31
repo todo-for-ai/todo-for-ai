@@ -66,6 +66,7 @@ const CreateContextRule = () => {
         is_active: true,
         apply_to_tasks: true,
         apply_to_projects: false,
+        is_public: false,
         project_id: projectId
       })
     }
@@ -81,7 +82,8 @@ const CreateContextRule = () => {
         priority: currentContextRule.priority,
         is_active: currentContextRule.is_active,
         apply_to_tasks: currentContextRule.apply_to_tasks,
-        apply_to_projects: currentContextRule.apply_to_projects
+        apply_to_projects: currentContextRule.apply_to_projects,
+        is_public: currentContextRule.is_public || false
       })
       setProjectId(currentContextRule.project_id)
     }
@@ -355,6 +357,19 @@ const CreateContextRule = () => {
                     help="在AI查询项目信息时应用此规则"
                   >
                     <Switch checkedChildren="是" unCheckedChildren="否" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 16]}>
+                <Col span={12}>
+                  <Form.Item
+                    label="公开设置"
+                    name="is_public"
+                    valuePropName="checked"
+                    help="公开的规则会显示在规则广场，其他用户可以复制使用"
+                  >
+                    <Switch checkedChildren="公开" unCheckedChildren="私有" />
                   </Form.Item>
                 </Col>
               </Row>

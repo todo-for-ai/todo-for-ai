@@ -44,6 +44,7 @@ interface ContextRuleState {
   deleteContextRule: (id: number) => Promise<boolean>
   toggleContextRule: (id: number, is_active: boolean) => Promise<boolean>
   copyContextRule: (id: number, data: { name: string; project_id?: number }) => Promise<ContextRule | null>
+  copyRuleFromMarketplace: (id: number, data: { name: string; copy_as_global: boolean; target_project_id?: number }) => Promise<ContextRule | null>
   
   // 预览功能
   previewMergedRules: (projectId?: number) => Promise<void>
@@ -217,11 +218,11 @@ export const useContextRuleStore = create<ContextRuleState>()(
 
       copyContextRule: async (id, data) => {
         set({ loading: true, error: null })
-        
+
         try {
           const response = await contextRulesApi.copyContextRule(id, data)
           const newRule = response.data
-          
+
           if (newRule) {
             set((state) => ({
               contextRules: [newRule, ...state.contextRules],
@@ -233,6 +234,30 @@ export const useContextRuleStore = create<ContextRuleState>()(
         } catch (error: any) {
           set({
             error: error.response?.data?.error?.message || '复制上下文规则失败',
+            loading: false,
+          })
+          return null
+        }
+      },
+
+      copyRuleFromMarketplace: async (id, data) => {
+        set({ loading: true, error: null })
+
+        try {
+          const response = await contextRulesApi.copyRuleFromMarketplace(id, data)
+          const newRule = response.data
+
+          if (newRule) {
+            set((state) => ({
+              contextRules: [newRule, ...state.contextRules],
+              loading: false,
+            }))
+            return newRule
+          }
+          return null
+        } catch (error: any) {
+          set({
+            error: error.response?.data?.error?.message || '从规则广场复制规则失败',
             loading: false,
           })
           return null
