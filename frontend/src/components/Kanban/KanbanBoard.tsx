@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -18,7 +18,7 @@ import {
 } from '@dnd-kit/sortable'
 import { Card, Tag, Avatar, Tooltip, Space, message } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
-import { useTaskStore } from '../../stores'
+import { tasksApi } from '../../api/tasks'
 import type { Task } from '../../api/tasks'
 import KanbanColumn from './KanbanColumn'
 import KanbanCard from './KanbanCard'
@@ -30,16 +30,14 @@ interface KanbanBoardProps {
   onTaskClick?: (task: Task) => void
 }
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ projectId, onTaskClick }) => {
+export interface KanbanBoardRef {
+  refresh: () => void
+}
+
+const KanbanBoard = forwardRef<KanbanBoardRef, KanbanBoardProps>(({ projectId, onTaskClick }, ref) => {
   const [activeTask, setActiveTask] = useState<Task | null>(null)
-  
-  const {
-    tasks,
-    loading,
-    fetchTasks,
-    updateTaskStatus,
-    setQueryParams,
-  } = useTaskStore()
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [loading, setLoading] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -49,12 +47,39 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ projectId, onTaskClick }) => 
     })
   )
 
-  useEffect(() => {
-    if (projectId) {
-      setQueryParams({ project_id: projectId })
+  // 独立的任务数据获取逻辑，不受任务列表筛选条件影响
+  const fetchKanbanTasks = async () => {
+    if (!projectId) return
+
+    setLoading(true)
+    try {
+      // 获取项目的所有任务，不应用任何状态筛选
+      const response = await tasksApi.getTasks({
+        project_id: projectId,
+        per_page: 1000, // 获取所有任务
+        sort_by: 'created_at',
+        sort_order: 'desc'
+      })
+
+      if (response.data) {
+        setTasks(response.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch kanban tasks:', error)
+      message.error('获取任务数据失败')
+    } finally {
+      setLoading(false)
     }
-    fetchTasks()
-  }, [projectId, fetchTasks, setQueryParams])
+  }
+
+  useEffect(() => {
+    fetchKanbanTasks()
+  }, [projectId])
+
+  // 暴露刷新方法给父组件
+  useImperativeHandle(ref, () => ({
+    refresh: fetchKanbanTasks
+  }))
 
   // 定义看板列
   const columns = [
@@ -84,6 +109,26 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ projectId, onTaskClick }) => 
     // 可以在这里添加拖拽过程中的视觉反馈
   }
 
+  // 独立的任务状态更新逻辑
+  const updateTaskStatus = async (taskId: number, newStatus: Task['status']) => {
+    try {
+      const response = await tasksApi.updateTask(taskId, { status: newStatus })
+      if (response.data) {
+        // 更新本地状态
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === taskId ? { ...task, status: newStatus } : task
+          )
+        )
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Failed to update task status:', error)
+      return false
+    }
+  }
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
     setActiveTask(null)
@@ -92,7 +137,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ projectId, onTaskClick }) => 
 
     const taskId = active.id as number
     const newStatus = over.id as Task['status']
-    
+
     const task = tasks.find(t => t.id === taskId)
     if (!task || task.status === newStatus) return
 
@@ -238,6 +283,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ projectId, onTaskClick }) => 
       </DndContext>
     </div>
   )
-}
+})
+
+KanbanBoard.displayName = 'KanbanBoard'
 
 export default KanbanBoard
