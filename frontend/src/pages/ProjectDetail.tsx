@@ -44,6 +44,7 @@ import { MarkdownEditor } from '../components/MarkdownEditor'
 import { LinkButton } from '../components/SmartLink'
 import type { Task } from '../api/tasks'
 import type { ContextRule } from '../api/contextRules'
+import { useTranslation, usePageTranslation } from '../i18n/hooks/useTranslation'
 
 const { Title, Paragraph } = Typography
 const { TabPane } = Tabs
@@ -55,6 +56,8 @@ const ProjectDetail = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'tasks')
+  const { t } = useTranslation('pinManager')
+  const { tp } = usePageTranslation('projectDetail')
 
   // 从localStorage加载任务筛选条件
   const loadTaskFiltersFromStorage = () => {
@@ -83,7 +86,7 @@ const ProjectDetail = () => {
       if (saved) {
         const parsed = JSON.parse(saved)
         return {
-          pageSize: parsed.pageSize || 100, // 默认100条每页
+          pageSize: parsed.pageSize || 20, // 默认20条每页
           current: 1 // 总是从第一页开始
         }
       }
@@ -91,7 +94,7 @@ const ProjectDetail = () => {
       console.warn('Failed to load pagination from localStorage:', error)
     }
     return {
-      pageSize: 100, // 默认100条每页
+      pageSize: 20, // 默认20条每页
       current: 1
     }
   }
@@ -144,14 +147,32 @@ const ProjectDetail = () => {
     if (!id) return
     try {
       const response = await pinsApi.checkPinStatus(parseInt(id))
-      if (response && typeof response.is_pinned === 'boolean') {
-        setIsPinned(response.is_pinned)
-      } else {
-        setIsPinned(false)
+      console.log('Pin status check response:', response)
+
+      // 更宽松的响应检查，支持多种响应格式
+      let isPinnedValue = false
+
+      if (response) {
+        // 直接响应格式：{is_pinned: true, project_id: 24}
+        if (typeof response.is_pinned === 'boolean') {
+          isPinnedValue = response.is_pinned
+        }
+        // 包装响应格式：{data: {is_pinned: true, project_id: 24}, ...}
+        else if (response.data && typeof response.data.is_pinned === 'boolean') {
+          isPinnedValue = response.data.is_pinned
+        }
+        // 其他可能的格式
+        else if (typeof response === 'boolean') {
+          isPinnedValue = response
+        }
       }
+
+      console.log('Setting isPinned to:', isPinnedValue)
+      setIsPinned(isPinnedValue)
     } catch (error) {
       console.error('Failed to check pin status:', error)
-      setIsPinned(false)
+      // 出错时不改变当前状态，避免错误的状态重置
+      console.log('Keeping current pin status due to error')
     }
   }, [id])
 
@@ -188,23 +209,23 @@ const ProjectDetail = () => {
       if (isPinned) {
         await pinsApi.unpinProject(parseInt(id))
         setIsPinned(false)
-        message.success('已取消Pin项目')
+        message.success(t('messages.unpinSuccess'))
       } else {
         // 检查Pin数量限制
         const pinsResponse = await pinsApi.getUserPins()
         if (pinsResponse && pinsResponse.pins && pinsResponse.pins.length >= 10) {
-          message.warning('最多只能Pin 10个项目，请先取消一些Pin项目')
+          message.warning(t('messages.pinLimitReached'))
           return
         }
 
         await pinsApi.pinProject(parseInt(id))
         setIsPinned(true)
-        message.success('已Pin项目到导航栏')
+        message.success(t('messages.pinSuccess'))
       }
       // 通知导航栏更新（通过自定义事件）
       window.dispatchEvent(new CustomEvent('pinUpdated'))
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || '操作失败'
+      const errorMessage = error.response?.data?.error || t('messages.pinFailed')
       message.error(errorMessage)
     } finally {
       setPinLoading(false)
@@ -388,7 +409,7 @@ const ProjectDetail = () => {
     onChange: (selectedRowKeys: React.Key[]) => {
       setSelectedTaskIds(selectedRowKeys as number[])
     },
-    onSelectAll: (selected: boolean, selectedRows: Task[], changeRows: Task[]) => {
+    onSelectAll: (selected: boolean, _selectedRows: Task[], changeRows: Task[]) => {
       if (selected) {
         // 全选：添加当前页面所有任务
         const newSelectedIds = [...selectedTaskIds, ...changeRows.map(task => task.id)]
@@ -525,7 +546,6 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
       dataIndex: 'title',
       key: 'title',
       width: 200,
-      sorter: true,
       render: (text: string, record: Task) => (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
           <Tag color="blue" style={{ fontSize: '10px', padding: '2px 6px', margin: 0, flexShrink: 0 }}>
@@ -684,7 +704,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                 {currentProject.name}
               </Title>
               <Tag color={currentProject.status === 'active' ? 'green' : 'orange'}>
-                {currentProject.status === 'active' ? '活跃' : '已归档'}
+                {tp(`status.${currentProject.status}`)}
               </Tag>
             </div>
             {currentProject.description && (
@@ -809,28 +829,28 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
       </Row>
 
       <Tabs activeKey={activeTab} onChange={handleTabChange}>
-        <TabPane tab="项目概览" key="overview">
+        <TabPane tab={tp('tabs.overview')} key="overview">
           <Row gutter={[16, 16]}>
             <Col span={24}>
-              <Card title="基本信息">
+              <Card title={tp('overview.basicInfo.title')}>
                 <Row gutter={[16, 16]}>
                   <Col span={12}>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>创建时间：</strong>
+                      <strong>{tp('overview.basicInfo.createdAt')}：</strong>
                       {new Date(currentProject.created_at).toLocaleString('zh-CN')}
                     </div>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>更新时间：</strong>
+                      <strong>{tp('overview.basicInfo.updatedAt')}：</strong>
                       {new Date(currentProject.updated_at).toLocaleString('zh-CN')}
                     </div>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>创建者：</strong>
+                      <strong>{tp('overview.basicInfo.createdBy')}：</strong>
                       {currentProject.created_by || '-'}
                     </div>
                   </Col>
                   <Col span={12}>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>项目颜色：</strong>
+                      <strong>{tp('overview.basicInfo.projectColor')}：</strong>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                         <div
                           style={{
@@ -845,7 +865,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                       </div>
                     </div>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>上下文规则：</strong>
+                      <strong>{tp('overview.basicInfo.contextRulesCount')}：</strong>
                       {stats.context_rules_count} 条
                     </div>
                   </Col>
@@ -855,11 +875,11 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
 
             {/* 链接信息 */}
             <Col span={24}>
-              <Card title="项目链接">
+              <Card title={tp('overview.projectLinks.title')}>
                 <Row gutter={[16, 16]}>
                   <Col span={8}>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>GitHub仓库：</strong>
+                      <strong>{tp('overview.projectLinks.githubRepo')}：</strong>
                       {currentProject.github_url ? (
                         <div style={{ marginTop: '4px' }}>
                           <Button
@@ -869,17 +889,17 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                             target="_blank"
                             style={{ padding: 0 }}
                           >
-                            查看仓库
+                            {tp('overview.projectLinks.viewRepo')}
                           </Button>
                         </div>
                       ) : (
-                        <span style={{ color: '#999' }}> 未设置</span>
+                        <span style={{ color: '#999' }}> {tp('overview.projectLinks.notSet')}</span>
                       )}
                     </div>
                   </Col>
                   <Col span={8}>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>本地开发：</strong>
+                      <strong>{tp('overview.projectLinks.localEnv')}：</strong>
                       {currentProject.local_url ? (
                         <div style={{ marginTop: '4px' }}>
                           <Button
@@ -889,17 +909,17 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                             target="_blank"
                             style={{ padding: 0 }}
                           >
-                            访问本地
+                            {tp('overview.projectLinks.visitLocal')}
                           </Button>
                         </div>
                       ) : (
-                        <span style={{ color: '#999' }}> 未设置</span>
+                        <span style={{ color: '#999' }}> {tp('overview.projectLinks.notSet')}</span>
                       )}
                     </div>
                   </Col>
                   <Col span={8}>
                     <div style={{ marginBottom: '16px' }}>
-                      <strong>生产环境：</strong>
+                      <strong>{tp('overview.projectLinks.productionEnv')}：</strong>
                       {currentProject.production_url ? (
                         <div style={{ marginTop: '4px' }}>
                           <Button
@@ -909,11 +929,11 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                             target="_blank"
                             style={{ padding: 0 }}
                           >
-                            访问线上
+                            {tp('overview.projectLinks.visitOnline')}
                           </Button>
                         </div>
                       ) : (
-                        <span style={{ color: '#999' }}> 未设置</span>
+                        <span style={{ color: '#999' }}> {tp('overview.projectLinks.notSet')}</span>
                       )}
                     </div>
                   </Col>
@@ -924,7 +944,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
             {/* 项目上下文 */}
             {currentProject.project_context && (
               <Col span={24}>
-                <Card title="项目上下文">
+                <Card title={tp('overview.projectContext.title')}>
                   <MarkdownEditor
                     value={currentProject.project_context}
                     readOnly={true}
@@ -937,7 +957,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
           </Row>
         </TabPane>
 
-        <TabPane tab="任务列表" key="tasks">
+        <TabPane tab={tp('tabs.tasks')} key="tasks">
           <Card>
             {/* 筛选控件 */}
             <Card style={{ marginBottom: 6, backgroundColor: '#fafafa' }} bodyStyle={{ padding: '6px 12px' }}>
@@ -990,12 +1010,12 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                     onChange={(value) => handleFilterChange('sort_by', value)}
                     style={{ width: '100%', height: '22px' }}
                   >
-                    <Option value="updated_at">最后修改时间</Option>
-                    <Option value="created_at">创建时间</Option>
-                    <Option value="due_date">截止时间</Option>
-                    <Option value="priority">优先级</Option>
-                    <Option value="status">状态</Option>
-                    <Option value="title">标题</Option>
+                    <Option value="updated_at">{tp('tasks.filters.sortBy.updatedAt')}</Option>
+                    <Option value="created_at">{tp('tasks.filters.sortBy.createdAt')}</Option>
+                    <Option value="due_date">{tp('tasks.filters.sortBy.dueDate')}</Option>
+                    <Option value="priority">{tp('tasks.filters.sortBy.priority')}</Option>
+                    <Option value="status">{tp('tasks.filters.sortBy.status')}</Option>
+                    <Option value="title">{tp('tasks.filters.sortBy.title')}</Option>
                   </Select>
                 </Col>
                 <Col span={3}>
@@ -1053,7 +1073,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                 showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
                 pageSizeOptions: ['10', '20', '50', '100', '200'],
                 size: 'small',
-                defaultPageSize: 100, // 设置默认分页大小为100
+                defaultPageSize: 20, // 设置默认分页大小为20
                 onShowSizeChange: (current, size) => {
                   console.log('📄 分页大小直接变化:', { current, size })
                   // 这个回调会在用户直接选择分页大小时触发
@@ -1065,19 +1085,19 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
           </Card>
         </TabPane>
 
-        <TabPane tab="任务看板" key="kanban">
+        <TabPane tab={tp('tabs.kanban')} key="kanban">
           <Card>
             <KanbanBoard
               projectId={currentProject?.id}
               onTaskClick={(task) => {
-                // 可以在这里添加任务点击处理逻辑
-                console.log('Task clicked:', task)
+                // 跳转到任务详情页面
+                navigate(`/todo-for-ai/pages/tasks/${task.id}`)
               }}
             />
           </Card>
         </TabPane>
 
-        <TabPane tab="上下文规则" key="context">
+        <TabPane tab={tp('tabs.context')} key="context">
           <ContextRulesTab projectId={parseInt(id!, 10)} />
         </TabPane>
       </Tabs>
@@ -1090,6 +1110,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
 // 上下文规则标签页组件
 const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
   const navigate = useNavigate()
+  const { tp } = usePageTranslation('projectDetail')
   const {
     contextRules,
     loading,
@@ -1116,14 +1137,15 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
   const handleDelete = async (rule: ContextRule) => {
     const success = await deleteContextRule(rule.id)
     if (success) {
-      message.success('上下文规则删除成功')
+      message.success(tp('contextRules.messages.deleteSuccess'))
     }
   }
 
   const handleToggle = async (rule: ContextRule) => {
     const success = await toggleContextRule(rule.id, !rule.is_active)
     if (success) {
-      message.success(`上下文规则已${rule.is_active ? '禁用' : '启用'}`)
+      const messageKey = rule.is_active ? 'disableSuccess' : 'enableSuccess'
+      message.success(tp(`contextRules.messages.${messageKey}`))
     }
   }
 
@@ -1169,12 +1191,12 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
       render: (record: ContextRule) => (
         <Space direction="vertical" size={0}>
           {record.apply_to_tasks && <Tag>任务</Tag>}
-          {record.apply_to_projects && <Tag>项目</Tag>}
+          {record.apply_to_projects && <Tag>{tp('contextRules.tags.project')}</Tag>}
         </Space>
       ),
     },
     {
-      title: '创建时间',
+      title: tp('contextRules.table.columns.createdAt'),
       dataIndex: 'created_at',
       key: 'created_at',
       width: 120,
@@ -1205,14 +1227,14 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
             type={record.is_active ? 'default' : 'primary'}
             onClick={() => handleToggle(record)}
           >
-            {record.is_active ? '禁用' : '启用'}
+            {record.is_active ? tp('contextRules.actions.disable') : tp('contextRules.actions.enable')}
           </Button>
           <Popconfirm
-            title="确定要删除这个上下文规则吗？"
-            description="删除后无法恢复，请谨慎操作。"
+            title={tp('contextRules.confirm.deleteTitle')}
+            description={tp('contextRules.confirm.deleteDescription')}
             onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
+            okText={tp('contextRules.confirm.ok')}
+            cancelText={tp('contextRules.confirm.cancel')}
           >
             <Button
               size="small"
@@ -1231,9 +1253,9 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
     <div>
       <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <Title level={4} style={{ margin: 0 }}>项目上下文规则</Title>
+          <Title level={4} style={{ margin: 0 }}>{tp('contextRules.title')}</Title>
           <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>
-            管理项目级别的上下文规则，这些规则将在AI查询时自动应用
+            {tp('contextRules.description')}
           </div>
         </div>
         <Button
@@ -1241,7 +1263,7 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
           icon={<PlusOutlined />}
           onClick={handleCreate}
         >
-          创建上下文规则
+          {tp('contextRules.createButton')}
         </Button>
       </div>
 
@@ -1260,10 +1282,10 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
             emptyText: (
               <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
                 <CheckSquareOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
-                <div>暂无上下文规则</div>
+                <div>{tp('contextRules.empty.title')}</div>
                 <div style={{ marginTop: '8px' }}>
                   <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-                    创建第一个上下文规则
+                    {tp('contextRules.empty.createFirst')}
                   </Button>
                 </div>
               </div>
