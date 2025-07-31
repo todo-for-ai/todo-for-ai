@@ -408,15 +408,19 @@ class SimpleMCPServer:
         if not project:
             raise ValueError(f"Project with ID {arguments['project_id']} not found")
         
+        # Get AI identifier
+        ai_identifier = arguments.get('ai_identifier', 'MCP Client')
+
         task = Task(
             project_id=arguments['project_id'],
             title=arguments['title'],
-            description=arguments.get('description', ''),
-            content=arguments.get('content', ''),
+            content=arguments.get('content', arguments.get('description', '')),
             status=arguments.get('status', 'todo'),
             priority=arguments.get('priority', 'medium'),
-            assignee=arguments.get('assignee'),
-            created_by='mcp-client'
+            created_by='mcp-client',
+            creator_type='ai',
+            creator_identifier=ai_identifier,
+            is_ai_task=arguments.get('is_ai_task', True)
         )
         
         db.session.add(task)
@@ -485,28 +489,16 @@ class SimpleMCPServer:
     async def _get_context_rules(self, arguments: Dict[str, Any]) -> str:
         """Get merged context rules"""
         from models import ContextRule
-        
-        project_id = arguments.get('project_id')
-        
-        # Get global rules
-        global_rules = ContextRule.query.filter(
-            ContextRule.project_id == None,
-            ContextRule.is_active == True
-        ).order_by(ContextRule.priority.desc()).all()
 
-        # Get project rules if project_id is provided
-        project_rules = []
-        if project_id:
-            project_rules = ContextRule.query.filter(
-                ContextRule.project_id == project_id,
-                ContextRule.is_active == True
-            ).order_by(ContextRule.priority.desc()).all()
-        
-        # Merge rules by priority
-        all_rules = sorted(
-            global_rules + project_rules,
-            key=lambda x: x.priority,
-            reverse=True
+        project_id = arguments.get('project_id')
+        user_id = arguments.get('user_id')  # 应该从认证信息中获取
+
+        # 使用模型的方法获取适用的规则（支持用户隔离）
+        all_rules = ContextRule.get_applicable_rules(
+            project_id=project_id,
+            user_id=user_id,
+            for_tasks=True,
+            for_projects=False
         )
         
         # Build merged content
