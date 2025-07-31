@@ -11,11 +11,14 @@ import zhCNProjects from './resources/zh-CN/pages/projects.json'
 import zhCNCreateProject from './resources/zh-CN/pages/createProject.json'
 import zhCNProfile from './resources/zh-CN/pages/profile.json'
 import zhCNContextRules from './resources/zh-CN/pages/contextRules.json'
+import zhCNCreateContextRule from './resources/zh-CN/pages/createContextRule.json'
 import zhCNLogin from './resources/zh-CN/pages/login.json'
 import zhCNTerms from './resources/zh-CN/pages/terms.json'
 import zhCNPrivacy from './resources/zh-CN/pages/privacy.json'
 import zhCNRuleMarketplace from './resources/zh-CN/pages/ruleMarketplace.json'
 import zhCNProjectDetail from './resources/zh-CN/pages/projectDetail.json'
+import zhCNTaskDetail from './resources/zh-CN/pages/taskDetail.json'
+import zhCNCreateTask from './resources/zh-CN/pages/createTask.json'
 import zhCNPinManager from './resources/zh-CN/components/pinManager.json'
 
 import enCommon from './resources/en/common.json'
@@ -26,11 +29,14 @@ import enProjects from './resources/en/pages/projects.json'
 import enCreateProject from './resources/en/pages/createProject.json'
 import enProfile from './resources/en/pages/profile.json'
 import enContextRules from './resources/en/pages/contextRules.json'
+import enCreateContextRule from './resources/en/pages/createContextRule.json'
 import enLogin from './resources/en/pages/login.json'
 import enTerms from './resources/en/pages/terms.json'
 import enPrivacy from './resources/en/pages/privacy.json'
 import enRuleMarketplace from './resources/en/pages/ruleMarketplace.json'
 import enProjectDetail from './resources/en/pages/projectDetail.json'
+import enTaskDetail from './resources/en/pages/taskDetail.json'
+import enCreateTask from './resources/en/pages/createTask.json'
 import enPinManager from './resources/en/components/pinManager.json'
 
 // 支持的语言
@@ -48,11 +54,14 @@ const resources = {
     createProject: zhCNCreateProject,
     profile: zhCNProfile,
     contextRules: zhCNContextRules,
+    createContextRule: zhCNCreateContextRule,
     login: zhCNLogin,
     terms: zhCNTerms,
     privacy: zhCNPrivacy,
     ruleMarketplace: zhCNRuleMarketplace,
     projectDetail: zhCNProjectDetail,
+    taskDetail: zhCNTaskDetail,
+    createTask: zhCNCreateTask,
     pinManager: zhCNPinManager,
   },
   en: {
@@ -64,11 +73,14 @@ const resources = {
     createProject: enCreateProject,
     profile: enProfile,
     contextRules: enContextRules,
+    createContextRule: enCreateContextRule,
     login: enLogin,
     terms: enTerms,
     privacy: enPrivacy,
     ruleMarketplace: enRuleMarketplace,
     projectDetail: enProjectDetail,
+    taskDetail: enTaskDetail,
+    createTask: enCreateTask,
     pinManager: enPinManager,
   },
 }
