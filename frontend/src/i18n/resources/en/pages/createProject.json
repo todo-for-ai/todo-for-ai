@@ -59,6 +59,15 @@
       "label": "Project Context",
       "placeholder": "Enter project background information, tech stack, development standards and other context information...",
       "help": "This information will help AI better understand the project background and provide more accurate suggestions"
+    },
+    "status": {
+      "label": "Project Status",
+      "help": "Set the current status of the project",
+      "options": {
+        "active": "Active",
+        "archived": "Archived",
+        "deleted": "Deleted"
+      }
     }
   },
   "buttons": {
