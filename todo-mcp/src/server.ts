@@ -104,6 +104,96 @@ export class TodoMcpServer {
             required: ['task_id', 'project_name', 'feedback_content', 'status'],
           },
         },
+        {
+          name: 'create_task',
+          description: 'Create a new task in the specified project',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              project_id: {
+                type: 'integer',
+                description: 'The ID of the project to create the task in',
+              },
+              title: {
+                type: 'string',
+                description: 'The title of the task',
+              },
+              content: {
+                type: 'string',
+                description: 'The detailed content/description of the task',
+              },
+              description: {
+                type: 'string',
+                description: 'A brief description of the task',
+              },
+              status: {
+                type: 'string',
+                enum: ['todo', 'in_progress', 'review', 'done', 'cancelled'],
+                description: 'The initial status of the task (default: todo)',
+                default: 'todo',
+              },
+              priority: {
+                type: 'string',
+                enum: ['low', 'medium', 'high', 'urgent'],
+                description: 'The priority of the task (default: medium)',
+                default: 'medium',
+              },
+              assignee: {
+                type: 'string',
+                description: 'The person assigned to this task (optional)',
+              },
+              due_date: {
+                type: 'string',
+                description: 'The due date in YYYY-MM-DD format (optional)',
+              },
+              estimated_hours: {
+                type: 'number',
+                description: 'Estimated hours to complete the task (optional)',
+              },
+              tags: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'Tags associated with the task (optional)',
+              },
+              related_files: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'Files related to this task (optional)',
+              },
+              is_ai_task: {
+                type: 'boolean',
+                description: 'Whether this task was created by AI (default: true)',
+                default: true,
+              },
+              ai_identifier: {
+                type: 'string',
+                description: 'Identifier of the AI creating the task (optional)',
+              },
+            },
+            required: ['project_id', 'title'],
+          },
+        },
+        {
+          name: 'get_project_info',
+          description: 'Get detailed project information including statistics and configuration',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              project_id: {
+                type: 'integer',
+                description: 'The ID of the project to retrieve (either project_id or project_name is required)',
+              },
+              project_name: {
+                type: 'string',
+                description: 'The name of the project to retrieve (either project_id or project_name is required)',
+              },
+            },
+            anyOf: [
+              { required: ['project_id'] },
+              { required: ['project_name'] },
+            ],
+          },
+        },
       ];
 
       logger.info(`Returning ${tools.length} available tools`);
@@ -120,13 +210,19 @@ export class TodoMcpServer {
         switch (name) {
           case 'get_project_tasks_by_name':
             return await this.handleGetProjectTasksByName(args);
-          
+
           case 'get_task_by_id':
             return await this.handleGetTaskById(args);
-          
+
           case 'submit_task_feedback':
             return await this.handleSubmitTaskFeedback(args);
-          
+
+          case 'create_task':
+            return await this.handleCreateTask(args);
+
+          case 'get_project_info':
+            return await this.handleGetProjectInfo(args);
+
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -165,7 +261,33 @@ export class TodoMcpServer {
 
   private async handleSubmitTaskFeedback(args: any) {
     const result = await this.apiClient.submitTaskFeedback(args);
-    
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result, null, 2),
+        },
+      ],
+    };
+  }
+
+  private async handleCreateTask(args: any) {
+    const result = await this.apiClient.createTask(args);
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result, null, 2),
+        },
+      ],
+    };
+  }
+
+  private async handleGetProjectInfo(args: any) {
+    const result = await this.apiClient.getProjectInfo(args);
+
     return {
       content: [
         {
