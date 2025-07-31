@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Layout, Menu, Typography, Space } from 'antd'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Layout, Menu, Typography } from 'antd'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import {
   DashboardOutlined,
   ProjectOutlined,
-  RobotOutlined,
+  // RobotOutlined, // 未使用
   AppstoreOutlined,
   ApiOutlined,
   PushpinOutlined
@@ -12,6 +12,8 @@ import {
 import { UserAvatar } from '../UserProfile'
 import { LinkButton } from '../SmartLink'
 import { pinsApi, type UserProjectPin } from '../../api/pins'
+import { tasksApi } from '../../api/tasks'
+import { useTranslation } from '../../i18n/hooks/useTranslation'
 import './TopNavigation.css'
 
 const { Header } = Layout
@@ -20,7 +22,10 @@ const { Title } = Typography
 const TopNavigation: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const [pinnedProjects, setPinnedProjects] = useState<UserProjectPin[]>([])
+  const [currentTaskProjectId, setCurrentTaskProjectId] = useState<number | null>(null)
+  const { tn } = useTranslation()
 
   // 加载Pin的项目
   const loadPinnedProjects = async () => {
@@ -73,17 +78,17 @@ const TopNavigation: React.FC = () => {
     {
       key: '/todo-for-ai/pages',
       icon: <DashboardOutlined />,
-      label: '仪表板',
-    },
-    {
-      key: '/todo-for-ai/pages/projects',
-      icon: <ProjectOutlined />,
-      label: '项目管理',
+      label: tn('menu.dashboard'),
     },
     {
       key: '/todo-for-ai/pages/rule-marketplace',
       icon: <AppstoreOutlined />,
-      label: '规则广场',
+      label: tn('menu.rules'),
+    },
+    {
+      key: '/todo-for-ai/pages/projects',
+      icon: <ProjectOutlined />,
+      label: tn('menu.projects'),
     },
     // 添加Pin的项目菜单项
     ...pinnedProjects.map(pin => ({
@@ -95,6 +100,67 @@ const TopNavigation: React.FC = () => {
 
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key)
+  }
+
+  // 检测当前是否在任务相关页面，并获取项目ID
+  useEffect(() => {
+    const detectTaskProjectId = async () => {
+      const pathname = location.pathname
+
+      // 检测任务详情页面：/todo-for-ai/pages/tasks/123
+      const taskDetailMatch = pathname.match(/^\/todo-for-ai\/pages\/tasks\/(\d+)$/)
+      // 检测编辑任务页面：/todo-for-ai/pages/tasks/123/edit
+      const taskEditMatch = pathname.match(/^\/todo-for-ai\/pages\/tasks\/(\d+)\/edit$/)
+      // 检测新建任务页面：/todo-for-ai/pages/tasks/create
+      const taskCreateMatch = pathname.match(/^\/todo-for-ai\/pages\/tasks\/create$/)
+
+      if (taskDetailMatch || taskEditMatch) {
+        // 任务详情或编辑页面，通过task_id获取项目ID
+        const taskId = parseInt(taskDetailMatch?.[1] || taskEditMatch?.[1] || '0', 10)
+        if (taskId) {
+          try {
+            const response = await tasksApi.getTask(taskId)
+            if (response.data && response.data.project_id) {
+              setCurrentTaskProjectId(response.data.project_id)
+            } else {
+              setCurrentTaskProjectId(null)
+            }
+          } catch (error) {
+            console.error('Failed to get task project ID:', error)
+            setCurrentTaskProjectId(null)
+          }
+        }
+      } else if (taskCreateMatch) {
+        // 新建任务页面，从URL参数获取项目ID
+        const projectIdParam = searchParams.get('project_id')
+        if (projectIdParam) {
+          setCurrentTaskProjectId(parseInt(projectIdParam, 10))
+        } else {
+          setCurrentTaskProjectId(null)
+        }
+      } else {
+        // 不在任务页面，清除项目ID
+        setCurrentTaskProjectId(null)
+      }
+    }
+
+    detectTaskProjectId()
+  }, [location.pathname, searchParams])
+
+  // 计算应该选中的菜单项
+  const getSelectedKeys = () => {
+    // 如果在任务页面且找到了项目ID，检查该项目是否被pin了
+    if (currentTaskProjectId) {
+      const pinnedProject = pinnedProjects.find(pin =>
+        pin.project_id === currentTaskProjectId || pin.project?.id === currentTaskProjectId
+      )
+      if (pinnedProject) {
+        return [`/todo-for-ai/pages/projects/${currentTaskProjectId}`]
+      }
+    }
+
+    // 默认使用当前路径
+    return [location.pathname]
   }
 
   // 重新加载Pin项目列表
@@ -124,20 +190,15 @@ const TopNavigation: React.FC = () => {
       {/* 左侧：Logo - 绝对定位到左边 */}
       <div
         className="logo-section"
-        style={{
-          position: 'absolute',
-          left: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          cursor: 'pointer'
-        }}
         onClick={() => navigate('/todo-for-ai/pages')}
       >
-        <RobotOutlined
+        <img
+          src="/todo-for-ai-logo.png"
+          alt="Todo for AI Logo"
           style={{
-            fontSize: '28px',
-            color: '#1890ff'
+            width: '48px',
+            height: '48px',
+            objectFit: 'cover'
           }}
         />
         <Title
@@ -165,7 +226,7 @@ const TopNavigation: React.FC = () => {
         {/* 主要菜单 */}
         <Menu
           mode="horizontal"
-          selectedKeys={[location.pathname]}
+          selectedKeys={getSelectedKeys()}
           items={mainMenuItems}
           onClick={handleMenuClick}
           style={{
@@ -191,7 +252,7 @@ const TopNavigation: React.FC = () => {
               fontWeight: location.pathname === '/todo-for-ai/pages/mcp-installation' ? 500 : 400,
             }}
           >
-            MCP安装文档
+            {tn('menu.mcpDocs')}
           </LinkButton>
 
           <LinkButton
@@ -206,7 +267,7 @@ const TopNavigation: React.FC = () => {
               fontWeight: location.pathname === '/todo-for-ai/pages/api-documentation' ? 500 : 400,
             }}
           >
-            HTTP API文档
+            {tn('menu.apiDocs')}
           </LinkButton>
         </div>
       </div>
@@ -219,9 +280,6 @@ const TopNavigation: React.FC = () => {
           right: '24px',
         }}
       >
-        <span className="welcome-text">
-          欢迎使用 Todo for AI
-        </span>
         <UserAvatar onPinUpdate={reloadPinnedProjects} />
       </div>
     </Header>

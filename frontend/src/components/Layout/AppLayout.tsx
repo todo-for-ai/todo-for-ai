@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react' // React 18+ with JSX Transform doesn't need explicit React import
 import { Layout } from 'antd'
 import { Outlet } from 'react-router-dom'
 import TopNavigation from './TopNavigation'

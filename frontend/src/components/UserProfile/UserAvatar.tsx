@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/useAuthStore'
 import { pinsApi } from '../../api/pins'
 import PinManager from '../PinManager'
+import { useTranslation } from '../../i18n/hooks/useTranslation'
 
 interface UserAvatarProps {
   size?: number | 'small' | 'default' | 'large'
@@ -24,6 +25,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   const navigate = useNavigate()
   const [pinManagerVisible, setPinManagerVisible] = useState(false)
   const [hasPins, setHasPins] = useState(false)
+  const { tn } = useTranslation()
 
   // 检查是否有Pin项目
   useEffect(() => {
@@ -105,7 +107,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     {
       key: 'profile',
       icon: <SettingOutlined />,
-      label: '个人中心',
+      label: tn('userMenu.profile'),
       onClick: () => {
         navigate('/todo-for-ai/pages/profile')
       },
@@ -113,7 +115,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     {
       key: 'context-rules',
       icon: <FileTextOutlined />,
-      label: '我的规则',
+      label: tn('userMenu.contextRules'),
       onClick: () => {
         navigate('/todo-for-ai/pages/context-rules')
       },
@@ -121,13 +123,13 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     ...(hasPins ? [{
       key: 'pin-manager',
       icon: <PushpinOutlined />,
-      label: '管理Pin项目',
+      label: tn('userMenu.pinManager'),
       onClick: handleOpenPinManager,
     }] : []),
     {
       key: 'settings',
       icon: <UserSwitchOutlined />,
-      label: '系统设置',
+      label: tn('userMenu.settings'),
       onClick: () => {
         navigate('/todo-for-ai/pages/settings')
       },
@@ -135,7 +137,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     ...(user.role === 'admin' ? [{
       key: 'admin',
       icon: <UserSwitchOutlined />,
-      label: '用户管理',
+      label: tn('userMenu.userManagement'),
       onClick: () => {
         // TODO: 导航到用户管理页面
         console.log('Navigate to user management')
@@ -147,7 +149,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: tn('userMenu.logout'),
       onClick: handleLogout,
     },
   ]
@@ -185,9 +187,6 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
           <div className="user-info">
             <div className="user-name" title={user.full_name || user.nickname || user.username}>
               {user.full_name || user.nickname || user.username}
-            </div>
-            <div className="user-role">
-              {user.role === 'admin' ? '管理员' : '用户'}
             </div>
           </div>
         </div>

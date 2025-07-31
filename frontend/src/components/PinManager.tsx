@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  Modal, 
-  List, 
-  Button, 
-  message, 
-  Typography, 
+import {
+  Modal,
+  List,
+  Button,
+  message,
+  Typography,
   Space,
   Popconfirm,
   Empty
 } from 'antd'
-import { 
-  PushpinOutlined, 
-  DeleteOutlined, 
-  DragOutlined,
+import {
+  PushpinOutlined,
+  DeleteOutlined,
+  // DragOutlined, // 未使用
   HolderOutlined
 } from '@ant-design/icons'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -20,6 +20,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { pinsApi } from '../api/pins'
+import { useTranslation } from '../i18n/hooks/useTranslation'
 
 const { Text } = Typography
 
@@ -41,6 +42,7 @@ interface SortableItemProps {
 }
 
 const SortableItem: React.FC<SortableItemProps> = ({ id, pin, onRemove }) => {
+  const { t } = useTranslation('pinManager')
   const {
     attributes,
     listeners,
@@ -69,14 +71,14 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, pin, onRemove }) => {
         }}
         actions={[
           <Popconfirm
-            title="确定要取消Pin这个项目吗？"
+            title={t('confirm.unpin')}
             onConfirm={() => onRemove(pin.project_id)}
-            okText="确定"
-            cancelText="取消"
+            okText={t('confirm.ok')}
+            cancelText={t('confirm.cancel')}
           >
-            <Button 
-              type="text" 
-              icon={<DeleteOutlined />} 
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
               size="small"
               danger
             />
@@ -95,7 +97,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, pin, onRemove }) => {
               <Text>{pin.project.name}</Text>
             </Space>
           }
-          description={`项目ID: ${pin.project_id} | 排序: ${pin.pin_order}`}
+          description={`${t('item.projectId', { id: pin.project_id })} | ${t('item.order', { order: pin.pin_order })}`}
         />
       </List.Item>
     </div>
@@ -109,6 +111,7 @@ interface PinManagerProps {
 }
 
 const PinManager: React.FC<PinManagerProps> = ({ visible, onClose, onUpdate }) => {
+  const { t } = useTranslation('pinManager')
   const [pins, setPins] = useState<PinnedProject[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -131,7 +134,7 @@ const PinManager: React.FC<PinManagerProps> = ({ visible, onClose, onUpdate }) =
       }
     } catch (error) {
       console.error('Failed to load pins:', error)
-      message.error('加载Pin列表失败')
+      message.error(t('messages.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -141,13 +144,13 @@ const PinManager: React.FC<PinManagerProps> = ({ visible, onClose, onUpdate }) =
   const handleRemovePin = async (projectId: number) => {
     try {
       await pinsApi.unpinProject(projectId)
-      message.success('已取消Pin项目')
+      message.success(t('messages.unpinSuccess'))
       loadPins() // 重新加载列表
       onUpdate() // 通知父组件更新
       // 通知其他组件Pin状态更新
       window.dispatchEvent(new CustomEvent('pinUpdated'))
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || '取消Pin失败'
+      const errorMessage = error.response?.data?.error || t('messages.unpinFailed')
       message.error(errorMessage)
     }
   }
@@ -193,24 +196,24 @@ const PinManager: React.FC<PinManagerProps> = ({ visible, onClose, onUpdate }) =
 
   return (
     <Modal
-      title="管理Pin项目"
+      title={t('title')}
       open={visible}
       onCancel={onClose}
       width={600}
       footer={[
         <Button key="close" type="primary" onClick={onClose}>
-          关闭
+          {t('buttons.close')}
         </Button>
       ]}
     >
       <div style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <Text type="secondary">
-            拖拽项目来调整Pin在导航栏中的显示顺序，顺序会实时保存。点击删除按钮可以取消Pin项目。
+            {t('description')}
           </Text>
           {pins.length > 0 && (
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              已Pin {pins.length}/10 个项目
+              {t('pinnedCount', { count: pins.length })}
             </Text>
           )}
         </div>
@@ -218,15 +221,15 @@ const PinManager: React.FC<PinManagerProps> = ({ visible, onClose, onUpdate }) =
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px' }}>
-          <div style={{ fontSize: '14px', color: '#666' }}>正在加载Pin项目...</div>
+          <div style={{ fontSize: '14px', color: '#666' }}>{t('loading')}</div>
         </div>
       ) : pins.length === 0 ? (
         <Empty
           description={
             <div>
-              <div>暂无Pin的项目</div>
+              <div>{t('empty.title')}</div>
               <div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
-                在项目详情页面点击Pin按钮可以将项目添加到导航栏
+                {t('empty.description')}
               </div>
             </div>
           }

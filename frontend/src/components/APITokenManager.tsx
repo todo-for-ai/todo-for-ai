@@ -23,8 +23,9 @@ import {
   ExclamationCircleOutlined
 } from '@ant-design/icons'
 import { fetchApiClient } from '../api/fetchClient'
+import { usePageTranslation } from '../i18n/hooks/useTranslation'
 
-const { Title, Text, Paragraph } = Typography
+const { Title, Text } = Typography
 const { TextArea } = Input
 
 interface APIToken {
@@ -47,7 +48,11 @@ export const APITokenManager: React.FC = () => {
   const [newToken, setNewToken] = useState<string>('')
   const [viewTokenModalVisible, setViewTokenModalVisible] = useState(false)
   const [viewingToken, setViewingToken] = useState<APIToken | null>(null)
+  const [revealTokenModalVisible, setRevealTokenModalVisible] = useState(false)
+  const [revealedToken, setRevealedToken] = useState<string>('')
+  const [revealingTokenName, setRevealingTokenName] = useState<string>('')
   const [form] = Form.useForm()
+  const { tp } = usePageTranslation('profile')
 
   useEffect(() => {
     fetchTokens()
@@ -62,7 +67,7 @@ export const APITokenManager: React.FC = () => {
       const tokens = data?.tokens || []
       setTokens(tokens)
     } catch (error: any) {
-      message.error('获取Token列表失败')
+      message.error(tp('apiTokens.messages.fetchFailed'))
       console.error('Failed to fetch tokens:', error)
     } finally {
       setLoading(false)
@@ -82,9 +87,9 @@ export const APITokenManager: React.FC = () => {
 
       // 刷新列表
       fetchTokens()
-      message.success('API Token创建成功')
+      message.success(tp('apiTokens.messages.createSuccess'))
     } catch (error: any) {
-      message.error('创建Token失败')
+      message.error(tp('apiTokens.messages.createFailed'))
     }
   }
 
@@ -94,7 +99,7 @@ export const APITokenManager: React.FC = () => {
       message.success('Token删除成功')
       fetchTokens()
     } catch (error: any) {
-      message.error('删除Token失败')
+      message.error(tp('apiTokens.messages.deleteFailed'))
     }
   }
 
@@ -103,17 +108,34 @@ export const APITokenManager: React.FC = () => {
     setViewTokenModalVisible(true)
   }
 
+  const handleRevealToken = async (token: APIToken) => {
+    try {
+      const response = await fetchApiClient.get(`/tokens/${token.id}/reveal`)
+      const data = response?.data || response
+
+      if (data.success && data.data) {
+        setRevealedToken(data.data.token)
+        setRevealingTokenName(data.data.name)
+        setRevealTokenModalVisible(true)
+      } else {
+        message.error(data.error || tp('apiTokens.messages.revealFailed'))
+      }
+    } catch (error: any) {
+      message.error(tp('apiTokens.messages.revealFailedOldToken'))
+    }
+  }
+
   const handleCopyTokenPrefix = (token: APIToken) => {
     // 复制Token前缀（这是我们能安全显示的部分）
     copyToClipboard(`${token.prefix}***`)
-    message.info('已复制Token前缀到剪贴板')
+    message.info(tp('apiTokens.messages.copyPrefixSuccess'))
   }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      message.success('已复制到剪贴板')
+      message.success(tp('apiTokens.messages.copySuccess'))
     }).catch(() => {
-      message.error('复制失败')
+      message.error(tp('apiTokens.messages.copyFailed'))
     })
   }
 
@@ -129,7 +151,7 @@ export const APITokenManager: React.FC = () => {
 
   const columns = [
     {
-      title: '名称',
+      title: tp('apiTokens.table.name'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: APIToken) => (
@@ -146,7 +168,7 @@ export const APITokenManager: React.FC = () => {
       )
     },
     {
-      title: 'Token前缀',
+      title: tp('apiTokens.table.prefix'),
       dataIndex: 'prefix',
       key: 'prefix',
       render: (prefix: string) => (
@@ -154,20 +176,20 @@ export const APITokenManager: React.FC = () => {
       )
     },
     {
-      title: '状态',
+      title: tp('apiTokens.table.status'),
       key: 'status',
       render: (record: APIToken) => {
         if (!record.is_active) {
-          return <Tag color="red">已禁用</Tag>
+          return <Tag color="red">{tp('apiTokens.status.inactive')}</Tag>
         }
         if (isExpired(record.expires_at)) {
-          return <Tag color="orange">已过期</Tag>
+          return <Tag color="orange">{tp('apiTokens.status.expired')}</Tag>
         }
-        return <Tag color="green">活跃</Tag>
+        return <Tag color="green">{tp('apiTokens.status.active')}</Tag>
       }
     },
     {
-      title: '最后使用',
+      title: tp('apiTokens.table.lastUsed'),
       dataIndex: 'last_used_at',
       key: 'last_used_at',
       render: (date: string) => (
@@ -175,7 +197,7 @@ export const APITokenManager: React.FC = () => {
       )
     },
     {
-      title: '使用次数',
+      title: tp('apiTokens.table.usageCount'),
       dataIndex: 'usage_count',
       key: 'usage_count',
       render: (count: number) => (
@@ -183,46 +205,56 @@ export const APITokenManager: React.FC = () => {
       )
     },
     {
-      title: '过期时间',
+      title: tp('apiTokens.table.expiresAt'),
       dataIndex: 'expires_at',
       key: 'expires_at',
       render: (date: string) => (
         <Text type={isExpired(date) ? 'danger' : 'secondary'}>
-          {date ? formatDate(date) : '永不过期'}
+          {date ? formatDate(date) : tp('apiTokens.table.neverExpires')}
         </Text>
       )
     },
     {
-      title: '操作',
+      title: tp('apiTokens.table.actions'),
       key: 'actions',
       render: (record: APIToken) => (
         <Space size="small">
-          <Tooltip title="查看Token详情">
+          <Tooltip title={tp('apiTokens.actions.viewTooltip')}>
             <Button
               type="text"
               icon={<EyeOutlined />}
               size="small"
               onClick={() => handleViewToken(record)}
             >
-              查看
+              {tp('apiTokens.actions.view')}
             </Button>
           </Tooltip>
-          <Tooltip title="复制Token前缀">
+          <Tooltip title={tp('apiTokens.actions.revealTooltip')}>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => handleRevealToken(record)}
+            >
+              {tp('apiTokens.actions.revealToken')}
+            </Button>
+          </Tooltip>
+          <Tooltip title={tp('apiTokens.actions.copyPrefix')}>
             <Button
               type="text"
               icon={<CopyOutlined />}
               size="small"
               onClick={() => handleCopyTokenPrefix(record)}
             >
-              复制
+              {tp('apiTokens.actions.copy')}
             </Button>
           </Tooltip>
           <Popconfirm
-            title="确定要删除这个Token吗？"
-            description="删除后将无法恢复，使用此Token的应用将无法访问。"
+            title={tp('apiTokens.confirm.deleteTitle')}
+            description={tp('apiTokens.confirm.deleteContent')}
             onConfirm={() => handleDeleteToken(record.id)}
-            okText="确定"
-            cancelText="取消"
+            okText={tp('apiTokens.confirm.ok')}
+            cancelText={tp('apiTokens.confirm.cancel')}
             icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
           >
             <Button
@@ -231,7 +263,7 @@ export const APITokenManager: React.FC = () => {
               icon={<DeleteOutlined />}
               size="small"
             >
-              删除
+              {tp('apiTokens.actions.delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -244,20 +276,20 @@ export const APITokenManager: React.FC = () => {
       <Card
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title level={4} style={{ margin: 0 }}>API Token 管理</Title>
+            <Title level={4} style={{ margin: 0 }}>{tp('apiTokens.title')}</Title>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => setCreateModalVisible(true)}
             >
-              创建Token
+              {tp('apiTokens.createToken')}
             </Button>
           </div>
         }
       >
         <Alert
-          message="API Token 用于MCP客户端认证"
-          description="创建Token后请妥善保管，Token只在创建时显示一次。您可以使用Token通过MCP协议访问Todo for AI的功能。点击'查看'按钮可以查看Token的详细信息。"
+          message={tp('apiTokens.description')}
+          description={tp('apiTokens.detailDescription')}
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
@@ -272,14 +304,14 @@ export const APITokenManager: React.FC = () => {
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 个Token`
+            showTotal: (total) => tp('apiTokens.pagination.total', { total })
           }}
         />
       </Card>
 
       {/* 创建Token模态框 */}
       <Modal
-        title="创建API Token"
+        title={tp('apiTokens.createTitle')}
         open={createModalVisible}
         onCancel={() => {
           setCreateModalVisible(false)
@@ -294,32 +326,32 @@ export const APITokenManager: React.FC = () => {
           onFinish={handleCreateToken}
         >
           <Form.Item
-            label="Token名称"
+            label={tp('apiTokens.tokenName')}
             name="name"
             rules={[
-              { required: true, message: '请输入Token名称' },
-              { min: 2, max: 50, message: '名称长度为2-50个字符' }
+              { required: true, message: tp('apiTokens.validation.nameRequired') },
+              { min: 2, max: 50, message: tp('apiTokens.validation.nameLength') }
             ]}
           >
-            <Input placeholder="如：MCP Client Token" />
+            <Input placeholder={tp('apiTokens.placeholders.tokenName')} />
           </Form.Item>
 
           <Form.Item
-            label="描述"
+            label={tp('apiTokens.description')}
             name="description"
           >
-            <TextArea 
-              rows={3} 
-              placeholder="描述这个Token的用途..."
+            <TextArea
+              rows={3}
+              placeholder={tp('apiTokens.placeholders.description')}
               maxLength={200}
               showCount
             />
           </Form.Item>
 
           <Form.Item
-            label="过期天数"
+            label={tp('apiTokens.expireDays')}
             name="expires_days"
-            help="留空表示永不过期"
+            help={tp('apiTokens.expireHelp')}
           >
             <InputNumber
               min={1}
@@ -332,7 +364,7 @@ export const APITokenManager: React.FC = () => {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit">
-                创建Token
+                {tp('apiTokens.createToken')}
               </Button>
               <Button onClick={() => {
                 setCreateModalVisible(false)
@@ -347,19 +379,19 @@ export const APITokenManager: React.FC = () => {
 
       {/* 显示新Token模态框 */}
       <Modal
-        title="Token创建成功"
+        title={tp('apiTokens.modals.tokenCreated.title')}
         open={tokenModalVisible}
         onCancel={() => setTokenModalVisible(false)}
         footer={[
           <Button key="close" onClick={() => setTokenModalVisible(false)}>
-            关闭
+            {tp('buttons.close')}
           </Button>
         ]}
         width={600}
       >
         <Alert
-          message="请保存您的Token"
-          description="这是您的Token唯一显示的机会，请立即复制并保存到安全的地方。"
+          message={tp('apiTokens.modals.tokenCreated.saveWarning')}
+          description={tp('apiTokens.modals.tokenCreated.saveDescription')}
           type="warning"
           showIcon
           style={{ marginBottom: 16 }}
@@ -382,13 +414,13 @@ export const APITokenManager: React.FC = () => {
           onClick={() => copyToClipboard(newToken)}
           block
         >
-          复制Token
+          {tp('apiTokens.modals.tokenCreated.copyToken')}
         </Button>
       </Modal>
 
       {/* 查看Token详情模态框 */}
       <Modal
-        title="Token详情"
+        title={tp('apiTokens.modals.tokenDetails.title')}
         open={viewTokenModalVisible}
         onCancel={() => {
           setViewTokenModalVisible(false)
@@ -399,7 +431,7 @@ export const APITokenManager: React.FC = () => {
             setViewTokenModalVisible(false)
             setViewingToken(null)
           }}>
-            关闭
+            {tp('buttons.close')}
           </Button>
         ]}
         width={600}
@@ -408,64 +440,125 @@ export const APITokenManager: React.FC = () => {
           <div>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               <div>
-                <Text strong>名称：</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.name')}</Text>
                 <Text>{viewingToken.name}</Text>
               </div>
 
               {viewingToken.description && (
                 <div>
-                  <Text strong>描述：</Text>
+                  <Text strong>{tp('apiTokens.modals.tokenDetails.description')}</Text>
                   <Text>{viewingToken.description}</Text>
                 </div>
               )}
 
               <div>
-                <Text strong>Token前缀：</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.prefix')}</Text>
                 <Text code>{viewingToken.prefix}***</Text>
               </div>
 
               <div>
-                <Text strong>状态：</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.status')}</Text>
                 {!viewingToken.is_active ? (
-                  <Tag color="red">已禁用</Tag>
+                  <Tag color="red">{tp('apiTokens.modals.tokenDetails.statusLabels.inactive')}</Tag>
                 ) : isExpired(viewingToken.expires_at) ? (
-                  <Tag color="orange">已过期</Tag>
+                  <Tag color="orange">{tp('apiTokens.modals.tokenDetails.statusLabels.expired')}</Tag>
                 ) : (
-                  <Tag color="green">活跃</Tag>
+                  <Tag color="green">{tp('apiTokens.modals.tokenDetails.statusLabels.active')}</Tag>
                 )}
               </div>
 
               <div>
-                <Text strong>创建时间：</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.createdAt')}</Text>
                 <Text>{formatDate(viewingToken.created_at)}</Text>
               </div>
 
               <div>
-                <Text strong>过期时间：</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.expiresAt')}</Text>
                 <Text type={isExpired(viewingToken.expires_at) ? 'danger' : 'secondary'}>
-                  {viewingToken.expires_at ? formatDate(viewingToken.expires_at) : '永不过期'}
+                  {viewingToken.expires_at ? formatDate(viewingToken.expires_at) : tp('apiTokens.modals.tokenDetails.neverExpires')}
                 </Text>
               </div>
 
               <div>
-                <Text strong>最后使用：</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.lastUsed')}</Text>
                 <Text type="secondary">{formatDate(viewingToken.last_used_at)}</Text>
               </div>
 
               <div>
-                <Text strong>使用次数：</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.usageCount')}</Text>
                 <Text>{viewingToken.usage_count || 0}</Text>
               </div>
 
               <Alert
-                message="安全提示"
-                description="出于安全考虑，完整的Token只在创建时显示一次。如果您忘记了Token，请删除此Token并创建新的。"
+                message={tp('apiTokens.modals.tokenDetails.securityTip')}
+                description={tp('apiTokens.modals.tokenDetails.securityDescription')}
                 type="info"
                 showIcon
               />
             </Space>
           </div>
         )}
+      </Modal>
+
+      {/* 查看完整Token模态框 */}
+      <Modal
+        title={tp('apiTokens.modals.revealToken.title')}
+        open={revealTokenModalVisible}
+        onCancel={() => {
+          setRevealTokenModalVisible(false)
+          setRevealedToken('')
+          setRevealingTokenName('')
+        }}
+        footer={[
+          <Button key="close" onClick={() => {
+            setRevealTokenModalVisible(false)
+            setRevealedToken('')
+            setRevealingTokenName('')
+          }}>
+            {tp('buttons.close')}
+          </Button>
+        ]}
+        width={600}
+      >
+        <div>
+          <Alert
+            message={tp('apiTokens.modals.revealToken.securityWarning')}
+            description={tp('apiTokens.modals.revealToken.securityDescription')}
+            type="warning"
+            showIcon
+            style={{ marginBottom: 16 }}
+          />
+
+          <div style={{ marginBottom: 16 }}>
+            <Text strong>{tp('apiTokens.modals.revealToken.tokenName')}</Text>
+            <Text>{revealingTokenName}</Text>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <Text strong>{tp('apiTokens.modals.revealToken.fullToken')}</Text>
+          </div>
+
+          <div style={{
+            background: '#f5f5f5',
+            padding: '12px',
+            borderRadius: '6px',
+            fontFamily: 'monospace',
+            wordBreak: 'break-all',
+            marginBottom: 16,
+            border: '1px solid #d9d9d9'
+          }}>
+            {revealedToken}
+          </div>
+
+          <Button
+            type="primary"
+            icon={<CopyOutlined />}
+            onClick={() => copyToClipboard(revealedToken)}
+            block
+          >
+            {tp('apiTokens.modals.revealToken.copyFullToken')}
+          </Button>
+        </div>
       </Modal>
     </div>
   )
