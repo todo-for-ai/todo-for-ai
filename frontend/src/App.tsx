@@ -12,6 +12,7 @@ import {
   Settings,
   ContextRules,
   CreateContextRule,
+  RuleMarketplace,
   MCPInstallation,
   APIDocumentation
 } from './pages'
@@ -55,6 +56,7 @@ function App() {
             <Route path="context-rules" element={<ContextRules />} />
             <Route path="context-rules/create" element={<CreateContextRule />} />
             <Route path="context-rules/:id/edit" element={<CreateContextRule />} />
+            <Route path="rule-marketplace" element={<RuleMarketplace />} />
             <Route path="mcp-installation" element={<MCPInstallation />} />
             <Route path="api-documentation" element={<APIDocumentation />} />
             <Route path="settings" element={<Settings />} />

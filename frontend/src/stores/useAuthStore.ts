@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import { api } from '../api/client'
+import { fetchApiClient } from '../api/fetchClient'
 
 export interface User {
   id: number
@@ -112,7 +112,7 @@ export const useAuthStore = create<AuthState>()(
             
             if (token) {
               // 调用后端登出接口
-              await api.post('/auth/logout', {
+              await fetchApiClient.post('/auth/logout', {
                 return_to: window.location.origin + '/todo-for-ai/pages'
               })
             }
@@ -139,7 +139,7 @@ export const useAuthStore = create<AuthState>()(
           try {
             set({ isLoading: true, error: null })
             
-            const response = await api.get('/auth/me')
+            const response = await fetchApiClient.get('/auth/me')
             const user = response.data
             
             set({ 
@@ -166,7 +166,7 @@ export const useAuthStore = create<AuthState>()(
           try {
             set({ isLoading: true, error: null })
             
-            const response = await api.put('/auth/me', userData)
+            const response = await fetchApiClient.put('/auth/me', userData)
             const updatedUser = response.data
             
             set({ 

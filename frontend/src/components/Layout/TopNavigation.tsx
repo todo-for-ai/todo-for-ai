@@ -7,7 +7,7 @@ import {
   RobotOutlined,
   AppstoreOutlined,
   ApiOutlined,
-  PushpinOutlined,
+  PushpinOutlined
 } from '@ant-design/icons'
 import { UserAvatar } from '../UserProfile'
 import { LinkButton } from '../SmartLink'
@@ -23,33 +23,49 @@ const TopNavigation: React.FC = () => {
   const [pinnedProjects, setPinnedProjects] = useState<UserProjectPin[]>([])
 
   // 加载Pin的项目
-  useEffect(() => {
-    const loadPinnedProjects = async () => {
-      try {
-        console.log('开始加载Pin项目...')
-        const response = await pinsApi.getUserPins()
-        console.log('Pin API Response:', response)
-        console.log('Response type:', typeof response)
-        console.log('Response keys:', response ? Object.keys(response) : 'null')
+  const loadPinnedProjects = async () => {
+    try {
+      console.log('开始加载Pin项目...')
+      const response = await pinsApi.getUserPins()
+      console.log('Pin API Response:', response)
+      console.log('Response type:', typeof response)
+      console.log('Response keys:', response ? Object.keys(response) : 'null')
 
-        if (response && response.pins) {
-          console.log('Pin projects:', response.pins)
-          response.pins.forEach((pin, index) => {
-            console.log(`Pin ${index}:`, pin)
-            console.log(`Pin ${index} project:`, pin.project)
-          })
-          setPinnedProjects(response.pins)
-        } else {
-          console.log('No pins found or invalid response')
-          setPinnedProjects([])
-        }
-      } catch (error) {
-        console.error('Failed to load pinned projects:', error)
+      // 处理标准API响应格式 {data: {...}, message: ..., success: ...}
+      const data = response?.data || response
+
+      if (data && data.pins) {
+        console.log('Pin projects:', data.pins)
+        data.pins.forEach((pin, index) => {
+          console.log(`Pin ${index}:`, pin)
+          console.log(`Pin ${index} project:`, pin.project)
+        })
+        // 按照pin_order排序
+        const sortedPins = data.pins.sort((a: any, b: any) => (a.pin_order || 0) - (b.pin_order || 0))
+        setPinnedProjects(sortedPins)
+      } else {
+        console.log('No pins found or invalid response')
         setPinnedProjects([])
       }
+    } catch (error) {
+      console.error('Failed to load pinned projects:', error)
+      setPinnedProjects([])
+    }
+  }
+
+  useEffect(() => {
+    loadPinnedProjects()
+
+    // 监听Pin更新事件
+    const handlePinUpdate = () => {
+      loadPinnedProjects()
     }
 
-    loadPinnedProjects()
+    window.addEventListener('pinUpdated', handlePinUpdate)
+
+    return () => {
+      window.removeEventListener('pinUpdated', handlePinUpdate)
+    }
   }, [])
 
   // 主要菜单项（左侧）
@@ -64,6 +80,11 @@ const TopNavigation: React.FC = () => {
       icon: <ProjectOutlined />,
       label: '项目管理',
     },
+    {
+      key: '/todo-for-ai/pages/rule-marketplace',
+      icon: <AppstoreOutlined />,
+      label: '规则广场',
+    },
     // 添加Pin的项目菜单项
     ...pinnedProjects.map(pin => ({
       key: `/todo-for-ai/pages/projects/${pin.project?.id || pin.project_id}`,
@@ -74,6 +95,11 @@ const TopNavigation: React.FC = () => {
 
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key)
+  }
+
+  // 重新加载Pin项目列表
+  const reloadPinnedProjects = async () => {
+    await loadPinnedProjects()
   }
 
   return (
@@ -196,7 +222,7 @@ const TopNavigation: React.FC = () => {
         <span className="welcome-text">
           欢迎使用 Todo for AI
         </span>
-        <UserAvatar />
+        <UserAvatar onPinUpdate={reloadPinnedProjects} />
       </div>
     </Header>
   )

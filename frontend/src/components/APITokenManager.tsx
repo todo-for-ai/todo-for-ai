@@ -22,7 +22,7 @@ import {
   CopyOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons'
-import { api } from '../api/client'
+import { fetchApiClient } from '../api/fetchClient'
 
 const { Title, Text, Paragraph } = Typography
 const { TextArea } = Input
@@ -56,9 +56,10 @@ export const APITokenManager: React.FC = () => {
   const fetchTokens = async () => {
     setLoading(true)
     try {
-      const response = await api.get('/tokens')
-      // 处理不同的响应格式
-      const tokens = response.data?.tokens || response.tokens || []
+      const response = await fetchApiClient.get('/tokens')
+      // 处理标准API响应格式
+      const data = response?.data || response
+      const tokens = data?.tokens || []
       setTokens(tokens)
     } catch (error: any) {
       message.error('获取Token列表失败')
@@ -70,11 +71,11 @@ export const APITokenManager: React.FC = () => {
 
   const handleCreateToken = async (values: any) => {
     try {
-      const response = await api.post('/tokens', values)
-      const tokenData = response.data || response
+      const response = await fetchApiClient.post('/tokens', values)
+      const data = response?.data || response
 
       // 显示新创建的token
-      setNewToken(tokenData.token || tokenData.raw_token)
+      setNewToken(data.token || data.raw_token)
       setTokenModalVisible(true)
       setCreateModalVisible(false)
       form.resetFields()
@@ -83,13 +84,13 @@ export const APITokenManager: React.FC = () => {
       fetchTokens()
       message.success('API Token创建成功')
     } catch (error: any) {
-      message.error(error.response?.data?.error || '创建Token失败')
+      message.error('创建Token失败')
     }
   }
 
   const handleDeleteToken = async (tokenId: number) => {
     try {
-      await api.delete(`/tokens/${tokenId}`)
+      await fetchApiClient.delete(`/tokens/${tokenId}`)
       message.success('Token删除成功')
       fetchTokens()
     } catch (error: any) {

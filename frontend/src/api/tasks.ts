@@ -1,5 +1,22 @@
-import { api } from './client'
-import type { PaginatedResponse } from './client'
+import { fetchApiClient } from './fetchClient'
+
+// 分页响应类型
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    page: number
+    pages: number
+    per_page: number
+    total: number
+    has_next: boolean
+    has_prev: boolean
+    next_num?: number
+    prev_num?: number
+  }
+  message: string
+  success: boolean
+  timestamp: string
+}
 
 // 任务相关类型定义
 export interface Task {
@@ -81,7 +98,7 @@ export class TasksApi {
   // 获取任务列表
   async getTasks(params?: TaskQueryParams) {
     const queryParams = new URLSearchParams()
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -89,61 +106,62 @@ export class TasksApi {
         }
       })
     }
-    
+
     const url = `/tasks${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
-    return api.get<PaginatedResponse<Task>>(url)
+    return fetchApiClient.get<PaginatedResponse<Task>>(url)
   }
 
   // 获取单个任务
   async getTask(id: number) {
-    return api.get<Task>(`/tasks/${id}`)
+    return fetchApiClient.get<Task>(`/tasks/${id}`)
   }
 
   // 创建任务
   async createTask(data: CreateTaskData) {
-    return api.post<Task>('/tasks', data)
+    return fetchApiClient.post<Task>('/tasks', data)
   }
 
   // 更新任务
   async updateTask(id: number, data: UpdateTaskData) {
-    return api.put<Task>(`/tasks/${id}`, data)
+    return fetchApiClient.put<Task>(`/tasks/${id}`, data)
   }
 
   // 删除任务
   async deleteTask(id: number) {
-    return api.delete(`/tasks/${id}`)
+    return fetchApiClient.delete(`/tasks/${id}`)
   }
 
   // 更新任务状态
   async updateTaskStatus(id: number, status: Task['status']) {
-    return api.put<Task>(`/tasks/${id}`, { status })
+    return fetchApiClient.put<Task>(`/tasks/${id}`, { status })
   }
 
   // 更新任务进度
   async updateTaskProgress(id: number, completion_rate: number) {
-    return api.put<Task>(`/tasks/${id}`, { completion_rate })
+    return fetchApiClient.put<Task>(`/tasks/${id}`, { completion_rate })
   }
 
 
 
   // 获取任务历史
   async getTaskHistory(id: number) {
-    return api.get(`/tasks/${id}/history`)
+    return fetchApiClient.get(`/tasks/${id}/history`)
   }
 
   // 获取任务附件
   async getTaskAttachments(id: number) {
-    return api.get(`/tasks/${id}/attachments`)
+    return fetchApiClient.get(`/tasks/${id}/attachments`)
   }
 
   // 上传任务附件
   async uploadTaskAttachment(id: number, file: File, onProgress?: (progress: number) => void) {
-    return api.upload(`/tasks/${id}/attachments`, file, onProgress)
+    // TODO: 实现文件上传功能
+    throw new Error('File upload not implemented with fetch client')
   }
 
   // 删除任务附件
   async deleteTaskAttachment(taskId: number, attachmentId: number) {
-    return api.delete(`/tasks/${taskId}/attachments/${attachmentId}`)
+    return fetchApiClient.delete(`/tasks/${taskId}/attachments/${attachmentId}`)
   }
 }
 

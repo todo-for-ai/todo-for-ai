@@ -924,26 +924,19 @@ class TodoMCPServer:
         try:
             project_id = arguments.get('project_id')
 
-            # Get global rules
-            global_rules = ContextRule.query.filter(
-                ContextRule.rule_type == 'global',
-                ContextRule.is_active == True
-            ).order_by(ContextRule.priority.desc()).all()
+            # 确保有当前用户
+            if not self.current_user:
+                return CallToolResult(
+                    content=[TextContent(type="text", text="Error: No authenticated user")],
+                    isError=True
+                )
 
-            # Get project rules if project_id is provided
-            project_rules = []
-            if project_id:
-                project_rules = ContextRule.query.filter(
-                    ContextRule.rule_type == 'project',
-                    ContextRule.project_id == project_id,
-                    ContextRule.is_active == True
-                ).order_by(ContextRule.priority.desc()).all()
-
-            # Merge rules by priority (higher priority first)
-            all_rules = sorted(
-                global_rules + project_rules,
-                key=lambda x: x.priority,
-                reverse=True
+            # 使用模型的方法获取适用的规则（支持用户隔离）
+            all_rules = ContextRule.get_applicable_rules(
+                project_id=project_id,
+                user_id=self.current_user.id,
+                for_tasks=True,
+                for_projects=False
             )
 
             # Build merged content
