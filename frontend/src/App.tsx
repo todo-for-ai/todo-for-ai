@@ -19,6 +19,7 @@ import {
 } from './pages'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
+import UserManagement from './pages/UserManagement'
 import TermsOfService from './pages/TermsOfService'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 
@@ -63,6 +64,7 @@ function App() {
             <Route path="api-documentation" element={<APIDocumentation />} />
             <Route path="settings" element={<Settings />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="user-management" element={<UserManagement />} />
           </Route>
 
           {/* 捕获所有未匹配的路由，重定向到首页 */}
