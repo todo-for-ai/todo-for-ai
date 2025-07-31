@@ -16,7 +16,7 @@ A Model Context Protocol (MCP) server that provides AI assistants with access to
 ### From npm (Recommended)
 
 ```bash
-npm install -g todo-for-ai-mcp
+npm install -g @todo-for-ai/mcp
 ```
 
 ### From Source
