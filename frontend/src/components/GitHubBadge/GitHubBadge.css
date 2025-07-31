@@ -1,0 +1,64 @@
+/* GitHub徽标样式 */
+.github-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.github-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-top: 12px solid #666;
+  transition: border-top-color 0.2s ease;
+}
+
+.github-badge:hover {
+  color: #1890ff !important;
+  background-color: #f0f8ff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+}
+
+.github-badge:hover::before {
+  border-top-color: #1890ff;
+}
+
+.github-badge:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .github-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .github-badge::before {
+    border-left: 10px solid transparent;
+    border-top: 10px solid #666;
+  }
+  
+  .github-badge:hover::before {
+    border-top-color: #1890ff;
+  }
+}
+
+@media (max-width: 576px) {
+  .github-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .github-badge::before {
+    border-left: 8px solid transparent;
+    border-top: 8px solid #666;
+  }
+}
