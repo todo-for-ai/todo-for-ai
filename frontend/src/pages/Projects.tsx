@@ -5,7 +5,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, EyeOutlined
 import { useProjectStore } from '../stores'
 import { LinkButton } from '../components/SmartLink'
 import type { Project } from '../api/projects'
-import { formatRelativeTime, formatFullDateTime } from '../utils/dateUtils'
+import { formatRelativeTime, formatRelativeTimeI18n, formatFullDateTime } from '../utils/dateUtils'
 import { useTranslation } from '../i18n/hooks/useTranslation'
 
 const { Title, Paragraph } = Typography
@@ -807,7 +807,7 @@ const Projects = () => {
                           {project.last_activity_at ? (
                             <Tooltip title={formatFullDateTime(project.last_activity_at)}>
                               <span style={{ cursor: 'help' }}>
-                                {formatRelativeTime(project.last_activity_at)}
+                                {formatRelativeTimeI18n(project.last_activity_at, t)}
                               </span>
                             </Tooltip>
                           ) : t('empty.noActivity')}

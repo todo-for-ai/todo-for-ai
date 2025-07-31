@@ -11,7 +11,8 @@ import {
   ColorPicker,
   Breadcrumb,
   Row,
-  Col
+  Col,
+  Select
 } from 'antd'
 import {
   SaveOutlined,
@@ -30,6 +31,7 @@ import type { CreateProjectData, UpdateProjectData } from '../api/projects'
 
 const { Title } = Typography
 const { TextArea } = Input
+const { Option } = Select
 
 // 预定义的颜色选项
 const PRESET_COLORS = [
@@ -249,15 +251,62 @@ const CreateProject = () => {
             {t('breadcrumb.home')}
           </span>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <span
-            onClick={() => navigate('/todo-for-ai/pages/projects')}
-            style={{ cursor: 'pointer' }}
-          >
-            {t('breadcrumb.projects')}
-          </span>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>{isEditMode ? t('breadcrumb.edit') : t('breadcrumb.create')}</Breadcrumb.Item>
+        {isEditMode ? (
+          currentProject ? (
+          <>
+            <Breadcrumb.Item>
+              <span
+                onClick={() => navigate('/todo-for-ai/pages/projects')}
+                style={{ cursor: 'pointer' }}
+              >
+                {t('breadcrumb.projects')}
+              </span>
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>
+              <span
+                onClick={() => navigate(`/todo-for-ai/pages/projects/${id}`)}
+                style={{
+                  cursor: 'pointer',
+                  maxWidth: '200px',
+                  display: 'inline-block',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  verticalAlign: 'bottom'
+                }}
+                title={currentProject.name}
+              >
+                {currentProject.name}
+              </span>
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>{t('breadcrumb.edit')}</Breadcrumb.Item>
+          </>
+          ) : (
+            <>
+              <Breadcrumb.Item>
+                <span
+                  onClick={() => navigate('/todo-for-ai/pages/projects')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {t('breadcrumb.projects')}
+                </span>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>{t('breadcrumb.edit')}</Breadcrumb.Item>
+            </>
+          )
+        ) : (
+          <>
+            <Breadcrumb.Item>
+              <span
+                onClick={() => navigate('/todo-for-ai/pages/projects')}
+                style={{ cursor: 'pointer' }}
+              >
+                {t('breadcrumb.projects')}
+              </span>
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>{t('breadcrumb.create')}</Breadcrumb.Item>
+          </>
+        )}
       </Breadcrumb>
 
       {/* 主要内容区域 - 居中布局 */}
@@ -323,6 +372,24 @@ const CreateProject = () => {
                   showCount
                 />
               </Form.Item>
+
+              {/* 项目状态选择器 - 仅在编辑模式下显示 */}
+              {isEditMode && (
+                <Form.Item
+                  label={t('form.status.label')}
+                  name="status"
+                  help={t('form.status.help')}
+                  rules={[
+                    { required: true, message: '请选择项目状态' }
+                  ]}
+                >
+                  <Select placeholder="请选择项目状态">
+                    <Option value="active">{t('form.status.options.active')}</Option>
+                    <Option value="archived">{t('form.status.options.archived')}</Option>
+                    <Option value="deleted">{t('form.status.options.deleted')}</Option>
+                  </Select>
+                </Form.Item>
+              )}
             </Card>
           </Col>
 
