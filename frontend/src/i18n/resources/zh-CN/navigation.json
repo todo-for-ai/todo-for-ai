@@ -1,0 +1,62 @@
+{
+  "menu": {
+    "dashboard": "仪表板",
+    "projects": "项目管理",
+    "rules": "规则广场",
+    "profile": "个人中心",
+    "settings": "系统设置",
+    "help": "帮助",
+    "about": "关于",
+    "mcpDocs": "MCP安装文档",
+    "apiDocs": "HTTP API文档"
+  },
+  "breadcrumb": {
+    "home": "首页",
+    "dashboard": "仪表板",
+    "projects": "项目",
+    "projectDetail": "项目详情",
+    "createProject": "创建项目",
+    "editProject": "编辑项目",
+    "tasks": "任务",
+    "taskDetail": "任务详情",
+    "createTask": "创建任务",
+    "editTask": "编辑任务",
+    "rules": "规则",
+    "ruleDetail": "规则详情",
+    "createRule": "创建规则",
+    "editRule": "编辑规则",
+    "profile": "个人中心",
+    "settings": "设置",
+    "apiTokens": "API令牌"
+  },
+  "tabs": {
+    "overview": "概览",
+    "tasks": "任务列表",
+    "settings": "设置",
+    "members": "成员",
+    "activity": "活动",
+    "statistics": "统计",
+    "profile": "个人信息",
+    "tokens": "API令牌",
+    "security": "安全设置",
+    "notifications": "通知设置"
+  },
+  "userMenu": {
+    "profile": "个人中心",
+    "settings": "系统设置",
+    "help": "帮助中心",
+    "logout": "退出登录",
+    "contextRules": "全局上下文规则",
+    "pinManager": "管理Pin项目",
+    "userManagement": "用户管理",
+    "admin": "管理员",
+    "user": "用户"
+  },
+  "footer": {
+    "copyright": "版权所有",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
+    "contact": "联系我们",
+    "support": "技术支持"
+  }
+}
