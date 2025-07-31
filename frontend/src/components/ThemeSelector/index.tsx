@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Button, Dropdown, Card, Space, Typography, Tooltip, Modal } from 'antd'
-import { 
-  BgColorsOutlined, 
-  CheckOutlined, 
+import {
+  BgColorsOutlined,
+  CheckOutlined,
   EyeOutlined,
   MoonOutlined,
   SunOutlined,
   SettingOutlined
 } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import { useThemeContext } from '../../contexts/ThemeContext'
 import type { Theme } from '../../types/theme'
 import './ThemeSelector.css'
@@ -37,9 +38,15 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   className,
   size = 'middle'
 }) => {
+  const { t } = useTranslation()
   const { currentTheme, availableThemes, setTheme, isDarkMode, toggleDarkMode } = useThemeContext()
   const [previewModalVisible, setPreviewModalVisible] = useState(false)
   const [previewTheme, setPreviewTheme] = useState<Theme | null>(null)
+
+  // 获取主题的翻译名称
+  const getThemeName = (theme: Theme) => {
+    return t(`themes.${theme.id}`, theme.name)
+  }
 
   // 主题预览卡片
   const ThemePreviewCard: React.FC<{ theme: Theme; isActive?: boolean; onClick?: () => void }> = ({ 
@@ -58,14 +65,14 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         border: isActive ? `2px solid ${theme.colors.primary}` : '1px solid #d9d9d9'
       }}
       actions={[
-        <Tooltip title="预览主题" key="preview">
+        <Tooltip title={t('themes.selector.previewTheme')} key="preview">
           <EyeOutlined onClick={(e) => {
             e.stopPropagation()
             setPreviewTheme(theme)
             setPreviewModalVisible(true)
           }} />
         </Tooltip>,
-        <Tooltip title={isActive ? '当前主题' : '应用主题'} key="apply">
+        <Tooltip title={isActive ? t('themes.selector.currentTheme') : t('themes.selector.applyTheme')} key="apply">
           {isActive ? <CheckOutlined style={{ color: theme.colors.primary }} /> : <SettingOutlined />}
         </Tooltip>
       ]}
@@ -100,7 +107,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         {/* 主题信息 */}
         <div className="theme-info">
           <Title level={5} style={{ margin: 0, fontSize: '14px' }}>
-            {theme.name}
+            {getThemeName(theme)}
             {theme.isDark && <MoonOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />}
             {!theme.isDark && <SunOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />}
           </Title>
@@ -136,7 +143,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
               border: '1px solid #d9d9d9'
             }}
           />
-          <span>{theme.name}</span>
+          <span>{getThemeName(theme)}</span>
           {theme.isDark && <MoonOutlined style={{ fontSize: '12px' }} />}
         </Space>
         {currentTheme.id === theme.id && <CheckOutlined style={{ color: theme.colors.primary }} />}
@@ -159,11 +166,11 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             size={size}
             type="text"
           >
-            {currentTheme.name}
+            {getThemeName(currentTheme)}
           </Button>
         </Dropdown>
         
-        <Tooltip title={isDarkMode ? '切换到浅色模式' : '切换到深色模式'}>
+        <Tooltip title={isDarkMode ? t('themes.selector.switchToLight') : t('themes.selector.switchToDark')}>
           <Button 
             icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />}
             size={size}
@@ -185,7 +192,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
           trigger={['click']}
         >
           <Button icon={<BgColorsOutlined />} size={size}>
-            主题: {currentTheme.name}
+            {t('themes.selector.theme')}: {getThemeName(currentTheme)}
           </Button>
         </Dropdown>
       </div>
@@ -208,7 +215,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 
       {/* 主题预览模态框 */}
       <Modal
-        title={`预览主题: ${previewTheme?.name}`}
+        title={`${t('themes.selector.previewTheme')}: ${previewTheme ? getThemeName(previewTheme) : ''}`}
         open={previewModalVisible}
         onCancel={() => {
           setPreviewModalVisible(false)
@@ -216,11 +223,11 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         }}
         footer={[
           <Button key="cancel" onClick={() => setPreviewModalVisible(false)}>
-            取消
+            {t('themes.selector.cancel')}
           </Button>,
-          <Button 
-            key="apply" 
-            type="primary" 
+          <Button
+            key="apply"
+            type="primary"
             onClick={() => {
               if (previewTheme) {
                 setTheme(previewTheme.id)
@@ -229,7 +236,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
               setPreviewTheme(null)
             }}
           >
-            应用主题
+            {t('themes.selector.applyTheme')}
           </Button>
         ]}
         width={800}
@@ -238,7 +245,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
           <div className="theme-preview-modal">
             <div className="preview-info" style={{ marginBottom: '16px' }}>
               <Space direction="vertical" size="small">
-                <Text><strong>主题名称:</strong> {previewTheme.name}</Text>
+                <Text><strong>主题名称:</strong> {getThemeName(previewTheme)}</Text>
                 <Text><strong>主题描述:</strong> {previewTheme.description}</Text>
                 <Text><strong>主题类型:</strong> {previewTheme.isDark ? '深色主题' : '浅色主题'}</Text>
               </Space>
@@ -275,10 +282,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 }}
               >
                 <h3 style={{ color: previewTheme.colors.textPrimary, margin: '0 0 12px 0' }}>
-                  示例标题
+                  {t('themes.selector.sampleTitle')}
                 </h3>
                 <p style={{ color: previewTheme.colors.textSecondary, margin: '0 0 12px 0' }}>
-                  这是一段示例文本，展示了主题的基本样式效果。
+                  {t('themes.selector.sampleText')}
                 </p>
                 <code 
                   style={{

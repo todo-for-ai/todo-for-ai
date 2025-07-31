@@ -1,71 +1,125 @@
 /* 方格纸主题专用样式 */
 
-/* 主题根容器 - 纯白背景 */
+/* 主题根容器 - 真实纸张背景 */
 .milkdown-theme-container.theme-handwriting-grid,
 .milkdown-editor-themed.theme-handwriting-grid {
   background-color: #FEFEFE !important;
-  
-  /* 轻微的纸张质感 */
-  background-image: 
-    radial-gradient(circle at 25% 25%, rgba(45, 55, 72, 0.01) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(45, 55, 72, 0.01) 0%, transparent 50%);
+
+  /* 真实纸张质感 - 添加细微的纤维纹理 */
+  background-image:
+    /* 纸张纤维纹理 */
+    radial-gradient(circle at 20% 20%, rgba(45, 55, 72, 0.015) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(45, 55, 72, 0.015) 0%, transparent 40%),
+    radial-gradient(circle at 40% 60%, rgba(45, 55, 72, 0.01) 0%, transparent 30%),
+    radial-gradient(circle at 60% 40%, rgba(45, 55, 72, 0.01) 0%, transparent 30%),
+    /* 纸张微妙的色彩变化 */
+    linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0%, rgba(250, 250, 250, 0.02) 100%);
 }
 
-/* 编辑器容器背景 */
+/* 编辑器容器背景 - 真实纸张效果 */
 .milkdown-theme-container.theme-handwriting-grid,
 .milkdown-editor-themed.theme-handwriting-grid .milkdown-editor {
   background: #FEFEFE !important;
-  
-  /* 方格纸边框效果 */
-  box-shadow: 
-    inset 0 0 15px rgba(45, 55, 72, 0.05),
-    0 3px 12px rgba(45, 55, 72, 0.08) !important;
-  
-  border-radius: 8px !important;
-  border: 2px solid #E2E8F0 !important;
-  margin: 20px !important;
+
+  /* 真实纸张阴影效果 */
+  box-shadow:
+    /* 内阴影 - 纸张厚度感 */
+    inset 0 0 20px rgba(45, 55, 72, 0.03),
+    inset 0 1px 3px rgba(45, 55, 72, 0.05),
+    /* 外阴影 - 纸张悬浮感 */
+    0 2px 4px rgba(45, 55, 72, 0.06),
+    0 8px 16px rgba(45, 55, 72, 0.08),
+    0 16px 32px rgba(45, 55, 72, 0.04) !important;
+
+  border-radius: 6px !important;
+  border: 1px solid #E8E8E8 !important;
+  margin: 24px !important;
+
+  /* 纸张边缘效果 */
+  position: relative;
 }
 
-/* 编辑器内容区域 - 方格背景效果 */
+/* 纸张边缘装饰 - 模拟真实方格纸的装订孔 */
+.milkdown-theme-container.theme-handwriting-grid .milkdown-editor::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  bottom: 20px;
+  width: 2px;
+  background: #E53E3E;
+  z-index: 1;
+}
+
+/* 装订孔效果 */
+.milkdown-theme-container.theme-handwriting-grid .milkdown-editor::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 40px;
+  width: 6px;
+  height: 6px;
+  background: #FFFFFF;
+  border: 1px solid #E53E3E;
+  border-radius: 50%;
+  box-shadow:
+    0 30px 0 #FFFFFF, 0 30px 0 1px #E53E3E,
+    0 60px 0 #FFFFFF, 0 60px 0 1px #E53E3E,
+    0 90px 0 #FFFFFF, 0 90px 0 1px #E53E3E,
+    0 120px 0 #FFFFFF, 0 120px 0 1px #E53E3E,
+    0 150px 0 #FFFFFF, 0 150px 0 1px #E53E3E;
+  z-index: 2;
+}
+
+/* 编辑器内容区域 - 真实方格纸背景 */
 .milkdown-theme-container.theme-handwriting-grid,
 .milkdown-editor-themed.theme-handwriting-grid .milkdown-editor-wrapper .milkdown .ProseMirror {
-  /* 方格背景 - 20px x 20px 网格 */
-  background-image: 
-    linear-gradient(rgba(226, 232, 240, 0.6) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(226, 232, 240, 0.6) 1px, transparent 1px),
-    /* 每5格一条粗线 */
-    linear-gradient(rgba(226, 232, 240, 0.9) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(226, 232, 240, 0.9) 1px, transparent 1px) !important;
-  
-  background-size: 
-    20px 20px,
-    20px 20px,
-    100px 100px,
-    100px 100px !important;
-  
-  background-position: 
+  /* 真实方格纸背景 - 18px x 18px 网格（更接近真实方格纸） */
+  background-image:
+    /* 红色左边距线 */
+    linear-gradient(90deg, #E53E3E 0px, #E53E3E 2px, transparent 2px),
+    /* 细方格线 */
+    linear-gradient(rgba(180, 190, 200, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 190, 200, 0.8) 1px, transparent 1px),
+    /* 每5格一条稍粗的线 */
+    linear-gradient(rgba(160, 170, 180, 0.9) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(160, 170, 180, 0.9) 1px, transparent 1px),
+    /* 纸张基础色 */
+    linear-gradient(0deg, #FEFEFE 0%, #FDFDFD 100%) !important;
+
+  background-size:
+    100% 100%,
+    18px 18px,
+    18px 18px,
+    90px 90px,
+    90px 90px,
+    100% 100% !important;
+
+  background-position:
+    0 0,
+    0 0,
     0 0,
     0 0,
     0 0,
     0 0 !important;
   
-  /* 手写字体效果 */
+  /* 手写字体效果 - 更自然的字体组合 */
   font-family: "Segoe Print", "Comic Sans MS", "Brush Script MT", "楷体", "KaiTi", cursive, sans-serif !important;
-  color: #2D3748 !important;
+  color: #1A202C !important;
   font-size: 16px !important;
-  
-  /* 清晰的墨水效果 */
-  text-shadow: 0.5px 0.5px 0.8px rgba(45, 55, 72, 0.15) !important;
-  
-  /* 行高 */
-  line-height: 1.6 !important;
-  
-  /* 内边距 - 对齐网格 */
-  padding: 40px !important;
-  
-  /* 字间距 */
-  letter-spacing: 0.5px !important;
-  
+
+  /* 真实墨水效果 - 更深的阴影 */
+  text-shadow: 0.3px 0.3px 0.6px rgba(26, 32, 44, 0.2) !important;
+
+  /* 行高 - 对齐18px网格 */
+  line-height: 1.8 !important;
+
+  /* 内边距 - 左侧留出红线空间，对齐网格 */
+  padding: 36px 36px 36px 54px !important;
+
+  /* 字间距 - 稍微增加可读性 */
+  letter-spacing: 0.3px !important;
+
   /* 背景色 */
   background-color: #FEFEFE !important;
 }
@@ -140,41 +194,47 @@
   text-decoration-style: dotted !important;
 }
 
-/* 段落样式 */
+/* 段落样式 - 对齐方格纸网格 */
 .milkdown-theme-container.theme-handwriting-grid,
 .milkdown-editor-themed.theme-handwriting-grid p {
-  color: #2D3748 !important;
-  margin-bottom: 1.4em !important;
+  color: #1A202C !important;
+  margin-bottom: 18px !important;
   font-size: 16px !important;
-  /* 对齐网格 - 每行20px */
-  line-height: 20px !important;
-  margin-top: 20px !important;
+  /* 对齐网格 - 每行18px，与方格对齐 */
+  line-height: 18px !important;
+  margin-top: 18px !important;
+  /* 轻微的墨水效果 */
+  text-shadow: 0.2px 0.2px 0.4px rgba(26, 32, 44, 0.1) !important;
 }
 
-/* 列表样式 */
+/* 列表样式 - 对齐方格纸网格 */
 .milkdown-theme-container.theme-handwriting-grid,
 .milkdown-editor-themed.theme-handwriting-grid ul {
-  margin: 20px 0 !important;
+  margin: 18px 0 !important;
   padding-left: 2.5em !important;
 }
 
 .milkdown-theme-container.theme-handwriting-grid,
 .milkdown-editor-themed.theme-handwriting-grid ul li {
-  color: #2D3748 !important;
+  color: #1A202C !important;
   position: relative;
-  margin-bottom: 10px !important;
+  margin-bottom: 9px !important;
   list-style: none !important;
-  line-height: 20px !important;
+  line-height: 18px !important;
+  /* 轻微的墨水效果 */
+  text-shadow: 0.2px 0.2px 0.4px rgba(26, 32, 44, 0.1) !important;
 }
 
 .milkdown-theme-container.theme-handwriting-grid,
 .milkdown-editor-themed.theme-handwriting-grid ul li::before {
-  content: "■";
-  color: #4A5568;
-  font-size: 0.8em;
+  content: "●";
+  color: #2D3748;
+  font-size: 0.7em;
   position: absolute;
   left: -1.8em;
-  top: 0;
+  top: 2px;
+  /* 手写风格的项目符号 */
+  text-shadow: 0.2px 0.2px 0.3px rgba(45, 55, 72, 0.2);
 }
 
 .milkdown-theme-container.theme-handwriting-grid,
