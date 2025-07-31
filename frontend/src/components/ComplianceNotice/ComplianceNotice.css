@@ -1,0 +1,57 @@
+/* 合规说明组件样式 */
+.compliance-notice {
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #fffbe6 0%, #fff7e6 100%);
+  border: 1px solid #ffe58f;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.compliance-notice.small {
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.compliance-notice:hover {
+  background: linear-gradient(135deg, #fff7e6 0%, #fff2e6 100%);
+  border-color: #ffd666;
+}
+
+.compliance-text {
+  display: flex;
+  align-items: center;
+  color: #d48806 !important;
+  font-weight: 500;
+}
+
+.compliance-notice.small .compliance-text {
+  font-size: 11px !important;
+  line-height: 14px !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .compliance-notice {
+    margin-top: 6px;
+    padding: 6px 8px;
+  }
+  
+  .compliance-text {
+    font-size: 11px !important;
+    line-height: 16px !important;
+  }
+}
+
+/* 深色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .compliance-notice {
+    background: linear-gradient(135deg, #2a2a1a 0%, #2d2a1a 100%);
+    border-color: #d48806;
+  }
+  
+  .compliance-notice:hover {
+    background: linear-gradient(135deg, #2d2a1a 0%, #302a1a 100%);
+    border-color: #faad14;
+  }
+}
