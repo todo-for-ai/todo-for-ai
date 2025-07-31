@@ -6,6 +6,8 @@ import {
   GetProjectTasksArgs,
   GetTaskByIdArgs,
   SubmitTaskFeedbackArgs,
+  CreateTaskArgs,
+  GetProjectInfoArgs,
   Task,
   Project,
 } from './types.js';
@@ -228,6 +230,76 @@ export class TodoApiClient {
       return result;
     } catch (error) {
       logger.error(`Failed to submit feedback for task ${args.task_id}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new task in the specified project
+   */
+  async createTask(args: CreateTaskArgs): Promise<Task> {
+    logger.info(`Creating task "${args.title}" in project ${args.project_id}`);
+
+    try {
+      const response = await this.client.post<Task>('/mcp/call', {
+        name: 'create_task',
+        arguments: {
+          project_id: args.project_id,
+          title: args.title,
+          content: args.content,
+          description: args.description,
+          status: args.status || 'todo',
+          priority: args.priority || 'medium',
+          assignee: args.assignee,
+          due_date: args.due_date,
+          estimated_hours: args.estimated_hours,
+          tags: args.tags,
+          related_files: args.related_files,
+          is_ai_task: args.is_ai_task !== undefined ? args.is_ai_task : true,
+          ai_identifier: args.ai_identifier || 'MCP Client',
+        },
+      });
+
+      const result = response.data;
+
+      if ('error' in result) {
+        throw new Error((result as any).error);
+      }
+
+      logger.info(`Successfully created task: ${(result as Task).title}`);
+      return result as Task;
+    } catch (error) {
+      logger.error(`Failed to create task "${args.title}":`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get detailed project information
+   */
+  async getProjectInfo(args: GetProjectInfoArgs): Promise<Project> {
+    const identifier = args.project_id ? `ID ${args.project_id}` : `name "${args.project_name}"`;
+    logger.info(`Getting project info for ${identifier}`);
+
+    try {
+      const response = await this.client.post<Project>('/mcp/call', {
+        name: 'get_project_info',
+        arguments: {
+          project_id: args.project_id,
+          project_name: args.project_name,
+        },
+      });
+
+      const result = response.data;
+
+      if ('error' in result) {
+        throw new Error((result as any).error);
+      }
+
+      logger.info(`Retrieved project: ${(result as Project).name}`);
+      return result as Project;
+    } catch (error) {
+      logger.error(`Failed to get project info for ${identifier}:`, error);
       throw error;
     }
   }

@@ -94,3 +94,24 @@ export interface SubmitTaskFeedbackArgs {
   status: 'in_progress' | 'review' | 'done' | 'cancelled';
   ai_identifier?: string;
 }
+
+export interface CreateTaskArgs {
+  project_id: number;
+  title: string;
+  content?: string;
+  description?: string;
+  status?: 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  assignee?: string;
+  due_date?: string;
+  estimated_hours?: number;
+  tags?: string[];
+  related_files?: string[];
+  is_ai_task?: boolean;
+  ai_identifier?: string;
+}
+
+export interface GetProjectInfoArgs {
+  project_id?: number;
+  project_name?: string;
+}
