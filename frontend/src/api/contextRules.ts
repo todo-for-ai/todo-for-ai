@@ -167,7 +167,7 @@ export class ContextRulesApi {
   }
 
   // 导入上下文规则
-  async importContextRules(file: File) {
+  async importContextRules(_file: File) {
     // TODO: 实现文件上传功能
     throw new Error('File upload not implemented with fetch client')
   }
@@ -184,7 +184,7 @@ export class ContextRulesApi {
       })
     }
 
-    const url = `/context-rules/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    // const _url = `/context-rules/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     // TODO: 实现文件下载功能
     throw new Error('File download not implemented with fetch client')
   }
