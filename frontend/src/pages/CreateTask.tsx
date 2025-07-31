@@ -530,7 +530,7 @@ const CreateTask: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '24px', width: '80%', margin: '0 auto', minWidth: '800px', maxWidth: '1600px' }}>
       {/* 面包屑导航 */}
       <Breadcrumb style={{ marginBottom: '24px' }}>
         <Breadcrumb.Item>
@@ -562,7 +562,7 @@ const CreateTask: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {/* 返回按钮 - 移到左上角标题左边 */}
           <Button
-            type="text"
+            type="default"
             icon={<ArrowLeftOutlined />}
             onClick={() => {
               const projectId = form.getFieldValue('project_id') || defaultProjectId
@@ -714,7 +714,12 @@ const CreateTask: React.FC = () => {
                       <Button
                         icon={<EyeOutlined />}
                         onClick={handleViewTaskDetail}
-                        type="primary"
+                        type="default"
+                        style={{
+                          backgroundColor: '#e6f7ff',
+                          borderColor: '#91d5ff',
+                          color: '#1890ff'
+                        }}
                       >
                         任务详情
                       </Button>
@@ -722,6 +727,11 @@ const CreateTask: React.FC = () => {
                         icon={<FileAddOutlined />}
                         onClick={handleCreateNewTask}
                         type="default"
+                        style={{
+                          backgroundColor: '#f6ffed',
+                          borderColor: '#b7eb8f',
+                          color: '#52c41a'
+                        }}
                       >
                         新建任务
                       </Button>
@@ -729,73 +739,117 @@ const CreateTask: React.FC = () => {
                         icon={<CopyOutlined />}
                         onClick={handleCopyTask}
                         type="default"
+                        style={{
+                          backgroundColor: '#fff7e6',
+                          borderColor: '#ffd591',
+                          color: '#fa8c16'
+                        }}
                       >
                         从此任务创建新任务
                       </Button>
                     </>
                   )}
 
-                  {/* 保存按钮 - 所有模式都显示 */}
-                  <Button
-                    type="primary"
-                    icon={<SaveOutlined />}
-                    loading={loading}
-                    onClick={handleSubmitAndEdit}
-                  >
-                    {isEditMode ? '保存 (Ctrl+S)' : '创建并编辑 (Ctrl+S)'}
-                  </Button>
-
-                  {/* 新建模式下的重新开始按钮 */}
-                  {!isEditMode && (
-                    <Button
-                      icon={<PlusOutlined />}
-                      onClick={() => {
-                        // 清除当前草稿
-                        const projectId = form.getFieldValue('project_id') || defaultProjectId
-                        if (projectId) {
-                          clearDraft(parseInt(projectId, 10))
-                        }
-
-                        // 创建新的会话ID
-                        sessionStorage.removeItem('newTaskSessionId')
-
-                        // 重置表单为新建任务
-                        form.resetFields()
-                        setEditorContent('')
-                        form.setFieldsValue({
-                          status: 'todo',
-                          priority: 'medium',
-                          is_ai_task: true,
-                          project_id: defaultProjectId ? parseInt(defaultProjectId, 10) : undefined
-                        })
-
-                        message.success('已清除草稿，重新开始创建任务')
-                      }}
-                    >
-                      重新开始
-                    </Button>
-                  )}
-
-                  {/* 新建模式下的快捷创建按钮 */}
+                  {/* 新建模式下的按钮 - 按照要求的顺序排列 */}
                   {!isEditMode && (
                     <>
+                      {/* 1. 创建任务 */}
                       <Button
                         type="primary"
                         icon={<SaveOutlined />}
                         loading={loading}
                         onClick={handleSubmit}
+                        style={{
+                          backgroundColor: '#1890ff',
+                          borderColor: '#1890ff',
+                          fontWeight: 'bold'
+                        }}
                       >
                         创建任务
                       </Button>
+
+                      {/* 2. 创建并编辑 (Ctrl+S) */}
                       <Button
-                        type="default"
+                        type="primary"
+                        icon={<SaveOutlined />}
+                        loading={loading}
+                        onClick={handleSubmitAndEdit}
+                        style={{
+                          backgroundColor: '#52c41a',
+                          borderColor: '#52c41a',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        创建并编辑 (Ctrl+S)
+                      </Button>
+
+                      {/* 3. 创建此任务后再创建新任务 */}
+                      <Button
+                        type="primary"
                         icon={<PlusOutlined />}
                         loading={loading}
                         onClick={handleCreateAndContinue}
+                        style={{
+                          backgroundColor: '#fa8c16',
+                          borderColor: '#fa8c16',
+                          fontWeight: 'bold'
+                        }}
                       >
                         创建此任务后再创建新任务
                       </Button>
+
+                      {/* 4. 重新开始 */}
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => {
+                          // 清除当前草稿
+                          const projectId = form.getFieldValue('project_id') || defaultProjectId
+                          if (projectId) {
+                            clearDraft(parseInt(projectId, 10))
+                          }
+
+                          // 创建新的会话ID
+                          sessionStorage.removeItem('newTaskSessionId')
+
+                          // 重置表单为新建任务
+                          form.resetFields()
+                          setEditorContent('')
+                          form.setFieldsValue({
+                            status: 'todo',
+                            priority: 'medium',
+                            is_ai_task: true,
+                            project_id: defaultProjectId ? parseInt(defaultProjectId, 10) : undefined
+                          })
+
+                          message.success('已清除草稿，重新开始创建任务')
+                        }}
+                        style={{
+                          backgroundColor: '#ff4d4f',
+                          borderColor: '#ff4d4f',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        重新开始
+                      </Button>
                     </>
+                  )}
+
+                  {/* 编辑模式下的保存按钮 */}
+                  {isEditMode && (
+                    <Button
+                      type="primary"
+                      icon={<SaveOutlined />}
+                      loading={loading}
+                      onClick={handleSubmitAndEdit}
+                      style={{
+                        backgroundColor: '#1890ff',
+                        borderColor: '#1890ff',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      保存 (Ctrl+S)
+                    </Button>
                   )}
                 </Space>
               </div>

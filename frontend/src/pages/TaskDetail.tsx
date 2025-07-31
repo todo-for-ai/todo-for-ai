@@ -477,17 +477,27 @@ ${task.content || '无详细内容'}
             {/* 左上角：上一个任务 + 返回项目任务列表按钮 - 符合用户操作习惯 */}
             <Space>
               <Button
+                type="primary"
                 icon={<LeftOutlined />}
                 onClick={handlePreviousTask}
                 disabled={getCurrentTaskIndex() <= 0}
                 title="上一个任务 (←键)"
+                style={{
+                  backgroundColor: '#1890ff',
+                  borderColor: '#1890ff'
+                }}
               >
                 上一个任务
               </Button>
               <Button
+                type="primary"
                 icon={<ArrowLeftOutlined />}
                 onClick={() => navigate(`/todo-for-ai/pages/projects/${task.project_id}?tab=tasks`)}
                 title="返回项目任务列表"
+                style={{
+                  backgroundColor: '#1890ff',
+                  borderColor: '#1890ff'
+                }}
               >
                 返回项目任务列表
               </Button>
@@ -516,10 +526,15 @@ ${task.content || '无详细内容'}
           <Col>
             {/* 右上角：下一个任务按钮 */}
             <Button
+              type="primary"
               icon={<RightOutlined />}
               onClick={handleNextTask}
               disabled={getCurrentTaskIndex() >= projectTasks.length - 1 || getCurrentTaskIndex() === -1}
               title="下一个任务 (→键)"
+              style={{
+                backgroundColor: '#1890ff',
+                borderColor: '#1890ff'
+              }}
             >
               下一个任务
             </Button>
@@ -591,7 +606,7 @@ ${task.content || '无详细内容'}
       <Card className={styles.actionCard}>
         <Row gutter={[16, 16]} className={styles.actionGrid}>
           {/* 任务状态快捷修改 */}
-          <Col xs={24} sm={12} md={8} className={styles.actionCol}>
+          <Col xs={24} sm={8} md={6} className={styles.actionCol}>
             <div className={styles.actionSection}>任务状态</div>
             <Select
               value={task.status}
@@ -607,18 +622,28 @@ ${task.content || '无详细内容'}
           </Col>
 
           {/* 任务操作 - 合并所有操作按钮 */}
-          <Col xs={24} sm={12} md={16} className={styles.actionCol}>
+          <Col xs={24} sm={16} md={18} className={styles.actionCol}>
             <div className={styles.actionSection}>任务操作</div>
             <div className={styles.taskActionButtons}>
               <Button
+                type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleCreateTask}
+                style={{
+                  backgroundColor: '#1890ff',
+                  borderColor: '#1890ff'
+                }}
               >
                 创建任务
               </Button>
               <Button
+                type="primary"
                 icon={<EditOutlined />}
                 onClick={handleEdit}
+                style={{
+                  backgroundColor: '#1890ff',
+                  borderColor: '#1890ff'
+                }}
               >
                 编辑
               </Button>
@@ -651,10 +676,15 @@ ${task.content || '无详细内容'}
           <Col xs={24} sm={12} md={6}>
             <div className={styles.actionSection}>MCP工具执行</div>
             <Button
+              type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyMCPPrompt}
               block
               title="复制MCP工具执行任务的提示词，适用于支持MCP协议的AI助手"
+              style={{
+                backgroundColor: '#1890ff',
+                borderColor: '#1890ff'
+              }}
             >
               复制MCP工具执行提示词
             </Button>
@@ -666,10 +696,15 @@ ${task.content || '无详细内容'}
           <Col xs={24} sm={12} md={6}>
             <div className={styles.actionSection}>通用AI助手执行</div>
             <Button
+              type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyAIPrompt}
               block
               title="复制包含完整任务信息的执行提示词，适用于所有AI助手"
+              style={{
+                backgroundColor: '#1890ff',
+                borderColor: '#1890ff'
+              }}
             >
               复制完整任务执行提示词
             </Button>
@@ -681,10 +716,15 @@ ${task.content || '无详细内容'}
           <Col xs={24} sm={12} md={6}>
             <div className={styles.actionSection}>任务完成检查</div>
             <Button
+              type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyTaskCompletionPrompt}
               block
               title="复制任务完成检查和关闭的提示词"
+              style={{
+                backgroundColor: '#1890ff',
+                borderColor: '#1890ff'
+              }}
             >
               复制任务完成检查提示词
             </Button>
@@ -696,10 +736,15 @@ ${task.content || '无详细内容'}
           <Col xs={24} sm={12} md={6}>
             <div className={styles.actionSection}>一键完成任务</div>
             <Button
+              type="primary"
               icon={<CopyOutlined />}
               onClick={handleCopyQuickCompletePrompt}
               block
               title="复制快速完成并关闭任务的提示词"
+              style={{
+                backgroundColor: '#1890ff',
+                borderColor: '#1890ff'
+              }}
             >
               复制快速完成任务提示词
             </Button>

@@ -25,10 +25,13 @@ import {
   UserOutlined,
   GlobalOutlined,
   ProjectOutlined,
-  HeartOutlined
+  HeartOutlined,
+  BarChartOutlined,
+  GithubOutlined
 } from '@ant-design/icons'
 import { useContextRuleStore, useProjectStore } from '../stores'
 import { fetchApiClient } from '../api/fetchClient'
+import { useTranslation } from '../i18n/hooks/useTranslation'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
@@ -48,6 +51,8 @@ interface PublicRule {
     username: string
     full_name: string
     avatar_url?: string
+    github_id?: string
+    provider?: string
   }
   project?: {
     id: number
@@ -58,8 +63,9 @@ interface PublicRule {
 
 const RuleMarketplace: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation('ruleMarketplace')
   const { copyRuleFromMarketplace } = useContextRuleStore()
-  const { projects } = useProjectStore()
+  const { projects, fetchProjects } = useProjectStore()
   
   const [rules, setRules] = useState<PublicRule[]>([])
   const [loading, setLoading] = useState(false)
@@ -74,6 +80,16 @@ const RuleMarketplace: React.FC = () => {
   const [copyModalVisible, setCopyModalVisible] = useState(false)
   const [selectedRule, setSelectedRule] = useState<PublicRule | null>(null)
   const [copyForm] = Form.useForm()
+
+  // 设置网页标题
+  useEffect(() => {
+    document.title = t('pageTitle')
+
+    // 组件卸载时恢复默认标题
+    return () => {
+      document.title = 'Todo for AI'
+    }
+  }, [t])
 
   // 获取公开规则列表
   const fetchPublicRules = async () => {
@@ -91,11 +107,11 @@ const RuleMarketplace: React.FC = () => {
       const response = await fetchApiClient.get(url)
 
       console.log('API Response data:', response)
-      setRules(response.data.rules || [])
-      setTotal(response.data.pagination?.total || 0)
+      setRules((response as any).data.rules || [])
+      setTotal((response as any).data.pagination?.total || 0)
     } catch (error) {
       console.error('获取规则列表失败:', error)
-      message.error('获取规则列表失败')
+      message.error(t('messages.fetchError'))
     } finally {
       setLoading(false)
     }
@@ -104,6 +120,11 @@ const RuleMarketplace: React.FC = () => {
   useEffect(() => {
     fetchPublicRules()
   }, [searchText, sortBy, sortOrder, currentPage])
+
+  // 获取项目列表
+  useEffect(() => {
+    fetchProjects()
+  }, [])
 
   // 处理搜索
   const handleSearch = (value: string) => {
@@ -124,7 +145,7 @@ const RuleMarketplace: React.FC = () => {
     setSelectedRule(rule)
     setCopyModalVisible(true)
     copyForm.setFieldsValue({
-      name: `${rule.name} - 副本`,
+      name: t('copy.modal.copyName', { name: rule.name }),
       copy_as_global: true,
       target_project_id: undefined
     })
@@ -143,33 +164,41 @@ const RuleMarketplace: React.FC = () => {
         target_project_id: values.copy_as_global ? undefined : values.target_project_id
       })
       
-      message.success('规则复制成功！')
+      message.success(t('copy.success'))
       setCopyModalVisible(false)
       setSelectedRule(null)
       copyForm.resetFields()
-      
+
       // 跳转到上下文规则页面
       navigate('/todo-for-ai/pages/context-rules')
-      
+
     } catch (error) {
       console.error('复制规则失败:', error)
-      message.error('复制规则失败')
+      message.error(t('copy.error'))
+    }
+  }
+
+  // 处理用户点击事件
+  const handleUserClick = (user: PublicRule['user']) => {
+    // 如果是GitHub用户，跳转到GitHub主页
+    if (user.provider === 'github' && user.github_id) {
+      window.open(`https://github.com/${user.github_id}`, '_blank')
     }
   }
 
   // 预览规则内容
   const previewRule = (rule: PublicRule) => {
     Modal.info({
-      title: `预览规则: ${rule.name}`,
+      title: t('preview.title', { name: rule.name }),
       width: 800,
       content: (
         <div>
           <div style={{ marginBottom: 16 }}>
-            <Text strong>描述：</Text>
-            <Paragraph>{rule.description || '无描述'}</Paragraph>
+            <Text strong>{t('preview.description')}</Text>
+            <Paragraph>{rule.description || t('preview.noDescription')}</Paragraph>
           </div>
           <div style={{ marginBottom: 16 }}>
-            <Text strong>规则内容：</Text>
+            <Text strong>{t('preview.content')}</Text>
             <pre style={{ 
               background: '#f5f5f5', 
               padding: 12, 
@@ -199,9 +228,9 @@ const RuleMarketplace: React.FC = () => {
     <div style={{ padding: '24px' }}>
       {/* 页面标题 */}
       <div style={{ marginBottom: '24px' }}>
-        <Title level={2}>规则广场</Title>
+        <Title level={2}>{t('title')}</Title>
         <Text type="secondary">
-          发现和复制其他用户分享的优秀上下文规则
+          {t('subtitle')}
         </Text>
       </div>
 
@@ -210,7 +239,7 @@ const RuleMarketplace: React.FC = () => {
         <Row gutter={16} align="middle">
           <Col flex="auto">
             <Input.Search
-              placeholder="搜索规则名称、描述或内容..."
+              placeholder={t('search.placeholder')}
               allowClear
               onSearch={handleSearch}
               style={{ width: '100%' }}
@@ -223,12 +252,12 @@ const RuleMarketplace: React.FC = () => {
               onChange={handleSortChange}
               style={{ width: 200 }}
             >
-              <Option value="usage_count_desc">使用次数 (高到低)</Option>
-              <Option value="usage_count_asc">使用次数 (低到高)</Option>
-              <Option value="created_at_desc">创建时间 (新到旧)</Option>
-              <Option value="created_at_asc">创建时间 (旧到新)</Option>
-              <Option value="updated_at_desc">更新时间 (新到旧)</Option>
-              <Option value="updated_at_asc">更新时间 (旧到新)</Option>
+              <Option value="usage_count_desc">{t('sort.usageCountDesc')}</Option>
+              <Option value="usage_count_asc">{t('sort.usageCountAsc')}</Option>
+              <Option value="created_at_desc">{t('sort.createdAtDesc')}</Option>
+              <Option value="created_at_asc">{t('sort.createdAtAsc')}</Option>
+              <Option value="updated_at_desc">{t('sort.updatedAtDesc')}</Option>
+              <Option value="updated_at_asc">{t('sort.updatedAtAsc')}</Option>
             </Select>
           </Col>
         </Row>
@@ -237,7 +266,7 @@ const RuleMarketplace: React.FC = () => {
       {/* 规则列表 */}
       {rules.length === 0 && !loading ? (
         <Empty
-          description="暂无公开规则"
+          description={t('search.noResults')}
           style={{ marginTop: 60 }}
         />
       ) : (
@@ -247,10 +276,10 @@ const RuleMarketplace: React.FC = () => {
               <Card
                 hoverable
                 actions={[
-                  <Tooltip title="预览规则">
+                  <Tooltip title={t('actions.preview')}>
                     <EyeOutlined onClick={() => previewRule(rule)} />
                   </Tooltip>,
-                  <Tooltip title="复制规则">
+                  <Tooltip title={t('actions.copy')}>
                     <CopyOutlined onClick={() => showCopyModal(rule)} />
                   </Tooltip>
                 ]}
@@ -275,23 +304,34 @@ const RuleMarketplace: React.FC = () => {
                         ellipsis={{ rows: 2 }} 
                         style={{ marginBottom: 8, minHeight: 44 }}
                       >
-                        {rule.description || '无描述'}
+                        {rule.description || t('card.noDescription')}
                       </Paragraph>
                       
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Avatar 
-                            size="small" 
-                            src={rule.user.avatar_url} 
-                            icon={<UserOutlined />} 
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            cursor: rule.user.provider === 'github' ? 'pointer' : 'default'
+                          }}
+                          onClick={() => handleUserClick(rule.user)}
+                        >
+                          <Avatar
+                            size="small"
+                            src={rule.user.avatar_url}
+                            icon={<UserOutlined />}
                           />
                           <Text type="secondary" style={{ fontSize: 12 }}>
                             {rule.user.full_name || rule.user.username}
                           </Text>
+                          {rule.user.provider === 'github' && (
+                            <GithubOutlined style={{ fontSize: 12, color: '#666' }} />
+                          )}
                         </div>
                         
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <HeartOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />
+                          <BarChartOutlined style={{ color: '#1890ff', fontSize: 12 }} />
                           <Text type="secondary" style={{ fontSize: 12 }}>
                             {rule.usage_count}
                           </Text>
@@ -325,8 +365,8 @@ const RuleMarketplace: React.FC = () => {
             onChange={setCurrentPage}
             showSizeChanger={false}
             showQuickJumper
-            showTotal={(total, range) => 
-              `第 ${range[0]}-${range[1]} 条，共 ${total} 条`
+            showTotal={(total, range) =>
+              t('pagination.total', { start: range[0], end: range[1], total })
             }
           />
         </div>
@@ -334,7 +374,7 @@ const RuleMarketplace: React.FC = () => {
 
       {/* 复制规则模态框 */}
       <Modal
-        title="复制规则"
+        title={t('copy.modal.title')}
         open={copyModalVisible}
         onOk={handleCopyRule}
         onCancel={() => {
@@ -342,27 +382,27 @@ const RuleMarketplace: React.FC = () => {
           setSelectedRule(null)
           copyForm.resetFields()
         }}
-        okText="复制"
-        cancelText="取消"
+        okText={t('copy.modal.okText')}
+        cancelText={t('copy.modal.cancelText')}
       >
         {selectedRule && (
           <Form form={copyForm} layout="vertical">
             <Form.Item
-              label="规则名称"
+              label={t('copy.modal.nameLabel')}
               name="name"
-              rules={[{ required: true, message: '请输入规则名称' }]}
+              rules={[{ required: true, message: t('copy.modal.nameRequired') }]}
             >
-              <Input placeholder="请输入规则名称" />
+              <Input placeholder={t('copy.modal.namePlaceholder')} />
             </Form.Item>
-            
+
             <Form.Item
-              label="复制类型"
+              label={t('copy.modal.typeLabel')}
               name="copy_as_global"
               rules={[{ required: true }]}
             >
               <Radio.Group>
-                <Radio value={true}>复制为全局规则</Radio>
-                <Radio value={false}>复制为项目规则</Radio>
+                <Radio value={true}>{t('copy.modal.globalOption')}</Radio>
+                <Radio value={false}>{t('copy.modal.projectOption')}</Radio>
               </Radio.Group>
             </Form.Item>
             
@@ -376,11 +416,17 @@ const RuleMarketplace: React.FC = () => {
                 const copyAsGlobal = getFieldValue('copy_as_global')
                 return !copyAsGlobal ? (
                   <Form.Item
-                    label="目标项目"
+                    label={t('copy.modal.targetProjectLabel')}
                     name="target_project_id"
-                    rules={[{ required: true, message: '请选择目标项目' }]}
+                    rules={[{ required: true, message: t('copy.modal.targetProjectRequired') }]}
                   >
-                    <Select placeholder="请选择目标项目">
+                    <Select
+                      placeholder={t('copy.modal.targetProjectPlaceholder')}
+                      showSearch
+                      filterOption={(input, option) =>
+                        (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
+                      }
+                    >
                       {projects.map(project => (
                         <Option key={project.id} value={project.id}>
                           {project.name}
