@@ -150,6 +150,58 @@ def renew_token(token_id):
         return handle_api_error(e)
 
 
+@tokens_bp.route('/<int:token_id>/reveal', methods=['GET'])
+@require_auth
+def reveal_token(token_id):
+    """获取解密的完整token"""
+    try:
+        user_id = g.current_user.id
+
+        # 查找token，确保只能查看自己的token
+        api_token = ApiToken.query.filter_by(
+            id=token_id,
+            user_id=user_id,
+            is_active=True
+        ).first()
+
+        if not api_token:
+            return jsonify({
+                'success': False,
+                'error': 'Token not found'
+            }), 404
+
+        # 尝试获取解密的token
+        decrypted_token = None
+
+        # 检查是否有加密的token数据
+        if hasattr(api_token, 'token_encrypted') and api_token.token_encrypted:
+            decrypted_token = api_token.get_decrypted_token()
+
+        # 如果没有加密数据或解密失败，提供友好的错误信息
+        if not decrypted_token:
+            return jsonify({
+                'success': False,
+                'error': 'This token was created before the encryption feature was enabled. For security reasons, the full token cannot be displayed. Please create a new token if you need to view the complete token value.',
+                'suggestion': 'Create a new token to enable the view feature'
+            }), 400
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'token': decrypted_token,
+                'name': api_token.name,
+                'prefix': api_token.prefix,
+                'created_at': api_token.created_at.isoformat() if api_token.created_at else None
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'An error occurred while revealing the token: {str(e)}'
+        }), 500
+
+
 @tokens_bp.route('/<int:token_id>', methods=['DELETE'])
 @require_auth
 def delete_token(token_id):
