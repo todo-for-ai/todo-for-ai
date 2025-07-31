@@ -1,0 +1,32 @@
+/* 未保存更改提示样式 */
+.unsaved-changes-alert {
+  animation: slideDown 0.3s ease-out;
+}
+
+.unsaved-changes-alert .ant-alert-message {
+  font-weight: 600;
+  color: #d48806;
+}
+
+.unsaved-changes-alert .ant-alert-icon {
+  color: #faad14;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .unsaved-changes-alert {
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+}
