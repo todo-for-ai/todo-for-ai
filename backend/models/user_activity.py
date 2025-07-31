@@ -22,6 +22,7 @@ class UserActivity(BaseModel):
     task_created_count = Column(Integer, default=0, comment='当天创建任务数量')
     task_updated_count = Column(Integer, default=0, comment='当天更新任务数量')
     task_status_changed_count = Column(Integer, default=0, comment='当天修改任务状态数量')
+    task_completed_count = Column(Integer, default=0, comment='当天完成任务数量')
     total_activity_count = Column(Integer, default=0, comment='当天总活跃次数')
     
     # 时间信息
@@ -42,6 +43,7 @@ class UserActivity(BaseModel):
             'task_created_count': self.task_created_count,
             'task_updated_count': self.task_updated_count,
             'task_status_changed_count': self.task_status_changed_count,
+            'task_completed_count': self.task_completed_count,
             'total_activity_count': self.total_activity_count,
             'first_activity_at': self.first_activity_at.isoformat() if self.first_activity_at else None,
             'last_activity_at': self.last_activity_at.isoformat() if self.last_activity_at else None,
@@ -52,28 +54,53 @@ class UserActivity(BaseModel):
     def record_activity(cls, user_id, activity_type='general'):
         """
         记录用户活跃度
-        
+
         Args:
             user_id: 用户ID
             activity_type: 活跃类型 ('task_created', 'task_updated', 'task_status_changed', 'general')
         """
+        # 验证用户ID
+        if not user_id:
+            raise ValueError("user_id is required for recording activity")
+
+        # 验证用户是否存在
+        from .user import User
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError(f"User with ID {user_id} not found")
+
         today = date.today()
         now = datetime.utcnow()
-        
+
         # 查找或创建今天的活跃记录
         activity = cls.query.filter_by(user_id=user_id, activity_date=today).first()
-        
+
         if not activity:
             activity = cls(
                 user_id=user_id,
                 activity_date=today,
+                task_created_count=0,
+                task_updated_count=0,
+                task_status_changed_count=0,
+                task_completed_count=0,
+                total_activity_count=0,
                 first_activity_at=now,
                 last_activity_at=now
             )
             db.session.add(activity)
         else:
             activity.last_activity_at = now
-        
+
+        # 确保计数器不为None
+        if activity.task_created_count is None:
+            activity.task_created_count = 0
+        if activity.task_updated_count is None:
+            activity.task_updated_count = 0
+        if activity.task_status_changed_count is None:
+            activity.task_status_changed_count = 0
+        if activity.task_completed_count is None:
+            activity.task_completed_count = 0
+
         # 更新对应的计数器
         if activity_type == 'task_created':
             activity.task_created_count += 1
@@ -81,14 +108,17 @@ class UserActivity(BaseModel):
             activity.task_updated_count += 1
         elif activity_type == 'task_status_changed':
             activity.task_status_changed_count += 1
-        
+        elif activity_type == 'task_completed':
+            activity.task_completed_count += 1
+
         # 更新总活跃次数
         activity.total_activity_count = (
-            activity.task_created_count + 
-            activity.task_updated_count + 
-            activity.task_status_changed_count
+            (activity.task_created_count or 0) +
+            (activity.task_updated_count or 0) +
+            (activity.task_status_changed_count or 0) +
+            (activity.task_completed_count or 0)
         )
-        
+
         try:
             db.session.commit()
             return activity
@@ -126,11 +156,30 @@ class UserActivity(BaseModel):
         
         while current_date <= end_date:
             activity = activity_dict.get(current_date)
-            result.append({
-                'date': current_date.isoformat(),
-                'count': activity.total_activity_count if activity else 0,
-                'level': cls._get_activity_level(activity.total_activity_count if activity else 0)
-            })
+            if activity:
+                result.append({
+                    'date': current_date.isoformat(),
+                    'count': activity.total_activity_count,
+                    'level': cls._get_activity_level(activity.total_activity_count),
+                    'task_created_count': activity.task_created_count,
+                    'task_updated_count': activity.task_updated_count,
+                    'task_status_changed_count': activity.task_status_changed_count,
+                    'task_completed_count': activity.task_completed_count,
+                    'first_activity_at': activity.first_activity_at.isoformat() if activity.first_activity_at else None,
+                    'last_activity_at': activity.last_activity_at.isoformat() if activity.last_activity_at else None
+                })
+            else:
+                result.append({
+                    'date': current_date.isoformat(),
+                    'count': 0,
+                    'level': 0,
+                    'task_created_count': 0,
+                    'task_updated_count': 0,
+                    'task_status_changed_count': 0,
+                    'task_completed_count': 0,
+                    'first_activity_at': None,
+                    'last_activity_at': None
+                })
             current_date += timedelta(days=1)
         
         return result
@@ -179,6 +228,7 @@ class UserActivity(BaseModel):
             func.sum(cls.task_created_count).label('total_created'),
             func.sum(cls.task_updated_count).label('total_updated'),
             func.sum(cls.task_status_changed_count).label('total_status_changed'),
+            func.sum(cls.task_completed_count).label('total_completed'),
             func.sum(cls.total_activity_count).label('total_activities'),
             func.count(cls.activity_date).label('active_days')
         ).filter(
@@ -191,6 +241,7 @@ class UserActivity(BaseModel):
             'total_created': stats.total_created or 0,
             'total_updated': stats.total_updated or 0,
             'total_status_changed': stats.total_status_changed or 0,
+            'total_completed': stats.total_completed or 0,
             'total_activities': stats.total_activities or 0,
             'active_days': stats.active_days or 0,
             'period_days': days

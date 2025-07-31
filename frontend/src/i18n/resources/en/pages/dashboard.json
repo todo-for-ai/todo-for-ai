@@ -52,5 +52,39 @@
     "noDescription": "No description",
     "unknownProject": "Unknown project",
     "totalTasks": "Total Tasks"
+  },
+  "heatmap": {
+    "title": "Activity Heatmap",
+    "subtitle": "Activity over the past year",
+    "loading": "Loading activity heatmap...",
+    "loadError": "Failed to load activity heatmap",
+    "weekLabel": "Week",
+    "weekdays": {
+      "sunday": "Sun",
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat"
+    },
+    "activity": {
+      "none": "No activity",
+      "single": "1 activity",
+      "multiple": "{count} activities"
+    },
+    "legend": {
+      "less": "Less",
+      "more": "More"
+    },
+    "tooltip": {
+      "noActivity": "No activity",
+      "taskCreated": "Tasks created",
+      "taskUpdated": "Tasks updated",
+      "taskStatusChanged": "Status changes",
+      "taskCompleted": "Tasks completed",
+      "totalActivity": "Total activity",
+      "activeTime": "Active time"
+    }
   }
 }

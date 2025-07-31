@@ -55,6 +55,12 @@ export interface ActivityHeatmapData {
   date: string
   count: number
   level: number // 0-4，用于颜色等级
+  task_created_count: number
+  task_updated_count: number
+  task_status_changed_count: number
+  task_completed_count: number
+  first_activity_at: string | null
+  last_activity_at: string | null
 }
 
 export interface ActivityHeatmapResponse {

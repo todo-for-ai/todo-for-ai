@@ -222,15 +222,39 @@ def submit_task_feedback(arguments):
     if not project or project.name != project_name:
         return {'error': f'Task {task_id} does not belong to project "{project_name}"'}
     
+    # 跟踪状态变更
+    old_status = task.status
+    status_changed = str(old_status) != str(status)
+
     # 更新任务
     task.feedback_content = feedback_content
     task.feedback_at = datetime.utcnow()
     task.status = status
-    
+
     # 更新项目最后活动时间
     project.last_activity_at = datetime.utcnow()
-    
+
     db.session.commit()
+
+    # 记录用户活跃度
+    user_id = None
+    if task.creator_id:
+        user_id = task.creator_id
+    elif project.owner_id:
+        user_id = project.owner_id
+
+    if user_id:
+        from models import UserActivity
+        try:
+            if status_changed:
+                UserActivity.record_activity(user_id, 'task_status_changed')
+                # 如果任务状态变为完成，额外记录完成任务活跃度
+                if status == 'done':
+                    UserActivity.record_activity(user_id, 'task_completed')
+            else:
+                UserActivity.record_activity(user_id, 'task_updated')
+        except Exception as e:
+            print(f"Warning: Failed to record user activity: {str(e)}")
     
     return {
         'task_id': task_id,

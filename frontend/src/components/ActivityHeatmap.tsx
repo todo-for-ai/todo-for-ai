@@ -1,20 +1,56 @@
-import React, { useEffect, useState } from 'react'
-import { Card, Tooltip, Spin, message } from 'antd'
+import React, { useEffect, useState, useCallback } from 'react'
+import { Card, Tooltip, Spin, message, Button } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
 import { dashboardApi, type ActivityHeatmapData } from '../api/dashboard'
+import { usePageTranslation } from '../i18n/hooks/useTranslation'
+import { useLanguage } from '../contexts/LanguageContext'
 
 interface ActivityHeatmapProps {
   className?: string
   style?: React.CSSProperties
+  autoRefresh?: boolean // 是否自动刷新，默认true
+  refreshInterval?: number // 刷新间隔（毫秒），默认5分钟
 }
 
-const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ className, style }) => {
+const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({
+  className,
+  style,
+  autoRefresh = true,
+  refreshInterval = 5 * 60 * 1000 // 默认5分钟
+}) => {
+  const { tp } = usePageTranslation('dashboard')
+  const { language } = useLanguage()
   const [heatmapData, setHeatmapData] = useState<ActivityHeatmapData[]>([])
   const [loading, setLoading] = useState(true)
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
 
+  const loadHeatmapData = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await dashboardApi.getActivityHeatmap()
+      setHeatmapData(response.heatmap_data)
+    } catch (error) {
+      console.error('加载活跃度热力图失败:', error)
+      message.error(tp('heatmap.loadError'))
+    } finally {
+      setLoading(false)
+    }
+  }, [tp])
+
   useEffect(() => {
     loadHeatmapData()
-  }, [])
+  }, []) // 移除loadHeatmapData依赖，避免无限循环
+
+  // 自动刷新功能 - 暂时禁用以调试
+  // useEffect(() => {
+  //   if (!autoRefresh) return
+
+  //   const interval = setInterval(() => {
+  //     loadHeatmapData()
+  //   }, refreshInterval)
+
+  //   return () => clearInterval(interval)
+  // }, [autoRefresh, refreshInterval, loadHeatmapData])
 
   // 监听窗口大小变化
   useEffect(() => {
@@ -27,19 +63,6 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ className, style }) =
       return () => window.removeEventListener('resize', handleResize)
     }
   }, [])
-
-  const loadHeatmapData = async () => {
-    try {
-      setLoading(true)
-      const response = await dashboardApi.getActivityHeatmap()
-      setHeatmapData(response.heatmap_data)
-    } catch (error) {
-      console.error('加载活跃度热力图失败:', error)
-      message.error('加载活跃度热力图失败')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   // 获取颜色等级对应的颜色
   const getColorByLevel = (level: number): string => {
@@ -56,7 +79,8 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ className, style }) =
   // 格式化日期显示
   const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr)
-    return date.toLocaleDateString('zh-CN', {
+    const locale = language === 'zh-CN' ? 'zh-CN' : 'en-US'
+    return date.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -65,44 +89,138 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ className, style }) =
 
   // 获取活动描述
   const getActivityDescription = (count: number): string => {
-    if (count === 0) return '无活动'
-    if (count === 1) return '1次活动'
-    return `${count}次活动`
+    if (count === 0) return tp('heatmap.activity.none')
+    if (count === 1) return tp('heatmap.activity.single')
+    // 直接使用字符串替换，确保参数正确传递
+    const template = tp('heatmap.activity.multiple')
+    return template.replace('{count}', count.toString())
   }
 
-  // 按周分组数据
-  const groupDataByWeeks = (data: ActivityHeatmapData[]) => {
-    const weeks: ActivityHeatmapData[][] = []
-    let currentWeek: ActivityHeatmapData[] = []
-    
-    data.forEach((item, index) => {
-      const date = new Date(item.date)
-      const dayOfWeek = date.getDay() // 0 = Sunday, 1 = Monday, ...
-      
-      // 如果是周日或者是第一个元素，开始新的一周
-      if (dayOfWeek === 0 || index === 0) {
-        if (currentWeek.length > 0) {
-          weeks.push(currentWeek)
-        }
-        currentWeek = []
-      }
-      
-      currentWeek.push(item)
-    })
-    
-    // 添加最后一周
-    if (currentWeek.length > 0) {
-      weeks.push(currentWeek)
+  // 生成详细的tooltip内容
+  const getDetailedTooltipContent = (day: ActivityHeatmapData): React.ReactNode => {
+    const date = formatDate(day.date)
+
+    if (day.count === 0) {
+      return (
+        <div>
+          <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{date}</div>
+          <div style={{ color: '#999' }}>{tp('heatmap.tooltip.noActivity')}</div>
+        </div>
+      )
     }
-    
-    return weeks
+
+    return (
+      <div>
+        <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>{date}</div>
+        <div style={{ fontSize: '12px' }}>
+          <div style={{ marginBottom: '2px' }}>
+            📝 {tp('heatmap.tooltip.taskCreated')}: <span style={{ fontWeight: 'bold' }}>{day.task_created_count}</span>
+          </div>
+          <div style={{ marginBottom: '2px' }}>
+            ✏️ {tp('heatmap.tooltip.taskUpdated')}: <span style={{ fontWeight: 'bold' }}>{day.task_updated_count}</span>
+          </div>
+          <div style={{ marginBottom: '2px' }}>
+            🔄 {tp('heatmap.tooltip.taskStatusChanged')}: <span style={{ fontWeight: 'bold' }}>{day.task_status_changed_count}</span>
+          </div>
+          <div style={{ marginBottom: '2px' }}>
+            ✅ {tp('heatmap.tooltip.taskCompleted')}: <span style={{ fontWeight: 'bold' }}>{day.task_completed_count}</span>
+          </div>
+          <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px solid #eee' }}>
+            {tp('heatmap.tooltip.totalActivity')}: <span style={{ fontWeight: 'bold', color: '#1890ff' }}>{day.count}</span>
+          </div>
+          {day.first_activity_at && (
+            <div style={{ marginTop: '4px', fontSize: '11px', color: '#666' }}>
+              {tp('heatmap.tooltip.activeTime')}: {new Date(day.first_activity_at).toLocaleTimeString(language === 'zh-CN' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+              {day.last_activity_at && day.first_activity_at !== day.last_activity_at && (
+                <> - {new Date(day.last_activity_at).toLocaleTimeString(language === 'zh-CN' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
-  const weeks = groupDataByWeeks(heatmapData)
+  // 创建网格数据结构：行代表星期几，列代表周
+  const createHeatmapGrid = (data: ActivityHeatmapData[]): (ActivityHeatmapData | null)[][] => {
+    if (!data || data.length === 0) return []
+
+    // 创建日期到数据的映射
+    const dataMap = new Map<string, ActivityHeatmapData>()
+    data.forEach(item => {
+      dataMap.set(item.date, item)
+    })
+
+    // 找到第一个和最后一个日期
+    const firstDate = new Date(data[0].date)
+    const lastDate = new Date(data[data.length - 1].date)
+
+    // 找到第一个周日（作为第一周的开始）
+    const startDate = new Date(firstDate)
+    startDate.setDate(startDate.getDate() - startDate.getDay())
+
+    // 找到最后一个周六（作为最后一周的结束）
+    const endDate = new Date(lastDate)
+    endDate.setDate(endDate.getDate() + (6 - endDate.getDay()))
+
+    // 计算总周数
+    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    const totalWeeks = Math.ceil(totalDays / 7)
+
+    // 创建7行（星期）x N列（周）的网格
+    const grid: (ActivityHeatmapData | null)[][] = []
+    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+      grid[dayOfWeek] = []
+      for (let week = 0; week < totalWeeks; week++) {
+        const currentDate = new Date(startDate)
+        currentDate.setDate(startDate.getDate() + week * 7 + dayOfWeek)
+
+        const dateStr = currentDate.toISOString().split('T')[0]
+        const dayData = dataMap.get(dateStr)
+
+        // 只有在数据范围内的日期才显示，否则为null
+        if (currentDate >= firstDate && currentDate <= lastDate) {
+          grid[dayOfWeek][week] = dayData || {
+            date: dateStr,
+            count: 0,
+            level: 0,
+            task_created_count: 0,
+            task_updated_count: 0,
+            task_status_changed_count: 0,
+            task_completed_count: 0,
+            first_activity_at: null,
+            last_activity_at: null
+          }
+        } else {
+          grid[dayOfWeek][week] = null
+        }
+      }
+    }
+
+    return grid
+  }
+
+  const heatmapGrid = createHeatmapGrid(heatmapData)
+  const gridTotalWeeks = heatmapGrid.length > 0 ? heatmapGrid[0].length : 0
+
+  const refreshButton = (
+    <Button
+      type="text"
+      icon={<ReloadOutlined />}
+      onClick={loadHeatmapData}
+      loading={loading}
+      size="small"
+    />
+  )
 
   if (loading) {
     return (
-      <Card title="活跃度热力图" className={className} style={style}>
+      <Card
+        title={tp('heatmap.title')}
+        extra={refreshButton}
+        className={className}
+        style={style}
+      >
         <div style={{ textAlign: 'center', padding: '40px 0' }}>
           <Spin size="large" />
         </div>
@@ -110,133 +228,178 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ className, style }) =
     )
   }
 
-  // 计算响应式方块尺寸
-  const calculateCellSize = () => {
-    const availableWidth = Math.min(windowWidth - 280, 1400) // 减去侧边栏(240px)和padding(40px)
-    const totalWeeks = weeks.length
-    if (totalWeeks === 0) return 12 // 默认尺寸
-
-    const maxCellSize = Math.floor((availableWidth - 60) / totalWeeks) // 60px for labels and gaps
-    return Math.max(Math.min(maxCellSize, 18), 10) // 最小10px，最大18px
+  // 如果没有数据，显示空状态
+  if (!heatmapData || heatmapData.length === 0) {
+    return (
+      <Card
+        title={tp('heatmap.title')}
+        extra={refreshButton}
+        className={className}
+        style={style}
+      >
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+          No activity data available
+        </div>
+      </Card>
+    )
   }
 
-  const cellSize = calculateCellSize()
-  const gap = Math.max(Math.floor(cellSize / 4), 1) // 间隙为方块尺寸的1/4，最小1px
+  // 动态方块大小计算 - 考虑星期标签空间
+  const totalWeeks = gridTotalWeeks
+  const gap = 2
+  const weekLabelWidth = 120 // 星期标签宽度，增加到120px以适应中文字符
+  const cardPadding = 48 // Card内边距
+  const sidebarWidth = 250 // 侧边栏宽度
+  const extraMargin = 40 // 额外边距
+
+  // 可用宽度 = 窗口宽度 - 侧边栏 - 星期标签 - 各种边距
+  const availableWidth = windowWidth - sidebarWidth - weekLabelWidth - cardPadding - extraMargin
+
+  // 方块大小 = (可用宽度 - 所有间隙) ÷ 周数，但要确保每个方块至少8px
+  const cellSize = totalWeeks > 0
+    ? Math.max(Math.floor((availableWidth - (totalWeeks - 1) * gap) / totalWeeks), 8)
+    : 12
+
+  // cellSize和gap已经在useMemo中定义了
 
   return (
-    <Card title="活跃度热力图" className={className} style={style}>
-      <div style={{ padding: '16px 0' }}>
-        {/* 月份标签 */}
+    <Card
+      title={tp('heatmap.title')}
+      extra={refreshButton}
+      className={className}
+      style={style}
+    >
+      <div style={{ padding: '20px 0' }}>
+        {/* 标题 */}
         <div style={{
           display: 'flex',
-          marginBottom: '12px',
-          fontSize: '14px',
+          justifyContent: 'center',
+          marginBottom: '20px',
+          fontSize: '16px',
           color: '#666',
           fontWeight: 500
         }}>
-          <div style={{ width: '100%', textAlign: 'center' }}>
-            过去一年的活跃度
-          </div>
+          {tp('heatmap.subtitle')}
         </div>
 
-        {/* 热力图网格 */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: `${gap}px`,
-          overflowX: 'auto',
-          width: '100%'
-        }}>
-          {/* 星期标签 */}
-          <div style={{ display: 'flex', gap: `${gap}px`, marginBottom: '8px' }}>
+        {/* 热力图容器 - 真正的100%宽度填充 */}
+        <div
+          data-heatmap-container
+          style={{
+            width: '100%',
+            overflowX: 'auto',
+            padding: '0',
+            margin: '0'
+          }}>
+          {/* 热力图网格 */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${gap}px`,
+            width: '100%',
+            minWidth: '100%' // 确保至少占满100%宽度
+          }}>
+          {/* 热力图主体 - 星期标签和方块并排显示 */}
+          <div style={{ display: 'flex', gap: `${gap}px`, width: '100%' }}>
+            {/* 左侧星期标签列 */}
             <div style={{
-              width: `${cellSize + 8}px`,
-              fontSize: `${Math.max(cellSize - 2, 10)}px`,
-              color: '#666',
-              textAlign: 'center'
+              width: `${weekLabelWidth}px`,
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: `${gap}px`
             }}>
-              周
+              {/* 星期标签 - 与热力图方块行完全对应 */}
+              {[
+                tp('heatmap.weekdays.sunday'),
+                tp('heatmap.weekdays.monday'),
+                tp('heatmap.weekdays.tuesday'),
+                tp('heatmap.weekdays.wednesday'),
+                tp('heatmap.weekdays.thursday'),
+                tp('heatmap.weekdays.friday'),
+                tp('heatmap.weekdays.saturday')
+              ].map((dayLabel, index) => (
+                <div
+                  key={index}
+                  style={{
+                    height: `${cellSize}px`,
+                    fontSize: `${Math.max(Math.min(cellSize * 0.7, 16), 10)}px`,
+                    color: '#666',
+                    textAlign: 'right',
+                    paddingRight: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    lineHeight: 1
+                  }}
+                >
+                  {dayLabel}
+                </div>
+              ))}
             </div>
-            {weeks.map((week, weekIndex) => (
-              <div key={weekIndex} style={{ display: 'flex', flexDirection: 'column', gap: `${gap}px` }}>
-                {week.map((day, dayIndex) => {
-                  const date = new Date(day.date)
-                  const dayOfWeek = date.getDay()
-                  const dayLabels = ['日', '一', '二', '三', '四', '五', '六']
 
-                  return (
-                    <div
-                      key={dayIndex}
-                      style={{
-                        width: `${cellSize}px`,
-                        height: `${cellSize}px`,
-                        fontSize: `${Math.max(cellSize - 4, 8)}px`,
-                        color: '#666',
-                        textAlign: 'center',
-                        lineHeight: `${cellSize}px`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      {weekIndex === 0 ? dayLabels[dayOfWeek] : ''}
+            {/* 右侧热力图方块 - 使用网格结构 */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: `${gap}px`,
+              flex: 1
+            }}>
+              {heatmapGrid.map((dayRow, dayOfWeek) => (
+                <div key={dayOfWeek} style={{
+                  display: 'flex',
+                  gap: `${gap}px`,
+                  height: `${cellSize}px`,
+                  alignItems: 'center'
+                }}>
+                  {dayRow.map((dayData, weekIndex) => (
+                    <div key={weekIndex} style={{ width: `${cellSize}px`, height: `${cellSize}px` }}>
+                      {dayData ? (
+                        <Tooltip
+                          title={getDetailedTooltipContent(dayData)}
+                        >
+                          <div
+                            style={{
+                              width: `${cellSize}px`,
+                              height: `${cellSize}px`,
+                              backgroundColor: getColorByLevel(dayData.level),
+                              border: '1px solid #e1e4e8',
+                              borderRadius: `${Math.max(Math.floor(cellSize / 4), 2)}px`,
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform = 'scale(1.1)'
+                              e.currentTarget.style.borderColor = '#1890ff'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = 'scale(1)'
+                              e.currentTarget.style.borderColor = '#e1e4e8'
+                            }}
+                          />
+                        </Tooltip>
+                      ) : (
+                        // 空白占位符，用于对齐
+                        <div style={{ width: `${cellSize}px`, height: `${cellSize}px` }} />
+                      )}
                     </div>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-
-          {/* 热力图方块 */}
-          <div style={{ display: 'flex', gap: `${gap}px` }}>
-            <div style={{ width: `${cellSize + 8}px` }}></div>
-            {weeks.map((week, weekIndex) => (
-              <div key={weekIndex} style={{ display: 'flex', flexDirection: 'column', gap: `${gap}px` }}>
-                {week.map((day, dayIndex) => (
-                  <Tooltip
-                    key={dayIndex}
-                    title={`${formatDate(day.date)}: ${getActivityDescription(day.count)}`}
-                  >
-                    <div
-                      style={{
-                        width: `${cellSize}px`,
-                        height: `${cellSize}px`,
-                        backgroundColor: getColorByLevel(day.level),
-                        border: '1px solid #e1e4e8',
-                        borderRadius: `${Math.max(Math.floor(cellSize / 4), 2)}px`,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        '&:hover': {
-                          transform: 'scale(1.1)',
-                          borderColor: '#1890ff'
-                        }
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.1)'
-                        e.currentTarget.style.borderColor = '#1890ff'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)'
-                        e.currentTarget.style.borderColor = '#e1e4e8'
-                      }}
-                    />
-                  </Tooltip>
-                ))}
-              </div>
-            ))}
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* 图例 */}
+        {/* 图例 - 居中显示 */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'flex-end',
-          marginTop: '20px',
+          justifyContent: 'center',
+          marginTop: '24px',
           fontSize: '12px',
           color: '#666'
         }}>
-          <span style={{ marginRight: '12px' }}>少</span>
+          <span style={{ marginRight: '12px' }}>{tp('heatmap.legend.less')}</span>
           {[0, 1, 2, 3, 4].map(level => (
             <div
               key={level}
@@ -250,9 +413,10 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ className, style }) =
               }}
             />
           ))}
-          <span style={{ marginLeft: '12px' }}>多</span>
+          <span style={{ marginLeft: '12px' }}>{tp('heatmap.legend.more')}</span>
         </div>
-      </div>
+        </div> {/* 闭合热力图容器 div */}
+      </div> {/* 闭合 padding div */}
     </Card>
   )
 }

@@ -113,9 +113,12 @@ def list_tasks():
 
 
 @tasks_bp.route('', methods=['POST'])
+@require_auth
 def create_task():
     """创建新任务"""
     try:
+        current_user = get_current_user()
+
         # 验证请求数据
         data = validate_json_request(
             required_fields=['project_id'],
@@ -124,14 +127,18 @@ def create_task():
                 'due_date', 'tags', 'is_ai_task'
             ]
         )
-        
+
         if isinstance(data, tuple):  # 错误响应
             return data
-        
+
         # 验证项目是否存在
         project = Project.query.get(data['project_id'])
         if not project:
             return api_error("Project not found", 404, "PROJECT_NOT_FOUND")
+
+        # 验证用户是否有权限在该项目中创建任务
+        if not current_user.is_admin() and project.owner_id != current_user.id:
+            return api_error("Permission denied", 403, "PERMISSION_DENIED")
         
         # 处理日期字段
         due_date = None
@@ -183,7 +190,8 @@ def create_task():
             due_date=due_date,
             tags=data.get('tags', []),
             is_ai_task=data.get('is_ai_task', False),
-            created_by='api'  # TODO: 从认证信息获取
+            creator_id=current_user.id,  # 设置创建者ID
+            created_by=current_user.email  # 设置创建者邮箱
         )
         
         db.session.commit()
@@ -197,8 +205,12 @@ def create_task():
         )
 
         # 记录用户活跃度
-        if hasattr(task, 'creator_id') and task.creator_id:
-            UserActivity.record_activity(task.creator_id, 'task_created')
+        if current_user:
+            try:
+                UserActivity.record_activity(current_user.id, 'task_created')
+            except Exception as e:
+                # 记录活跃度失败不应该影响任务创建
+                print(f"Warning: Failed to record user activity: {str(e)}")
 
         return api_response(
             task.to_dict(include_project=True, include_stats=True),
@@ -229,12 +241,19 @@ def get_task(task_id):
 
 
 @tasks_bp.route('/<int:task_id>', methods=['PUT'])
+@require_auth
 def update_task(task_id):
     """更新任务"""
     try:
+        current_user = get_current_user()
+
         task = Task.query.get(task_id)
         if not task:
             return api_error("Task not found", 404, "TASK_NOT_FOUND")
+
+        # 验证用户是否有权限更新该任务
+        if not current_user.is_admin() and task.project.owner_id != current_user.id:
+            return api_error("Permission denied", 403, "PERMISSION_DENIED")
         
         # 验证请求数据
         data = validate_json_request(
@@ -316,11 +335,18 @@ def update_task(task_id):
                 status_changed = True
 
         # 记录用户活跃度
-        if hasattr(task, 'creator_id') and task.creator_id:
-            if status_changed:
-                UserActivity.record_activity(task.creator_id, 'task_status_changed')
-            else:
-                UserActivity.record_activity(task.creator_id, 'task_updated')
+        if current_user:
+            try:
+                if status_changed:
+                    UserActivity.record_activity(current_user.id, 'task_status_changed')
+                    # 如果任务状态变为完成，额外记录完成任务活跃度
+                    if 'status' in data and data['status'] == 'done':
+                        UserActivity.record_activity(current_user.id, 'task_completed')
+                else:
+                    UserActivity.record_activity(current_user.id, 'task_updated')
+            except Exception as e:
+                # 记录活跃度失败不应该影响任务更新
+                print(f"Warning: Failed to record user activity: {str(e)}")
 
         return api_response(
             task.to_dict(include_project=True, include_stats=True),
