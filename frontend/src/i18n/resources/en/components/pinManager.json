@@ -1,0 +1,30 @@
+{
+  "title": "Manage Pinned Projects",
+  "description": "Drag projects to adjust their order in the navigation bar. The order will be saved automatically. Click the delete button to unpin projects.",
+  "pinnedCount": "Pinned {{count}}/10 projects",
+  "loading": "Loading pinned projects...",
+  "empty": {
+    "title": "No pinned projects",
+    "description": "Click the Pin button on project detail pages to add projects to the navigation bar"
+  },
+  "item": {
+    "projectId": "Project ID: {{id}}",
+    "order": "Order: {{order}}"
+  },
+  "confirm": {
+    "unpin": "Are you sure you want to unpin this project?",
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "messages": {
+    "loadFailed": "Failed to load pinned projects",
+    "unpinSuccess": "Project unpinned successfully",
+    "unpinFailed": "Failed to unpin project",
+    "pinSuccess": "Project pinned to navigation bar",
+    "pinFailed": "Operation failed",
+    "pinLimitReached": "Maximum 10 projects can be pinned. Please unpin some projects first"
+  },
+  "buttons": {
+    "close": "Close"
+  }
+}
