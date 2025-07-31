@@ -224,7 +224,7 @@ class TodoMCPServer:
                     ),
                     Tool(
                         name="create_task",
-                        description="Create a new task",
+                        description="Create a new task with AI creator identification",
                         inputSchema={
                             "type": "object",
                             "properties": {
@@ -253,6 +253,10 @@ class TodoMCPServer:
                                     "type": "string",
                                     "enum": ["low", "medium", "high", "urgent"],
                                     "description": "The priority of the task"
+                                },
+                                "ai_identifier": {
+                                    "type": "string",
+                                    "description": "AI identifier (e.g., 'Claude-3.5-Sonnet', 'GPT-4', 'MCP Client')"
                                 },
                                 "assignee": {
                                     "type": "string",
@@ -374,6 +378,24 @@ class TodoMCPServer:
                         }
                     ),
                     Tool(
+                        name="start_task",
+                        description="Mark a task as in progress to avoid duplicate execution by other AI instances",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "task_id": {
+                                    "type": "integer",
+                                    "description": "The ID of the task to start"
+                                },
+                                "ai_identifier": {
+                                    "type": "string",
+                                    "description": "AI identifier (e.g., 'Claude-3.5-Sonnet', 'GPT-4', 'MCP Client')"
+                                }
+                            },
+                            "required": ["task_id", "ai_identifier"]
+                        }
+                    ),
+                    Tool(
                         name="submit_task_feedback",
                         description="Submit feedback for a completed or in-progress task",
                         inputSchema={
@@ -434,6 +456,8 @@ class TodoMCPServer:
                         return await self._get_project_tasks_by_name(arguments)
                     elif name == "get_task_by_id":
                         return await self._get_task_by_id(arguments)
+                    elif name == "start_task":
+                        return await self._start_task(arguments)
                     elif name == "submit_task_feedback":
                         return await self._submit_task_feedback(arguments)
                     else:
@@ -736,8 +760,12 @@ class TodoMCPServer:
 
             # 获取项目级别的上下文规则并拼接到任务内容后
             if task.project:
+                # 获取任务创建者的用户ID，如果没有则使用当前用户ID
+                task_user_id = task.creator_id if task.creator_id else (self.current_user.id if self.current_user else None)
+
                 project_context = ContextRule.build_context_string(
                     project_id=task.project.id,
+                    user_id=task_user_id,
                     for_tasks=True,
                     for_projects=False
                 )
@@ -779,18 +807,21 @@ class TodoMCPServer:
                         isError=True
                     )
 
+            # Get AI identifier
+            ai_identifier = arguments.get('ai_identifier', 'MCP Client')
+
             task = Task(
                 project_id=arguments['project_id'],
                 title=arguments['title'],
-                description=arguments.get('description', ''),
-                content=arguments.get('content', ''),
+                content=arguments.get('content', arguments.get('description', '')),
                 status=arguments.get('status', 'todo'),
                 priority=arguments.get('priority', 'medium'),
-                assignee=arguments.get('assignee'),
                 due_date=due_date,
-                estimated_hours=arguments.get('estimated_hours'),
                 tags=arguments.get('tags', []),
-                created_by='mcp-client'
+                created_by='mcp-client',
+                creator_type='ai',
+                creator_identifier=ai_identifier,
+                is_ai_task=arguments.get('is_ai_task', True)
             )
 
             db.session.add(task)
@@ -801,14 +832,14 @@ class TodoMCPServer:
                 'project_id': task.project_id,
                 'project_name': project.name,
                 'title': task.title,
-                'description': task.description,
                 'content': task.content,
-                'status': task.status,
-                'priority': task.priority,
-                'assignee': task.assignee,
+                'status': task.status.value if hasattr(task.status, 'value') else str(task.status),
+                'priority': task.priority.value if hasattr(task.priority, 'value') else str(task.priority),
                 'due_date': task.due_date.isoformat() if task.due_date else None,
-                'estimated_hours': task.estimated_hours,
                 'tags': task.tags,
+                'is_ai_task': task.is_ai_task,
+                'creator_type': task.creator_type,
+                'creator_identifier': task.creator_identifier,
                 'created_at': task.created_at.isoformat(),
                 'message': 'Task created successfully'
             }
@@ -1061,8 +1092,12 @@ class TodoMCPServer:
 
             # 获取项目级别的上下文规则并拼接到任务内容后
             if project:
+                # 获取任务创建者的用户ID，如果没有则使用当前用户ID
+                task_user_id = task.creator_id if task.creator_id else (self.current_user.id if self.current_user else None)
+
                 project_context = ContextRule.build_context_string(
                     project_id=project.id,
+                    user_id=task_user_id,
                     for_tasks=True,
                     for_projects=False
                 )
@@ -1080,6 +1115,89 @@ class TodoMCPServer:
             )
         except Exception as e:
             logger.error(f"Error getting task by ID: {str(e)}")
+            raise
+
+    async def _start_task(self, arguments: Dict[str, Any]) -> CallToolResult:
+        """Mark a task as in progress to avoid duplicate execution"""
+        try:
+            task_id = arguments['task_id']
+            ai_identifier = arguments['ai_identifier']
+
+            task = Task.query.get(task_id)
+            if not task:
+                return CallToolResult(
+                    content=[TextContent(
+                        type="text",
+                        text=json.dumps({
+                            'error': f'Task {task_id} not found'
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
+            # Check if task is already in progress
+            task_status_str = task.status.value if hasattr(task.status, 'value') else str(task.status)
+            if task_status_str == 'in_progress':
+                return CallToolResult(
+                    content=[TextContent(
+                        type="text",
+                        text=json.dumps({
+                            'warning': f'Task {task_id} is already in progress',
+                            'task_id': task_id,
+                            'current_status': task_status_str,
+                            'message': 'Task was already started by another process'
+                        }, indent=2)
+                    )]
+                )
+
+            # Check if task is not in a startable state
+            task_status_str = task.status.value if hasattr(task.status, 'value') else str(task.status)
+            if task_status_str not in ['todo']:
+                return CallToolResult(
+                    content=[TextContent(
+                        type="text",
+                        text=json.dumps({
+                            'error': f'Task {task_id} cannot be started from status "{task_status_str}"',
+                            'task_id': task_id,
+                            'current_status': task_status_str,
+                            'message': 'Only tasks with status "todo" can be started'
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
+            # Update task status to in_progress
+            task.status = 'in_progress'
+            task.updated_at = datetime.utcnow()
+
+            # Add feedback about who started the task
+            task.feedback_content = f"Task started by {ai_identifier}"
+            task.feedback_at = datetime.utcnow()
+
+            # Update project last activity
+            project = Project.query.get(task.project_id)
+            if project:
+                project.last_activity_at = datetime.utcnow()
+
+            db.session.commit()
+
+            result_data = {
+                'task_id': task_id,
+                'status': 'in_progress',
+                'started_by': ai_identifier,
+                'message': 'Task successfully started',
+                'timestamp': datetime.utcnow().isoformat()
+            }
+
+            return CallToolResult(
+                content=[TextContent(
+                    type="text",
+                    text=json.dumps(result_data, indent=2)
+                )]
+            )
+        except Exception as e:
+            logger.error(f"Error starting task: {str(e)}")
+            db.session.rollback()
             raise
 
     async def _submit_task_feedback(self, arguments: Dict[str, Any]) -> CallToolResult:

@@ -37,18 +37,21 @@ class MCPServerMethods:
                         isError=True
                     )
             
+            # Get AI identifier
+            ai_identifier = arguments.get('ai_identifier', 'MCP Client')
+
             task = Task(
                 project_id=arguments['project_id'],
                 title=arguments['title'],
-                description=arguments.get('description', ''),
-                content=arguments.get('content', ''),
+                content=arguments.get('content', arguments.get('description', '')),
                 status=arguments.get('status', 'todo'),
                 priority=arguments.get('priority', 'medium'),
-                assignee=arguments.get('assignee'),
                 due_date=due_date,
-                estimated_hours=arguments.get('estimated_hours'),
                 tags=arguments.get('tags', []),
-                created_by='mcp-client'
+                created_by='mcp-client',
+                creator_type='ai',
+                creator_identifier=ai_identifier,
+                is_ai_task=arguments.get('is_ai_task', True)
             )
             
             db.session.add(task)
