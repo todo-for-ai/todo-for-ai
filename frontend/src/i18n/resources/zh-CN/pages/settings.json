@@ -1,0 +1,63 @@
+{
+  "title": "系统设置",
+  "subtitle": "配置系统参数和个人偏好",
+  "sections": {
+    "general": "通用设置",
+    "language": "语言设置",
+    "theme": "主题设置",
+    "notifications": "通知设置",
+    "security": "安全设置",
+    "advanced": "高级设置"
+  },
+  "language": {
+    "title": "界面语言",
+    "description": "选择界面显示语言",
+    "options": {
+      "zh-CN": "简体中文",
+      "en": "English"
+    }
+  },
+  "theme": {
+    "title": "主题模式",
+    "description": "选择界面主题",
+    "options": {
+      "light": "浅色模式",
+      "dark": "深色模式",
+      "auto": "跟随系统"
+    }
+  },
+  "notifications": {
+    "title": "通知设置",
+    "description": "配置通知偏好",
+    "email": "邮件通知",
+    "browser": "浏览器通知",
+    "desktop": "桌面通知",
+    "taskReminders": "任务提醒",
+    "projectUpdates": "项目更新",
+    "systemMessages": "系统消息"
+  },
+  "security": {
+    "title": "安全设置",
+    "description": "管理账户安全",
+    "changePassword": "修改密码",
+    "twoFactor": "双因素认证",
+    "sessions": "活跃会话",
+    "apiTokens": "API令牌"
+  },
+  "advanced": {
+    "title": "高级设置",
+    "description": "高级功能配置",
+    "autoSave": "自动保存",
+    "autoSaveInterval": "自动保存间隔",
+    "dataExport": "数据导出",
+    "dataImport": "数据导入",
+    "resetSettings": "重置设置"
+  },
+  "messages": {
+    "saveSuccess": "设置保存成功",
+    "saveError": "设置保存失败",
+    "resetConfirm": "确定要重置所有设置吗？此操作不可撤销。",
+    "resetSuccess": "设置重置成功",
+    "languageChanged": "语言设置已更改，页面将自动刷新"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "pageTitle": "Terms of Service - Todo for AI",
+  "title": "Terms of Service",
+  "lastUpdated": "Last updated: ",
+  "sections": {
+    "service": {
+      "title": "1. Service Description",
+      "content": "Todo for AI (hereinafter referred to as \"the Service\") is an intelligent task management platform designed to help users manage and execute tasks more efficiently. By using this Service, you agree to comply with the following terms and conditions."
+    },
+    "account": {
+      "title": "2. User Account",
+      "items": [
+        "You need to log in through GitHub or Google account to use this Service",
+        "You are responsible for protecting your account security",
+        "You may not share your account information with others",
+        "If you discover that your account has been compromised, please contact us immediately"
+      ]
+    },
+    "usage": {
+      "title": "3. Usage Guidelines",
+      "intro": "When using this Service, you agree to:",
+      "items": [
+        "Not upload, post, or transmit any illegal, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, or otherwise objectionable content",
+        "Not interfere with or disrupt the normal operation of this Service",
+        "Not attempt unauthorized access to other users' accounts or data",
+        "Comply with all applicable laws and regulations"
+      ]
+    },
+    "ip": {
+      "title": "4. Intellectual Property",
+      "content": "All content of this Service, including but not limited to text, graphics, user interfaces, visual interfaces, photographs, trademarks, logos, sounds or music, artwork, and computer code, is owned, controlled, or licensed by us or our licensors and is protected by copyright, trademark, and other intellectual property laws."
+    },
+    "privacy": {
+      "title": "5. Data and Privacy",
+      "content": "We value your privacy. For detailed information on how we collect, use, and protect your personal information, please refer to our Privacy Policy."
+    },
+    "changes": {
+      "title": "6. Service Changes",
+      "content": "We reserve the right to modify or terminate this Service (or any part thereof) at any time, with or without notice. We shall not be liable to you or any third party for any modification, suspension, or termination of this Service."
+    },
+    "disclaimer": {
+      "title": "7. Disclaimer",
+      "content": "This Service is provided \"as is\" without any express or implied warranties. We do not guarantee that the Service will be uninterrupted, error-free, or completely secure. You use this Service at your own risk."
+    },
+    "liability": {
+      "title": "8. Limitation of Liability",
+      "content": "Under no circumstances shall we be liable for any direct, indirect, incidental, special, or consequential damages arising from the use or inability to use this Service, even if we have been advised of the possibility of such damages."
+    },
+    "law": {
+      "title": "9. Governing Law",
+      "content": "These terms are governed by the laws of the People's Republic of China. Any disputes arising from these terms should be resolved through friendly consultation. If consultation fails, they should be submitted to a court of competent jurisdiction."
+    },
+    "contact": {
+      "title": "10. Contact Us",
+      "intro": "If you have any questions about these Terms of Service, please contact us through:",
+      "email": "Email: support@todoforai.com",
+      "github": "GitHub: https://github.com/todo-for-ai/todo-for-ai"
+    }
+  },
+  "footer": "By using the Todo for AI service, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service."
+}

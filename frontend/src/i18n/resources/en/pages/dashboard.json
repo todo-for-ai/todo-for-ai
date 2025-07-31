@@ -1,0 +1,56 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Welcome back! Here's your work overview",
+  "stats": {
+    "totalProjects": "Total Projects",
+    "activeTasks": "Active Tasks",
+    "completedTasks": "Completed Tasks",
+    "pendingTasks": "Pending Tasks",
+    "overdueTasks": "Overdue Tasks",
+    "todayTasks": "Today's Tasks",
+    "thisWeekTasks": "This Week's Tasks",
+    "productivity": "Productivity Index"
+  },
+  "sections": {
+    "overview": "Overview",
+    "recentProjects": "Recent Projects",
+    "recentTasks": "Recent Tasks",
+    "quickActions": "Quick Actions",
+    "activity": "Recent Activity",
+    "statistics": "Statistics"
+  },
+  "quickActions": {
+    "createProject": "Create Project",
+    "createTask": "Create Task",
+    "viewAllProjects": "View All Projects",
+    "viewAllTasks": "View All Tasks",
+    "settings": "Settings"
+  },
+  "activity": {
+    "created": "created",
+    "updated": "updated",
+    "completed": "completed",
+    "deleted": "deleted",
+    "project": "project",
+    "task": "task",
+    "rule": "rule",
+    "ago": "ago"
+  },
+  "empty": {
+    "noProjects": "No projects yet. Create your first project to get started!",
+    "noTasks": "No tasks yet. Create your first task to get started!",
+    "noActivity": "No recent activity"
+  },
+  "taskStatus": {
+    "todo": "To Do",
+    "in_progress": "In Progress",
+    "review": "Under Review",
+    "done": "Completed",
+    "ai_executing": "AI Executing"
+  },
+  "misc": {
+    "noDescription": "No description",
+    "unknownProject": "Unknown project",
+    "totalTasks": "Total Tasks"
+  }
+}

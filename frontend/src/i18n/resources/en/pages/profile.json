@@ -1,0 +1,156 @@
+{
+  "title": "Profile",
+  "subtitle": "Manage your personal information and API tokens",
+  "pageTitle": "Profile - Todo for AI",
+  "userInfo": {
+    "role": "Role:",
+    "status": "Status:",
+    "registeredAt": "Registered:",
+    "lastLogin": "Last Login:",
+    "roles": {
+      "admin": "Administrator",
+      "user": "User"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  },
+  "tabs": {
+    "profile": "Personal Info",
+    "tokens": "API Tokens"
+  },
+  "basicInfo": {
+    "title": "Basic Information",
+    "username": "Username",
+    "nickname": "Nickname",
+    "fullName": "Full Name",
+    "bio": "Bio",
+    "timezone": "Timezone",
+    "language": "Language",
+    "placeholders": {
+      "username": "Enter username",
+      "nickname": "Enter nickname",
+      "fullName": "Enter full name",
+      "bio": "Tell us about yourself...",
+      "timezone": "e.g.: Asia/Shanghai",
+      "language": "e.g.: en-US"
+    },
+    "validation": {
+      "usernameRequired": "Please enter username",
+      "usernameMinLength": "Username must be at least 2 characters"
+    }
+  },
+  "buttons": {
+    "edit": "Edit",
+    "save": "Save",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "messages": {
+    "updateSuccess": "Profile updated successfully",
+    "updateFailed": "Update failed",
+    "loading": "Loading..."
+  },
+  "apiTokens": {
+    "title": "API Token Management",
+    "description": "API tokens for MCP client authentication",
+    "detailDescription": "Please keep your tokens safe after creation. Tokens are only shown once when created. You can use tokens to access Todo for AI features via MCP protocol. Click 'View' button to see token details.",
+    "createToken": "Create Token",
+    "createTitle": "Create API Token",
+    "tokenName": "Token Name",
+    "description": "Description",
+    "expireDays": "Expire Days",
+    "expireHelp": "Leave empty for no expiration",
+    "placeholders": {
+      "tokenName": "e.g.: MCP Client Token",
+      "description": "Describe the purpose of this token..."
+    },
+    "validation": {
+      "nameRequired": "Please enter token name",
+      "nameLength": "Name length should be 2-50 characters"
+    },
+    "table": {
+      "name": "Name",
+      "prefix": "Prefix",
+      "description": "Description",
+      "status": "Status",
+      "lastUsed": "Last Used",
+      "created": "Created",
+      "actions": "Actions",
+      "neverExpires": "Never expires",
+      "usageCount": "Usage Count",
+      "expiresAt": "Expires At"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "expired": "Expired"
+    },
+    "actions": {
+      "view": "View",
+      "delete": "Delete",
+      "copy": "Copy",
+      "copyPrefix": "Copy Token Prefix",
+      "viewTooltip": "View Token Details",
+      "revealToken": "View Token",
+      "revealTooltip": "View Full Token"
+    },
+    "pagination": {
+      "total": "Total {{total}} tokens"
+    },
+    "messages": {
+      "fetchFailed": "Failed to fetch token list",
+      "createSuccess": "API token created successfully",
+      "createFailed": "Failed to create token",
+      "deleteFailed": "Failed to delete token",
+      "copySuccess": "Copied to clipboard",
+      "copyFailed": "Failed to copy",
+      "copyPrefixSuccess": "Token prefix copied to clipboard",
+      "revealFailed": "Failed to get token",
+      "revealFailedOldToken": "Failed to get token, this may be an old token that doesn't support this feature"
+    },
+    "confirm": {
+      "deleteTitle": "Confirm Delete",
+      "deleteContent": "Are you sure you want to delete this API token? This action cannot be undone.",
+      "ok": "OK",
+      "cancel": "Cancel"
+    },
+    "modals": {
+      "tokenCreated": {
+        "title": "Token Created Successfully",
+        "saveWarning": "Please Save Your Token",
+        "saveDescription": "This is the only time your token will be displayed. Please copy and save it to a secure location immediately.",
+        "copyToken": "Copy Token"
+      },
+      "tokenDetails": {
+        "title": "Token Details",
+        "name": "Name:",
+        "description": "Description:",
+        "prefix": "Token Prefix:",
+        "status": "Status:",
+        "createdAt": "Created:",
+        "expiresAt": "Expires:",
+        "lastUsed": "Last Used:",
+        "usageCount": "Usage Count:",
+        "securityTip": "Security Notice",
+        "securityDescription": "For security reasons, the complete token is only shown once when created. If you forget your token, please delete this token and create a new one.",
+        "neverExpires": "Never expires",
+        "statusLabels": {
+          "active": "Active",
+          "inactive": "Disabled",
+          "expired": "Expired"
+        }
+      },
+      "revealToken": {
+        "title": "Full Token",
+        "securityWarning": "Security Notice",
+        "securityDescription": "Please keep your token safe and do not expose it in unsafe environments.",
+        "tokenName": "Token Name:",
+        "fullToken": "Full Token:",
+        "copyFullToken": "Copy Full Token"
+      }
+    }
+  }
+}

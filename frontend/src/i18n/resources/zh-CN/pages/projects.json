@@ -1,0 +1,100 @@
+{
+  "title": "项目管理",
+  "subtitle": "创建和管理你的项目，组织任务和工作流程",
+  "pageTitle": "项目列表 - Todo for AI",
+  "buttons": {
+    "createProject": "新建项目",
+    "refresh": "刷新",
+    "list": "列表",
+    "card": "卡片",
+    "view": "查看",
+    "tasks": "任务",
+    "edit": "编辑",
+    "archive": "归档",
+    "delete": "删除",
+    "clearSearch": "清空搜索条件",
+    "createFirst": "创建第一个项目",
+    "reset": "重置",
+    "prev": "上一页",
+    "next": "下一页"
+  },
+  "table": {
+    "columns": {
+      "name": "项目名称",
+      "status": "状态",
+      "stats": "任务统计",
+      "lastActivity": "最后活动时间",
+      "createdAt": "创建时间",
+      "actions": "操作"
+    }
+  },
+  "status": {
+    "active": "活跃",
+    "archived": "已归档",
+    "deleted": "已删除"
+  },
+  "stats": {
+    "total": "总计",
+    "completed": "完成",
+    "pending": "待处理",
+    "noTasks": "暂无任务"
+  },
+  "search": {
+    "placeholder": "搜索项目名称或描述...",
+    "searching": "搜索中...",
+    "totalFound": "共找到 {{total}} 个项目",
+    "keyword": "搜索关键词: \"{{keyword}}\"",
+    "noResults": "未找到包含\"{{keyword}}\"的项目",
+    "noProjects": "暂无项目"
+  },
+  "filters": {
+    "title": "筛选条件:",
+    "projectStatus": "项目状态",
+    "taskSituation": "任务情况",
+    "activityTime": "活动时间",
+    "sortBy": "排序方式",
+    "sortOrder": "排序顺序",
+    "options": {
+      "allStatus": "全部状态",
+      "activeProjects": "活跃项目（默认）",
+      "archivedProjects": "已归档项目",
+      "allProjects": "全部项目",
+      "hasPendingTasks": "有待办任务",
+      "noPendingTasks": "无待办任务",
+      "allTime": "全部时间",
+      "todayActivity": "今天活动",
+      "recentWeek": "最近一周",
+      "recentMonth": "最近一个月",
+      "lastActivityTime": "最后活动时间",
+      "createdTime": "创建时间",
+      "updatedTime": "更新时间",
+      "projectName": "项目名称",
+      "totalTasks": "任务总数",
+      "pendingTasks": "待办任务数",
+      "completedTasks": "已完成任务数",
+      "descOrder": "降序（新→旧）",
+      "ascOrder": "升序（旧→新）"
+    }
+  },
+  "confirm": {
+    "archive": "确定要归档这个项目吗？",
+    "delete": "确定要删除这个项目吗？",
+    "deleteDescription": "删除后无法恢复，请谨慎操作。",
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "messages": {
+    "deleteSuccess": "项目删除成功",
+    "archiveSuccess": "项目归档成功"
+  },
+  "empty": {
+    "noData": "暂无项目数据",
+    "noSearchResults": "未找到包含 \"{{keyword}}\" 的项目",
+    "noActivity": "无活动"
+  },
+  "pagination": {
+    "showTotal": "第 {{start}}-{{end}} 条，共 {{total}} 条",
+    "cardTotal": "第 {{start}}-{{end}} 条，共 {{total}} 条",
+    "pageInfo": "第 {{current}} 页，共 {{total}} 页"
+  }
+}

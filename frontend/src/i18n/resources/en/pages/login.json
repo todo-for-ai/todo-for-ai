@@ -1,0 +1,16 @@
+{
+  "pageTitle": "Login - Todo for AI",
+  "title": "Todo for AI",
+  "subtitle": "AI Task Management System",
+  "loginFailed": "Login Failed",
+  "chooseLoginMethod": "Choose Login Method",
+  "loginWithGitHub": "Login with GitHub",
+  "loginWithGmail": "Login with Gmail",
+  "supportedMethods": "Supported Login Methods",
+  "agreement": {
+    "text": "By logging in, you agree to our",
+    "terms": "Terms of Service",
+    "and": "and",
+    "privacy": "Privacy Policy"
+  }
+}

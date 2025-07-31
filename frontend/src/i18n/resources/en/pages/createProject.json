@@ -1,0 +1,82 @@
+{
+  "pageTitle": {
+    "create": "Create Project - Todo for AI",
+    "edit": "Edit Project - Todo for AI",
+    "editWithName": "{{name}} - Edit Project - Todo for AI"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "projects": "Project List",
+    "create": "Create Project",
+    "edit": "Edit Project"
+  },
+  "title": {
+    "create": "Create Project",
+    "edit": "Edit Project"
+  },
+  "sections": {
+    "basicInfo": "Basic Information",
+    "linkConfig": "Link Configuration",
+    "projectContext": "Project Context"
+  },
+  "form": {
+    "name": {
+      "label": "Project Name",
+      "placeholder": "Enter project name",
+      "required": "Please enter project name",
+      "maxLength": "Project name cannot exceed 100 characters"
+    },
+    "color": {
+      "label": "Project Color",
+      "presetLabel": "Recommended Colors",
+      "randomButton": "Random",
+      "randomTitle": "Random Color"
+    },
+    "description": {
+      "label": "Project Description",
+      "placeholder": "Enter project description"
+    },
+    "githubUrl": {
+      "label": "GitHub Repository Link",
+      "placeholder": "https://github.com/username/repository",
+      "invalidUrl": "Please enter a valid URL",
+      "help": "After entering the GitHub repository link, you can click the 'Import from GitHub' button to automatically fill in project information",
+      "importButton": "Import from GitHub"
+    },
+    "localUrl": {
+      "label": "Local Development Link",
+      "placeholder": "http://localhost:3000",
+      "help": "Access address for local development environment",
+      "invalidUrl": "Please enter a valid URL"
+    },
+    "productionUrl": {
+      "label": "Production Environment Link",
+      "placeholder": "https://your-app.com",
+      "help": "Access address for production environment",
+      "invalidUrl": "Please enter a valid URL"
+    },
+    "projectContext": {
+      "label": "Project Context",
+      "placeholder": "Enter project background information, tech stack, development standards and other context information...",
+      "help": "This information will help AI better understand the project background and provide more accurate suggestions"
+    }
+  },
+  "buttons": {
+    "back": "Back to Project List",
+    "create": "Create Project",
+    "update": "Update Project"
+  },
+  "messages": {
+    "loadFailed": "Failed to load project",
+    "createSuccess": "Project created successfully",
+    "updateSuccess": "Project updated successfully",
+    "importSuccess": "Successfully imported GitHub repository information",
+    "importFailed": "Import failed, please check network connection",
+    "repoNotFound": "Repository does not exist or is inaccessible",
+    "repoInfoFailed": "Failed to get repository information"
+  },
+  "github": {
+    "importing": "Importing...",
+    "parseError": "GitHub link format is incorrect, please enter the complete repository link"
+  }
+}

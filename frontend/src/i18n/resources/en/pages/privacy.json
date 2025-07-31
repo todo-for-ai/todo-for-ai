@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Privacy Policy - Todo for AI",
+  "title": "Privacy Policy",
+  "lastUpdated": "Last updated: ",
+  "sections": {
+    "collection": {
+      "title": "1. Information Collection",
+      "intro": "We collect the following types of information:",
+      "account": "Account Information: When you log in through GitHub or Google, we collect your basic account information, including username, email address, and avatar",
+      "usage": "Usage Data: We collect information about how you use our services, including projects, tasks you create, and usage patterns",
+      "technical": "Technical Information: We automatically collect certain technical information, such as IP address, browser type, device information, and access times"
+    },
+    "usage": {
+      "title": "2. Information Use",
+      "intro": "We use the collected information to:",
+      "items": [
+        "Provide, maintain, and improve our services",
+        "Process your requests and transactions",
+        "Send you service-related notifications",
+        "Analyze service usage to improve user experience",
+        "Detect, prevent, and resolve technical issues"
+      ]
+    },
+    "sharing": {
+      "title": "3. Information Sharing",
+      "intro": "We do not sell, trade, or otherwise transfer your personal information to third parties, except:",
+      "items": [
+        "With your explicit consent",
+        "To provide services you request",
+        "To comply with legal requirements or court orders",
+        "To protect our rights, property, or safety"
+      ]
+    },
+    "security": {
+      "title": "4. Data Security",
+      "intro": "We take appropriate security measures to protect your personal information:",
+      "items": [
+        "Use encryption technology to protect data transmission",
+        "Limit access to personal information",
+        "Regularly review our security practices",
+        "Use secure servers and databases"
+      ]
+    },
+    "cookies": {
+      "title": "5. Cookies and Tracking Technologies",
+      "intro": "We use cookies and similar technologies to:",
+      "items": [
+        "Remember your login status",
+        "Save your preference settings",
+        "Analyze website usage",
+        "Improve user experience"
+      ],
+      "control": "You can control the use of cookies through your browser settings."
+    },
+    "thirdParty": {
+      "title": "6. Third-Party Services",
+      "content": "Our service may contain links to third-party websites or integrate third-party services (such as GitHub, Google). These third parties have their own privacy policies, and we are not responsible for their privacy practices."
+    },
+    "retention": {
+      "title": "7. Data Retention",
+      "intro": "We will retain your personal information until:",
+      "items": [
+        "You delete your account",
+        "We no longer need to provide services to you",
+        "Legal requirements require us to delete"
+      ],
+      "backup": "Even after deletion, some information may remain in our backup systems for a period of time."
+    },
+    "rights": {
+      "title": "8. Your Rights",
+      "intro": "You have the right to:",
+      "items": [
+        "Access personal information we hold about you",
+        "Correct inaccurate personal information",
+        "Delete your personal information",
+        "Restrict or object to processing of your personal information",
+        "Data portability"
+      ]
+    },
+    "children": {
+      "title": "9. Children's Privacy",
+      "content": "Our service is not directed to children under 13. We do not knowingly collect personal information from children under 13. If we discover that we have collected such information, we will delete it immediately."
+    },
+    "changes": {
+      "title": "10. Policy Changes",
+      "content": "We may update this privacy policy from time to time. For significant changes, we will notify you through the service or send an email. Continued use of the service indicates your acceptance of the updated policy."
+    },
+    "contact": {
+      "title": "11. Contact Us",
+      "intro": "If you have any questions or concerns about this privacy policy, please contact us:",
+      "email": "Email: privacy@todoforai.com",
+      "github": "GitHub: https://github.com/todo-for-ai/todo-for-ai"
+    }
+  },
+  "footer": "We are committed to protecting your privacy and ensuring that your personal information is handled securely."
+}

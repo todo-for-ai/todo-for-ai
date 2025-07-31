@@ -1,0 +1,59 @@
+{
+  "title": "规则广场",
+  "subtitle": "发现和复制其他用户分享的优秀上下文规则",
+  "pageTitle": "规则广场 - Todo for AI",
+  "search": {
+    "placeholder": "搜索规则名称、描述或内容...",
+    "noResults": "暂无公开规则"
+  },
+  "sort": {
+    "usageCountDesc": "使用次数 (高到低)",
+    "usageCountAsc": "使用次数 (低到高)",
+    "createdAtDesc": "创建时间 (新到旧)",
+    "createdAtAsc": "创建时间 (旧到新)",
+    "updatedAtDesc": "更新时间 (新到旧)",
+    "updatedAtAsc": "更新时间 (旧到新)"
+  },
+  "card": {
+    "noDescription": "无描述",
+    "globalRule": "全局规则",
+    "projectRule": "项目规则",
+    "priority": "优先级",
+    "usageCount": "使用次数"
+  },
+  "actions": {
+    "preview": "预览规则",
+    "copy": "复制规则"
+  },
+  "preview": {
+    "title": "预览规则: {{name}}",
+    "description": "描述：",
+    "content": "规则内容：",
+    "noDescription": "无描述"
+  },
+  "copy": {
+    "modal": {
+      "title": "复制规则",
+      "nameLabel": "规则名称",
+      "namePlaceholder": "请输入规则名称",
+      "nameRequired": "请输入规则名称",
+      "typeLabel": "复制类型",
+      "globalOption": "复制为全局规则",
+      "projectOption": "复制为项目规则",
+      "targetProjectLabel": "目标项目",
+      "targetProjectPlaceholder": "请选择目标项目",
+      "targetProjectRequired": "请选择目标项目",
+      "okText": "复制",
+      "cancelText": "取消",
+      "copyName": "{{name}} - 副本"
+    },
+    "success": "规则复制成功！",
+    "error": "复制规则失败"
+  },
+  "pagination": {
+    "total": "第 {{start}}-{{end}} 条，共 {{total}} 条"
+  },
+  "messages": {
+    "fetchError": "获取规则列表失败"
+  }
+}

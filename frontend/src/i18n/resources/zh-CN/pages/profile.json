@@ -1,0 +1,156 @@
+{
+  "title": "个人中心",
+  "subtitle": "管理您的个人信息和API Token",
+  "pageTitle": "个人中心 - Todo for AI",
+  "userInfo": {
+    "role": "角色：",
+    "status": "状态：",
+    "registeredAt": "注册时间：",
+    "lastLogin": "最后登录：",
+    "roles": {
+      "admin": "管理员",
+      "user": "用户"
+    },
+    "statuses": {
+      "active": "活跃",
+      "inactive": "非活跃"
+    }
+  },
+  "tabs": {
+    "profile": "个人信息",
+    "tokens": "API Token"
+  },
+  "basicInfo": {
+    "title": "基本信息",
+    "username": "用户名",
+    "nickname": "昵称",
+    "fullName": "全名",
+    "bio": "个人简介",
+    "timezone": "时区",
+    "language": "语言",
+    "placeholders": {
+      "username": "请输入用户名",
+      "nickname": "请输入昵称",
+      "fullName": "请输入全名",
+      "bio": "介绍一下自己...",
+      "timezone": "如：Asia/Shanghai",
+      "language": "如：zh-CN"
+    },
+    "validation": {
+      "usernameRequired": "请输入用户名",
+      "usernameMinLength": "用户名至少2个字符"
+    }
+  },
+  "buttons": {
+    "edit": "编辑",
+    "save": "保存",
+    "saveChanges": "保存更改",
+    "cancel": "取消",
+    "close": "关闭"
+  },
+  "messages": {
+    "updateSuccess": "个人信息更新成功",
+    "updateFailed": "更新失败",
+    "loading": "Loading..."
+  },
+  "apiTokens": {
+    "title": "API Token 管理",
+    "description": "API Token 用于MCP客户端认证",
+    "detailDescription": "创建Token后请妥善保管，Token只在创建时显示一次。您可以使用Token通过MCP协议访问Todo for AI的功能。点击'查看'按钮可以查看Token的详细信息。",
+    "createToken": "创建Token",
+    "createTitle": "创建API Token",
+    "tokenName": "Token名称",
+    "description": "描述",
+    "expireDays": "过期天数",
+    "expireHelp": "留空表示永不过期",
+    "placeholders": {
+      "tokenName": "如：MCP Client Token",
+      "description": "描述这个Token的用途..."
+    },
+    "validation": {
+      "nameRequired": "请输入Token名称",
+      "nameLength": "名称长度为2-50个字符"
+    },
+    "table": {
+      "name": "名称",
+      "prefix": "前缀",
+      "description": "描述",
+      "status": "状态",
+      "lastUsed": "最后使用",
+      "created": "创建时间",
+      "actions": "操作",
+      "neverExpires": "永不过期",
+      "usageCount": "使用次数",
+      "expiresAt": "过期时间"
+    },
+    "status": {
+      "active": "活跃",
+      "inactive": "非活跃",
+      "expired": "已过期"
+    },
+    "actions": {
+      "view": "查看",
+      "delete": "删除",
+      "copy": "复制",
+      "copyPrefix": "复制Token前缀",
+      "viewTooltip": "查看Token详情",
+      "revealToken": "查看Token",
+      "revealTooltip": "查看完整Token"
+    },
+    "pagination": {
+      "total": "共 {{total}} 个Token"
+    },
+    "messages": {
+      "fetchFailed": "获取Token列表失败",
+      "createSuccess": "API Token创建成功",
+      "createFailed": "创建Token失败",
+      "deleteFailed": "删除Token失败",
+      "copySuccess": "已复制到剪贴板",
+      "copyFailed": "复制失败",
+      "copyPrefixSuccess": "已复制Token前缀到剪贴板",
+      "revealFailed": "获取Token失败",
+      "revealFailedOldToken": "获取Token失败，可能是旧版本Token不支持此功能"
+    },
+    "confirm": {
+      "deleteTitle": "确认删除",
+      "deleteContent": "确定要删除这个API Token吗？删除后无法恢复。",
+      "ok": "确定",
+      "cancel": "取消"
+    },
+    "modals": {
+      "tokenCreated": {
+        "title": "Token创建成功",
+        "saveWarning": "请保存您的Token",
+        "saveDescription": "这是您的Token唯一显示的机会，请立即复制并保存到安全的地方。",
+        "copyToken": "复制Token"
+      },
+      "tokenDetails": {
+        "title": "Token详情",
+        "name": "名称：",
+        "description": "描述：",
+        "prefix": "Token前缀：",
+        "status": "状态：",
+        "createdAt": "创建时间：",
+        "expiresAt": "过期时间：",
+        "lastUsed": "最后使用：",
+        "usageCount": "使用次数：",
+        "securityTip": "安全提示",
+        "securityDescription": "出于安全考虑，完整的Token只在创建时显示一次。如果您忘记了Token，请删除此Token并创建新的。",
+        "neverExpires": "永不过期",
+        "statusLabels": {
+          "active": "活跃",
+          "inactive": "已禁用",
+          "expired": "已过期"
+        }
+      },
+      "revealToken": {
+        "title": "完整Token",
+        "securityWarning": "安全提醒",
+        "securityDescription": "请妥善保管您的Token，不要在不安全的环境中暴露。",
+        "tokenName": "Token名称：",
+        "fullToken": "完整Token：",
+        "copyFullToken": "复制完整Token"
+      }
+    }
+  }
+}
