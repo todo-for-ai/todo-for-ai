@@ -80,7 +80,43 @@
     "month": "月",
     "months": "月",
     "year": "年",
-    "years": "年"
+    "years": "年",
+    "relative": {
+      "justNow": "刚刚",
+      "secondsAgo": "{{count}}秒前",
+      "minutesAgo": "{{count}}分钟前",
+      "hoursAgo": "{{count}}小时前",
+      "daysAgo": "{{count}}天前",
+      "weeksAgo": "{{count}}周前",
+      "monthsAgo": "{{count}}个月前",
+      "yearsAgo": "{{count}}年前",
+      "noActivity": "无活动"
+    }
+  },
+  "themes": {
+    "default": "默认主题",
+    "dark": "深色主题",
+    "minimal": "简约主题",
+    "comfort": "护眼主题",
+    "high-contrast": "高对比度主题",
+    "vintage": "复古主题",
+    "typewriter-classic": "经典打字机",
+    "typewriter-dark": "暗黑打字机",
+    "handwriting-classic": "经典手写",
+    "handwriting-notebook": "经典笔记本",
+    "handwriting-kraft": "复古牛皮纸",
+    "handwriting-grid": "方格纸",
+    "selector": {
+      "theme": "主题",
+      "switchToLight": "切换到浅色模式",
+      "switchToDark": "切换到深色模式",
+      "previewTheme": "预览主题",
+      "currentTheme": "当前主题",
+      "applyTheme": "应用主题",
+      "cancel": "取消",
+      "sampleTitle": "示例标题",
+      "sampleText": "这是一段示例文本，展示了主题的基本样式效果。"
+    }
   },
   "validation": {
     "required": "此字段为必填项",
@@ -143,5 +179,30 @@
     "noResults": "没有找到相关结果",
     "noContent": "暂无内容",
     "noItems": "暂无项目"
+  },
+  "wechatGroup": {
+    "tooltip": "加入AI交流群",
+    "title": "加入AI交流群",
+    "description": "扫描二维码加入微信群，反馈问题和建议",
+    "qrAlt": "微信群二维码"
+  },
+  "github": {
+    "visitRepository": "访问GitHub仓库",
+    "openInNewTab": "在新标签页中打开GitHub仓库",
+    "repository": "代码仓库",
+    "sourceCode": "源代码"
+  },
+  "footer": {
+    "version": "版本",
+    "copyright": "版权所有",
+    "visitGitHub": "访问GitHub仓库"
+  },
+  "feedbackTip": {
+    "title": "💡 使用体验反馈",
+    "description": "任务创建与编辑页面是最常用的两个页面，如果你觉得某个点使用得不舒服，或者有什么改进的想法，别犹豫，来提issue告诉我们！",
+    "submitIssue": "提交改进建议"
+  },
+  "compliance": {
+    "notice": "请遵循当地法律法规，请勿公开不合适的内容（如政治敏感、种族歧视等），违规可能导致账号被封禁"
   }
 }
