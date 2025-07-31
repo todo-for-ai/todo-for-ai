@@ -29,8 +29,11 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "antd": "^5.26.6",
     "axios": "^1.11.0",
+    "i18next": "^25.3.2",
+    "i18next-browser-languagedetector": "^8.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-i18next": "^15.6.1",
     "react-router-dom": "^7.7.1",
     "react-syntax-highlighter": "^15.6.1",
     "zustand": "^5.0.6"

@@ -154,7 +154,7 @@ export class TasksApi {
   }
 
   // 上传任务附件
-  async uploadTaskAttachment(id: number, file: File, onProgress?: (progress: number) => void) {
+  async uploadTaskAttachment(_id: number, _file: File, _onProgress?: (progress: number) => void) {
     // TODO: 实现文件上传功能
     throw new Error('File upload not implemented with fetch client')
   }
