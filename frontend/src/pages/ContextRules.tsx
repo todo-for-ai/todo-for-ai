@@ -6,38 +6,33 @@ import {
   Table,
   Space,
   Tag,
-  Modal,
-  Select,
   Switch,
   message,
   Popconfirm,
-  Tabs,
-  Card,
   Drawer
 } from 'antd'
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  EyeOutlined, 
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
   ReloadOutlined,
   CopyOutlined,
   FileTextOutlined,
   GlobalOutlined
 } from '@ant-design/icons'
-import { useContextRuleStore, useProjectStore } from '../stores'
+import { useContextRuleStore } from '../stores'
 import { MarkdownEditor } from '../components/MarkdownEditor'
+import { useTranslation } from '../i18n/hooks/useTranslation'
 import type { ContextRule } from '../api/contextRules'
 
 const { Title, Paragraph } = Typography
-const { Option } = Select
 
 
 const ContextRules = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation('contextRules')
   const [isDetailVisible, setIsDetailVisible] = useState(false)
-  const [isPreviewVisible, setIsPreviewVisible] = useState(false)
-
   const [viewingRule, setViewingRule] = useState<ContextRule | null>(null)
 
 
@@ -48,29 +43,19 @@ const ContextRules = () => {
     error,
     pagination,
     // queryParams,
-    previewContent,
-    previewRules,
-    // previewLoading,
     fetchContextRules,
     deleteContextRule,
     toggleContextRule,
     copyContextRule,
-    previewMergedRules,
     setQueryParams,
     clearError,
   } = useContextRuleStore()
-
-  const {
-    projects,
-    fetchProjects,
-  } = useProjectStore()
 
   useEffect(() => {
     // 设置查询参数只获取全局规则（使用scope=global而不是rule_type）
     setQueryParams({ scope: 'global' })
     fetchContextRules()
-    fetchProjects()
-  }, [fetchContextRules, fetchProjects, setQueryParams])
+  }, [fetchContextRules, setQueryParams])
 
   useEffect(() => {
     if (error) {
@@ -81,13 +66,13 @@ const ContextRules = () => {
 
   // 设置网页标题
   useEffect(() => {
-    document.title = '上下文规则 - Todo for AI'
+    document.title = t('pageTitle')
 
     // 组件卸载时恢复默认标题
     return () => {
       document.title = 'Todo for AI'
     }
-  }, [])
+  }, [t])
 
 
 
@@ -101,25 +86,26 @@ const ContextRules = () => {
   const handleDelete = async (rule: ContextRule) => {
     const success = await deleteContextRule(rule.id)
     if (success) {
-      message.success('上下文规则删除成功')
+      message.success(t('messages.deleteSuccess'))
     }
   }
 
   const handleToggle = async (rule: ContextRule) => {
     const success = await toggleContextRule(rule.id, !rule.is_active)
     if (success) {
-      message.success(`上下文规则已${!rule.is_active ? '启用' : '禁用'}`)
+      const status = !rule.is_active ? t('status.enabled') : t('status.disabled')
+      message.success(t('messages.toggleSuccess', { status }))
     }
   }
 
   const handleCopy = async (rule: ContextRule) => {
-    const newName = `${rule.name} - 副本`
-    const result = await copyContextRule(rule.id, { 
+    const newName = t('messages.copyName', { name: rule.name })
+    const result = await copyContextRule(rule.id, {
       name: newName,
-      project_id: rule.project_id 
+      project_id: rule.project_id
     })
     if (result) {
-      message.success('上下文规则复制成功')
+      message.success(t('messages.copySuccess'))
     }
   }
 
@@ -127,10 +113,7 @@ const ContextRules = () => {
 
 
 
-  const handlePreview = async (projectId?: number) => {
-    await previewMergedRules(projectId)
-    setIsPreviewVisible(true)
-  }
+
 
   const handleTableChange = (pagination: any, _filters: any, sorter: any) => {
     const newParams: any = {
@@ -149,14 +132,14 @@ const ContextRules = () => {
 
   const columns = [
     {
-      title: '规则名称',
+      title: t('table.columns.name'),
       dataIndex: 'name',
       key: 'name',
       sorter: true,
       render: (text: string, record: ContextRule) => (
         <div>
-          <Button 
-            type="link" 
+          <Button
+            type="link"
             style={{ padding: 0, fontWeight: 500, height: 'auto' }}
             onClick={() => handleView(record)}
           >
@@ -164,8 +147,8 @@ const ContextRules = () => {
           </Button>
           {record.description && (
             <div style={{ color: '#999', fontSize: '12px', marginTop: '4px' }}>
-              {record.description.length > 50 
-                ? record.description.substring(0, 50) + '...' 
+              {record.description.length > 50
+                ? record.description.substring(0, 50) + '...'
                 : record.description}
             </div>
           )}
@@ -173,7 +156,7 @@ const ContextRules = () => {
       ),
     },
     {
-      title: '优先级',
+      title: t('table.columns.priority'),
       dataIndex: 'priority',
       key: 'priority',
       width: 80,
@@ -185,7 +168,7 @@ const ContextRules = () => {
       ),
     },
     {
-      title: '状态',
+      title: t('table.columns.status'),
       dataIndex: 'is_active',
       key: 'is_active',
       width: 80,
@@ -198,26 +181,26 @@ const ContextRules = () => {
       ),
     },
     {
-      title: '创建时间',
+      title: t('table.columns.createdAt'),
       dataIndex: 'created_at',
       key: 'created_at',
       width: 120,
       sorter: true,
-      render: (date: string) => new Date(date).toLocaleDateString('zh-CN'),
+      render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: '操作',
+      title: t('table.columns.actions'),
       key: 'action',
       width: 200,
       render: (_: any, record: ContextRule) => (
         <Space size="small">
-          <Button 
-            type="text" 
-            icon={<EyeOutlined />} 
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
             size="small"
             onClick={() => handleView(record)}
           >
-            查看
+            {t('table.actions.view')}
           </Button>
           <Button
             type="text"
@@ -225,25 +208,25 @@ const ContextRules = () => {
             size="small"
             onClick={() => navigate(`/todo-for-ai/pages/context-rules/${record.id}/edit`)}
           >
-            编辑
+            {t('table.actions.edit')}
           </Button>
-          <Button 
-            type="text" 
-            icon={<CopyOutlined />} 
+          <Button
+            type="text"
+            icon={<CopyOutlined />}
             size="small"
             onClick={() => handleCopy(record)}
           >
-            复制
+            {t('table.actions.copy')}
           </Button>
           <Popconfirm
-            title="确定要删除这个上下文规则吗？"
-            description="删除后无法恢复，请谨慎操作。"
+            title={t('confirm.delete.title')}
+            description={t('confirm.delete.description')}
             onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
+            okText={t('confirm.delete.ok')}
+            cancelText={t('confirm.delete.cancel')}
           >
             <Button type="text" icon={<DeleteOutlined />} size="small" danger>
-              删除
+              {t('table.actions.delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -260,32 +243,26 @@ const ContextRules = () => {
         <div className="flex-between">
           <div>
             <Title level={2} className="page-title">
-              全局上下文规则
+              {t('title')}
             </Title>
             <Paragraph className="page-description">
-              配置全局上下文规则，为AI提供准确的执行指导
+              {t('subtitle')}
             </Paragraph>
           </div>
           <Space>
-            <Button 
-              icon={<FileTextOutlined />}
-              onClick={() => handlePreview()}
-            >
-              预览合并规则
-            </Button>
-            <Button 
-              icon={<ReloadOutlined />} 
+            <Button
+              icon={<ReloadOutlined />}
               onClick={() => fetchContextRules()}
               loading={loading}
             >
-              刷新
+              {t('buttons.refresh')}
             </Button>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => navigate('/todo-for-ai/pages/context-rules/create')}
             >
-              新建规则
+              {t('buttons.createNew')}
             </Button>
           </Space>
         </div>
@@ -304,7 +281,11 @@ const ContextRules = () => {
           total: pagination?.total || 0,
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+          showTotal: (total, range) => t('table.pagination.total', {
+            start: range[0],
+            end: range[1],
+            total
+          }),
           pageSizeOptions: ['10', '20', '50', '100'],
         }}
         onChange={handleTableChange}
@@ -317,7 +298,7 @@ const ContextRules = () => {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FileTextOutlined />
-            <span>上下文规则详情</span>
+            <span>{t('drawer.title')}</span>
           </div>
         }
         placement="right"
@@ -334,7 +315,7 @@ const ContextRules = () => {
                   navigate(`/todo-for-ai/pages/context-rules/${viewingRule?.id}/edit`)
                 }}
               >
-                编辑
+                {t('table.actions.edit')}
               </Button>
             </Space>
           )
@@ -347,20 +328,20 @@ const ContextRules = () => {
               <div style={{ marginBottom: '16px' }}>
                 <Space wrap>
                   <Tag icon={<GlobalOutlined />} color="blue">
-                    全局规则
+                    {t('tags.global')}
                   </Tag>
                   <Tag color={viewingRule.is_active ? 'success' : 'default'}>
-                    {viewingRule.is_active ? '已启用' : '已禁用'}
+                    {viewingRule.is_active ? t('status.enabled') : t('status.disabled')}
                   </Tag>
                   <Tag color={viewingRule.priority >= 200 ? 'red' : viewingRule.priority >= 100 ? 'orange' : 'green'}>
-                    优先级: {viewingRule.priority}
+                    {t('table.columns.priority')}: {viewingRule.priority}
                   </Tag>
                 </Space>
               </div>
-              
+
               {viewingRule.description && (
                 <div style={{ marginBottom: '16px' }}>
-                  <strong>描述：</strong>
+                  <strong>{t('drawer.fields.description')}</strong>
                   <div style={{ marginTop: '8px', color: 'rgba(0, 0, 0, 0.65)' }}>
                     {viewingRule.description}
                   </div>
@@ -369,20 +350,20 @@ const ContextRules = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                 <div>
-                  <strong>创建时间：</strong> {new Date(viewingRule.created_at).toLocaleString('zh-CN')}
+                  <strong>{t('drawer.fields.createdAt')}</strong> {new Date(viewingRule.created_at).toLocaleString()}
                 </div>
                 <div>
-                  <strong>更新时间：</strong> {new Date(viewingRule.updated_at).toLocaleString('zh-CN')}
+                  <strong>{t('drawer.fields.updatedAt')}</strong> {new Date(viewingRule.updated_at).toLocaleString()}
                 </div>
                 <div>
-                  <strong>创建者：</strong> {viewingRule.created_by || '未知'}
+                  <strong>{t('drawer.fields.createdBy')}</strong> {viewingRule.created_by || t('drawer.fields.unknown')}
                 </div>
 
               </div>
             </div>
 
             <div>
-              <Title level={4}>规则内容</Title>
+              <Title level={4}>{t('drawer.content.title')}</Title>
               <MarkdownEditor
                 value={viewingRule.content || ''}
                 readOnly
@@ -395,80 +376,7 @@ const ContextRules = () => {
         )}
       </Drawer>
 
-      {/* 预览合并规则模态框 */}
-      <Modal
-        title="预览合并后的上下文规则"
-        open={isPreviewVisible}
-        onCancel={() => setIsPreviewVisible(false)}
-        footer={null}
-        width={1000}
-        style={{ top: 20 }}
-      >
-        <div style={{ marginBottom: '16px' }}>
-          <Space>
-            <span>选择项目预览：</span>
-            <Select
-              placeholder="选择项目（可选）"
-              style={{ width: 200 }}
-              allowClear
-              onChange={(projectId) => handlePreview(projectId)}
-            >
-              {projects.map(project => (
-                <Option key={project.id} value={project.id}>
-                  {project.name}
-                </Option>
-              ))}
-            </Select>
-          </Space>
-        </div>
 
-        <Tabs
-          defaultActiveKey="content"
-          items={[
-            {
-              key: 'content',
-              label: '合并内容',
-              children: (
-                <MarkdownEditor
-                  value={previewContent}
-                  readOnly
-                  height={500}
-                  hideToolbar
-                  preview="preview"
-                />
-              )
-            },
-            {
-              key: 'rules',
-              label: '规则列表',
-              children: (
-                <div style={{ maxHeight: 500, overflowY: 'auto' }}>
-                  {previewRules.map(rule => (
-                    <Card key={rule.id} size="small" style={{ marginBottom: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <strong>{rule.name}</strong>
-                          <div style={{ fontSize: '12px', color: '#666' }}>
-                            {rule.description}
-                          </div>
-                        </div>
-                        <Space>
-                          <Tag color="blue">
-                            全局
-                          </Tag>
-                          <Tag color={rule.priority >= 200 ? 'red' : rule.priority >= 100 ? 'orange' : 'green'}>
-                            {rule.priority}
-                          </Tag>
-                        </Space>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )
-            }
-          ]}
-        />
-      </Modal>
     </div>
   )
 }
