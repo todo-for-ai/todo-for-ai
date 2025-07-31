@@ -92,15 +92,23 @@ const MCPInstallation: React.FC = () => {
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <div>
                   <Tag color="blue">get_project_tasks_by_name</Tag>
-                  <Text>根据项目名称获取待办任务列表</Text>
+                  <Text>根据项目名称获取待办任务列表，支持状态筛选</Text>
                 </div>
                 <div>
                   <Tag color="green">get_task_by_id</Tag>
-                  <Text>获取特定任务的详细信息</Text>
+                  <Text>获取特定任务的详细信息，包括项目上下文规则</Text>
                 </div>
                 <div>
                   <Tag color="orange">submit_task_feedback</Tag>
-                  <Text>提交任务反馈并更新任务状态</Text>
+                  <Text>提交任务反馈并更新任务状态，支持多种状态转换</Text>
+                </div>
+                <div>
+                  <Tag color="purple">create_task</Tag>
+                  <Text>在指定项目中创建新任务，支持优先级和标签设置</Text>
+                </div>
+                <div>
+                  <Tag color="cyan">get_project_info</Tag>
+                  <Text>获取项目详细信息，包括统计数据和配置</Text>
                 </div>
               </Space>
             </div>
@@ -231,11 +239,21 @@ const MCPInstallation: React.FC = () => {
             <Title level={3}>MCP 服务器安装</Title>
             
             <Title level={4}>方法一：从 npm 安装（推荐）</Title>
+            <Alert
+              message="最新版本"
+              description="现在可以直接从 npm 中央仓库安装，无需手动构建！"
+              type="success"
+              style={{ marginBottom: '16px' }}
+              showIcon
+            />
             <div style={codeStyle}>
-              npm install -g todo-for-ai-mcp
+              npm install -g @todo-for-ai/mcp
             </div>
 
             <Title level={4} style={{ marginTop: '24px' }}>方法二：从源码安装</Title>
+            <Paragraph>
+              如果你需要最新的开发版本或想要自定义修改：
+            </Paragraph>
             <div style={codeStyle}>
 {`git clone https://github.com/todo-for-ai/todo-for-ai.git
 cd todo-for-ai/todo-mcp
@@ -245,6 +263,13 @@ npm link`}
             </div>
 
             <Title level={4} style={{ marginTop: '24px' }}>验证安装</Title>
+            <div style={codeStyle}>
+              @todo-for-ai/mcp --version
+            </div>
+
+            <Paragraph style={{ marginTop: '16px' }}>
+              或者如果使用全局安装的命令：
+            </Paragraph>
             <div style={codeStyle}>
               todo-for-ai-mcp --version
             </div>
@@ -282,18 +307,43 @@ npm link`}
               <li><strong>Linux:</strong> <code>~/.config/Claude/claude_desktop_config.json</code></li>
             </ul>
 
-            <Title level={4}>配置内容</Title>
+            <Title level={4}>基础配置（使用npm包）</Title>
+            <Alert
+              message="推荐配置"
+              description="使用npm包安装后，配置更加简单，无需指定复杂的路径。"
+              type="info"
+              style={{ marginBottom: '16px' }}
+              showIcon
+            />
             <div style={configStyle}>
 {`{
   "mcpServers": {
     "todo-for-ai": {
+      "command": "@todo-for-ai/mcp",
+      "env": {
+        "TODO_API_BASE_URL": "http://localhost:50110",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}`}
+            </div>
+
+            <Title level={4} style={{ marginTop: '24px' }}>源码开发配置</Title>
+            <Paragraph>
+              如果你正在开发或使用源码版本：
+            </Paragraph>
+            <div style={configStyle}>
+{`{
+  "mcpServers": {
+    "todo-for-ai-dev": {
       "command": "node",
       "args": [
         "/path/to/your/todo-for-ai/todo-mcp/dist/index.js"
       ],
       "env": {
         "TODO_API_BASE_URL": "http://localhost:50110",
-        "LOG_LEVEL": "info"
+        "LOG_LEVEL": "debug"
       }
     }
   }
@@ -317,9 +367,8 @@ npm link`}
 {`{
   "mcpServers": {
     "todo-for-ai": {
-      "command": "node",
+      "command": "@todo-for-ai/mcp",
       "args": [
-        "/path/to/your/todo-for-ai/todo-mcp/dist/index.js",
         "--api-token=your-api-token-here"
       ],
       "env": {
@@ -336,10 +385,7 @@ npm link`}
 {`{
   "mcpServers": {
     "todo-for-ai": {
-      "command": "node",
-      "args": [
-        "/path/to/your/todo-for-ai/todo-mcp/dist/index.js"
-      ],
+      "command": "@todo-for-ai/mcp",
       "env": {
         "TODO_API_BASE_URL": "http://localhost:50110",
         "TODO_API_TOKEN": "your-api-token-here",
@@ -389,7 +435,7 @@ npm link`}
   "mcpServers": {
     "todo-for-ai": {
       "command": "npx",
-      "args": ["todo-for-ai-mcp"],
+      "args": ["@todo-for-ai/mcp"],
       "env": {
         "TODO_API_BASE_URL": "http://localhost:50110",
         "LOG_LEVEL": "info"
@@ -448,7 +494,7 @@ npm link`}
 {`{
   "mcpServers": {
     "todo-for-ai": {
-      "command": "todo-for-ai-mcp",
+      "command": "@todo-for-ai/mcp",
       "env": {
         "TODO_API_BASE_URL": "http://localhost:50110"
       }
@@ -468,7 +514,7 @@ npm link`}
     "mcp": {
       "servers": {
         "todo-for-ai": {
-          "command": "todo-for-ai-mcp",
+          "command": "@todo-for-ai/mcp",
           "env": {
             "TODO_API_BASE_URL": "http://localhost:50110"
           }
@@ -487,7 +533,7 @@ npm link`}
 {`{
   "mcpServers": {
     "todo-for-ai": {
-      "command": "todo-for-ai-mcp",
+      "command": "@todo-for-ai/mcp",
       "args": [],
       "env": {
         "TODO_API_BASE_URL": "http://localhost:50110",
@@ -571,7 +617,7 @@ npm link`}
 {`{
   "mcpServers": {
     "todo-for-ai": {
-      "command": "todo-for-ai-mcp",
+      "command": "@todo-for-ai/mcp",
       "env": {
         "TODO_API_BASE_URL": "https://your-domain.com",
         "TODO_API_TOKEN": "your-production-token",
@@ -625,11 +671,32 @@ node verify.js`}
             <Paragraph>
               在配置好的AI IDE中，尝试以下操作来验证MCP功能：
             </Paragraph>
+
+            <Title level={5}>基础功能测试</Title>
             <ul>
-              <li>询问AI助手："请获取Todo for AI项目的任务列表"</li>
-              <li>请求AI助手："帮我查看任务ID为1的详细信息"</li>
-              <li>让AI助手："为项目创建一个新的测试任务"</li>
+              <li>询问AI助手："请获取'ToDo For AI'项目的任务列表"</li>
+              <li>请求AI助手："帮我查看任务ID为233的详细信息"</li>
+              <li>让AI助手："为任务233提交完成反馈"</li>
             </ul>
+
+            <Title level={5}>高级功能测试</Title>
+            <ul>
+              <li>创建任务："在'ToDo For AI'项目中创建一个新的测试任务"</li>
+              <li>项目信息："获取'ToDo For AI'项目的详细信息和统计数据"</li>
+              <li>批量操作："获取所有待办状态的任务并逐个处理"</li>
+            </ul>
+
+            <Title level={5}>测试示例对话</Title>
+            <div style={configStyle}>
+{`用户: "请帮我获取ToDo For AI项目中所有待办任务"
+AI: 我来为您获取ToDo For AI项目的待办任务...
+
+用户: "请为任务ID 233提交完成反馈，说明已经完善了MCP文档"
+AI: 我来为您提交任务反馈...
+
+用户: "在ToDo For AI项目中创建一个新任务：优化前端性能"
+AI: 我来为您创建新任务...`}
+            </div>
 
             <Title level={4} style={{ marginTop: '24px' }}>4. 常见问题排查</Title>
             <div style={{ marginBottom: '16px' }}>
