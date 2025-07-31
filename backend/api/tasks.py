@@ -6,7 +6,7 @@
 
 from datetime import datetime
 from flask import Blueprint, request
-from models import db, Task, TaskStatus, TaskPriority, Project, TaskHistory, ActionType
+from models import db, Task, TaskStatus, TaskPriority, Project, TaskHistory, ActionType, UserActivity
 from .base import api_response, api_error, paginate_query, validate_json_request, get_request_args
 from app.auth import optional_token_auth
 from app.github_config import require_auth, get_current_user
@@ -187,7 +187,7 @@ def create_task():
         )
         
         db.session.commit()
-        
+
         # 记录历史
         TaskHistory.log_action(
             task_id=task.id,
@@ -195,7 +195,11 @@ def create_task():
             changed_by='api',
             comment='Task created via API'
         )
-        
+
+        # 记录用户活跃度
+        if hasattr(task, 'creator_id') and task.creator_id:
+            UserActivity.record_activity(task.creator_id, 'task_created')
+
         return api_response(
             task.to_dict(include_project=True, include_stats=True),
             "Task created successfully",
@@ -295,8 +299,9 @@ def update_task(task_id):
                     setattr(task, field, new_value)
         
         db.session.commit()
-        
+
         # 记录变更历史
+        status_changed = False
         for field_name, old_value, new_value in changes:
             TaskHistory.log_action(
                 task_id=task.id,
@@ -307,7 +312,16 @@ def update_task(task_id):
                 new_value=str(new_value) if new_value is not None else None,
                 comment=f'Field {field_name} updated via API'
             )
-        
+            if field_name == 'status':
+                status_changed = True
+
+        # 记录用户活跃度
+        if hasattr(task, 'creator_id') and task.creator_id:
+            if status_changed:
+                UserActivity.record_activity(task.creator_id, 'task_status_changed')
+            else:
+                UserActivity.record_activity(task.creator_id, 'task_updated')
+
         return api_response(
             task.to_dict(include_project=True, include_stats=True),
             "Task updated successfully"

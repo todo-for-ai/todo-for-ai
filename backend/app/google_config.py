@@ -104,9 +104,13 @@ class GoogleService:
             from models import db
             db.session.commit()
 
-            # 为新用户自动创建API Token
+            # 为新用户自动创建API Token、用户设置和默认全局规则
             if is_new_user:
                 self._create_default_api_token(user)
+                # 从Flask的request上下文获取请求对象
+                from flask import request as flask_request
+                self._create_default_user_settings(user, flask_request)
+                self._create_default_global_rule(user)
 
             return user
         except Exception as e:
@@ -159,6 +163,108 @@ class GoogleService:
 
         except Exception as e:
             current_app.logger.error(f"创建默认API Token失败: {str(e)}")
+            from models import db
+            db.session.rollback()
+
+    def _create_default_user_settings(self, user, request=None):
+        """为新用户创建默认的用户设置"""
+        try:
+            from models import UserSettings, db
+
+            # 检查用户是否已有设置
+            existing_settings = UserSettings.query.filter_by(user_id=user.id).first()
+            if existing_settings:
+                return  # 已有设置，不需要创建
+
+            # 检测用户语言偏好
+            default_language = self._detect_user_language(user, request)
+
+            # 创建默认设置
+            settings = UserSettings(
+                user_id=user.id,
+                language=default_language,
+                settings_data={}
+            )
+
+            db.session.add(settings)
+            db.session.commit()
+
+            current_app.logger.info(f"为用户 {user.email} 创建了默认用户设置，语言: {default_language}")
+
+        except Exception as e:
+            current_app.logger.error(f"创建默认用户设置失败: {str(e)}")
+            from models import db
+            db.session.rollback()
+
+    def _detect_user_language(self, user, request=None):
+        """检测用户的语言偏好"""
+        # 1. 优先使用用户的locale字段
+        if user.locale and user.locale.startswith('zh'):
+            return 'zh-CN'
+
+        # 2. 如果有请求对象，检查Accept-Language头
+        if request:
+            accept_language = request.headers.get('Accept-Language', '')
+            if 'zh' in accept_language.lower():
+                return 'zh-CN'
+
+        # 3. 默认返回英语
+        return 'en'
+
+    def _create_default_global_rule(self, user):
+        """为新用户创建默认的全局规则"""
+        try:
+            from models import ContextRule, db
+
+            # 检查用户是否已有全局规则
+            existing_rule = ContextRule.query.filter_by(
+                user_id=user.id,
+                project_id=None  # 全局规则
+            ).first()
+            if existing_rule:
+                return  # 已有全局规则，不需要创建
+
+            # 创建默认全局规则
+            rule_content = """用户界面交互UI设计的四个基本原则：亲密性、对齐、重复和对比。
+
+1. **亲密性**
+   相关元素放得近，无关元素分开排。
+   这样分组更清晰，用户一看就明白。
+
+2. **对齐**
+   所有元素要对齐，左中右都要整齐。
+   随便乱摆会显乱，对齐才能更专业。
+
+3. **重复**
+   同样样式重复用，颜色字体要统一。
+   保持风格一致性，用户习惯更容易。
+
+4. **对比**
+   重要内容要突出，大小颜色差别大。
+   对比越强越显眼，用户一眼就看到。"""
+
+            default_rule = ContextRule(
+                user_id=user.id,
+                project_id=None,  # 全局规则
+                name="用户界面交互UI设计的基本原则",
+                description="系统自动创建的默认全局规则，包含UI设计的四个基本原则",
+                content=rule_content,
+                priority=0,
+                is_active=True,
+                apply_to_tasks=True,
+                apply_to_projects=False,
+                is_public=False,
+                usage_count=0,
+                created_by='system'
+            )
+
+            db.session.add(default_rule)
+            db.session.commit()
+
+            current_app.logger.info(f"为用户 {user.email} 创建了默认全局规则")
+
+        except Exception as e:
+            current_app.logger.error(f"创建默认全局规则失败: {str(e)}")
             from models import db
             db.session.rollback()
 

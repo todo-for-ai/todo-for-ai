@@ -184,8 +184,12 @@ def get_task_by_id(arguments):
 
     # 获取项目级别的上下文规则并拼接到任务内容后
     if project:
+        # 获取任务创建者的用户ID
+        task_user_id = task.creator_id if task.creator_id else None
+
         project_context = ContextRule.build_context_string(
             project_id=project.id,
+            user_id=task_user_id,
             for_tasks=True,
             for_projects=False
         )
