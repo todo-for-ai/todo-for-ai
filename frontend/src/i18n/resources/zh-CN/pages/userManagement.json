@@ -1,0 +1,59 @@
+{
+  "title": "用户管理",
+  "description": "管理系统中的所有用户，包括查看用户信息、管理用户状态等",
+  "stats": {
+    "totalUsers": "总用户数",
+    "activeUsers": "活跃用户",
+    "suspendedUsers": "已封禁用户",
+    "admins": "管理员"
+  },
+  "table": {
+    "columns": {
+      "user": "用户",
+      "role": "角色",
+      "status": "状态",
+      "lastLogin": "最后登录",
+      "createdAt": "注册时间",
+      "actions": "操作"
+    },
+    "pagination": {
+      "total": "第 {{start}}-{{end}} 条，共 {{total}} 条"
+    }
+  },
+  "roles": {
+    "admin": "管理员",
+    "user": "普通用户",
+    "viewer": "访客"
+  },
+  "status": {
+    "active": "活跃",
+    "inactive": "未激活",
+    "suspended": "已封禁"
+  },
+  "actions": {
+    "suspend": "封禁",
+    "activate": "解封",
+    "refresh": "刷新",
+    "self": "自己"
+  },
+  "search": {
+    "placeholder": "搜索用户邮箱、用户名或姓名"
+  },
+  "filters": {
+    "status": "状态筛选",
+    "role": "角色筛选"
+  },
+  "confirm": {
+    "suspend": "确定要封禁此用户吗？",
+    "suspendDescription": "封禁后用户将无法登录和使用系统",
+    "activate": "确定要解封此用户吗？",
+    "activateDescription": "解封后用户可以正常登录和使用系统",
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "messages": {
+    "loadFailed": "加载用户列表失败",
+    "statusUpdated": "用户状态更新成功",
+    "updateFailed": "更新用户状态失败"
+  }
+}

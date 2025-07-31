@@ -1,0 +1,122 @@
+{
+  "title": "任务详情",
+  "pageTitle": "任务详情 - Todo for AI",
+  "navigation": {
+    "home": "首页",
+    "projectTaskList": "项目任务列表",
+    "previousTask": "上一个任务",
+    "nextTask": "下一个任务",
+    "returnToProjectTaskList": "返回项目任务列表"
+  },
+  "actions": {
+    "edit": "编辑",
+    "delete": "删除任务",
+    "createTask": "创建任务",
+    "taskStatus": "任务状态",
+    "taskActions": "任务操作"
+  },
+  "status": {
+    "todo": "待办",
+    "inProgress": "进行中",
+    "review": "待审核",
+    "done": "已完成",
+    "cancelled": "已取消",
+    "selectStatus": "选择任务状态"
+  },
+  "priority": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "urgent": "紧急",
+    "lowPriority": "低优先级",
+    "mediumPriority": "中优先级",
+    "highPriority": "高优先级"
+  },
+  "copyPrompts": {
+    "title": "复制提示词工具",
+    "mcpExecution": "MCP工具执行",
+    "mcpPromptButton": "复制MCP工具执行提示词",
+    "mcpPromptDesc": "使用MCP工具自动获取任务信息并执行，适用于Claude等支持MCP的AI助手",
+    "aiExecution": "通用AI助手执行",
+    "aiPromptButton": "复制完整任务执行提示词",
+    "aiPromptDesc": "包含完整任务信息和执行要求，适用于ChatGPT、Claude等所有AI助手",
+    "taskCompletion": "任务完成检查",
+    "completionPromptButton": "复制任务完成检查提示词",
+    "completionPromptDesc": "检查任务是否完成，如果完成则自动关闭任务并提交报告",
+    "quickComplete": "一键完成任务",
+    "quickCompleteButton": "复制快速完成任务提示词",
+    "quickCompleteDesc": "直接执行任务并在完成后立即关闭，适合简单快速的任务"
+  },
+  "taskInfo": {
+    "title": "任务信息",
+    "project": "所属项目",
+    "status": "状态",
+    "priority": "优先级",
+    "dueDate": "截止时间",
+    "progress": "完成进度",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "createdBy": "创建者",
+    "tags": "标签",
+    "unknownProject": "未知项目"
+  },
+  "taskContent": {
+    "title": "任务内容",
+    "empty": {
+      "title": "暂无详细内容",
+      "subtitle": "点击编辑按钮添加任务内容"
+    }
+  },
+  "projectContext": {
+    "title": "项目上下文规则预览",
+    "description": "以下是此任务在MCP执行时会应用的项目上下文规则，这些规则会被自动拼接到任务内容后面。",
+    "loading": "正在加载项目上下文规则...",
+    "rulesLabel": "项目上下文规则",
+    "appliedRules": "应用的规则列表：",
+    "empty": {
+      "title": "暂无项目上下文规则",
+      "subtitle": "此项目尚未配置上下文规则"
+    }
+  },
+  "taskFeedback": {
+    "title": "任务执行反馈",
+    "description": "AI执行任务后的反馈信息，包含任务的具体执行情况和结果。",
+    "feedbackTime": "反馈时间："
+  },
+  "messages": {
+    "taskNotFound": "任务不存在",
+    "returnToTaskList": "返回任务列表",
+    "loadTaskFailed": "加载任务失败",
+    "loadProjectContextFailed": "加载项目上下文失败",
+    "deleteSuccess": "任务删除成功",
+    "deleteFailed": "删除任务失败",
+    "statusUpdateSuccess": "任务状态已更新为",
+    "progressUpdateSuccess": "，进度已更新为",
+    "statusUpdateFailed": "更新任务状态失败",
+    "mcpPromptCopied": "MCP执行任务提示词已复制到剪贴板",
+    "aiPromptCopied": "AI助手执行任务提示词已复制到剪贴板",
+    "completionPromptCopied": "任务完成确认提示词已复制到剪贴板",
+    "quickCompletePromptCopied": "快速完成任务提示词已复制到剪贴板",
+    "copyFailed": "复制失败",
+    "copyFailedManual": "复制失败，请手动复制"
+  },
+  "tooltips": {
+    "previousTask": "上一个任务 (←键)",
+    "nextTask": "下一个任务 (→键)",
+    "returnToProjectTaskList": "返回项目任务列表",
+    "createTask": "创建新任务 - 绿色表示积极的创建操作",
+    "editTask": "编辑当前任务 - 橙色表示中性的修改操作",
+    "deleteTask": "删除当前任务 - 红色表示危险的删除操作",
+    "mcpPrompt": "复制MCP工具执行任务的提示词，适用于支持MCP协议的AI助手",
+    "aiPrompt": "复制包含完整任务信息的执行提示词，适用于所有AI助手",
+    "completionPrompt": "复制任务完成检查和关闭的提示词",
+    "quickCompletePrompt": "复制快速完成并关闭任务的提示词"
+  },
+  "confirmations": {
+    "deleteTitle": "确定要删除这个任务吗？",
+    "deleteDescription": "删除后无法恢复，请谨慎操作。",
+    "confirmText": "确定",
+    "cancelText": "取消"
+  },
+  "dueDateFormat": "截止：{date}"
+}
