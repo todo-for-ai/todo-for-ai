@@ -16,7 +16,8 @@ import {
   message,
   Select,
   Popconfirm,
-  Input
+  Input,
+  Tooltip
 } from 'antd'
 import {
   ArrowLeftOutlined,
@@ -34,7 +35,9 @@ import {
   LinkOutlined,
   GlobalOutlined,
   PushpinOutlined,
-  PushpinFilled
+  PushpinFilled,
+  HomeOutlined,
+  DeploymentUnitOutlined
 } from '@ant-design/icons'
 import { useProjectStore, useTaskStore, useContextRuleStore } from '../stores'
 import { KanbanBoard } from '../components/Kanban'
@@ -317,10 +320,10 @@ const ProjectDetail = () => {
         fetchProject(parseInt(id))
       ])
 
-      message.success('任务列表和统计信息已刷新')
+      message.success(tp('tasks.messages.refreshSuccess'))
     } catch (error) {
       console.error('刷新失败:', error)
-      message.error('刷新失败')
+      message.error(tp('tasks.messages.refreshError'))
     }
   }
 
@@ -542,7 +545,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
 
   const taskColumns = [
     {
-      title: '任务标题',
+      title: tp('tasks.table.columns.title'),
       dataIndex: 'title',
       key: 'title',
       width: 200,
@@ -576,7 +579,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
       ),
     },
     {
-      title: '状态',
+      title: tp('tasks.table.columns.status'),
       dataIndex: 'status',
       key: 'status',
       width: 120,
@@ -588,16 +591,16 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
           style={{ width: 100 }}
           onChange={(newStatus) => handleStatusChange(record, newStatus as Task['status'])}
         >
-          <Option value="todo">待办</Option>
-          <Option value="in_progress">进行中</Option>
-          <Option value="review">待审核</Option>
-          <Option value="done">已完成</Option>
-          <Option value="cancelled">已取消</Option>
+          <Option value="todo">{tp('tasks.table.status.todo')}</Option>
+          <Option value="in_progress">{tp('tasks.table.status.inProgress')}</Option>
+          <Option value="review">{tp('tasks.table.status.review')}</Option>
+          <Option value="done">{tp('tasks.table.status.done')}</Option>
+          <Option value="cancelled">{tp('tasks.table.status.cancelled')}</Option>
         </Select>
       ),
     },
     {
-      title: '最后修改时间',
+      title: tp('tasks.table.columns.lastModified'),
       dataIndex: 'updated_at',
       key: 'updated_at',
       width: 160,
@@ -626,7 +629,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
       ),
     },
     {
-      title: '操作',
+      title: tp('tasks.table.columns.actions'),
       key: 'action',
       width: 180,
       render: (_: any, record: Task) => (
@@ -637,7 +640,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
             icon={<EyeOutlined />}
             size="small"
           >
-            查看
+            {tp('tasks.table.actions.view')}
           </LinkButton>
           <LinkButton
             to={`/todo-for-ai/pages/tasks/${record.id}/edit`}
@@ -645,17 +648,17 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
             icon={<EditOutlined />}
             size="small"
           >
-            编辑
+            {tp('tasks.table.actions.edit')}
           </LinkButton>
           <Popconfirm
-            title="确定要删除这个任务吗？"
-            description="删除后无法恢复，请谨慎操作。"
+            title={tp('tasks.confirm.delete.title')}
+            description={tp('tasks.confirm.delete.description')}
             onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
+            okText={tp('tasks.confirm.delete.ok')}
+            cancelText={tp('tasks.confirm.delete.cancel')}
           >
             <Button type="text" icon={<DeleteOutlined />} size="small" danger>
-              删除
+              {tp('tasks.table.actions.delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -673,18 +676,38 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
 
   return (
     <div className="page-container">
-      <Breadcrumb style={{ marginBottom: '16px' }}>
+      <Breadcrumb
+        style={{
+          marginBottom: '16px',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
         <Breadcrumb.Item>
-          <Button 
-            type="link" 
-            icon={<ArrowLeftOutlined />} 
+          <Button
+            type="link"
+            icon={<ArrowLeftOutlined />}
             onClick={() => navigate('/todo-for-ai/pages/projects')}
-            style={{ padding: 0 }}
+            style={{
+              padding: 0,
+              height: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              lineHeight: 1
+            }}
           >
-            项目管理
+            {tp('breadcrumb.projectManagement')}
           </Button>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>{currentProject.name}</Breadcrumb.Item>
+        <Breadcrumb.Item
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            lineHeight: 1
+          }}
+        >
+          {currentProject.name}
+        </Breadcrumb.Item>
       </Breadcrumb>
 
       <div className="page-header">
@@ -706,6 +729,60 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
               <Tag color={currentProject.status === 'active' ? 'green' : 'orange'}>
                 {tp(`status.${currentProject.status}`)}
               </Tag>
+
+              {/* 项目链接图标 */}
+              <Space size="small" style={{ marginLeft: '8px' }}>
+                {currentProject.github_url && (
+                  <Tooltip title={tp('tooltips.githubRepo')}>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<GithubOutlined />}
+                      onClick={() => window.open(currentProject.github_url, '_blank')}
+                      style={{
+                        padding: '0 4px',
+                        height: '24px',
+                        color: '#666',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </Tooltip>
+                )}
+
+                {currentProject.local_url && (
+                  <Tooltip title={tp('tooltips.localUrl')}>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<HomeOutlined />}
+                      onClick={() => window.open(currentProject.local_url, '_blank')}
+                      style={{
+                        padding: '0 4px',
+                        height: '24px',
+                        color: '#666',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </Tooltip>
+                )}
+
+                {currentProject.production_url && (
+                  <Tooltip title={tp('tooltips.productionUrl')}>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<DeploymentUnitOutlined />}
+                      onClick={() => window.open(currentProject.production_url, '_blank')}
+                      style={{
+                        padding: '0 4px',
+                        height: '24px',
+                        color: '#666',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </Tooltip>
+                )}
+              </Space>
             </div>
             {currentProject.description && (
               <Paragraph className="page-description">
@@ -719,11 +796,11 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
               icon={<CopyOutlined />}
               onClick={handleCopyProjectPrompt}
               title={selectedTaskIds.length > 0
-                ? `复制选中的${selectedTaskIds.length}个任务的执行提示词`
-                : "复制AI执行项目任务的提示词"
+                ? tp('tooltips.copySelectedTasks', { count: selectedTaskIds.length })
+                : tp('tooltips.copyAiPrompt')
               }
             >
-              复制AI Prompt
+              {tp('buttons.copyAiPrompt')}
               {selectedTaskIds.length > 0 && (
                 <span style={{
                   marginLeft: '4px',
@@ -741,9 +818,9 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
               <Button
                 size="small"
                 onClick={handleClearSelection}
-                title="清除选中的任务"
+                title={tp('tooltips.clearSelection')}
               >
-                清除选中
+                {tp('buttons.clearSelection')}
               </Button>
             )}
             <Button
@@ -751,7 +828,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
               icon={isPinned ? <PushpinFilled /> : <PushpinOutlined />}
               onClick={handleTogglePin}
               loading={pinLoading}
-              title={isPinned ? "取消Pin项目" : "Pin项目到导航栏"}
+              title={isPinned ? tp('tooltips.unpinProject') : tp('tooltips.pinProject')}
               type={isPinned ? "primary" : "default"}
               style={{
                 backgroundColor: isPinned ? '#52c41a' : undefined,
@@ -760,22 +837,24 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                 fontWeight: isPinned ? 'bold' : 'normal'
               }}
             >
-              {isPinned ? "已Pin" : "Pin"}
+              {isPinned ? tp('buttons.pinned') : tp('buttons.pin')}
             </Button>
             <Button
               size="small"
               icon={<EditOutlined />}
               onClick={() => navigate(`/todo-for-ai/pages/projects/${id}/edit`)}
+              title={tp('tooltips.editProject')}
             >
-              编辑项目
+              {tp('buttons.editProject')}
             </Button>
             <Button
               type="primary"
               size="small"
               icon={<PlusOutlined />}
               onClick={() => navigate(`/todo-for-ai/pages/tasks/create?project_id=${id}`)}
+              title={tp('tooltips.newTask')}
             >
-              新建任务
+              {tp('buttons.newTask')}
             </Button>
           </Space>
         </div>
@@ -785,7 +864,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
         <Col xs={24} sm={12} md={6}>
           <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
-              title="总任务数"
+              title={tp('overview.stats.totalTasks')}
               value={stats.total_tasks}
               prefix={<CheckSquareOutlined style={{ fontSize: '14px' }} />}
               valueStyle={{ color: '#1890ff', fontSize: '18px' }}
@@ -796,7 +875,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
         <Col xs={24} sm={12} md={6}>
           <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
-              title="待办任务"
+              title={tp('overview.stats.todoTasks')}
               value={stats.todo_tasks}
               prefix={<ClockCircleOutlined style={{ fontSize: '14px' }} />}
               valueStyle={{ color: '#faad14', fontSize: '18px' }}
@@ -807,7 +886,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
         <Col xs={24} sm={12} md={6}>
           <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
-              title="进行中"
+              title={tp('overview.stats.inProgressTasks')}
               value={stats.in_progress_tasks}
               prefix={<ClockCircleOutlined style={{ fontSize: '14px' }} />}
               valueStyle={{ color: '#1890ff', fontSize: '18px' }}
@@ -818,7 +897,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
         <Col xs={24} sm={12} md={6}>
           <Card style={{ padding: '8px 12px' }} bodyStyle={{ padding: '8px' }}>
             <Statistic
-              title="已完成"
+              title={tp('overview.stats.doneTasks')}
               value={stats.done_tasks}
               prefix={<CheckCircleOutlined style={{ fontSize: '14px' }} />}
               valueStyle={{ color: '#52c41a', fontSize: '18px' }}
@@ -866,7 +945,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                     </div>
                     <div style={{ marginBottom: '16px' }}>
                       <strong>{tp('overview.basicInfo.contextRulesCount')}：</strong>
-                      {stats.context_rules_count} 条
+                      {stats.context_rules_count} {tp('overview.basicInfo.contextRulesUnit')}
                     </div>
                   </Col>
                 </Row>
@@ -965,47 +1044,47 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                 <Col span={3}>
                   <Space size={4}>
                     <FilterOutlined style={{ fontSize: '12px' }} />
-                    <span style={{ fontSize: '12px' }}>筛选:</span>
+                    <span style={{ fontSize: '12px' }}>{tp('tasks.filters.label')}</span>
                   </Space>
                 </Col>
                 <Col span={4}>
                   <Select
                     size="small"
-                    placeholder="任务状态"
+                    placeholder={tp('tasks.filters.status.placeholder')}
                     value={taskFilters.status}
                     onChange={(value) => handleFilterChange('status', value)}
                     style={{ width: '100%', height: '22px' }}
                     allowClear
                   >
-                    <Option value="">全部状态</Option>
-                    <Option value="todo,in_progress,review">仅待办任务（默认）</Option>
-                    <Option value="todo">待办</Option>
-                    <Option value="in_progress">进行中</Option>
-                    <Option value="review">待审核</Option>
-                    <Option value="done">已完成</Option>
-                    <Option value="cancelled">已取消</Option>
+                    <Option value="">{tp('tasks.filters.status.all')}</Option>
+                    <Option value="todo,in_progress,review">{tp('tasks.filters.status.pendingDefault')}</Option>
+                    <Option value="todo">{tp('tasks.filters.status.todo')}</Option>
+                    <Option value="in_progress">{tp('tasks.filters.status.inProgress')}</Option>
+                    <Option value="review">{tp('tasks.filters.status.review')}</Option>
+                    <Option value="done">{tp('tasks.filters.status.done')}</Option>
+                    <Option value="cancelled">{tp('tasks.filters.status.cancelled')}</Option>
                   </Select>
                 </Col>
                 <Col span={3}>
                   <Select
                     size="small"
-                    placeholder="优先级"
+                    placeholder={tp('tasks.filters.priority.placeholder')}
                     value={taskFilters.priority}
                     onChange={(value) => handleFilterChange('priority', value)}
                     style={{ width: '100%', height: '22px' }}
                     allowClear
                   >
-                    <Option value="">全部优先级</Option>
-                    <Option value="low">低</Option>
-                    <Option value="medium">中</Option>
-                    <Option value="high">高</Option>
-                    <Option value="urgent">紧急</Option>
+                    <Option value="">{tp('tasks.filters.priority.all')}</Option>
+                    <Option value="low">{tp('tasks.filters.priority.low')}</Option>
+                    <Option value="medium">{tp('tasks.filters.priority.medium')}</Option>
+                    <Option value="high">{tp('tasks.filters.priority.high')}</Option>
+                    <Option value="urgent">{tp('tasks.filters.priority.urgent')}</Option>
                   </Select>
                 </Col>
                 <Col span={3}>
                   <Select
                     size="small"
-                    placeholder="排序方式"
+                    placeholder={tp('tasks.filters.sortBy.placeholder')}
                     value={taskFilters.sort_by}
                     onChange={(value) => handleFilterChange('sort_by', value)}
                     style={{ width: '100%', height: '22px' }}
@@ -1021,19 +1100,19 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                 <Col span={3}>
                   <Select
                     size="small"
-                    placeholder="排序顺序"
+                    placeholder={tp('tasks.filters.sortOrder.placeholder')}
                     value={taskFilters.sort_order}
                     onChange={(value) => handleFilterChange('sort_order', value)}
                     style={{ width: '100%', height: '22px' }}
                   >
-                    <Option value="desc">降序</Option>
-                    <Option value="asc">升序</Option>
+                    <Option value="desc">{tp('tasks.filters.sortOrder.desc')}</Option>
+                    <Option value="asc">{tp('tasks.filters.sortOrder.asc')}</Option>
                   </Select>
                 </Col>
                 <Col span={4}>
                   <Search
                     size="small"
-                    placeholder="搜索任务标题或描述"
+                    placeholder={tp('tasks.filters.search.placeholder')}
                     value={taskFilters.search}
                     onChange={(e) => handleFilterChange('search', e.target.value)}
                     onSearch={(value) => handleFilterChange('search', value)}
@@ -1049,9 +1128,9 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                     onClick={handleRefreshTasks}
                     loading={tasksLoading}
                     style={{ fontSize: '11px', height: '22px', padding: '0 4px' }}
-                    title="刷新任务列表"
+                    title={tp('tooltips.refreshTasks')}
                   >
-                    刷新
+                    {tp('buttons.refreshTasks')}
                   </Button>
                 </Col>
               </Row>
@@ -1070,7 +1149,7 @@ ${targetTasks.length > 0 ? targetTasks.map((task, index) =>
                 total: pagination?.total || 0,
                 showSizeChanger: true,
                 showQuickJumper: true,
-                showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+                showTotal: (total, range) => tp('tasks.table.pagination.total', { start: range[0], end: range[1], total }),
                 pageSizeOptions: ['10', '20', '50', '100', '200'],
                 size: 'small',
                 defaultPageSize: 20, // 设置默认分页大小为20
@@ -1153,7 +1232,7 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
 
   const columns = [
     {
-      title: '规则名称',
+      title: tp('contextRules.table.columns.name'),
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: ContextRule) => (
@@ -1167,30 +1246,30 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
       ),
     },
     {
-      title: '优先级',
+      title: tp('contextRules.table.columns.priority'),
       dataIndex: 'priority',
       key: 'priority',
       width: 80,
       sorter: true,
     },
     {
-      title: '状态',
+      title: tp('contextRules.table.columns.status'),
       dataIndex: 'is_active',
       key: 'is_active',
       width: 80,
       render: (isActive: boolean) => (
         <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? '启用' : '禁用'}
+          {isActive ? tp('contextRules.status.enabled') : tp('contextRules.status.disabled')}
         </Tag>
       ),
     },
     {
-      title: '应用范围',
+      title: tp('contextRules.table.columns.applyScope'),
       key: 'apply_scope',
       width: 120,
       render: (record: ContextRule) => (
         <Space direction="vertical" size={0}>
-          {record.apply_to_tasks && <Tag>任务</Tag>}
+          {record.apply_to_tasks && <Tag>{tp('contextRules.tags.task')}</Tag>}
           {record.apply_to_projects && <Tag>{tp('contextRules.tags.project')}</Tag>}
         </Space>
       ),
@@ -1203,7 +1282,7 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
       render: (date: string) => new Date(date).toLocaleDateString('zh-CN'),
     },
     {
-      title: '操作',
+      title: tp('contextRules.table.columns.actions'),
       key: 'actions',
       width: 200,
       render: (record: ContextRule) => (
@@ -1213,14 +1292,14 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
             icon={<EyeOutlined />}
             onClick={() => handleEdit(record)}
           >
-            查看
+            {tp('contextRules.actions.view')}
           </Button>
           <Button
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
-            编辑
+            {tp('contextRules.actions.edit')}
           </Button>
           <Button
             size="small"
@@ -1241,7 +1320,7 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
               danger
               icon={<DeleteOutlined />}
             >
-              删除
+              {tp('contextRules.actions.delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -1276,7 +1355,7 @@ const ContextRulesTab: React.FC<{ projectId: number }> = ({ projectId }) => {
           pagination={{
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 条记录`,
+            showTotal: (total) => tp('contextRules.table.pagination.total', { total }),
           }}
           locale={{
             emptyText: (
