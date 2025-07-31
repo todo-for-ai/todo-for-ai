@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
+import { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -61,8 +61,10 @@ const KanbanBoard = forwardRef<KanbanBoardRef, KanbanBoardProps>(({ projectId, o
         sort_order: 'desc'
       })
 
-      if (response.data) {
-        setTasks(response.data)
+      if (response.data && response.data.items) {
+        setTasks(response.data.items)
+      } else {
+        setTasks([])
       }
     } catch (error) {
       console.error('Failed to fetch kanban tasks:', error)
@@ -75,6 +77,27 @@ const KanbanBoard = forwardRef<KanbanBoardRef, KanbanBoardProps>(({ projectId, o
   useEffect(() => {
     fetchKanbanTasks()
   }, [projectId])
+
+  // 计算按状态分组的任务
+  const tasksByStatus = useMemo(() => {
+    if (!Array.isArray(tasks)) {
+      return {
+        todo: [],
+        in_progress: [],
+        review: [],
+        done: []
+      }
+    }
+
+    return {
+      todo: tasks.filter(task => task.status === 'todo'),
+      in_progress: tasks.filter(task => task.status === 'in_progress'),
+      review: tasks.filter(task => task.status === 'review'),
+      done: tasks.filter(task => task.status === 'done')
+    }
+  }, [tasks])
+
+
 
   // 暴露刷新方法给父组件
   useImperativeHandle(ref, () => ({
@@ -89,19 +112,11 @@ const KanbanBoard = forwardRef<KanbanBoardRef, KanbanBoardProps>(({ projectId, o
     { id: 'done', title: '已完成', color: '#f6ffed' },
   ]
 
-  // 按状态分组任务
-  const tasksByStatus = tasks.reduce((acc, task) => {
-    const status = task.status
-    if (!acc[status]) {
-      acc[status] = []
-    }
-    acc[status].push(task)
-    return acc
-  }, {} as Record<string, Task[]>)
+
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
-    const task = tasks.find(t => t.id === active.id)
+    const task = (Array.isArray(tasks) ? tasks : []).find(t => t.id === active.id)
     setActiveTask(task || null)
   }
 
@@ -138,7 +153,7 @@ const KanbanBoard = forwardRef<KanbanBoardRef, KanbanBoardProps>(({ projectId, o
     const taskId = active.id as number
     const newStatus = over.id as Task['status']
 
-    const task = tasks.find(t => t.id === taskId)
+    const task = (Array.isArray(tasks) ? tasks : []).find(t => t.id === taskId)
     if (!task || task.status === newStatus) return
 
     try {

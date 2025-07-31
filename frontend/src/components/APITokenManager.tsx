@@ -19,6 +19,7 @@ import {
   PlusOutlined,
   DeleteOutlined,
   EyeOutlined,
+  EyeInvisibleOutlined,
   CopyOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons'
@@ -48,9 +49,9 @@ export const APITokenManager: React.FC = () => {
   const [newToken, setNewToken] = useState<string>('')
   const [viewTokenModalVisible, setViewTokenModalVisible] = useState(false)
   const [viewingToken, setViewingToken] = useState<APIToken | null>(null)
-  const [revealTokenModalVisible, setRevealTokenModalVisible] = useState(false)
-  const [revealedToken, setRevealedToken] = useState<string>('')
-  const [revealingTokenName, setRevealingTokenName] = useState<string>('')
+  // 用于在View弹窗中显示完整Token的状态
+  const [isTokenRevealed, setIsTokenRevealed] = useState(false)
+  const [revealedTokenInView, setRevealedTokenInView] = useState<string>('')
   const [form] = Form.useForm()
   const { tp } = usePageTranslation('profile')
 
@@ -106,22 +107,37 @@ export const APITokenManager: React.FC = () => {
   const handleViewToken = (token: APIToken) => {
     setViewingToken(token)
     setViewTokenModalVisible(true)
+    // 重置Token显示状态
+    setIsTokenRevealed(false)
+    setRevealedTokenInView('')
   }
 
-  const handleRevealToken = async (token: APIToken) => {
-    try {
-      const response = await fetchApiClient.get(`/tokens/${token.id}/reveal`)
-      const data = response?.data || response
+  // 在View弹窗中切换Token显示状态
+  const handleToggleTokenInView = async (token: APIToken) => {
+    if (isTokenRevealed) {
+      // 如果已经显示，则隐藏
+      setIsTokenRevealed(false)
+      setRevealedTokenInView('')
+    } else {
+      // 如果未显示，则获取并显示完整Token
+      try {
+        const response = await fetchApiClient.get(`/tokens/${token.id}/reveal`)
+        const data = response?.data || response
 
-      if (data.success && data.data) {
-        setRevealedToken(data.data.token)
-        setRevealingTokenName(data.data.name)
-        setRevealTokenModalVisible(true)
-      } else {
-        message.error(data.error || tp('apiTokens.messages.revealFailed'))
+        // 检查是否有token字段（fetchApiClient可能已经解包了data）
+        if (data.token) {
+          setRevealedTokenInView(data.token)
+          setIsTokenRevealed(true)
+        } else if (data.success && data.data) {
+          // 备用方案：如果数据结构是嵌套的
+          setRevealedTokenInView(data.data.token)
+          setIsTokenRevealed(true)
+        } else {
+          message.error(data.error || tp('apiTokens.messages.revealFailed'))
+        }
+      } catch (error: any) {
+        message.error(tp('apiTokens.messages.revealFailedOldToken'))
       }
-    } catch (error: any) {
-      message.error(tp('apiTokens.messages.revealFailedOldToken'))
     }
   }
 
@@ -227,16 +243,6 @@ export const APITokenManager: React.FC = () => {
               onClick={() => handleViewToken(record)}
             >
               {tp('apiTokens.actions.view')}
-            </Button>
-          </Tooltip>
-          <Tooltip title={tp('apiTokens.actions.revealTooltip')}>
-            <Button
-              type="text"
-              icon={<CopyOutlined />}
-              size="small"
-              onClick={() => handleRevealToken(record)}
-            >
-              {tp('apiTokens.actions.revealToken')}
             </Button>
           </Tooltip>
           <Tooltip title={tp('apiTokens.actions.copyPrefix')}>
@@ -425,11 +431,15 @@ export const APITokenManager: React.FC = () => {
         onCancel={() => {
           setViewTokenModalVisible(false)
           setViewingToken(null)
+          setIsTokenRevealed(false)
+          setRevealedTokenInView('')
         }}
         footer={[
           <Button key="close" onClick={() => {
             setViewTokenModalVisible(false)
             setViewingToken(null)
+            setIsTokenRevealed(false)
+            setRevealedTokenInView('')
           }}>
             {tp('buttons.close')}
           </Button>
@@ -452,8 +462,37 @@ export const APITokenManager: React.FC = () => {
               )}
 
               <div>
-                <Text strong>{tp('apiTokens.modals.tokenDetails.prefix')}</Text>
-                <Text code>{viewingToken.prefix}***</Text>
+                <Text strong>{tp('apiTokens.modals.tokenDetails.token')}</Text>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  <div style={{
+                    background: '#f5f5f5',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontFamily: 'monospace',
+                    fontSize: '14px',
+                    border: '1px solid #d9d9d9',
+                    flex: 1,
+                    wordBreak: 'break-all'
+                  }}>
+                    {isTokenRevealed ? revealedTokenInView : `${viewingToken.prefix}***`}
+                  </div>
+                  <Tooltip title={isTokenRevealed ? tp('apiTokens.actions.hideToken') : tp('apiTokens.actions.showToken')}>
+                    <Button
+                      type="text"
+                      icon={isTokenRevealed ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                      size="small"
+                      onClick={() => handleToggleTokenInView(viewingToken)}
+                    />
+                  </Tooltip>
+                  <Tooltip title={tp('apiTokens.actions.copyToken')}>
+                    <Button
+                      type="text"
+                      icon={<CopyOutlined />}
+                      size="small"
+                      onClick={() => copyToClipboard(isTokenRevealed ? revealedTokenInView : `${viewingToken.prefix}***`)}
+                    />
+                  </Tooltip>
+                </div>
               </div>
 
               <div>
@@ -500,66 +539,7 @@ export const APITokenManager: React.FC = () => {
         )}
       </Modal>
 
-      {/* 查看完整Token模态框 */}
-      <Modal
-        title={tp('apiTokens.modals.revealToken.title')}
-        open={revealTokenModalVisible}
-        onCancel={() => {
-          setRevealTokenModalVisible(false)
-          setRevealedToken('')
-          setRevealingTokenName('')
-        }}
-        footer={[
-          <Button key="close" onClick={() => {
-            setRevealTokenModalVisible(false)
-            setRevealedToken('')
-            setRevealingTokenName('')
-          }}>
-            {tp('buttons.close')}
-          </Button>
-        ]}
-        width={600}
-      >
-        <div>
-          <Alert
-            message={tp('apiTokens.modals.revealToken.securityWarning')}
-            description={tp('apiTokens.modals.revealToken.securityDescription')}
-            type="warning"
-            showIcon
-            style={{ marginBottom: 16 }}
-          />
 
-          <div style={{ marginBottom: 16 }}>
-            <Text strong>{tp('apiTokens.modals.revealToken.tokenName')}</Text>
-            <Text>{revealingTokenName}</Text>
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <Text strong>{tp('apiTokens.modals.revealToken.fullToken')}</Text>
-          </div>
-
-          <div style={{
-            background: '#f5f5f5',
-            padding: '12px',
-            borderRadius: '6px',
-            fontFamily: 'monospace',
-            wordBreak: 'break-all',
-            marginBottom: 16,
-            border: '1px solid #d9d9d9'
-          }}>
-            {revealedToken}
-          </div>
-
-          <Button
-            type="primary"
-            icon={<CopyOutlined />}
-            onClick={() => copyToClipboard(revealedToken)}
-            block
-          >
-            {tp('apiTokens.modals.revealToken.copyFullToken')}
-          </Button>
-        </div>
-      </Modal>
     </div>
   )
 }
