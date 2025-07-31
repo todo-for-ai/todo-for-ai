@@ -93,9 +93,10 @@
       "delete": "删除",
       "copy": "复制",
       "copyPrefix": "复制Token前缀",
-      "viewTooltip": "查看Token详情",
-      "revealToken": "查看Token",
-      "revealTooltip": "查看完整Token"
+      "copyToken": "复制Token",
+      "showToken": "显示完整Token",
+      "hideToken": "隐藏Token",
+      "viewTooltip": "查看Token详情"
     },
     "pagination": {
       "total": "共 {{total}} 个Token"
@@ -128,7 +129,7 @@
         "title": "Token详情",
         "name": "名称：",
         "description": "描述：",
-        "prefix": "Token前缀：",
+        "token": "Token：",
         "status": "状态：",
         "createdAt": "创建时间：",
         "expiresAt": "过期时间：",

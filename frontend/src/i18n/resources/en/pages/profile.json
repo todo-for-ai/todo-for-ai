@@ -93,9 +93,10 @@
       "delete": "Delete",
       "copy": "Copy",
       "copyPrefix": "Copy Token Prefix",
-      "viewTooltip": "View Token Details",
-      "revealToken": "View Token",
-      "revealTooltip": "View Full Token"
+      "copyToken": "Copy Token",
+      "showToken": "Show Full Token",
+      "hideToken": "Hide Token",
+      "viewTooltip": "View Token Details"
     },
     "pagination": {
       "total": "Total {{total}} tokens"
@@ -128,7 +129,7 @@
         "title": "Token Details",
         "name": "Name:",
         "description": "Description:",
-        "prefix": "Token Prefix:",
+        "token": "Token:",
         "status": "Status:",
         "createdAt": "Created:",
         "expiresAt": "Expires:",
