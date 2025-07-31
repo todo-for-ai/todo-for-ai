@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Typography, Select, Button, Space, Drawer } from 'antd'
 import { ReloadOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
-import { useProjectStore, useTaskStore } from '../stores'
+import { useProjectStore } from '../stores'
 import { KanbanBoard } from '../components/Kanban'
+import type { KanbanBoardRef } from '../components/Kanban/KanbanBoard'
 import { MarkdownEditor } from '../components/MarkdownEditor'
 import type { Task } from '../api/tasks'
 
@@ -13,16 +14,12 @@ const Kanban = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>()
   const [viewingTask, setViewingTask] = useState<Task | null>(null)
   const [isDetailVisible, setIsDetailVisible] = useState(false)
+  const kanbanRef = useRef<KanbanBoardRef>(null)
 
   const {
     projects,
     fetchProjects,
   } = useProjectStore()
-
-  const {
-    fetchTasks,
-    loading,
-  } = useTaskStore()
 
   useEffect(() => {
     fetchProjects()
@@ -54,7 +51,7 @@ const Kanban = () => {
   }
 
   const handleRefresh = () => {
-    fetchTasks()
+    kanbanRef.current?.refresh()
   }
 
   const selectedProject = projects.find(p => p.id === selectedProjectId)
@@ -77,10 +74,9 @@ const Kanban = () => {
             </Paragraph>
           </div>
           <Space>
-            <Button 
-              icon={<ReloadOutlined />} 
+            <Button
+              icon={<ReloadOutlined />}
               onClick={handleRefresh}
-              loading={loading}
             >
               刷新
             </Button>
@@ -153,7 +149,8 @@ const Kanban = () => {
       {/* 看板内容 */}
       <div style={{ backgroundColor: '#f5f5f5', minHeight: 'calc(100vh - 200px)' }}>
         {selectedProjectId ? (
-          <KanbanBoard 
+          <KanbanBoard
+            ref={kanbanRef}
             projectId={selectedProjectId}
             onTaskClick={handleTaskClick}
           />
