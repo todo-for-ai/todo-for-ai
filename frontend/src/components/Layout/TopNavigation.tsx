@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons'
 import { UserAvatar } from '../UserProfile'
 import { LinkButton } from '../SmartLink'
+import { GitHubBadge } from '../GitHubBadge'
 import { pinsApi, type UserProjectPin } from '../../api/pins'
 import { tasksApi } from '../../api/tasks'
 import { useTranslation } from '../../i18n/hooks/useTranslation'
@@ -272,14 +273,18 @@ const TopNavigation: React.FC = () => {
         </div>
       </div>
 
-      {/* 右侧：用户区域 - 绝对定位到右边 */}
+      {/* 右侧：GitHub徽标 + 用户区域 - 绝对定位到右边 */}
       <div
         className="header-user-section"
         style={{
           position: 'absolute',
           right: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
         }}
       >
+        <GitHubBadge />
         <UserAvatar onPinUpdate={reloadPinnedProjects} />
       </div>
     </Header>

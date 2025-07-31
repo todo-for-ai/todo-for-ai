@@ -19,7 +19,7 @@
 .header-user-section {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .welcome-text {
@@ -74,6 +74,7 @@
 
   .header-user-section {
     right: 16px;
+    gap: 8px;
   }
 
   .welcome-text {
@@ -102,6 +103,7 @@
 
   .header-user-section {
     right: 12px;
+    gap: 6px;
   }
 
   /* 在更小的屏幕上隐藏部分文档链接 */
