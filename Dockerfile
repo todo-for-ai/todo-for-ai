@@ -4,8 +4,6 @@
 # 构建参数
 ARG NODE_VERSION=20
 ARG PYTHON_VERSION=3.11
-ARG VITE_API_BASE_URL=http://localhost:50110/todo-for-ai/api/v1
-ARG VITE_MCP_SERVER_URL=http://localhost:50110
 ARG VITE_APP_TITLE="Todo for AI"
 ARG VITE_APP_VERSION="1.0.0"
 
@@ -26,13 +24,9 @@ RUN npm ci
 COPY todo-for-ai-webpage/ ./
 
 # 设置构建环境变量
-ARG VITE_API_BASE_URL
-ARG VITE_MCP_SERVER_URL
 ARG VITE_APP_TITLE
 ARG VITE_APP_VERSION
 
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-ENV VITE_MCP_SERVER_URL=$VITE_MCP_SERVER_URL
 ENV VITE_APP_TITLE=$VITE_APP_TITLE
 ENV VITE_APP_VERSION=$VITE_APP_VERSION
 
@@ -110,7 +104,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:${PORT}/todo-for-ai/api/v1/health || exit 1
 
 # 暴露端口
-EXPOSE 80 50110
+EXPOSE 50111 50110
 
 # 启动所有服务
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
