@@ -4,9 +4,9 @@
 [submodule "docs/Milkdown/website"]
 	path = docs/Milkdown/website
 	url = https://github.com/Milkdown/website.git
-[submodule "backend"]
-	path = backend
+[submodule "todo-for-ai-api-server"]
+	path = todo-for-ai-api-server
 	url = https://github.com/todo-for-ai/todo-for-ai-api-server.git
-[submodule "frontend"]
-	path = frontend
+[submodule "todo-for-ai-webpage"]
+	path = todo-for-ai-webpage
 	url = https://github.com/todo-for-ai/todo-for-ai-webpage.git

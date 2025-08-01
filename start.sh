@@ -22,8 +22,8 @@ NC='\033[0m' # No Color
 
 # 项目根目录
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_DIR="$PROJECT_ROOT/backend"
-FRONTEND_DIR="$PROJECT_ROOT/frontend"
+BACKEND_DIR="$PROJECT_ROOT/todo-for-ai-api-server"
+FRONTEND_DIR="$PROJECT_ROOT/todo-for-ai-webpage"
 
 # 端口配置
 BACKEND_PORT=50110

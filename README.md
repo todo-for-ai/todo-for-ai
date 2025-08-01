@@ -6,8 +6,8 @@
 
 本项目采用Git Submodule架构，将不同模块拆分到独立的仓库中：
 
-- **backend/**: 后端API服务器 → [todo-for-ai-api-server](https://github.com/todo-for-ai/todo-for-ai-api-server)
-- **frontend/**: 前端网页应用 → [todo-for-ai-webpage](https://github.com/todo-for-ai/todo-for-ai-webpage)
+- **todo-for-ai-api-server/**: 后端API服务器 → [todo-for-ai-api-server](https://github.com/todo-for-ai/todo-for-ai-api-server)
+- **todo-for-ai-webpage/**: 前端网页应用 → [todo-for-ai-webpage](https://github.com/todo-for-ai/todo-for-ai-webpage)
 - **todo-for-ai-mcp/**: MCP服务器 → [todo-for-ai-mcp](https://github.com/todo-for-ai/todo-for-ai-mcp)
 
 ## 🚀 快速开始

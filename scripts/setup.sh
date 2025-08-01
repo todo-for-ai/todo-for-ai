@@ -34,8 +34,8 @@ check_requirements() {
 # 设置后端环境
 setup_backend() {
     echo "🐍 设置后端环境..."
-    
-    cd backend
+
+    cd todo-for-ai-api-server
     
     # 创建虚拟环境
     if [ ! -d "venv" ]; then
@@ -62,8 +62,8 @@ setup_backend() {
 # 设置前端环境
 setup_frontend() {
     echo "⚛️ 设置前端环境..."
-    
-    cd frontend
+
+    cd todo-for-ai-webpage
     
     # 安装依赖
     if [ -f "package.json" ]; then
@@ -95,8 +95,8 @@ create_env_files() {
     echo "📝 创建环境配置文件..."
     
     # 后端环境配置
-    if [ ! -f "backend/.env" ]; then
-        cat > backend/.env << EOF
+    if [ ! -f "todo-for-ai-api-server/.env" ]; then
+        cat > todo-for-ai-api-server/.env << EOF
 # Flask 配置
 FLASK_APP=app.py
 FLASK_ENV=development
@@ -111,12 +111,12 @@ DATABASE_URL=mysql+pymysql://root:cC11001100@localhost:3306/todo_for_ai
 UPLOAD_FOLDER=uploads
 MAX_CONTENT_LENGTH=16777216
 EOF
-        echo "创建了 backend/.env"
+        echo "创建了 todo-for-ai-api-server/.env"
     fi
-    
+
     # 前端环境配置
-    if [ ! -f "frontend/.env" ]; then
-        cat > frontend/.env << EOF
+    if [ ! -f "todo-for-ai-webpage/.env" ]; then
+        cat > todo-for-ai-webpage/.env << EOF
 # API 配置
 VITE_API_BASE_URL=http://localhost:50110/todo-for-ai/api/v1
 VITE_MCP_SERVER_URL=http://localhost:50110
@@ -125,9 +125,9 @@ VITE_MCP_SERVER_URL=http://localhost:50110
 VITE_APP_TITLE=Todo for AI
 VITE_APP_VERSION=1.0.0
 EOF
-        echo "创建了 frontend/.env"
+        echo "创建了 todo-for-ai-webpage/.env"
     fi
-    
+
     echo "✅ 环境配置文件创建完成"
 }
 
@@ -138,13 +138,13 @@ main() {
     setup_frontend
     setup_database
     create_env_files
-    
+
     echo ""
     echo "🎉 项目设置完成！"
     echo ""
     echo "下一步："
-    echo "1. 启动后端服务: cd backend && source venv/bin/activate && python app.py"
-    echo "2. 启动前端服务: cd frontend && npm run dev"
+    echo "1. 启动后端服务: cd todo-for-ai-api-server && source venv/bin/activate && python app.py"
+    echo "2. 启动前端服务: cd todo-for-ai-webpage && npm run dev"
     echo "3. 访问应用: http://localhost:3000"
     echo ""
     echo "更多信息请查看 README.md"
