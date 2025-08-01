@@ -123,10 +123,11 @@ show_github_secrets() {
     echo "- SECRET_KEY: $(openssl rand -base64 32)"
     echo "- JWT_SECRET_KEY: $(openssl rand -base64 32)"
     echo ""
-    echo "Auth0配置 (如果使用):"
-    echo "- AUTH0_DOMAIN: 你的Auth0域名"
-    echo "- AUTH0_CLIENT_ID: 你的Auth0客户端ID"
-    echo "- AUTH0_CLIENT_SECRET: 你的Auth0客户端密钥"
+    echo "OAuth配置 (如果使用):"
+    echo "- GITHUB_CLIENT_ID: 你的GitHub客户端ID"
+    echo "- GITHUB_CLIENT_SECRET: 你的GitHub客户端密钥"
+    echo "- GOOGLE_CLIENT_ID: 你的Google客户端ID"
+    echo "- GOOGLE_CLIENT_SECRET: 你的Google客户端密钥"
     echo "=================================="
 }
 

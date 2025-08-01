@@ -143,15 +143,10 @@ start_services() {
         echo -e "${YELLOW}⚠️  前端服务可能还在启动中...${NC}"
     fi
     
-    # 启动 MCP 服务（可选）
+    # MCP 服务现在通过 npm 包提供，不需要单独启动
     if [ "$1" = "--with-mcp" ]; then
-        echo "启动 MCP 服务..."
-        cd "$BACKEND_DIR"
-        source venv/bin/activate
-        nohup python simple_mcp_server.py > "$PROJECT_ROOT/logs/mcp.log" 2>&1 &
-        MCP_PID=$!
-        echo "MCP 服务 PID: $MCP_PID"
-        echo -e "${GREEN}✅ MCP 服务启动成功${NC}"
+        echo -e "${YELLOW}ℹ️  MCP 服务现在通过 npm 包 'todo-for-ai-mcp' 提供${NC}"
+        echo -e "${YELLOW}   请参考文档配置您的 IDE 使用 npm 包版本${NC}"
     fi
     
     # 保存 PID 到文件

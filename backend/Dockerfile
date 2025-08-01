@@ -9,7 +9,9 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     FLASK_APP=app.py \
-    FLASK_ENV=production
+    FLASK_ENV=production \
+    PORT=50110 \
+    HOST=0.0.0.0
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y \
@@ -34,12 +36,17 @@ RUN mkdir -p uploads logs
 # 设置权限
 RUN chmod +x app.py
 
+# 创建非root用户
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN chown -R appuser:appuser /app
+USER appuser
+
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/api/health || exit 1
+    CMD curl -f http://localhost:${PORT}/todo-for-ai/api/v1/health || exit 1
 
 # 暴露端口
-EXPOSE 5000
+EXPOSE ${PORT}
 
 # 启动命令
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]
+CMD ["sh", "-c", "gunicorn --bind ${HOST}:${PORT} --workers 4 --timeout 120 app:app"]

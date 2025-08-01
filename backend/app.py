@@ -35,6 +35,8 @@ def create_app(config_name=None):
     
     # 初始化扩展
     db.init_app(app)
+
+    # 初始化CORS（开发环境必需，生产环境可选）
     CORS(app,
          origins=app.config['CORS_ORIGINS'],
          supports_credentials=True,

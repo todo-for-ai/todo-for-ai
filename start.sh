@@ -109,7 +109,10 @@ init_backend() {
     
     # 安装依赖
     echo "检查 Python 依赖..."
-    pip install -r requirements.txt > /dev/null 2>&1
+    if ! pip install -r requirements.txt; then
+        echo -e "${RED}❌ Python依赖安装失败${NC}"
+        exit 1
+    fi
     
     # 检查数据库连接
     echo "跳过数据库检查（将在启动时自动创建表）..."
@@ -125,7 +128,10 @@ init_frontend() {
     # 检查依赖
     if [ ! -d "node_modules" ]; then
         echo "安装前端依赖..."
-        npm install > /dev/null 2>&1
+        if ! npm install; then
+            echo -e "${RED}❌ 前端依赖安装失败${NC}"
+            exit 1
+        fi
     else
         echo "前端依赖已安装，跳过..."
     fi

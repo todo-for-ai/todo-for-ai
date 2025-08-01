@@ -168,20 +168,13 @@ def logout():
         # 记录登出时间
         current_user.last_active_at = None
         current_user.save()
-        
-        # 构建Auth0登出URL
-        logout_url = f"https://{auth0_service.config.domain}/v2/logout"
+
+        # 简单的登出响应（不再使用Auth0）
         return_to = request.json.get('return_to', 'http://localhost:50111/todo-for-ai/pages')
-        
-        logout_params = {
-            'client_id': auth0_service.config.client_id,
-            'returnTo': return_to
-        }
-        
+
         return api_response({
-            'logout_url': logout_url,
-            'params': logout_params,
-            'message': 'Logout successful'
+            'message': 'Logout successful',
+            'redirect_url': return_to
         })
         
     except Exception as e:
@@ -268,7 +261,7 @@ def refresh():
             return api_error("User not found or inactive", 404)
         
         # 生成新的访问令牌
-        new_token = auth0_service.generate_access_token(user)
+        new_token = github_service.generate_tokens(user)
         
         return api_response({
             'access_token': new_token,
