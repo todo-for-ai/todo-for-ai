@@ -14,7 +14,7 @@ ARG VITE_APP_VERSION="1.0.0"
 # ================================
 FROM node:${NODE_VERSION}-alpine AS frontend-builder
 
-WORKDIR /app/frontend
+WORKDIR /app/todo-for-ai-webpage
 
 # 复制前端package文件
 COPY todo-for-ai-webpage/package*.json ./
@@ -84,7 +84,7 @@ COPY todo-for-ai-api-server/scripts/ ./scripts/
 COPY --from=frontend-builder /app/todo-for-ai-webpage/dist /var/www/html
 
 # 复制配置文件
-COPY frontend/nginx.conf /etc/nginx/sites-available/default
+COPY todo-for-ai-webpage/nginx.conf /etc/nginx/sites-available/default
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/start-full.sh /start.sh
 
