@@ -2,6 +2,29 @@
 
 一个专为AI助手设计的任务管理系统，支持项目管理、任务跟踪和团队协作。
 
+## 📁 项目结构
+
+本项目采用Git Submodule架构，将不同模块拆分到独立的仓库中：
+
+- **backend/**: 后端API服务器 → [todo-for-ai-api-server](https://github.com/todo-for-ai/todo-for-ai-api-server)
+- **frontend/**: 前端网页应用 → [todo-for-ai-webpage](https://github.com/todo-for-ai/todo-for-ai-webpage)
+- **todo-for-ai-mcp/**: MCP服务器 → [todo-for-ai-mcp](https://github.com/todo-for-ai/todo-for-ai-mcp)
+
+## 🚀 快速开始
+
+### 1. 克隆项目（包含子模块）
+
+```bash
+git clone --recursive https://github.com/todo-for-ai/todo-for-ai.git
+cd todo-for-ai
+```
+
+### 2. 初始化子模块（如果未使用--recursive）
+
+```bash
+git submodule update --init --recursive
+```
+
 ## 🚀 Docker 部署
 
 ### 1. 构建镜像
