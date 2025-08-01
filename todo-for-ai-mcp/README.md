@@ -1,15 +1,19 @@
 # Todo for AI MCP Server
 
-A Model Context Protocol (MCP) server that provides AI assistants with access to the Todo for AI task management system. This allows AI assistants to retrieve tasks, get project information, and submit task feedback through a standardized interface.
+A Model Context Protocol (MCP) server that provides AI assistants with access to the Todo for AI task management system. This allows AI assistants to retrieve tasks, get project information, create new tasks, and submit task feedback through a standardized interface.
 
 ## Features
 
-- 🔍 **Get Project Tasks**: Retrieve pending tasks for a specific project
-- 📋 **Get Task Details**: Fetch detailed information about individual tasks
+- 🔍 **Get Project Tasks**: Retrieve pending tasks for a specific project with status filtering
+- 📋 **Get Task Details**: Fetch detailed information about individual tasks with project context
+- ➕ **Create Tasks**: Create new tasks with full metadata support
 - ✅ **Submit Feedback**: Update task status and provide completion feedback
+- 📊 **Project Information**: Get comprehensive project statistics and recent tasks
 - 🔄 **Automatic Retry**: Built-in retry mechanism for network failures
 - 📝 **Comprehensive Logging**: Detailed logging with configurable levels
 - ⚙️ **Flexible Configuration**: Environment variables and config file support
+- 🛡️ **Type Safety**: Full TypeScript support with strict type checking
+- 🚀 **Performance**: Optimized build with incremental compilation
 
 ## Installation
 
@@ -165,7 +169,36 @@ Get detailed information about a specific task.
 }
 ```
 
-### 3. submit_task_feedback
+### 3. create_task
+
+Create a new task in the specified project.
+
+**Parameters:**
+- `project_id` (integer, required): ID of the project
+- `title` (string, required): Task title
+- `content` (string, optional): Task content/description
+- `status` (string, optional): Initial status (default: "todo")
+- `priority` (string, optional): Task priority (default: "medium")
+- `due_date` (string, optional): Due date in YYYY-MM-DD format
+- `assignee` (string, optional): Person assigned to the task
+- `tags` (array, optional): Tags associated with the task
+- `is_ai_task` (boolean, optional): Whether this is an AI task (default: true)
+- `ai_identifier` (string, optional): AI identifier (default: "MCP Client")
+
+**Example:**
+```json
+{
+  "project_id": 10,
+  "title": "Implement new feature",
+  "content": "Add user authentication to the application",
+  "status": "todo",
+  "priority": "high",
+  "due_date": "2024-12-31",
+  "tags": ["authentication", "security"]
+}
+```
+
+### 4. submit_task_feedback
 
 Submit feedback and update status for a task.
 
@@ -184,6 +217,23 @@ Submit feedback and update status for a task.
   "feedback_content": "Completed the implementation as requested",
   "status": "done",
   "ai_identifier": "Claude"
+}
+```
+
+### 5. get_project_info
+
+Get detailed project information including statistics and recent tasks.
+
+**Parameters:**
+- `project_id` (integer, optional): ID of the project to retrieve
+- `project_name` (string, optional): Name of the project to retrieve
+
+*Note: Either project_id or project_name must be provided.*
+
+**Example:**
+```json
+{
+  "project_name": "My Project"
 }
 ```
 

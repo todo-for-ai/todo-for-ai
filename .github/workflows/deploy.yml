@@ -1,0 +1,336 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+        
+    - name: Create Deployment Package
+      run: |
+        # 创建部署目录
+        mkdir -p deploy-package
+        
+        # 复制后端文件
+        cp -r backend/* deploy-package/
+        
+        # 复制前端构建文件
+        mkdir -p deploy-package/static
+        cp -r frontend/dist/* deploy-package/static/
+        
+        # 复制部署脚本（如果存在）
+        cp -r scripts deploy-package/ || true
+        
+        # 创建部署包
+        tar -czf todo-for-ai-deploy.tar.gz deploy-package/
+        
+    - name: Upload Deployment Package
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USERNAME }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
+        port: 22
+        source: "todo-for-ai-deploy.tar.gz"
+        target: "/tmp/"
+        
+    - name: Deploy to Production Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USERNAME }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
+        port: 22
+        timeout: 600s
+        script: |
+          set -e
+          
+          # 设置变量
+          APP_DIR="/opt/todo-for-ai"
+          BACKUP_DIR="/opt/backups/todo-for-ai"
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          CONDA_ENV_NAME="todo-for-ai"
+          
+          echo "🚀 开始部署 Todo for AI..."
+          
+          # 创建必要目录
+          mkdir -p $APP_DIR
+          mkdir -p $BACKUP_DIR
+          mkdir -p $APP_DIR/logs
+          
+          # 备份当前版本（如果存在）
+          if [ -d "$APP_DIR" ] && [ "$(ls -A $APP_DIR 2>/dev/null)" ]; then
+            echo "📦 备份当前版本..."
+            tar -czf $BACKUP_DIR/backup_$TIMESTAMP.tar.gz -C $APP_DIR . 2>/dev/null || true
+            echo "✅ 备份完成: $BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
+          fi
+          
+          # 停止现有服务
+          echo "🛑 停止现有服务..."
+          pkill -f "python.*app.py" || true
+          pkill -f "gunicorn" || true
+          systemctl stop todo-for-ai || true
+          
+          # 解压部署包
+          echo "📦 解压部署包..."
+          cd /tmp
+          tar -xzf todo-for-ai-deploy.tar.gz
+          
+          # 清理旧文件并复制新文件
+          echo "🔄 更新应用文件..."
+          rm -rf $APP_DIR/backend $APP_DIR/static $APP_DIR/scripts || true
+          cp -r deploy-package/* $APP_DIR/
+          
+          # 设置权限
+          chown -R root:root $APP_DIR
+          chmod +x $APP_DIR/scripts/*.sh 2>/dev/null || true
+          
+          # 进入应用目录
+          cd $APP_DIR
+
+          # 检查并安装 MySQL（如果不存在）
+          echo "🗄️ 检查 MySQL 数据库..."
+          MYSQL_ROOT_PASS="${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          MYSQL_USER_PASS="${{ secrets.MYSQL_USER_PASSWORD }}"
+
+          if ! command -v mysql >/dev/null 2>&1; then
+            echo "安装 MySQL 服务器..."
+
+            # 更新包管理器
+            apt-get update
+
+            # 设置 MySQL root 密码（避免交互式安装）
+            export DEBIAN_FRONTEND=noninteractive
+            echo "mysql-server mysql-server/root_password password ${MYSQL_ROOT_PASS}" | debconf-set-selections
+            echo "mysql-server mysql-server/root_password_again password ${MYSQL_ROOT_PASS}" | debconf-set-selections
+
+            # 安装 MySQL
+            apt-get install -y mysql-server mysql-client
+
+            # 启动 MySQL 服务
+            systemctl start mysql
+            systemctl enable mysql
+
+            # 等待 MySQL 启动
+            sleep 15
+
+            # 安全配置 MySQL
+            mysql -u root -p${MYSQL_ROOT_PASS} << MYSQL_SCRIPT
+            DELETE FROM mysql.user WHERE User='';
+            DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+            DROP DATABASE IF EXISTS test;
+            DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+            FLUSH PRIVILEGES;
+            MYSQL_SCRIPT
+
+            echo "✅ MySQL 安装和安全配置完成"
+          else
+            echo "✅ MySQL 已安装"
+
+            # 确保 MySQL 服务运行
+            systemctl start mysql || true
+            systemctl enable mysql || true
+            sleep 5
+          fi
+
+          # 创建数据库和用户（无论是否新安装）
+          echo "🔧 配置数据库和用户..."
+          mysql -u root -p${MYSQL_ROOT_PASS} << MYSQL_SCRIPT
+          CREATE DATABASE IF NOT EXISTS todo_for_ai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+          CREATE USER IF NOT EXISTS 'todo_user'@'localhost' IDENTIFIED BY '${MYSQL_USER_PASS}';
+          GRANT ALL PRIVILEGES ON todo_for_ai.* TO 'todo_user'@'localhost';
+          FLUSH PRIVILEGES;
+          MYSQL_SCRIPT
+
+          # 测试数据库连接
+          if mysql -u todo_user -p${MYSQL_USER_PASS} -e "USE todo_for_ai; SELECT 1;" >/dev/null 2>&1; then
+            echo "✅ 数据库连接测试成功"
+          else
+            echo "❌ 数据库连接测试失败"
+            exit 1
+          fi
+
+          # 检查并安装 Miniconda（如果不存在）
+          echo "🐍 检查 Miniconda 环境..."
+          if [ ! -d "/opt/miniconda3" ]; then
+            echo "安装 Miniconda..."
+            wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
+            bash /tmp/miniconda.sh -b -p /opt/miniconda3
+            rm /tmp/miniconda.sh
+          fi
+          
+          # 初始化 conda
+          export PATH="/opt/miniconda3/bin:$PATH"
+          source /opt/miniconda3/etc/profile.d/conda.sh
+          
+          # 创建或更新 conda 环境
+          echo "🔧 设置 Python 环境..."
+          if conda env list | grep -q "^$CONDA_ENV_NAME "; then
+            echo "更新现有环境..."
+            conda env update -n $CONDA_ENV_NAME -f environment.yml || conda install -n $CONDA_ENV_NAME python=3.9 -y
+          else
+            echo "创建新环境..."
+            conda create -n $CONDA_ENV_NAME python=3.9 -y
+          fi
+          
+          # 激活环境并安装依赖
+          conda activate $CONDA_ENV_NAME
+          pip install -r requirements.txt
+          
+          # 设置环境变量文件
+          echo "⚙️ 配置环境变量..."
+          SECRET_KEY="${{ secrets.SECRET_KEY }}"
+          JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
+          GH_CLIENT_ID="${{ secrets.GH_CLIENT_ID }}"
+          GH_CLIENT_SECRET="${{ secrets.GH_CLIENT_SECRET }}"
+          GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+          GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+
+          cat > .env << EOF
+          # Flask 配置
+          FLASK_APP=app.py
+          FLASK_ENV=production
+          SECRET_KEY=${SECRET_KEY}
+
+          # 数据库配置（使用本地 MySQL）
+          DATABASE_URL=mysql+pymysql://todo_user:${MYSQL_USER_PASS}@localhost:3306/todo_for_ai
+
+          # MCP 配置
+          MCP_SERVER_HOST=localhost
+          MCP_SERVER_PORT=8080
+
+          # 文件上传配置
+          UPLOAD_FOLDER=uploads
+          MAX_CONTENT_LENGTH=16777216
+
+          # GitHub OAuth 配置
+          GITHUB_CLIENT_ID=${GH_CLIENT_ID}
+          GITHUB_CLIENT_SECRET=${GH_CLIENT_SECRET}
+
+          # Google OAuth 配置
+          GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+          GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+
+          # JWT 配置
+          JWT_SECRET_KEY=${JWT_SECRET_KEY}
+
+          # 其他配置
+          DEBUG=False
+          TESTING=False
+
+          # 端口配置
+          PORT=50110
+          HOST=0.0.0.0
+
+          # SSL配置（生产环境）
+          PYTHONHTTPSVERIFY=1
+          EOF
+          
+          # 初始化数据库
+          echo "🗄️ 初始化数据库..."
+          python -c "
+          from app import create_app
+          from models import db
+          app = create_app()
+          with app.app_context():
+              db.create_all()
+              print('✅ 数据库表已创建/更新')
+          " || echo "⚠️ 数据库初始化可能失败，请检查数据库连接"
+
+          # 创建 systemd 服务文件
+          echo "🔧 配置系统服务..."
+          cat > /etc/systemd/system/todo-for-ai.service << EOF
+          [Unit]
+          Description=Todo for AI Backend Service
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=root
+          WorkingDirectory=$APP_DIR
+          Environment=PATH=/opt/miniconda3/envs/$CONDA_ENV_NAME/bin:/opt/miniconda3/bin:\$PATH
+          ExecStart=/opt/miniconda3/envs/$CONDA_ENV_NAME/bin/python app.py
+          Restart=always
+          RestartSec=10
+          StandardOutput=append:$APP_DIR/logs/app.log
+          StandardError=append:$APP_DIR/logs/error.log
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          # 启动服务
+          echo "🚀 启动服务..."
+          systemctl daemon-reload
+          systemctl enable todo-for-ai
+          systemctl restart todo-for-ai
+
+          # 等待服务启动
+          sleep 15
+
+          # 检查服务状态
+          if systemctl is-active --quiet todo-for-ai; then
+            echo "✅ Todo for AI 服务启动成功"
+          else
+            echo "❌ Todo for AI 服务启动失败"
+            systemctl status todo-for-ai
+            echo "=== 应用日志 ==="
+            tail -50 $APP_DIR/logs/app.log || echo "无应用日志"
+            echo "=== 错误日志 ==="
+            tail -50 $APP_DIR/logs/error.log || echo "无错误日志"
+            exit 1
+          fi
+
+          # 健康检查
+          echo "🔍 执行健康检查..."
+          for i in {1..30}; do
+            if curl -f http://localhost:50110/health >/dev/null 2>&1; then
+              echo "✅ 健康检查通过"
+              break
+            fi
+            echo "等待服务启动... ($i/30)"
+            sleep 2
+          done
+
+          # 清理临时文件
+          rm -rf /tmp/deploy-package /tmp/todo-for-ai-deploy.tar.gz
+
+          echo "🎉 部署完成！"
+          echo "📍 应用地址: http://107.175.69.178:50110"
+          echo "📊 健康检查: http://107.175.69.178:50110/health"
+          echo "📋 服务状态: systemctl status todo-for-ai"
+          echo "📝 应用日志: tail -f $APP_DIR/logs/app.log"
+
+    - name: Deployment Notification
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ 部署成功！应用已在 http://107.175.69.178:50110 运行"
+        else
+          echo "❌ 部署失败！请检查日志"
+        fi

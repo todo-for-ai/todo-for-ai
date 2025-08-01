@@ -25,6 +25,22 @@ export interface Project {
   pending_tasks: number;
   completed_tasks: number;
   completion_rate: number;
+  statistics?: {
+    total_tasks: number;
+    todo_tasks: number;
+    in_progress_tasks: number;
+    review_tasks: number;
+    done_tasks: number;
+    cancelled_tasks: number;
+    completion_rate: number;
+  };
+  recent_tasks?: Array<{
+    id: number;
+    title: string;
+    status: string;
+    priority: string;
+    updated_at: string;
+  }>;
 }
 
 export interface Task {
@@ -99,7 +115,6 @@ export interface CreateTaskArgs {
   project_id: number;
   title: string;
   content?: string;
-  description?: string;
   status?: 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   assignee?: string;

@@ -1,0 +1,5 @@
+{
+  "TODO_API_BASE_URL": "http://localhost:50110/todo-for-ai/api/v1",
+  "TODO_API_TIMEOUT": "10000",
+  "LOG_LEVEL": "info"
+}
