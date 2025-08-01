@@ -78,9 +78,9 @@ main() {
     echo ""
     
     # 停止通过 PID 文件记录的服务
-    stop_service "后端服务" "$PROJECT_ROOT/.backend.pid"
-    stop_service "前端服务" "$PROJECT_ROOT/.frontend.pid"
-    stop_service "MCP服务" "$PROJECT_ROOT/.mcp.pid"
+    stop_service "后端服务" "$PROJECT_ROOT/.todo-for-ai-api-server.pid"
+    stop_service "前端服务" "$PROJECT_ROOT/.todo-for-ai-webpage.pid"
+    stop_service "MCP服务" "$PROJECT_ROOT/.todo-for-ai-mcp.pid"
     
     echo ""
     echo -e "${YELLOW}🔍 检查端口占用...${NC}"
