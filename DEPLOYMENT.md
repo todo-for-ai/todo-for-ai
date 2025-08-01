@@ -8,6 +8,7 @@
 - `PRODUCTION_HOST`: `107.175.69.178`
 - `PRODUCTION_USERNAME`: `root`
 - `PRODUCTION_PASSWORD`: `XeyIy370w4kJ8VBbV8`
+- `SSH_PORT`: SSH 连接端口号
 
 ### 应用配置
 - `SECRET_KEY`: Flask 应用密钥
