@@ -204,7 +204,7 @@ dist
 
 # Gatsby files
 .cache/
-# public  # 注释掉，因为我们需要保留 frontend/public 目录
+# public  # 注释掉，因为我们需要保留 todo-for-ai-webpage/public 目录
 
 # Storybook build outputs
 .out

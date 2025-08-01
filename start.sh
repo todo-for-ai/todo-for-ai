@@ -152,11 +152,11 @@ start_backend() {
     export FLASK_DEBUG=1
     
     # 后台启动
-    nohup python app.py > ../logs/backend.log 2>&1 &
+    nohup python app.py > ../logs/todo-for-ai-api-server.log 2>&1 &
     BACKEND_PID=$!
-    
+
     # 保存PID
-    echo $BACKEND_PID > "$PROJECT_ROOT/.backend.pid"
+    echo $BACKEND_PID > "$PROJECT_ROOT/.todo-for-ai-api-server.pid"
     
     echo "后端服务 PID: $BACKEND_PID"
     
@@ -180,11 +180,11 @@ start_frontend() {
     cd "$FRONTEND_DIR"
     
     # 后台启动
-    nohup npm run dev > ../logs/frontend.log 2>&1 &
+    nohup npm run dev > ../logs/todo-for-ai-webpage.log 2>&1 &
     FRONTEND_PID=$!
-    
+
     # 保存PID
-    echo $FRONTEND_PID > "$PROJECT_ROOT/.frontend.pid"
+    echo $FRONTEND_PID > "$PROJECT_ROOT/.todo-for-ai-webpage.pid"
     
     echo "前端服务 PID: $FRONTEND_PID"
     
@@ -213,12 +213,12 @@ show_status() {
     echo -e "${GREEN}🏥 健康检查: http://localhost:$BACKEND_PORT/health${NC}"
     echo "=================================="
     echo -e "${YELLOW}📝 日志文件:${NC}"
-    echo "  后端日志: $PROJECT_ROOT/logs/backend.log"
-    echo "  前端日志: $PROJECT_ROOT/logs/frontend.log"
+    echo "  后端日志: $PROJECT_ROOT/logs/todo-for-ai-api-server.log"
+    echo "  前端日志: $PROJECT_ROOT/logs/todo-for-ai-webpage.log"
     echo "=================================="
     echo -e "${BLUE}💡 使用提示:${NC}"
-    echo "  - 查看后端日志: tail -f logs/backend.log"
-    echo "  - 查看前端日志: tail -f logs/frontend.log"
+    echo "  - 查看后端日志: tail -f logs/todo-for-ai-api-server.log"
+    echo "  - 查看前端日志: tail -f logs/todo-for-ai-webpage.log"
     echo "  - 停止服务: ./scripts/stop_all.sh"
     echo "  - 检查状态: ./scripts/status.sh"
     echo "=================================="
@@ -243,7 +243,7 @@ main() {
         # 直接显示实时日志
         echo ""
         echo -e "${BLUE}📋 实时日志 (Ctrl+C 退出):${NC}"
-        tail -f "$PROJECT_ROOT/logs/backend.log" "$PROJECT_ROOT/logs/frontend.log" 2>/dev/null || true
+        tail -f "$PROJECT_ROOT/logs/todo-for-ai-api-server.log" "$PROJECT_ROOT/logs/todo-for-ai-webpage.log" 2>/dev/null || true
     else
         echo -e "${RED}❌ 系统启动失败${NC}"
         exit 1
@@ -255,14 +255,14 @@ cleanup() {
     echo -e "\n${YELLOW}🛑 正在停止服务...${NC}"
     
     # 停止服务
-    if [ -f "$PROJECT_ROOT/.backend.pid" ]; then
-        kill $(cat "$PROJECT_ROOT/.backend.pid") 2>/dev/null || true
-        rm -f "$PROJECT_ROOT/.backend.pid"
+    if [ -f "$PROJECT_ROOT/.todo-for-ai-api-server.pid" ]; then
+        kill $(cat "$PROJECT_ROOT/.todo-for-ai-api-server.pid") 2>/dev/null || true
+        rm -f "$PROJECT_ROOT/.todo-for-ai-api-server.pid"
     fi
-    
-    if [ -f "$PROJECT_ROOT/.frontend.pid" ]; then
-        kill $(cat "$PROJECT_ROOT/.frontend.pid") 2>/dev/null || true
-        rm -f "$PROJECT_ROOT/.frontend.pid"
+
+    if [ -f "$PROJECT_ROOT/.todo-for-ai-webpage.pid" ]; then
+        kill $(cat "$PROJECT_ROOT/.todo-for-ai-webpage.pid") 2>/dev/null || true
+        rm -f "$PROJECT_ROOT/.todo-for-ai-webpage.pid"
     fi
     
     echo -e "${GREEN}✅ 服务已停止${NC}"

@@ -14,8 +14,8 @@ NC='\033[0m' # No Color
 
 # 项目根目录
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BACKEND_DIR="$PROJECT_ROOT/backend"
-FRONTEND_DIR="$PROJECT_ROOT/frontend"
+BACKEND_DIR="$PROJECT_ROOT/todo-for-ai-api-server"
+FRONTEND_DIR="$PROJECT_ROOT/todo-for-ai-webpage"
 
 echo -e "${BLUE}📊 Todo for AI - 系统状态检查${NC}"
 echo "项目根目录: $PROJECT_ROOT"
@@ -168,7 +168,7 @@ check_logs() {
     if [ -d "$log_dir" ]; then
         echo "日志目录: $log_dir"
         
-        local log_files=("backend.log" "frontend.log" "mcp.log")
+        local log_files=("todo-for-ai-api-server.log" "todo-for-ai-webpage.log" "todo-for-ai-mcp.log")
         
         for log_file in "${log_files[@]}"; do
             local log_path="$log_dir/$log_file"
