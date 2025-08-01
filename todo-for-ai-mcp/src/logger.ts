@@ -13,7 +13,14 @@ class Logger {
   private level: LogLevel;
 
   constructor(level: LogLevel = 'info') {
+    console.log('[LOGGER] Initializing logger...');
     this.level = level;
+    console.log('[LOGGER] Logger initialized:', {
+      configuredLevel: level,
+      numericLevel: LOG_LEVELS[level],
+      availableLevels: Object.keys(LOG_LEVELS),
+      timestamp: new Date().toISOString()
+    });
   }
 
   private shouldLog(level: LogLevel): boolean {

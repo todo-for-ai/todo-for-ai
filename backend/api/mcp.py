@@ -58,21 +58,81 @@ def require_api_token_auth(f):
     """API Token认证装饰器 - 专门用于MCP接口"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        from flask import current_app
+
+        auth_start_time = time.time()
+        auth_id = f"auth-{int(time.time() * 1000)}-{id(request)}"
+
+        current_app.logger.debug(f"[AUTH_START] {auth_id} API token authentication started", extra={
+            'auth_id': auth_id,
+            'endpoint': request.endpoint,
+            'method': request.method,
+            'path': request.path,
+            'remote_addr': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent', 'Unknown')
+        })
+
         # 从请求头获取token
         auth_header = request.headers.get('Authorization')
+
+        current_app.logger.debug(f"[AUTH_HEADER] {auth_id} Authorization header check", extra={
+            'auth_id': auth_id,
+            'has_auth_header': bool(auth_header),
+            'header_format_valid': bool(auth_header and auth_header.startswith('Bearer ')) if auth_header else False
+        })
+
         if not auth_header or not auth_header.startswith('Bearer '):
+            current_app.logger.warning(f"[AUTH_FAILED] {auth_id} Missing or invalid authorization header", extra={
+                'auth_id': auth_id,
+                'auth_header_present': bool(auth_header),
+                'auth_header_format': auth_header[:20] + '...' if auth_header and len(auth_header) > 20 else auth_header
+            })
             return jsonify({'error': 'Missing or invalid authorization header'}), 401
 
         token = auth_header.split(' ')[1]
+        token_prefix = token[:8] + '...' if len(token) > 8 else token
+
+        current_app.logger.debug(f"[AUTH_TOKEN] {auth_id} Token extracted", extra={
+            'auth_id': auth_id,
+            'token_prefix': token_prefix,
+            'token_length': len(token)
+        })
 
         # 验证token
+        token_verify_start = time.time()
         api_token = ApiToken.verify_token(token)
+        token_verify_duration = time.time() - token_verify_start
+
+        current_app.logger.debug(f"[AUTH_VERIFY] {auth_id} Token verification completed", extra={
+            'auth_id': auth_id,
+            'token_prefix': token_prefix,
+            'verify_duration_ms': round(token_verify_duration * 1000, 2),
+            'token_valid': bool(api_token),
+            'token_id': api_token.id if api_token else None,
+            'user_id': api_token.user.id if api_token and api_token.user else None
+        })
+
         if not api_token:
+            current_app.logger.warning(f"[AUTH_FAILED] {auth_id} Invalid or expired token", extra={
+                'auth_id': auth_id,
+                'token_prefix': token_prefix,
+                'verify_duration_ms': round(token_verify_duration * 1000, 2)
+            })
             return jsonify({'error': 'Invalid or expired token'}), 401
 
         # 将token信息添加到g对象
         g.api_token = api_token
         g.current_user = api_token.user
+
+        auth_duration = time.time() - auth_start_time
+        current_app.logger.info(f"[AUTH_SUCCESS] {auth_id} Authentication successful", extra={
+            'auth_id': auth_id,
+            'auth_duration_ms': round(auth_duration * 1000, 2),
+            'token_id': api_token.id,
+            'user_id': api_token.user.id,
+            'user_email': api_token.user.email if hasattr(api_token.user, 'email') else None,
+            'token_name': api_token.name if hasattr(api_token, 'name') else None
+        })
 
         return f(*args, **kwargs)
 
@@ -196,19 +256,62 @@ def list_tools():
 @rate_limit(max_requests=60, window_seconds=60)
 def call_tool():
     """调用MCP工具"""
+    import logging
+    from flask import current_app
+
+    call_start_time = time.time()
+    call_id = f"mcp-call-{int(time.time() * 1000)}-{id(request)}"
+
+    current_app.logger.info(f"[MCP_CALL_START] {call_id} MCP tool call initiated", extra={
+        'call_id': call_id,
+        'request_id': getattr(g, 'request_id', 'unknown'),
+        'user_id': g.current_user.id if hasattr(g, 'current_user') and g.current_user else None,
+        'api_token_id': g.api_token.id if hasattr(g, 'api_token') and g.api_token else None,
+        'remote_addr': request.remote_addr,
+        'user_agent': request.headers.get('User-Agent', 'Unknown'),
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
     try:
         data = request.get_json()
-        
+
+        current_app.logger.debug(f"[MCP_CALL_DATA] {call_id} Request data received", extra={
+            'call_id': call_id,
+            'has_data': bool(data),
+            'data_size': len(str(data)) if data else 0,
+            'data_keys': list(data.keys()) if data else []
+        })
+
         if not data:
+            current_app.logger.warning(f"[MCP_CALL_ERROR] {call_id} No data provided")
             return jsonify({'error': 'No data provided'}), 400
-        
+
         tool_name = data.get('name')
         arguments = data.get('arguments', {})
-        
+
+        current_app.logger.info(f"[MCP_CALL_TOOL] {call_id} Tool call details", extra={
+            'call_id': call_id,
+            'tool_name': tool_name,
+            'has_arguments': bool(arguments),
+            'arguments_keys': list(arguments.keys()) if arguments else [],
+            'arguments_size': len(str(arguments)) if arguments else 0
+        })
+
         if not tool_name:
+            current_app.logger.warning(f"[MCP_CALL_ERROR] {call_id} Tool name is required")
             return jsonify({'error': 'Tool name is required'}), 400
-        
+
+        # 记录工具调用开始
+        tool_start_time = time.time()
+        current_app.logger.info(f"[MCP_TOOL_START] {call_id} Executing tool: {tool_name}", extra={
+            'call_id': call_id,
+            'tool_name': tool_name,
+            'arguments': arguments,
+            'user_id': g.current_user.id if hasattr(g, 'current_user') and g.current_user else None
+        })
+
         # 调用对应的工具函数
+        result = None
         if tool_name == 'get_project_tasks_by_name':
             result = get_project_tasks_by_name(arguments)
         elif tool_name == 'get_task_by_id':
@@ -220,11 +323,59 @@ def call_tool():
         elif tool_name == 'get_project_info':
             result = get_project_info(arguments)
         else:
+            current_app.logger.error(f"[MCP_TOOL_ERROR] {call_id} Unknown tool: {tool_name}", extra={
+                'call_id': call_id,
+                'tool_name': tool_name,
+                'available_tools': ['get_project_tasks_by_name', 'get_task_by_id', 'submit_task_feedback', 'create_task', 'get_project_info']
+            })
             return jsonify({'error': f'Unknown tool: {tool_name}'}), 400
-        
+
+        tool_duration = time.time() - tool_start_time
+        total_duration = time.time() - call_start_time
+
+        # 检查结果中是否有错误
+        has_error = isinstance(result, dict) and 'error' in result
+
+        if has_error:
+            current_app.logger.warning(f"[MCP_TOOL_ERROR] {call_id} Tool returned error", extra={
+                'call_id': call_id,
+                'tool_name': tool_name,
+                'tool_duration_ms': round(tool_duration * 1000, 2),
+                'total_duration_ms': round(total_duration * 1000, 2),
+                'error': result.get('error'),
+                'result': result
+            })
+        else:
+            current_app.logger.info(f"[MCP_TOOL_SUCCESS] {call_id} Tool executed successfully", extra={
+                'call_id': call_id,
+                'tool_name': tool_name,
+                'tool_duration_ms': round(tool_duration * 1000, 2),
+                'total_duration_ms': round(total_duration * 1000, 2),
+                'result_size': len(str(result)) if result else 0,
+                'result_type': type(result).__name__,
+                'result_keys': list(result.keys()) if isinstance(result, dict) else []
+            })
+
+        current_app.logger.info(f"[MCP_CALL_END] {call_id} MCP tool call completed", extra={
+            'call_id': call_id,
+            'tool_name': tool_name,
+            'success': not has_error,
+            'total_duration_ms': round(total_duration * 1000, 2),
+            'status_code': 400 if has_error else 200
+        })
+
         return jsonify(result)
-    
+
     except Exception as e:
+        total_duration = time.time() - call_start_time
+        current_app.logger.error(f"[MCP_CALL_EXCEPTION] {call_id} Exception during MCP tool call", extra={
+            'call_id': call_id,
+            'tool_name': tool_name if 'tool_name' in locals() else 'unknown',
+            'total_duration_ms': round(total_duration * 1000, 2),
+            'exception_type': type(e).__name__,
+            'exception_message': str(e),
+            'user_id': g.current_user.id if hasattr(g, 'current_user') and g.current_user else None
+        }, exc_info=True)
         return handle_api_error(e)
 
 
@@ -415,16 +566,14 @@ def create_task(arguments):
     project_id = arguments.get('project_id')
     title = arguments.get('title')
     content = arguments.get('content', '')
-    description = arguments.get('description', '')
     status = arguments.get('status', 'todo')
     priority = arguments.get('priority', 'medium')
     assignee = arguments.get('assignee')
     due_date = arguments.get('due_date')
-    estimated_hours = arguments.get('estimated_hours')
     tags = arguments.get('tags', [])
     related_files = arguments.get('related_files', [])
     is_ai_task = arguments.get('is_ai_task', True)
-    ai_identifier = arguments.get('ai_identifier', 'MCP Client')
+    creator_identifier = arguments.get('ai_identifier', 'MCP Client')
 
     if not project_id:
         return {'error': 'project_id is required'}
@@ -435,9 +584,8 @@ def create_task(arguments):
     # 清理输入
     title = sanitize_input(title)
     content = sanitize_input(content) if content else ''
-    description = sanitize_input(description) if description else ''
     assignee = sanitize_input(assignee) if assignee else None
-    ai_identifier = sanitize_input(ai_identifier) if ai_identifier else 'MCP Client'
+    creator_identifier = sanitize_input(creator_identifier) if creator_identifier else 'MCP Client'
 
     # 验证项目存在且用户有权限
     project = Project.query.filter_by(id=project_id).first()
@@ -471,16 +619,14 @@ def create_task(arguments):
         task = Task(
             title=title,
             content=content,
-            description=description,
             status=status,
             priority=priority,
             project_id=project_id,
             creator_id=g.current_user.id,
             assignee=assignee,
             due_date=due_date_obj,
-            estimated_hours=estimated_hours,
             is_ai_task=is_ai_task,
-            ai_identifier=ai_identifier,
+            creator_identifier=creator_identifier,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
@@ -503,17 +649,15 @@ def create_task(arguments):
             'id': task.id,
             'title': task.title,
             'content': task.content,
-            'description': task.description,
-            'status': task.status,
-            'priority': task.priority,
+            'status': task.status.value if hasattr(task.status, 'value') else task.status,
+            'priority': task.priority.value if hasattr(task.priority, 'value') else task.priority,
             'project_id': task.project_id,
             'project_name': project.name,
             'creator_id': task.creator_id,
             'assignee': task.assignee,
             'due_date': task.due_date.isoformat() if task.due_date else None,
-            'estimated_hours': task.estimated_hours,
             'is_ai_task': task.is_ai_task,
-            'ai_identifier': task.ai_identifier,
+            'creator_identifier': task.creator_identifier,
             'created_at': task.created_at.isoformat(),
             'updated_at': task.updated_at.isoformat(),
             'tags': tags,
@@ -527,23 +671,68 @@ def create_task(arguments):
 
 def get_project_info(arguments):
     """获取项目详细信息"""
+    from flask import current_app
+
+    func_start_time = time.time()
+    func_id = f"get-project-info-{int(time.time() * 1000)}-{id(arguments)}"
+
+    current_app.logger.info(f"[GET_PROJECT_INFO_START] {func_id} Function started", extra={
+        'func_id': func_id,
+        'arguments': arguments,
+        'user_id': g.current_user.id if hasattr(g, 'current_user') and g.current_user else None,
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
     project_id = arguments.get('project_id')
     project_name = arguments.get('project_name')
 
+    current_app.logger.debug(f"[GET_PROJECT_INFO_ARGS] {func_id} Arguments parsed", extra={
+        'func_id': func_id,
+        'project_id': project_id,
+        'project_name': project_name,
+        'has_project_id': bool(project_id),
+        'has_project_name': bool(project_name)
+    })
+
     if not project_id and not project_name:
+        current_app.logger.warning(f"[GET_PROJECT_INFO_ERROR] {func_id} Missing required arguments")
         return {'error': 'Either project_id or project_name is required'}
 
     # 查找项目
+    query_start_time = time.time()
     if project_id:
+        current_app.logger.debug(f"[GET_PROJECT_INFO_QUERY] {func_id} Querying by project_id: {project_id}")
         project = Project.query.filter_by(id=project_id).first()
     else:
         project_name = sanitize_input(project_name)
+        current_app.logger.debug(f"[GET_PROJECT_INFO_QUERY] {func_id} Querying by project_name: {project_name}")
         project = Project.query.filter_by(name=project_name).first()
+
+    query_duration = time.time() - query_start_time
+    current_app.logger.debug(f"[GET_PROJECT_INFO_QUERY_RESULT] {func_id} Query completed", extra={
+        'func_id': func_id,
+        'query_duration_ms': round(query_duration * 1000, 2),
+        'project_found': bool(project),
+        'project_id': project.id if project else None,
+        'project_name': project.name if project else None
+    })
 
     if not project:
         # 只返回当前用户有权限访问的项目
+        user_projects_query_start = time.time()
         user_projects = Project.query.filter_by(owner_id=g.current_user.id).all()
+        user_projects_query_duration = time.time() - user_projects_query_start
+
         identifier = f'ID {project_id}' if project_id else f'name "{project_name}"'
+
+        current_app.logger.warning(f"[GET_PROJECT_INFO_NOT_FOUND] {func_id} Project not found", extra={
+            'func_id': func_id,
+            'identifier': identifier,
+            'user_projects_count': len(user_projects),
+            'user_projects_query_duration_ms': round(user_projects_query_duration * 1000, 2),
+            'available_projects': [{'id': p.id, 'name': p.name} for p in user_projects]
+        })
+
         return {
             'error': f'Project with {identifier} not found',
             'available_projects': [{'id': p.id, 'name': p.name} for p in user_projects]
@@ -551,10 +740,20 @@ def get_project_info(arguments):
 
     # 检查权限 - 只能访问自己创建的项目
     if project.owner_id != g.current_user.id:
+        current_app.logger.warning(f"[GET_PROJECT_INFO_ACCESS_DENIED] {func_id} Access denied", extra={
+            'func_id': func_id,
+            'project_id': project.id,
+            'project_name': project.name,
+            'project_owner_id': project.owner_id,
+            'current_user_id': g.current_user.id
+        })
         return {'error': 'Access denied: You can only access your own projects'}
 
     try:
         # 获取项目统计信息
+        stats_start_time = time.time()
+        current_app.logger.debug(f"[GET_PROJECT_INFO_STATS] {func_id} Starting statistics queries")
+
         total_tasks = Task.query.filter_by(project_id=project.id).count()
         todo_tasks = Task.query.filter_by(project_id=project.id, status='todo').count()
         in_progress_tasks = Task.query.filter_by(project_id=project.id, status='in_progress').count()
@@ -562,31 +761,60 @@ def get_project_info(arguments):
         done_tasks = Task.query.filter_by(project_id=project.id, status='done').count()
         cancelled_tasks = Task.query.filter_by(project_id=project.id, status='cancelled').count()
 
+        stats_duration = time.time() - stats_start_time
+        current_app.logger.debug(f"[GET_PROJECT_INFO_STATS_RESULT] {func_id} Statistics queries completed", extra={
+            'func_id': func_id,
+            'stats_duration_ms': round(stats_duration * 1000, 2),
+            'total_tasks': total_tasks,
+            'todo_tasks': todo_tasks,
+            'in_progress_tasks': in_progress_tasks,
+            'review_tasks': review_tasks,
+            'done_tasks': done_tasks,
+            'cancelled_tasks': cancelled_tasks
+        })
+
         # 获取最近的任务
+        recent_tasks_start_time = time.time()
+        current_app.logger.debug(f"[GET_PROJECT_INFO_RECENT] {func_id} Querying recent tasks")
+
         recent_tasks = Task.query.filter_by(project_id=project.id)\
                           .order_by(Task.updated_at.desc())\
                           .limit(5)\
                           .all()
+
+        recent_tasks_duration = time.time() - recent_tasks_start_time
+        current_app.logger.debug(f"[GET_PROJECT_INFO_RECENT_RESULT] {func_id} Recent tasks query completed", extra={
+            'func_id': func_id,
+            'recent_tasks_duration_ms': round(recent_tasks_duration * 1000, 2),
+            'recent_tasks_count': len(recent_tasks)
+        })
 
         recent_tasks_data = []
         for task in recent_tasks:
             recent_tasks_data.append({
                 'id': task.id,
                 'title': task.title,
-                'status': task.status,
-                'priority': task.priority,
+                'status': task.status.value if hasattr(task.status, 'value') else task.status,
+                'priority': task.priority.value if hasattr(task.priority, 'value') else task.priority,
                 'updated_at': task.updated_at.isoformat()
             })
 
-        return {
+        completion_rate = round((done_tasks / total_tasks * 100) if total_tasks > 0 else 0, 2)
+
+        result = {
             'id': project.id,
             'name': project.name,
             'description': project.description,
-            'github_repo': project.github_repo,
-            'context': project.context,
+            'status': project.status.value if hasattr(project.status, 'value') else getattr(project, 'status', 'active'),
+            'github_url': project.github_url,
+            'project_context': project.project_context,
             'owner_id': project.owner_id,
             'created_at': project.created_at.isoformat(),
             'updated_at': project.updated_at.isoformat(),
+            'total_tasks': total_tasks,
+            'pending_tasks': todo_tasks + in_progress_tasks + review_tasks,
+            'completed_tasks': done_tasks,
+            'completion_rate': completion_rate,
             'statistics': {
                 'total_tasks': total_tasks,
                 'todo_tasks': todo_tasks,
@@ -594,10 +822,31 @@ def get_project_info(arguments):
                 'review_tasks': review_tasks,
                 'done_tasks': done_tasks,
                 'cancelled_tasks': cancelled_tasks,
-                'completion_rate': round((done_tasks / total_tasks * 100) if total_tasks > 0 else 0, 2)
+                'completion_rate': completion_rate
             },
             'recent_tasks': recent_tasks_data
         }
 
+        func_duration = time.time() - func_start_time
+        current_app.logger.info(f"[GET_PROJECT_INFO_SUCCESS] {func_id} Function completed successfully", extra={
+            'func_id': func_id,
+            'project_id': project.id,
+            'project_name': project.name,
+            'func_duration_ms': round(func_duration * 1000, 2),
+            'result_size': len(str(result)),
+            'total_tasks': total_tasks,
+            'completion_rate': completion_rate
+        })
+
+        return result
+
     except Exception as e:
+        func_duration = time.time() - func_start_time
+        current_app.logger.error(f"[GET_PROJECT_INFO_EXCEPTION] {func_id} Exception occurred", extra={
+            'func_id': func_id,
+            'project_id': project.id if 'project' in locals() and project else None,
+            'func_duration_ms': round(func_duration * 1000, 2),
+            'exception_type': type(e).__name__,
+            'exception_message': str(e)
+        }, exc_info=True)
         return {'error': f'Failed to get project info: {str(e)}'}

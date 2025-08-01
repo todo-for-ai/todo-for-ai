@@ -37,7 +37,7 @@ console.log('\n📦 Checking package.json...');
 try {
   const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
   
-  if (packageJson.name === 'todo-for-ai-mcp') {
+  if (packageJson.name === '@todo-for-ai/mcp') {
     console.log('✅ Package name is correct');
   } else {
     console.log('❌ Package name is incorrect');

@@ -1,0 +1,75 @@
+{
+  "name": "@todo-for-ai/mcp",
+  "version": "1.1.0",
+  "description": "Model Context Protocol server for Todo for AI task management system. Provides AI assistants with access to task management, project information, and feedback submission capabilities.",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "todo-for-ai-mcp": "cli.js"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf lib",
+    "dev": "tsx src/index.ts",
+    "start": "node lib/index.js",
+    "test": "echo \"No tests specified\" && exit 0",
+    "lint": "echo \"Linting skipped - no ESLint config\" && exit 0",
+    "lint:fix": "echo \"Linting skipped - no ESLint config\" && exit 0",
+    "typecheck": "tsc --noEmit",
+    "verify": "node verify.js",
+    "npm-publish": "npm run clean && npm run build && npm publish"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "todo",
+    "ai",
+    "task-management",
+    "productivity",
+    "claude",
+    "assistant",
+    "automation",
+    "typescript",
+    "api-client"
+  ],
+  "author": "Todo for AI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/todo-for-ai/todo-for-ai.git",
+    "directory": "todo-mcp"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "lib/**/*",
+    "cli.js",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ]
+}

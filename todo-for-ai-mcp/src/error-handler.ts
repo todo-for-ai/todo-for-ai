@@ -2,8 +2,8 @@ import { logger } from './logger.js';
 
 export class McpError extends Error {
   public readonly code: string;
-  public readonly statusCode?: number;
-  public readonly details?: any;
+  public readonly statusCode: number | undefined;
+  public readonly details: any;
 
   constructor(message: string, code: string = 'UNKNOWN_ERROR', statusCode?: number, details?: any) {
     super(message);

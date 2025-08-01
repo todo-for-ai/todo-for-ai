@@ -21,9 +21,7 @@ services:
 
   # 后端服务
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ${BACKEND_IMAGE:-ghcr.io/cc11001100/todo-for-ai/backend:latest}
     container_name: todo-backend-prod
     environment:
       # Flask配置
@@ -59,11 +57,7 @@ services:
 
   # 前端服务
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: https://${DOMAIN}/todo-for-ai/api/v1
+    image: ${FRONTEND_IMAGE:-ghcr.io/cc11001100/todo-for-ai/frontend:latest}
     container_name: todo-frontend-prod
     ports:
       - "80:80"

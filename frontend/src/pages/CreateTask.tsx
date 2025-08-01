@@ -97,6 +97,42 @@ const CreateTask: React.FC = () => {
     }, 500) // 500ms防抖延迟，避免频繁保存
   }, [form])
 
+  // 编辑模式的草稿保存相关函数
+  const getEditDraftKey = (taskId: number) => {
+    return `task-edit-draft-${taskId}`
+  }
+
+  const saveEditDraft = (taskId: number, formData: any) => {
+    try {
+      const draftKey = getEditDraftKey(taskId)
+      localStorage.setItem(draftKey, JSON.stringify({
+        ...formData,
+        savedAt: new Date().toISOString()
+      }))
+    } catch (error) {
+      console.warn('Failed to save edit draft:', error)
+    }
+  }
+
+  // 检查当前是否有未保存的更改
+  const checkUnsavedChanges = useCallback(() => {
+    if (!isEditMode || !id) {
+      setHasUnsavedChanges(false)
+      return
+    }
+
+    const currentValues = form.getFieldsValue()
+    const currentContent = editorContent
+
+    // 比较当前内容与原始内容
+    const hasChanges = currentContent !== originalTaskContent ||
+                      currentValues.title !== form.getFieldValue('title') ||
+                      currentValues.status !== form.getFieldValue('status') ||
+                      currentValues.priority !== form.getFieldValue('priority')
+
+    setHasUnsavedChanges(hasChanges)
+  }, [isEditMode, id, form, editorContent, originalTaskContent])
+
   // 编辑模式的防抖保存函数
   const debouncedSaveEditDraft = useCallback((content: string) => {
     if (!isEditMode || !id) return
@@ -177,23 +213,6 @@ const CreateTask: React.FC = () => {
     }
   }
 
-  // 编辑模式的草稿保存相关函数
-  const getEditDraftKey = (taskId: number) => {
-    return `task-edit-draft-${taskId}`
-  }
-
-  const saveEditDraft = (taskId: number, formData: any) => {
-    try {
-      const draftKey = getEditDraftKey(taskId)
-      localStorage.setItem(draftKey, JSON.stringify({
-        ...formData,
-        savedAt: new Date().toISOString()
-      }))
-    } catch (error) {
-      console.warn('Failed to save edit draft:', error)
-    }
-  }
-
   const loadEditDraft = (taskId: number) => {
     try {
       const draftKey = getEditDraftKey(taskId)
@@ -225,25 +244,6 @@ const CreateTask: React.FC = () => {
     // 比较草稿内容与原始内容
     return draft.content !== originalTaskContent
   }
-
-  // 检查当前是否有未保存的更改
-  const checkUnsavedChanges = useCallback(() => {
-    if (!isEditMode || !id) {
-      setHasUnsavedChanges(false)
-      return
-    }
-
-    const currentValues = form.getFieldsValue()
-    const currentContent = editorContent
-
-    // 比较当前内容与原始内容
-    const hasChanges = currentContent !== originalTaskContent ||
-                      currentValues.title !== form.getFieldValue('title') ||
-                      currentValues.status !== form.getFieldValue('status') ||
-                      currentValues.priority !== form.getFieldValue('priority')
-
-    setHasUnsavedChanges(hasChanges)
-  }, [isEditMode, id, form, editorContent, originalTaskContent])
 
   useEffect(() => {
     fetchProjects()
@@ -746,7 +746,7 @@ const CreateTask: React.FC = () => {
       {isEditMode && (
         <UnsavedChangesAlert
           visible={hasUnsavedChanges}
-          onSave={handleSaveAndStay}
+          onSave={handleSubmitAndEdit}
         />
       )}
 

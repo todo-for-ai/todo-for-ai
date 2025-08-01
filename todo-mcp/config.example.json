@@ -1,6 +1,0 @@
-{
-  "apiBaseUrl": "http://localhost:50110",
-  "apiTimeout": 10000,
-  "apiToken": "",
-  "logLevel": "info"
-}

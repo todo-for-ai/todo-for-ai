@@ -1,0 +1,34 @@
+name: todo-for-ai
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - pip:
+    - flask>=2.3.0
+    - flask-cors>=4.0.0
+    - flask-sqlalchemy>=3.0.0
+    - flask-migrate>=4.0.0
+    - pymysql>=1.1.0
+    - cryptography>=41.0.0
+    - python-dotenv>=1.0.0
+    - requests>=2.31.0
+    - gunicorn>=21.0.0
+    - authlib>=1.2.0
+    - pyjwt>=2.8.0
+    - bcrypt>=4.0.0
+    - marshmallow>=3.20.0
+    - click>=8.1.0
+    - werkzeug>=2.3.0
+    - itsdangerous>=2.1.0
+    - jinja2>=3.1.0
+    - markupsafe>=2.1.0
+    - sqlalchemy>=2.0.0
+    - alembic>=1.12.0
+    - mako>=1.2.0
+    - typing-extensions>=4.7.0
+    - greenlet>=2.0.0
+    - blinker>=1.6.0
+    - importlib-metadata>=6.8.0
+    - zipp>=3.16.0
