@@ -49,7 +49,25 @@ jobs:
         
         # 创建部署包
         tar -czf todo-for-ai-deploy.tar.gz deploy-package/
-        
+
+    - name: Test SSH Connection
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USERNAME }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
+        port: ${{ secrets.SSH_PORT }}
+        timeout: 60s
+        debug: true
+        script: |
+          echo "🔗 SSH 连接测试成功"
+          echo "服务器信息:"
+          uname -a
+          echo "当前用户: $(whoami)"
+          echo "当前目录: $(pwd)"
+          echo "磁盘空间:"
+          df -h
+
     - name: Upload Deployment Package
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -59,6 +77,9 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         source: "todo-for-ai-deploy.tar.gz"
         target: "/tmp/"
+        timeout: 300s
+        command_timeout: 30m
+        debug: true
         
     - name: Deploy to Production Server
       uses: appleboy/ssh-action@v1.0.3
@@ -67,7 +88,9 @@ jobs:
         username: ${{ secrets.PRODUCTION_USERNAME }}
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 600s
+        timeout: 1800s
+        command_timeout: 30m
+        debug: true
         script: |
           set -e
           
