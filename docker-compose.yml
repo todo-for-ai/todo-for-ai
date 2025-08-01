@@ -32,7 +32,16 @@ services:
       - LOG_FILE=/app/logs/app.log
       - PYTHONHTTPSVERIFY=0
       - REQUESTS_CA_BUNDLE=""
-    
+      # GitHub OAuth 配置 (可选，如果不使用GitHub登录可以设置为空)
+      - GITHUB_CLIENT_ID=""
+      - GITHUB_CLIENT_SECRET=""
+      - GITHUB_REDIRECT_URI=""
+
+    # 端口映射
+    ports:
+      - "8080:80"        # 前端 (nginx)
+      - "50110:50110"    # 后端 API
+
     # 卷挂载
     volumes:
       - ./uploads:/app/uploads
