@@ -210,6 +210,9 @@ dist
 .out
 .storybook-out
 
+# Build output
+lib/
+
 # Temporary folders
 tmp/
 temp/
