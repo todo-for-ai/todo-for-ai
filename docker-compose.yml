@@ -1,131 +1,58 @@
 version: '3.8'
 
 services:
-  # MySQL 数据库
-  mysql:
-    image: mysql:8.0
-    container_name: todo-ai-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: todo_for_ai
-      MYSQL_USER: todo_user
-      MYSQL_PASSWORD: todo_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    networks:
-      - todo-ai-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
-  # Redis 缓存 (可选)
-  redis:
-    image: redis:7-alpine
-    container_name: todo-ai-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - todo-ai-network
-    command: redis-server --appendonly yes
-
-  # 后端服务
-  backend:
+  todo-for-ai:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: todo-ai-backend
-    restart: unless-stopped
+      args:
+        VITE_API_BASE_URL: http://localhost:50110/todo-for-ai/api/v1
+        VITE_MCP_SERVER_URL: http://localhost:50110
+        VITE_APP_TITLE: "Todo for AI"
+        VITE_APP_VERSION: "1.0.0"
+    
+    container_name: todo-for-ai-app
+    
+    # 网络配置 - 使用host网络模式以访问宿主机数据库
+    network_mode: host
+    
+    # 环境变量
     environment:
+      - FLASK_APP=app.py
       - FLASK_ENV=production
-      - DATABASE_URL=mysql://todo_user:todo_password@mysql:3306/todo_for_ai
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=your-secret-key-here
-      - CORS_ORIGINS=http://localhost:50111,http://localhost:50112
-    ports:
-      - "50110:50110"
+      - PORT=50110
+      - HOST=0.0.0.0
+      # 数据库连接使用宿主机地址
+      - DATABASE_URL=mysql+pymysql://root:cC11001100@host.docker.internal:3306/todo_for_ai
+      - SECRET_KEY=docker-secret-key-change-in-production-2024
+      - JWT_SECRET_KEY=docker-jwt-secret-key-change-in-production-2024
+      - UPLOAD_FOLDER=/app/uploads
+      - MAX_CONTENT_LENGTH=16777216
+      - LOG_LEVEL=INFO
+      - LOG_FILE=/app/logs/app.log
+      - PYTHONHTTPSVERIFY=0
+      - REQUESTS_CA_BUNDLE=""
+    
+    # 卷挂载
     volumes:
-      - ./backend/uploads:/app/uploads
+      - ./uploads:/app/uploads
       - ./logs:/app/logs
-    networks:
-      - todo-ai-network
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_started
+    
+    # 健康检查
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:50110/todo-for-ai/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-
-  # MCP 服务
-  mcp-server:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.mcp
-    container_name: todo-ai-mcp
+      start_period: 40s
+    
+    # 重启策略
     restart: unless-stopped
-    environment:
-      - DATABASE_URL=mysql://todo_user:todo_password@mysql:3306/todo_for_ai
-    ports:
-      - "8080:8080"
-    networks:
-      - todo-ai-network
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - ./logs:/app/logs
-
-  # 前端服务 (生产环境)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_BASE_URL=http://localhost:5000
-    container_name: todo-ai-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:80"
-    networks:
-      - todo-ai-network
-    depends_on:
-      - backend
-
-  # Nginx 反向代理
-  nginx:
-    image: nginx:alpine
-    container_name: todo-ai-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./logs/nginx:/var/log/nginx
-    networks:
-      - todo-ai-network
-    depends_on:
-      - frontend
-      - backend
-
-volumes:
-  mysql_data:
-    driver: local
-  redis_data:
-    driver: local
-
-networks:
-  todo-ai-network:
-    driver: bridge
+    
+    # 依赖关系 - 确保宿主机MySQL服务运行
+    depends_on: []
+    
+    # 标签
+    labels:
+      - "com.todo-for-ai.description=Todo for AI Application"
+      - "com.todo-for-ai.version=1.0.0"

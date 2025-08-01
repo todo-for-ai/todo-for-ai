@@ -243,10 +243,7 @@ class User(BaseModel):
         self.preferences[key] = value
         self.save()
     
-    @classmethod
-    def find_by_auth0_id(cls, auth0_user_id):
-        """根据Auth0用户ID查找用户"""
-        return cls.query.filter_by(auth0_user_id=auth0_user_id).first()
+
     
     @classmethod
     def find_by_email(cls, email):

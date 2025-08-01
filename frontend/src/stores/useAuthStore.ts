@@ -236,7 +236,7 @@ export const useAuthStore = create<AuthState>()(
 const initializeAuth = () => {
   const { token, checkAuth } = useAuthStore.getState()
   
-  // 检查URL中是否有token参数（来自Auth0回调）
+  // 检查URL中是否有token参数（来自OAuth回调）
   const urlParams = new URLSearchParams(window.location.search)
   const urlToken = urlParams.get('token')
   

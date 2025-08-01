@@ -1,0 +1,55 @@
+# 环境变量文件 - 绝对不能打包到镜像中
+.env
+.env.*
+!.env.example
+
+# Git相关
+.git
+.gitignore
+
+# 开发工具
+.vscode
+.idea
+*.swp
+*.swo
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+
+# 依赖目录
+node_modules/
+venv/
+__pycache__/
+
+# 构建输出
+dist/
+build/
+
+# 测试文件
+*.test.js
+test/
+tests/
+
+# 文档
+README.md
+docs/
+
+# 上传文件
+uploads/
+
+# 备份文件
+*.bak
+*.backup
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 开发脚本
+scripts/dev.sh
+scripts/test.sh

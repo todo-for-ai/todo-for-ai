@@ -35,7 +35,8 @@ class MCPServerManager:
         self.project_root = self.backend_dir.parent
         self.pid_file = self.project_root / '.mcp_server.pid'
         self.log_file = self.project_root / 'logs' / 'mcp_server.log'
-        self.server_script = self.backend_dir / 'simple_mcp_server.py'
+        # MCP 服务现在通过 npm 包提供，不再使用 Python 实现
+        self.server_script = None
         
         # Ensure logs directory exists
         self.log_file.parent.mkdir(exist_ok=True)
@@ -87,53 +88,12 @@ class MCPServerManager:
         return status
     
     def start(self, background: bool = True) -> bool:
-        """Start the MCP server"""
-        if self.is_running():
-            logger.info("MCP server is already running")
-            return True
-        
-        logger.info("Starting MCP server...")
-        
-        try:
-            # Activate virtual environment and start server
-            venv_python = self.backend_dir / 'venv' / 'bin' / 'python'
-            if not venv_python.exists():
-                venv_python = sys.executable
-            
-            if background:
-                # Start in background
-                with open(self.log_file, 'a') as log_f:
-                    process = subprocess.Popen(
-                        [str(venv_python), str(self.server_script)],
-                        cwd=str(self.backend_dir),
-                        stdout=log_f,
-                        stderr=subprocess.STDOUT,
-                        stdin=subprocess.PIPE
-                    )
-                
-                # Save PID
-                with open(self.pid_file, 'w') as f:
-                    f.write(str(process.pid))
-                
-                # Wait a moment to check if it started successfully
-                time.sleep(2)
-                if self.is_running():
-                    logger.info(f"MCP server started successfully (PID: {process.pid})")
-                    return True
-                else:
-                    logger.error("MCP server failed to start")
-                    return False
-            else:
-                # Start in foreground
-                process = subprocess.run(
-                    [str(venv_python), str(self.server_script)],
-                    cwd=str(self.backend_dir)
-                )
-                return process.returncode == 0
-                
-        except Exception as e:
-            logger.error(f"Failed to start MCP server: {e}")
-            return False
+        """Start the MCP server - now deprecated, use npm package instead"""
+        logger.warning("MCP server Python implementation has been removed.")
+        logger.info("Please use the npm package 'todo-for-ai-mcp' instead.")
+        logger.info("Install with: npm install -g todo-for-ai-mcp")
+        logger.info("Configure your IDE to use the npm package.")
+        return False
     
     def stop(self, force: bool = False) -> bool:
         """Stop the MCP server"""

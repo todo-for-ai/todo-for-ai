@@ -105,9 +105,7 @@ SECRET_KEY=your-secret-key-here
 # 数据库配置
 DATABASE_URL=mysql+pymysql://root:cC11001100@localhost:3306/todo_for_ai
 
-# MCP 配置
-MCP_SERVER_HOST=localhost
-MCP_SERVER_PORT=8080
+
 
 # 其他配置
 UPLOAD_FOLDER=uploads

@@ -16,10 +16,10 @@ load_dotenv()
 def create_database():
     """创建数据库"""
     # 从DATABASE_URL解析连接信息
-    database_url = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:cC11001100@localhost:3306/todo_for_ai')
+    database_url = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:password@localhost:3306/todo_for_ai')
     
     # 解析URL
-    # mysql+pymysql://root:cC11001100@localhost:3306/todo_for_ai
+    # mysql+pymysql://root:password@localhost:3306/todo_for_ai
     parts = database_url.replace('mysql+pymysql://', '').split('/')
     connection_part = parts[0]
     database_name = parts[1] if len(parts) > 1 else 'todo_for_ai'
@@ -88,7 +88,7 @@ def create_database():
 
 def check_mysql_connection():
     """检查MySQL服务器连接"""
-    database_url = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:cC11001100@localhost:3306/todo_for_ai')
+    database_url = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:password@localhost:3306/todo_for_ai')
     
     # 解析连接信息（同上）
     parts = database_url.replace('mysql+pymysql://', '').split('/')
