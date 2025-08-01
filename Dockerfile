@@ -17,13 +17,13 @@ FROM node:${NODE_VERSION}-alpine AS frontend-builder
 WORKDIR /app/frontend
 
 # 复制前端package文件
-COPY frontend/package*.json ./
+COPY todo-for-ai-webpage/package*.json ./
 
 # 安装依赖
 RUN npm ci
 
 # 复制前端源代码
-COPY frontend/ ./
+COPY todo-for-ai-webpage/ ./
 
 # 设置构建环境变量
 ARG VITE_API_BASE_URL
@@ -69,19 +69,19 @@ FROM python-base
 WORKDIR /app
 
 # 复制后端代码和依赖
-COPY backend/requirements.txt .
+COPY todo-for-ai-api-server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 复制后端代码，排除敏感文件
-COPY backend/*.py .
-COPY backend/api/ ./api/
-COPY backend/app/ ./app/
-COPY backend/models/ ./models/
-COPY backend/migrations/ ./migrations/
-COPY backend/scripts/ ./scripts/
+COPY todo-for-ai-api-server/*.py .
+COPY todo-for-ai-api-server/api/ ./api/
+COPY todo-for-ai-api-server/app/ ./app/
+COPY todo-for-ai-api-server/models/ ./models/
+COPY todo-for-ai-api-server/migrations/ ./migrations/
+COPY todo-for-ai-api-server/scripts/ ./scripts/
 
 # 复制前端构建结果
-COPY --from=frontend-builder /app/frontend/dist /var/www/html
+COPY --from=frontend-builder /app/todo-for-ai-webpage/dist /var/www/html
 
 # 复制配置文件
 COPY frontend/nginx.conf /etc/nginx/sites-available/default
