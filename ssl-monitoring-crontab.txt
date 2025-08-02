@@ -1,5 +1,0 @@
-# SSL证书监控任务 - 每天上午9点检查
-0 9 * * * cd /Users/cc11001100/github/ai-coding-labs/todo-for-ai && ./ssl-monitor-simple.sh >> logs/ssl-monitor-cron.log 2>&1
-
-# SSL证书监控任务 - 每周一上午10点生成详细报告  
-0 10 * * 1 cd /Users/cc11001100/github/ai-coding-labs/todo-for-ai && ./ssl-monitor-simple.sh -r >> logs/ssl-monitor-cron.log 2>&1

@@ -264,3 +264,19 @@ mcp_client.log
 *.pfx
 cloudflare-origin.*
 ssl-cert.*
+
+# Backup files
+*.sql
+*.backup
+backup/
+
+# Test files
+test_*.py
+
+# SSL monitoring scripts (generated)
+*ssl-monitor*.sh
+*ssl-cron*.sh
+*ssl-monitoring*.txt
+
+# Nginx config copies
+nginx_config*.txt
