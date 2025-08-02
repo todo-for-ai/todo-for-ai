@@ -67,7 +67,7 @@ COPY todo-for-ai-api-server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 复制后端代码，排除敏感文件
-COPY todo-for-ai-api-server/*.py .
+COPY todo-for-ai-api-server/*.py ./
 COPY todo-for-ai-api-server/api/ ./api/
 COPY todo-for-ai-api-server/core/ ./core/
 COPY todo-for-ai-api-server/models/ ./models/
