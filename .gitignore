@@ -254,3 +254,13 @@ build/
 # MCP specific
 mcp_server.log
 mcp_client.log
+
+# SSL certificates and private keys (security sensitive)
+*.key
+*.pem
+*.crt
+*.cert
+*.p12
+*.pfx
+cloudflare-origin.*
+ssl-cert.*
