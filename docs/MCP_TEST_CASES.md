@@ -18,8 +18,9 @@
    source venv/bin/activate
    python app.py
    
-   # 启动MCP服务
-   python simple_mcp_server.py
+   # 启动MCP服务 (使用npm包)
+   npm install -g todo-for-ai-mcp
+   todo-for-ai-mcp
    ```
 
 3. **测试数据准备**
@@ -65,7 +66,8 @@
 
 **测试命令**:
 ```bash
-echo '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}' | python simple_mcp_server.py
+# 使用npm包进行测试
+echo '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}' | todo-for-ai-mcp
 ```
 
 ### TC002: 工具列表获取测试
@@ -82,7 +84,8 @@ echo '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}' | pytho
 
 **测试命令**:
 ```bash
-echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}' | python simple_mcp_server.py
+# 使用npm包进行测试
+echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}' | todo-for-ai-mcp
 ```
 
 ## 项目管理测试
