@@ -52,6 +52,9 @@
 | GET | `/<int:task_id>` | 获取单个任务详情 | JWT |
 | PUT | `/<int:task_id>` | 更新任务 | JWT |
 | DELETE | `/<int:task_id>` | 删除任务 | JWT |
+| GET | `/<int:task_id>/history` | ✅ 获取任务历史记录 | JWT |
+| GET | `/<int:task_id>/attachments` | ✅ 获取任务附件列表 | JWT |
+| DELETE | `/<int:task_id>/attachments/<int:attachment_id>` | ✅ 删除任务附件 | JWT |
 
 ### 4. 上下文规则模块 (context-rules)
 **基础路径**: `/todo-for-ai/api/v1/context-rules/`
@@ -68,6 +71,9 @@
 | POST | `/build-context` | 构建上下文字符串 | JWT |
 | GET | `/marketplace` | 获取规则广场的公开规则 | JWT |
 | POST | `/<int:rule_id>/copy` | 从规则广场复制规则 | JWT |
+| GET | `/global` | ✅ 获取全局上下文规则 | JWT |
+| GET | `/merged` | ✅ 获取合并后的上下文规则 | JWT |
+| GET | `/preview` | ✅ 预览合并后的规则 | JWT |
 
 ### 5. Token管理模块 (tokens)
 **基础路径**: `/todo-for-ai/api/v1/tokens/`
