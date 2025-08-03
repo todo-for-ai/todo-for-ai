@@ -280,3 +280,15 @@ test_*.py
 
 # Nginx config copies
 nginx_config*.txt
+
+# 部署脚本（包含敏感信息）
+deploy.sh
+deploy.sh.bak
+*.tar.gz
+
+# Docker Compose 配置（可能包含敏感信息）
+docker-compose.yml
+
+# 部署相关临时文件
+deploy-*.log
+deployment-*.txt
