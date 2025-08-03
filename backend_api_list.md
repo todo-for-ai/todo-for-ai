@@ -148,7 +148,26 @@
 |------|------|----------|----------|
 | GET | `` | 获取API文档 | 无 |
 
-### 12. 基础路由
+### 12. 自定义提示词模块 (custom-prompts) 🆕
+**基础路径**: `/todo-for-ai/api/v1/custom-prompts/`
+
+| 方法 | 路径 | 功能描述 | 认证要求 |
+|------|------|----------|----------|
+| GET | `` | 获取自定义提示词列表 | JWT |
+| POST | `` | 创建自定义提示词 | JWT |
+| GET | `/<int:prompt_id>` | 获取自定义提示词详情 | JWT |
+| PUT | `/<int:prompt_id>` | 更新自定义提示词 | JWT |
+| DELETE | `/<int:prompt_id>` | 删除自定义提示词 | JWT |
+| GET | `/project-prompts` | 获取项目提示词列表 | JWT |
+| GET | `/task-button-prompts` | 获取任务按钮提示词列表 | JWT |
+| PUT | `/task-buttons/reorder` | 重新排序任务按钮提示词 | JWT |
+| POST | `/project-prompts/<int:prompt_id>/preview` | 预览项目提示词 | JWT |
+| POST | `/initialize-defaults` | 初始化用户默认提示词 | JWT |
+| POST | `/reset-to-defaults` | 重置为默认配置 | JWT |
+| GET | `/export` | 导出自定义提示词 | JWT |
+| POST | `/import` | 导入自定义提示词 | JWT |
+
+### 13. 基础路由
 | 方法 | 路径 | 功能描述 | 认证要求 |
 |------|------|----------|----------|
 | GET | `/` | 服务基本信息 | 无 |
@@ -160,3 +179,5 @@
 2. JWT认证需要在请求头中包含 `Authorization: Bearer <token>`
 3. API Token认证可以通过请求头或查询参数传递
 4. 所有响应都使用统一的ApiResponse格式
+5. 🆕 标记表示新增的API端点
+6. 自定义提示词API使用独立的数据表存储，支持项目提示词和任务按钮提示词两种类型
