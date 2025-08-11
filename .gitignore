@@ -1,3 +1,13 @@
+# Security - SSL Certificates and Keys
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+cloudflare-origin.*
+ssl/
+certs/
+
 # Python
 __pycache__/
 *.py[cod]
