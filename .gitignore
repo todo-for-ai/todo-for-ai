@@ -16,6 +16,14 @@ create_api_token.py
 **/create_admin_token.py
 **/create_api_token.py
 
+# Internal Reports and Documentation
+*_report.md
+cleanup_report.md
+deployment_report.md
+security_audit_report.md
+audit_*.md
+deploy_*.md
+
 # Python
 __pycache__/
 *.py[cod]
