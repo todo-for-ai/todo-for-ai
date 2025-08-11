@@ -8,6 +8,14 @@ cloudflare-origin.*
 ssl/
 certs/
 
+# Development/Debug Scripts (potentially containing sensitive info)
+check_token.py
+create_admin_token.py
+create_api_token.py
+**/check_token.py
+**/create_admin_token.py
+**/create_api_token.py
+
 # Python
 __pycache__/
 *.py[cod]
