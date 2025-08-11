@@ -91,14 +91,14 @@ main() {
     
     # 停止可能的 Python 进程
     echo -e "${YELLOW}🔍 检查相关 Python 进程...${NC}"
-    local python_pids=$(ps aux | grep -E "(app\.py|simple_mcp_server\.py)" | grep -v grep | awk '{print $2}' || true)
+    local python_pids=$(ps aux | grep -E "(app\.py)" | grep -v grep | awk '{print $2}' || true)
     if [ ! -z "$python_pids" ]; then
         echo -e "${YELLOW}发现相关 Python 进程，正在停止...${NC}"
         echo "$python_pids" | xargs kill 2>/dev/null || true
         sleep 2
-        
+
         # 强制杀死仍在运行的进程
-        local remaining_pids=$(ps aux | grep -E "(app\.py|simple_mcp_server\.py)" | grep -v grep | awk '{print $2}' || true)
+        local remaining_pids=$(ps aux | grep -E "(app\.py)" | grep -v grep | awk '{print $2}' || true)
         if [ ! -z "$remaining_pids" ]; then
             echo -e "${RED}强制停止剩余进程...${NC}"
             echo "$remaining_pids" | xargs kill -9 2>/dev/null || true

@@ -26,9 +26,17 @@ COPY todo-for-ai-webpage/ ./
 # 设置构建环境变量
 ARG VITE_APP_TITLE
 ARG VITE_APP_VERSION
+ARG VITE_BUILD_TIME
+ARG VITE_COMMIT_ID
+ARG VITE_API_BASE_URL=/todo-for-ai/api/v1
+ARG VITE_MCP_SERVER_URL=
 
 ENV VITE_APP_TITLE=$VITE_APP_TITLE
 ENV VITE_APP_VERSION=$VITE_APP_VERSION
+ENV VITE_BUILD_TIME=$VITE_BUILD_TIME
+ENV VITE_COMMIT_ID=$VITE_COMMIT_ID
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_MCP_SERVER_URL=$VITE_MCP_SERVER_URL
 
 # 构建前端
 RUN npm run build:no-check
@@ -67,7 +75,7 @@ COPY todo-for-ai-api-server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 复制后端代码，排除敏感文件
-COPY todo-for-ai-api-server/*.py .
+COPY todo-for-ai-api-server/*.py ./
 COPY todo-for-ai-api-server/api/ ./api/
 COPY todo-for-ai-api-server/core/ ./core/
 COPY todo-for-ai-api-server/models/ ./models/
