@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/todo-for-ai/todo-for-ai/tree/main/docs
+    about: Check our comprehensive documentation for guides and tutorials
+  - name: 💬 GitHub Discussions
+    url: https://github.com/todo-for-ai/todo-for-ai/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🌐 Website
+    url: https://todo4ai.org
+    about: Visit our official website for more information
+  - name: 📧 Email Support
+    url: mailto:support@todo4ai.org
+    about: Contact us directly for sensitive issues or enterprise support
