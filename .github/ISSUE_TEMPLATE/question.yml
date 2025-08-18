@@ -1,0 +1,79 @@
+name: ❓ Question
+description: Ask a question about Todo for AI
+title: "[Question]: "
+labels: ["question", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about Todo for AI? We're here to help! Please check our documentation first, then fill out the form below.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please check the following before asking your question
+      options:
+        - label: I have read the [README](https://github.com/todo-for-ai/todo-for-ai/blob/main/README.md)
+          required: true
+        - label: I have checked the [FAQ](https://github.com/todo-for-ai/todo-for-ai/blob/main/docs/FAQ.md)
+          required: true
+        - label: I have searched existing issues and discussions
+          required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What type of question is this?
+      options:
+        - Installation & Setup
+        - AI Integration (MCP)
+        - API Usage
+        - Configuration
+        - Troubleshooting
+        - Best Practices
+        - Feature Usage
+        - Development
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Ask your question here...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide any relevant context about your situation
+      placeholder: |
+        - What are you trying to accomplish?
+        - What have you tried so far?
+        - What specific part are you stuck on?
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (if relevant)
+      description: Information about your setup
+      placeholder: |
+        - OS: [e.g. macOS 14.0, Ubuntu 22.04, Windows 11]
+        - Installation Method: [e.g. Docker, Source, npm]
+        - Todo for AI Version: [e.g. 2.1.5]
+        - AI Assistant: [e.g. Claude, GPT-4]
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other details that might be helpful
+      placeholder: Any additional context or information...
