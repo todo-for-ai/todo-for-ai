@@ -80,13 +80,13 @@ When contributing images:
 
 ## Current Status
 
-- [ ] Dashboard preview screenshot
-- [ ] Task management interface
-- [ ] AI integration demonstration
+- [x] Dashboard preview screenshot (`dashboard-preview.png`) - ✅ 已完成
+- [x] Task management interface (`task-management.png`) - ✅ 已完成
+- [x] AI integration demonstration (`ai-integration.png`) - ✅ 已完成
 - [ ] Mobile responsive views
 - [ ] Demo video creation
 - [ ] Feature highlight GIFs
 
 ---
 
-**Note**: This is a placeholder directory. Actual screenshots and media files need to be added to complete the project documentation.
+**Note**: 核心截图已完成！主要的文档截图需求已满足，README.md 中的图片链接现在可以正常显示。
