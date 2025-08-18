@@ -41,13 +41,13 @@
 
 <div align="center">
 
-![Todo for AI Dashboard](https://raw.githubusercontent.com/todo-for-ai/todo-for-ai/main/docs/images/dashboard-preview.png)
+![Todo for AI Dashboard](docs/images/dashboard-preview.png)
 *Modern, intuitive dashboard for project and task management*
 
-![Task Management](https://raw.githubusercontent.com/todo-for-ai/todo-for-ai/main/docs/images/task-management.png)
+![Task Management](docs/images/task-management.png)
 *Comprehensive task management with AI integration*
 
-![AI Assistant Integration](https://raw.githubusercontent.com/todo-for-ai/todo-for-ai/main/docs/images/ai-integration.png)
+![AI Assistant Integration](docs/images/ai-integration.png)
 *Seamless AI assistant integration through MCP*
 
 </div>
