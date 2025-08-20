@@ -54,7 +54,7 @@
 
 ### 🎬 **演示视频**
 
-[![Todo for AI 演示](https://img.youtube.com/vi/DEMO_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=DEMO_VIDEO_ID)
+[![Todo for AI 演示](https://img.youtube.com/vi/v96wqWLEHk8/0.jpg)](https://www.youtube.com/watch?v=v96wqWLEHk8)
 
 *点击观看Todo for AI的完整演示*
 

@@ -54,7 +54,7 @@
 
 ### 🎬 **Demo Video**
 
-[![Todo for AI Demo](https://img.youtube.com/vi/DEMO_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=DEMO_VIDEO_ID)
+[![Todo for AI Demo](https://img.youtube.com/vi/L5SjoKRzJXQ/0.jpg)](https://www.youtube.com/watch?v=L5SjoKRzJXQ&t=30s)
 
 *Click to watch a full demo of Todo for AI in action*
 
