@@ -1,0 +1,133 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Todo for AI
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please fill out the form below to help us understand your request.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please check the following before submitting your feature request
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested already
+          required: true
+        - label: I have read the [roadmap](https://github.com/todo-for-ai/todo-for-ai/projects) to see if this feature is already planned
+          required: true
+        - label: This feature would benefit the broader Todo for AI community
+          required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What pain point are you experiencing?
+      placeholder: Describe the problem or need this feature would address...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented
+      placeholder: Describe your proposed solution...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component would this feature affect?
+      options:
+        - Frontend (Web UI)
+        - Backend (API Server)
+        - MCP Server
+        - AI Integration
+        - Documentation
+        - DevOps/Deployment
+        - Multiple Components
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (Blocking my use of the product)
+        - High (Would significantly improve my workflow)
+        - Medium (Nice to have)
+        - Low (Minor improvement)
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternatives have you considered? Are there workarounds?
+      placeholder: Describe alternative solutions you've considered...
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases where this feature would be valuable
+      placeholder: |
+        1. As a [user type], I want to [action] so that [benefit]
+        2. When [scenario], this feature would help by [benefit]
+        3. ...
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Examples
+      description: If applicable, add mockups, wireframes, or examples from other tools
+      placeholder: Drag and drop images here or paste URLs to examples
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation Considerations
+      description: Check any that apply to your feature request
+      options:
+        - label: This feature should work with AI assistants (MCP integration)
+        - label: This feature requires database changes
+        - label: This feature affects the API
+        - label: This feature requires new UI components
+        - label: This feature might have security implications
+        - label: This feature should be configurable/optional
+
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical Details
+      description: Any technical considerations or implementation ideas
+      placeholder: Share any technical thoughts or implementation suggestions...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be interested in contributing to this feature?
+      options:
+        - label: I would be willing to help implement this feature
+        - label: I would be willing to test this feature
+        - label: I would be willing to help with documentation
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, links, or information about the feature request
+      placeholder: Any additional information that might be helpful...
