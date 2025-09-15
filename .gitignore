@@ -310,6 +310,9 @@ nginx_config*.txt
 # 部署脚本（包含敏感信息）
 deploy.sh
 deploy.sh.bak
+deploy-private.sh
+setup-mysql-*.sh
+setup-nginx-proxy-*.sh
 *.tar.gz
 
 # Docker Compose 配置（可能包含敏感信息）

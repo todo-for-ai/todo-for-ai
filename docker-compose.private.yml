@@ -1,0 +1,149 @@
+version: '3.8'
+
+# Todo for AI 私有部署 Docker Compose 配置
+#
+# 部署后的服务地址：
+# - 前端: http://your-domain:50111/todo-for-ai/pages/login
+# - API: http://your-domain:50110/todo-for-ai/api/v1
+# - MCP端点: http://your-domain:50110/todo-for-ai/api/v1
+#
+# MCP配置示例：
+# {
+#   "mcpServers": {
+#     "todo-for-ai": {
+#       "command": "npx",
+#       "args": [
+#         "--yes",
+#         "@todo-for-ai/mcp@latest",
+#         "--api-base-url",
+#         "http://your-domain:50110/todo-for-ai/api/v1",
+#         "--api-token",
+#         "your-api-token-here"
+#       ]
+#     }
+#   }
+# }
+
+services:
+  # MySQL数据库服务
+  mysql:
+    image: mysql:8.0
+    container_name: todo-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-your_secure_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-todo_for_ai}
+      MYSQL_USER: ${MYSQL_USER:-todo_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-your_secure_password}
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d:ro
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-your_secure_root_password}"]
+      timeout: 20s
+      retries: 10
+
+  # Todo for AI 主应用
+  todo-for-ai:
+    image: todo4ai/todo-for-ai:latest-amd64
+    container_name: todo-for-ai
+    environment:
+      # 基础配置
+      BASE_URL: ${BASE_URL:-http://localhost:50111}
+      DOCKER_ENV: "true"
+      
+      # 数据库配置
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-todo_user}:${MYSQL_PASSWORD:-your_secure_password}@mysql:3306/${MYSQL_DATABASE:-todo_for_ai}
+      
+      # 安全密钥
+      SECRET_KEY: ${SECRET_KEY:-your_secret_key_32_chars_or_more}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your_jwt_secret_key_32_chars_or_more}
+      
+      # GitHub OAuth
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      
+      # Google OAuth (可选)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      
+      # 日志配置
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      
+    ports:
+      - "${API_PORT:-50110}:50110"
+      - "${FRONTEND_PORT:-50111}:50111"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - todo-network
+    volumes:
+      - app_logs:/var/log/supervisor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:50110/todo-for-ai/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+
+  # Redis缓存服务 (可选，用于会话存储和缓存)
+  redis:
+    image: redis:7-alpine
+    container_name: todo-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - todo-network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-your_redis_password}
+    profiles:
+      - with-redis
+
+  # Nginx反向代理 (可选)
+  nginx:
+    image: nginx:alpine
+    container_name: todo-nginx
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - todo-for-ai
+    restart: unless-stopped
+    networks:
+      - todo-network
+    profiles:
+      - with-nginx
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_logs:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  todo-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
