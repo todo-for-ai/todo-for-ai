@@ -458,6 +458,46 @@ Issues and Pull Requests are welcome!
 3. Commit your changes
 4. Create a Pull Request
 
+### Git and File Management
+
+#### .gitignore Configuration
+
+The project uses comprehensive `.gitignore` files to prevent sensitive data and build artifacts from being committed:
+
+- **Root `.gitignore`**: Main project-level ignore rules
+- **Subproject `.gitignore`**: Each subproject (api-server, mcp, webpage) has its own rules
+
+**Verify .gitignore:**
+```bash
+# Run verification script
+./scripts/verify-gitignore.sh
+
+# Check if a file is ignored
+git check-ignore -v <file>
+```
+
+**Common ignored files:**
+- Environment variables (`.env`, `.env.local`)
+- SSL certificates (`*.key`, `*.pem`, `*.crt`)
+- Build outputs (`dist/`, `build/`, `lib/`)
+- Dependencies (`node_modules/`, `venv/`)
+- Logs (`*.log`, `logs/`)
+- User uploads (`uploads/`, `media/`)
+- Deployment scripts (`deploy.sh`, `setup-*.sh`)
+
+**Documentation:**
+- See [.gitignore-quickref.md](.gitignore-quickref.md) for quick reference
+- See [.gitignore-improvements.md](.gitignore-improvements.md) for detailed changes
+
+**Clean up accidentally tracked files:**
+```bash
+# Remove from git but keep locally
+git rm --cached <file>
+
+# Or use the cleanup script (for sensitive files)
+./scripts/cleanup-git-cache.sh
+```
+
 ## 📄 License
 
 MIT License

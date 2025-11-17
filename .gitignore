@@ -1,12 +1,17 @@
-# Security - SSL Certificates and Keys
+# ====================================
+# Security & Sensitive Files
+# ====================================
+# SSL Certificates and Keys
 *.key
 *.pem
 *.crt
+*.cert
 *.p12
 *.pfx
 cloudflare-origin.*
 ssl/
 certs/
+ssl-cert.*
 
 # Development/Debug Scripts (potentially containing sensitive info)
 check_token.py
@@ -16,6 +21,17 @@ create_api_token.py
 **/create_admin_token.py
 **/create_api_token.py
 
+# Deployment Scripts (may contain sensitive information)
+deploy.sh
+deploy.sh.bak
+deploy-private.sh
+setup-mysql-*.sh
+setup-nginx-proxy-*.sh
+
+# Docker Compose (may contain sensitive configuration)
+docker-compose.yml
+docker-compose.private.yml
+
 # Internal Reports and Documentation
 *_report.md
 cleanup_report.md
@@ -23,8 +39,12 @@ deployment_report.md
 security_audit_report.md
 audit_*.md
 deploy_*.md
+deploy-*.log
+deployment-*.txt
 
+# ====================================
 # Python
+# ====================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -144,12 +164,15 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Node.js
+# ====================================
+# Node.js / JavaScript / TypeScript
+# ====================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+pnpm-debug.log*
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -216,6 +239,10 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -223,6 +250,7 @@ typings/
 
 # Next.js build output
 .next
+out/
 
 # Nuxt.js build / generate output
 .nuxt
@@ -232,9 +260,13 @@ dist
 .cache/
 # public  # 注释掉，因为我们需要保留 todo-for-ai-webpage/public 目录
 
+# Vite build cache
+.vite/
+
 # Storybook build outputs
 .out
 .storybook-out
+storybook-static/
 
 # Build output
 lib/
@@ -242,82 +274,125 @@ lib/
 # Temporary folders
 tmp/
 temp/
+.tmp/
 
+# ====================================
 # Editor directories and files
+# ====================================
 .vscode/
+.vscode-test/
 .idea/
 *.swp
 *.swo
 *~
+*.code-workspace
+.history/
 
+# ====================================
 # OS generated files
+# ====================================
+# macOS
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
+.AppleDouble
+.LSOverride
+
+# Windows
 ehthumbs.db
 Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
 
+# Linux
+*~
+.directory
+.Trash-*
+
+# ====================================
 # Database
+# ====================================
 *.db
 *.sqlite
 *.sqlite3
+*.db-shm
+*.db-wal
 
+# ====================================
 # Logs
+# ====================================
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
 
+# ====================================
 # Config files with sensitive data
+# ====================================
 config/local.py
+config/production.py
 .env.local
 .env.production
 
+# ====================================
 # Build outputs
+# ====================================
 dist/
 build/
+out/
 
+# ====================================
 # MCP specific
+# ====================================
 mcp_server.log
 mcp_client.log
+.mcp/
 
-# SSL certificates and private keys (security sensitive)
-*.key
-*.pem
-*.crt
-*.cert
-*.p12
-*.pfx
-cloudflare-origin.*
-ssl-cert.*
-
+# ====================================
 # Backup files
+# ====================================
 *.sql
 *.backup
+*.bak
 backup/
+backups/
 
-# Test files
+# ====================================
+# Test files (generated/temporary)
+# ====================================
 test_*.py
+*_test.py
+test-*.js
+test-*.ts
 
+# ====================================
 # SSL monitoring scripts (generated)
+# ====================================
 *ssl-monitor*.sh
 *ssl-cron*.sh
 *ssl-monitoring*.txt
 
+# ====================================
 # Nginx config copies
+# ====================================
 nginx_config*.txt
 
-# 部署脚本（包含敏感信息）
-deploy.sh
-deploy.sh.bak
-deploy-private.sh
-setup-mysql-*.sh
-setup-nginx-proxy-*.sh
+# ====================================
+# Compressed archives
+# ====================================
 *.tar.gz
+*.zip
+*.rar
+*.7z
 
-# Docker Compose 配置（可能包含敏感信息）
-docker-compose.yml
-
-# 部署相关临时文件
-deploy-*.log
-deployment-*.txt
+# ====================================
+# Uploads directory
+# ====================================
+uploads/
+static/uploads/
+media/
