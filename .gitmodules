@@ -13,3 +13,6 @@
 [submodule "todo-for-ai-mcp"]
 	path = todo-for-ai-mcp
 	url = https://github.com/todo-for-ai/todo-for-ai-mcp.git
+[submodule "private-deploy"]
+	path = private-deploy
+	url = git@github.com:todo-for-ai/private-deploy.git
