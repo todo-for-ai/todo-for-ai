@@ -28,7 +28,8 @@ if [ ! -x "$BACKEND_DIR/.venv/bin/gunicorn" ]; then
 fi
 
 # Clean stale listeners before binding the service ports.
-for port in "$API_PORT" "$WEB_PORT"; do
+# Also clear common fallback Vite ports to prevent hidden port drift.
+for port in "$API_PORT" "$WEB_PORT" "$((WEB_PORT + 1))" "$((WEB_PORT + 2))"; do
   pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN || true)"
   if [ -n "$pids" ]; then
     echo "[pm2-start] kill stale listeners on :$port -> $pids"
