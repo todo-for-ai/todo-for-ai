@@ -217,6 +217,9 @@ typings/
 .env
 .env.test
 
+# Local PM2 runtime files (repo-local process manager state)
+.pm2-local/
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
