@@ -73,6 +73,12 @@
 - **todo-for-ai-webpage/**: 前端网页应用 → [todo-for-ai-webpage](https://github.com/todo-for-ai/todo-for-ai-webpage)
 - **todo-for-ai-mcp/**: MCP服务器 → [todo-for-ai-mcp](https://github.com/todo-for-ai/todo-for-ai-mcp)
 
+## 📚 架构与规范
+
+- [Agent 平台规范 v1.0](docs/AGENT_PLATFORM_SPEC.md)
+- [API 文档](docs/API.md)
+- [数据库设计](docs/database-design.md)
+
 ## 🚀 安装与快速开始
 
 选择您偏好的安装方式：

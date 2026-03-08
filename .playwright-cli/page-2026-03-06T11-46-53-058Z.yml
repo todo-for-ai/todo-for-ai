@@ -1,0 +1,310 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - img "Todo for AI Logo" [ref=e7]
+      - heading "Todo for AI" [level=4] [ref=e8]
+    - menu [ref=e10]:
+      - menuitem "dashboard Dashboard" [ref=e11] [cursor=pointer]:
+        - img "dashboard" [ref=e12]:
+          - img [ref=e13]
+        - text: Dashboard
+      - menuitem "project Project Management" [ref=e15] [cursor=pointer]:
+        - img "project" [ref=e16]:
+          - img [ref=e17]
+        - text: Project Management
+    - button "Star our repository on GitHub to support us" [ref=e19] [cursor=pointer]:
+      - img "github" [ref=e20]:
+        - img [ref=e21]
+    - generic [ref=e23]:
+      - link "appstore AI Access" [ref=e25] [cursor=pointer]:
+        - /url: /todo-for-ai/pages/mcp-installation
+        - button "appstore AI Access" [ref=e26]:
+          - img "appstore" [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e31]: AI Access
+      - generic [ref=e32] [cursor=pointer]:
+        - img "user" [ref=e34]:
+          - img [ref=e35]
+        - generic "Guest" [ref=e38]
+  - main [ref=e39]:
+    - generic [ref=e41]:
+      - generic [ref=e42]:
+        - heading "Dashboard" [level=2] [ref=e43]
+        - generic [ref=e44]: Welcome back! Here's your work overview
+      - heading "Owned Scope" [level=4] [ref=e45]
+      - generic [ref=e46]:
+        - generic [ref=e50]:
+          - generic [ref=e51]: Owned Projects
+          - generic [ref=e52]:
+            - img "project" [ref=e54]:
+              - img [ref=e55]
+            - generic [ref=e57]: 1,014
+        - generic [ref=e61]:
+          - generic [ref=e62]: Owned Tasks
+          - generic [ref=e63]:
+            - img "check-square" [ref=e65]:
+              - img [ref=e66]
+            - generic [ref=e69]: 10,000,033
+        - generic [ref=e73]:
+          - generic [ref=e74]: Owned In Progress
+          - generic [ref=e75]:
+            - img "clock-circle" [ref=e77]:
+              - img [ref=e78]
+            - generic [ref=e81]: 2,055,113
+        - generic [ref=e85]:
+          - generic [ref=e86]: Owned AI Executing
+          - generic [ref=e87]:
+            - img "robot" [ref=e89]:
+              - img [ref=e90]
+            - generic [ref=e92]: "0"
+      - heading "Participated Scope" [level=4] [ref=e93]
+      - generic [ref=e94]:
+        - generic [ref=e98]:
+          - generic [ref=e99]: Participated Projects
+          - generic [ref=e100]:
+            - img "project" [ref=e102]:
+              - img [ref=e103]
+            - generic [ref=e105]: 1,014
+        - generic [ref=e109]:
+          - generic [ref=e110]: Participated Tasks
+          - generic [ref=e111]:
+            - img "check-square" [ref=e113]:
+              - img [ref=e114]
+            - generic [ref=e117]: 10,000,033
+        - generic [ref=e121]:
+          - generic [ref=e122]: Participated In Progress
+          - generic [ref=e123]:
+            - img "clock-circle" [ref=e125]:
+              - img [ref=e126]
+            - generic [ref=e129]: 2,055,113
+        - generic [ref=e133]:
+          - generic [ref=e134]: Participated AI Executing
+          - generic [ref=e135]:
+            - img "robot" [ref=e137]:
+              - img [ref=e138]
+            - generic [ref=e140]: "0"
+      - heading "Organization & Agent Statistics" [level=4] [ref=e141]
+      - generic [ref=e142]:
+        - generic [ref=e146]:
+          - generic [ref=e147]: Organizations
+          - generic [ref=e148]:
+            - img "team" [ref=e150]:
+              - img [ref=e151]
+            - generic [ref=e153]: "5"
+        - generic [ref=e157]:
+          - generic [ref=e158]: Total Agents
+          - generic [ref=e159]:
+            - img "robot" [ref=e161]:
+              - img [ref=e162]
+            - generic [ref=e164]: "28"
+        - generic [ref=e168]:
+          - generic [ref=e169]: Active Agents (7d)
+          - generic [ref=e170]:
+            - img "clock-circle" [ref=e172]:
+              - img [ref=e173]
+            - generic [ref=e176]: "0"
+      - generic [ref=e179]:
+        - generic [ref=e182]: Top 5 Active Organizations
+        - list [ref=e187]:
+          - listitem [ref=e188]:
+            - generic [ref=e189]:
+              - img "team" [ref=e191]:
+                - img [ref=e192]
+              - generic [ref=e194]:
+                - 'heading "Guest Agent Lab My Role: owner" [level=4] [ref=e195]':
+                  - generic [ref=e196]:
+                    - generic [ref=e197]: Guest Agent Lab
+                    - generic [ref=e198]: "My Role: owner"
+                - generic [ref=e200]:
+                  - generic [ref=e201]:
+                    - text: "Active Agents (7d):"
+                    - strong [ref=e202]: "0"
+                    - text: "/ Total Agents:"
+                    - strong [ref=e203]: "28"
+                  - generic [ref=e204]:
+                    - img "calendar" [ref=e205]:
+                      - img [ref=e206]
+                    - text: "Last Agent Activity: No recent activity"
+          - listitem [ref=e208]:
+            - generic [ref=e209]:
+              - img "team" [ref=e211]:
+                - img [ref=e212]
+              - generic [ref=e214]:
+                - 'heading "E2E Org 1772552411 My Role: owner" [level=4] [ref=e215]':
+                  - generic [ref=e216]:
+                    - generic [ref=e217]: E2E Org 1772552411
+                    - generic [ref=e218]: "My Role: owner"
+                - generic [ref=e220]:
+                  - generic [ref=e221]:
+                    - text: "Active Agents (7d):"
+                    - strong [ref=e222]: "0"
+                    - text: "/ Total Agents:"
+                    - strong [ref=e223]: "0"
+                  - generic [ref=e224]:
+                    - img "calendar" [ref=e225]:
+                      - img [ref=e226]
+                    - text: "Last Agent Activity: No recent activity"
+          - listitem [ref=e228]:
+            - generic [ref=e229]:
+              - img "team" [ref=e231]:
+                - img [ref=e232]
+              - generic [ref=e234]:
+                - 'heading "Org-1772550421 My Role: owner" [level=4] [ref=e235]':
+                  - generic [ref=e236]:
+                    - generic [ref=e237]: Org-1772550421
+                    - generic [ref=e238]: "My Role: owner"
+                - generic [ref=e240]:
+                  - generic [ref=e241]:
+                    - text: "Active Agents (7d):"
+                    - strong [ref=e242]: "0"
+                    - text: "/ Total Agents:"
+                    - strong [ref=e243]: "0"
+                  - generic [ref=e244]:
+                    - img "calendar" [ref=e245]:
+                      - img [ref=e246]
+                    - text: "Last Agent Activity: No recent activity"
+          - listitem [ref=e248]:
+            - generic [ref=e249]:
+              - img "team" [ref=e251]:
+                - img [ref=e252]
+              - generic [ref=e254]:
+                - 'heading "Org-1772549851 My Role: owner" [level=4] [ref=e255]':
+                  - generic [ref=e256]:
+                    - generic [ref=e257]: Org-1772549851
+                    - generic [ref=e258]: "My Role: owner"
+                - generic [ref=e260]:
+                  - generic [ref=e261]:
+                    - text: "Active Agents (7d):"
+                    - strong [ref=e262]: "0"
+                    - text: "/ Total Agents:"
+                    - strong [ref=e263]: "0"
+                  - generic [ref=e264]:
+                    - img "calendar" [ref=e265]:
+                      - img [ref=e266]
+                    - text: "Last Agent Activity: No recent activity"
+          - listitem [ref=e268]:
+            - generic [ref=e269]:
+              - img "team" [ref=e271]:
+                - img [ref=e272]
+              - generic [ref=e274]:
+                - 'heading "Demo Org A My Role: owner" [level=4] [ref=e275]':
+                  - generic [ref=e276]:
+                    - generic [ref=e277]: Demo Org A
+                    - generic [ref=e278]: "My Role: owner"
+                - generic [ref=e280]:
+                  - generic [ref=e281]:
+                    - text: "Active Agents (7d):"
+                    - strong [ref=e282]: "0"
+                    - text: "/ Total Agents:"
+                    - strong [ref=e283]: "0"
+                  - generic [ref=e284]:
+                    - img "calendar" [ref=e285]:
+                      - img [ref=e286]
+                    - text: "Last Agent Activity: No recent activity"
+      - generic [ref=e290]:
+        - generic [ref=e292]:
+          - generic [ref=e293]: Activity Heatmap
+          - button "reload" [ref=e295] [cursor=pointer]:
+            - img "reload" [ref=e297]:
+              - img [ref=e298]
+        - generic [ref=e301]:
+          - generic [ref=e302]: Activity over the past year
+          - generic [ref=e303]:
+            - generic [ref=e306]:
+              - generic [ref=e307]: Sun
+              - generic [ref=e308]: Mon
+              - generic [ref=e309]: Tue
+              - generic [ref=e310]: Wed
+              - generic [ref=e311]: Thu
+              - generic [ref=e312]: Fri
+              - generic [ref=e313]: Sat
+            - generic [ref=e1064]:
+              - generic [ref=e1065]: Less
+              - generic [ref=e1071]: More
+      - generic [ref=e1072]:
+        - generic [ref=e1074]:
+          - generic [ref=e1077]: Recent Projects
+          - list [ref=e1082]:
+            - listitem [ref=e1083]:
+              - generic [ref=e1084]:
+                - img "project" [ref=e1086]:
+                  - img [ref=e1087]
+                - generic [ref=e1089]:
+                  - heading "guest-observe-eta-1772785770" [level=4] [ref=e1090]
+                  - generic [ref=e1092]:
+                    - generic [ref=e1093]: extended observation project
+                    - generic [ref=e1094]:
+                      - img "calendar" [ref=e1095]:
+                        - img [ref=e1096]
+                      - text: 3月6日
+            - listitem [ref=e1098]:
+              - generic [ref=e1099]:
+                - img "project" [ref=e1101]:
+                  - img [ref=e1102]
+                - generic [ref=e1104]:
+                  - heading "guest-observe-zeta-1772785770" [level=4] [ref=e1105]
+                  - generic [ref=e1107]:
+                    - generic [ref=e1108]: extended observation project
+                    - generic [ref=e1109]:
+                      - img "calendar" [ref=e1110]:
+                        - img [ref=e1111]
+                      - text: 3月6日
+            - listitem [ref=e1113]:
+              - generic [ref=e1114]:
+                - img "project" [ref=e1116]:
+                  - img [ref=e1117]
+                - generic [ref=e1119]:
+                  - heading "guest-observe-epsilon-1772785770" [level=4] [ref=e1120]
+                  - generic [ref=e1122]:
+                    - generic [ref=e1123]: extended observation project
+                    - generic [ref=e1124]:
+                      - img "calendar" [ref=e1125]:
+                        - img [ref=e1126]
+                      - text: 3月6日
+            - listitem [ref=e1128]:
+              - generic [ref=e1129]:
+                - img "project" [ref=e1131]:
+                  - img [ref=e1132]
+                - generic [ref=e1134]:
+                  - heading "guest-observe-gamma-1772785351" [level=4] [ref=e1135]
+                  - generic [ref=e1137]:
+                    - generic [ref=e1138]: guest observation project
+                    - generic [ref=e1139]:
+                      - img "calendar" [ref=e1140]:
+                        - img [ref=e1141]
+                      - text: 3月6日
+            - listitem [ref=e1143]:
+              - generic [ref=e1144]:
+                - img "project" [ref=e1146]:
+                  - img [ref=e1147]
+                - generic [ref=e1149]:
+                  - heading "guest-observe-beta-1772785351" [level=4] [ref=e1150]
+                  - generic [ref=e1152]:
+                    - generic [ref=e1153]: guest observation project
+                    - generic [ref=e1154]:
+                      - img "calendar" [ref=e1155]:
+                        - img [ref=e1156]
+                      - text: 3月6日
+        - generic [ref=e1159]:
+          - generic [ref=e1162]: Recent Tasks
+          - generic [ref=e1164]:
+            - img "check-square" [ref=e1165]:
+              - img [ref=e1166]
+            - generic [ref=e1169]: No task data
+  - contentinfo [ref=e1170]:
+    - generic [ref=e1171]:
+      - generic [ref=e1173]: Version v1.0, build unknown at 2026/03/06 05:03
+      - generic [ref=e1175]:
+        - link "Todo for AI" [ref=e1176] [cursor=pointer]:
+          - /url: https://github.com/todo-for-ai/todo-for-ai
+        - text: Create By
+        - link "CC11001100" [ref=e1177] [cursor=pointer]:
+          - /url: https://github.com/CC11001100
+        - text: "&"
+        - link "songzhibin97" [ref=e1178] [cursor=pointer]:
+          - /url: https://github.com/songzhibin97
+        - text: With ❤️
+  - generic [ref=e1180] [cursor=pointer]:
+    - img "message" [ref=e1181]:
+      - img [ref=e1182]
+    - generic [ref=e1184]: AI Group

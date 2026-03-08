@@ -73,6 +73,12 @@ This project uses Git Submodule architecture, splitting different modules into i
 - **todo-for-ai-webpage/**: Frontend web application → [todo-for-ai-webpage](https://github.com/todo-for-ai/todo-for-ai-webpage)
 - **todo-for-ai-mcp/**: MCP server → [todo-for-ai-mcp](https://github.com/todo-for-ai/todo-for-ai-mcp)
 
+## 📚 Architecture & Specs
+
+- [Agent Platform Spec v1.0](docs/AGENT_PLATFORM_SPEC.md)
+- [API Documentation](docs/API.md)
+- [Database Design](docs/database-design.md)
+
 ## 🚀 Installation & Quick Start
 
 Choose your preferred installation method:

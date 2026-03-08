@@ -1,0 +1,77 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7] [cursor=pointer]:
+      - generic [ref=e9]:
+        - combobox [ref=e11]
+        - generic "English" [ref=e12]
+      - img [ref=e13]:
+        - img [ref=e14]
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - heading "Todo for AI" [level=2] [ref=e19]
+        - generic [ref=e20]:
+          - text: AI Task Management System ·
+          - link "Learn More" [ref=e21] [cursor=pointer]:
+            - /url: https://site.todo4ai.org/
+        - button "loading loading Loading..." [ref=e23]:
+          - img "loading" [ref=e24]:
+            - img [ref=e25]
+          - generic [ref=e27]:
+            - img "loading" [ref=e29]:
+              - img [ref=e30]
+            - generic [ref=e32]: Loading...
+      - generic [ref=e33]:
+        - generic [ref=e35]:
+          - heading "Choose Login Method" [level=4] [ref=e36]
+          - generic [ref=e37]:
+            - button "github Login with GitHub" [ref=e39] [cursor=pointer]:
+              - img "github" [ref=e41]:
+                - img [ref=e42]
+              - generic [ref=e44]: Login with GitHub
+            - button "google Login with Gmail" [ref=e46] [cursor=pointer]:
+              - img "google" [ref=e48]:
+                - img [ref=e49]
+              - generic [ref=e51]: Login with Gmail
+            - button "user Guest Mode Login" [ref=e53] [cursor=pointer]:
+              - img "user" [ref=e55]:
+                - img [ref=e56]
+              - generic [ref=e58]: Guest Mode Login
+        - separator [ref=e60]:
+          - generic [ref=e61]: Supported Login Methods
+        - generic [ref=e64]:
+          - generic [ref=e66]:
+            - img "github" [ref=e67]:
+              - img [ref=e68]
+            - generic [ref=e70]: GitHub
+          - generic [ref=e72]:
+            - img "google" [ref=e73]:
+              - img [ref=e74]
+            - generic [ref=e76]: Gmail
+          - generic [ref=e78]:
+            - img "user" [ref=e79]:
+              - img [ref=e80]
+            - generic [ref=e82]: Guest
+        - generic [ref=e85]:
+          - text: By logging in, you agree to our
+          - link "Terms of Service" [ref=e86] [cursor=pointer]:
+            - /url: /todo-for-ai/pages/terms
+          - text: and
+          - link "Privacy Policy" [ref=e87] [cursor=pointer]:
+            - /url: /todo-for-ai/pages/privacy
+    - generic [ref=e89] [cursor=pointer]:
+      - img "message" [ref=e90]:
+        - img [ref=e91]
+      - generic [ref=e93]: TG AIGC Group
+  - contentinfo [ref=e94]:
+    - generic [ref=e95]:
+      - generic [ref=e97]: Version v1.0, build unknown at 2026/03/06 05:03
+      - generic [ref=e99]:
+        - link "Todo for AI" [ref=e100] [cursor=pointer]:
+          - /url: https://github.com/todo-for-ai/todo-for-ai
+        - text: Create By
+        - link "CC11001100" [ref=e101] [cursor=pointer]:
+          - /url: https://github.com/CC11001100
+        - text: "&"
+        - link "songzhibin97" [ref=e102] [cursor=pointer]:
+          - /url: https://github.com/songzhibin97
+        - text: With ❤️
