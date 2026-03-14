@@ -37,13 +37,13 @@
       "BASH_EXEC_WRAPPER": "/Users/cc11001100/.codex/tmp/arg0/codex-arg0FFq5B6/codex-execve-wrapper",
       "SHELL_SESSIONS_DISABLE": "1",
       "LOGNAME": "cc11001100",
-      "CODEX_ESCALATE_SOCKET": "31",
+      "CODEX_ESCALATE_SOCKET": "32",
       "LC_CTYPE": "UTF-8",
       "SECURITYSESSIONID": "186a3",
       "_": "/usr/local/bin/pm2",
       "PM2_USAGE": "CLI",
       "todo-for-ai-api-server": {},
-      "unique_id": "aadb10ec-e50c-4ad8-8ff9-bb12e17ee253"
+      "unique_id": "1a2630ec-31c9-4ee2-85eb-1ffbd9d1394d"
     },
     "args": [
       "-lc",
@@ -87,19 +87,19 @@
     "BASH_EXEC_WRAPPER": "/Users/cc11001100/.codex/tmp/arg0/codex-arg0FFq5B6/codex-execve-wrapper",
     "SHELL_SESSIONS_DISABLE": "1",
     "LOGNAME": "cc11001100",
-    "CODEX_ESCALATE_SOCKET": "31",
+    "CODEX_ESCALATE_SOCKET": "32",
     "LC_CTYPE": "UTF-8",
     "SECURITYSESSIONID": "186a3",
     "_": "/usr/local/bin/pm2",
     "PM2_USAGE": "CLI",
-    "unique_id": "aadb10ec-e50c-4ad8-8ff9-bb12e17ee253",
+    "unique_id": "1a2630ec-31c9-4ee2-85eb-1ffbd9d1394d",
     "status": "online",
-    "pm_uptime": 1773240650075,
+    "pm_uptime": 1773339314409,
     "axm_actions": [],
     "axm_monitor": {},
     "axm_options": {},
     "axm_dynamic": {},
-    "created_at": 1773240650075,
+    "created_at": 1773339314409,
     "restart_time": 0,
     "unstable_restarts": 0,
     "version": "N/A"
@@ -128,7 +128,7 @@
       "_": "/usr/local/bin/pm2",
       "SECURITYSESSIONID": "186a3",
       "LC_CTYPE": "UTF-8",
-      "CODEX_ESCALATE_SOCKET": "31",
+      "CODEX_ESCALATE_SOCKET": "32",
       "LOGNAME": "cc11001100",
       "SHELL_SESSIONS_DISABLE": "1",
       "BASH_EXEC_WRAPPER": "/Users/cc11001100/.codex/tmp/arg0/codex-arg0FFq5B6/codex-execve-wrapper",
@@ -153,7 +153,7 @@
       "TERM": "xterm-256color",
       "TERM_PROGRAM": "Apple_Terminal",
       "PM2_HOME": "/Users/cc11001100/github/todo-for-ai/todo-for-ai/.todo-for-ai-pm2",
-      "unique_id": "8df2353a-cd1f-44d5-adf6-e5780d99e2e3"
+      "unique_id": "d4f218d6-3503-41e9-80a5-2538f87f8cdd"
     },
     "time": true,
     "log_date_format": "YYYY-MM-DDTHH:mm:ss",
@@ -181,7 +181,7 @@
     "_": "/usr/local/bin/pm2",
     "SECURITYSESSIONID": "186a3",
     "LC_CTYPE": "UTF-8",
-    "CODEX_ESCALATE_SOCKET": "31",
+    "CODEX_ESCALATE_SOCKET": "32",
     "LOGNAME": "cc11001100",
     "SHELL_SESSIONS_DISABLE": "1",
     "BASH_EXEC_WRAPPER": "/Users/cc11001100/.codex/tmp/arg0/codex-arg0FFq5B6/codex-execve-wrapper",
@@ -206,9 +206,9 @@
     "TERM": "xterm-256color",
     "TERM_PROGRAM": "Apple_Terminal",
     "PM2_HOME": "/Users/cc11001100/github/todo-for-ai/todo-for-ai/.todo-for-ai-pm2",
-    "unique_id": "8df2353a-cd1f-44d5-adf6-e5780d99e2e3",
+    "unique_id": "d4f218d6-3503-41e9-80a5-2538f87f8cdd",
     "status": "online",
-    "pm_uptime": 1773240650233,
+    "pm_uptime": 1773339314615,
     "axm_actions": [
       {
         "action_name": "km:heapdump",
@@ -236,7 +236,26 @@
         "arity": 1
       }
     ],
-    "axm_monitor": {},
+    "axm_monitor": {
+      "Used Heap Size": {
+        "value": "11.55",
+        "type": "internal/v8/heap/used",
+        "unit": "MiB",
+        "historic": true
+      },
+      "Heap Usage": {
+        "value": 66.62,
+        "type": "internal/v8/heap/usage",
+        "unit": "%",
+        "historic": true
+      },
+      "Heap Size": {
+        "value": "17.34",
+        "type": "internal/v8/heap/total",
+        "unit": "MiB",
+        "historic": true
+      }
+    },
     "axm_options": {
       "error": true,
       "heapdump": true,
@@ -263,7 +282,7 @@
       "module_version": "6.0.14"
     },
     "axm_dynamic": {},
-    "created_at": 1773240650233,
+    "created_at": 1773339314615,
     "restart_time": 0,
     "unstable_restarts": 0,
     "version": "N/A",
