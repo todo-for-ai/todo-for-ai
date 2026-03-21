@@ -16,6 +16,8 @@
 - 2026-03-21T15:33:00Z: P0-1 implemented first: unified `agent_activity_events` table + dual-write from audit + cursor query API.
 - 2026-03-21T15:35:00Z: Next P0 focus confirmed: standardize multi-agent interaction contract (`request/resolve`) with strict validation and explicit error codes.
 - 2026-03-21T15:37:15Z: P0-2 delivered with runtime `request/resolve/timeline` endpoints + strict interaction contract validator (commit `75c5f97`).
+- 2026-03-21T15:52:22Z: P0-3 delivered: grant-based capability delegation (`issue/consume/revoke`) + runtime `secret_capability_refs` exposure (commit `f4997b7`).
+- 2026-03-21T15:55:04Z: P0-4 delivered: risk-tier governance + admin approval API + resolve gate enforcement (commit `aecf590`).
 
 ## File Structure Map (Current + Planned)
 
@@ -78,16 +80,16 @@
 - Modify secret collaboration APIs and runtime pull response shaping
 - Add minimal management/query endpoints
 
-- [ ] Step 1: Add data model and migration for short-lived grants.
-- [ ] Step 2: Add grant issue/consume/revoke APIs.
-- [ ] Step 3: Expose capability refs in runtime pull without leaking raw secrets.
-- [ ] Step 4: Add audit hooks and compile checks.
+- [x] Step 1: Add data model and migration for short-lived grants.
+- [x] Step 2: Add grant issue/consume/revoke APIs.
+- [x] Step 3: Expose capability refs in runtime pull without leaking raw secrets.
+- [x] Step 4: Add audit hooks and compile checks.
 
 ### Task 4: Human-in-the-Loop Governance (P0-4)
 
-- [ ] Step 1: Define risk tiers and blocking policy.
-- [ ] Step 2: Add approval-required flow for high-risk interactions.
-- [ ] Step 3: Add reviewer-visible timeline entries and resolution reasons.
+- [x] Step 1: Define risk tiers and blocking policy.
+- [x] Step 2: Add approval-required flow for high-risk interactions.
+- [x] Step 3: Add reviewer-visible timeline entries and resolution reasons.
 
 ## Verification Rules
 

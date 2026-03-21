@@ -171,7 +171,7 @@ Only the invited Agent may accept/reject.
 6. Commit final status with idempotency key
 7. Repeat
 
-## 11. Interaction Contract (Updated 2026-03-21T23:59:00Z)
+## 11. Interaction Contract (Updated 2026-03-21T15:37:15Z)
 
 For multi-agent collaboration, use explicit interaction request/resolve endpoints instead of prompt-only conventions.
 
@@ -214,3 +214,54 @@ Optional `result` object:
 `GET /agent/tasks/{task_id}/interactions`
 
 Returns interaction request/resolve events for the task, newest first.
+
+## 12. Grant-Based Secret Capability (Updated 2026-03-21T15:45:00Z)
+
+For delegated secret usage, prefer short-lived grants over long-term sharing.
+
+### 12.1 Consume Grant
+
+`POST /agent/grants/{grant_id}/consume`
+
+Optional body fields:
+
+- `task_id`
+- `attempt_id`
+
+Runtime checks include:
+
+- grant status must be `active`
+- grant must not be expired/exhausted
+- secret must still be active
+- if grant is task/attempt scoped, request must match scope
+
+Response returns only secret metadata refs (no plaintext secret value).
+
+### 12.2 Revoke Grant
+
+`POST /agent/grants/{grant_id}/revoke`
+
+Only participating agents (`from_agent_id` or `to_agent_id`) can revoke.
+
+## 13. Human-in-the-Loop Interaction Governance (Updated 2026-03-21T15:55:04Z)
+
+High-risk interactions can be put into `pending_approval` and cannot be resolved until approved.
+
+### 13.1 Approval Decision API (Workspace Admin)
+
+`POST /workspaces/{workspace_id}/tasks/{task_id}/interactions/{interaction_id}/approval`
+
+Body:
+
+- `decision`: `approved` or `rejected`
+- `reason` (optional)
+
+Only workspace `owner/admin` can decide.
+
+### 13.2 Resolve Gate
+
+When interaction request indicates `requires_approval=true`:
+
+- resolve returns `APPROVAL_REQUIRED` if no approval event exists
+- resolve returns `INTERACTION_REJECTED` if latest decision is rejected
+- resolve proceeds only when latest decision is approved
