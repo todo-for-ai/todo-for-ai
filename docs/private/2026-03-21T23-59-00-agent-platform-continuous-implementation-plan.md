@@ -12,9 +12,10 @@
 
 ## Timestamped Decision Log (Private)
 
-- 2026-03-21T23:40:00Z: Chosen strategy is incremental rollout, not big-bang rewrite. Existing APIs remain available until new paths prove stable.
-- 2026-03-21T23:55:00Z: P0-1 implemented first: unified `agent_activity_events` table + dual-write from audit + cursor query API.
-- 2026-03-21T23:59:00Z: Next P0 focus confirmed: standardize multi-agent interaction contract (`request/resolve`) with strict validation and explicit error codes.
+- 2026-03-21T15:30:00Z: Chosen strategy is incremental rollout, not big-bang rewrite. Existing APIs remain available until new paths prove stable.
+- 2026-03-21T15:33:00Z: P0-1 implemented first: unified `agent_activity_events` table + dual-write from audit + cursor query API.
+- 2026-03-21T15:35:00Z: Next P0 focus confirmed: standardize multi-agent interaction contract (`request/resolve`) with strict validation and explicit error codes.
+- 2026-03-21T15:37:15Z: P0-2 delivered with runtime `request/resolve/timeline` endpoints + strict interaction contract validator (commit `75c5f97`).
 
 ## File Structure Map (Current + Planned)
 
@@ -63,12 +64,12 @@
 - Modify: `todo-for-ai-api-server/app.py`
 - Modify: `docs/AGENT_RUNTIME_SKILL.md`
 
-- [ ] Step 1: Define canonical interaction schema (`request`/`resolve`) and error codes in backend validator.
-- [ ] Step 2: Add runtime API `POST /agent/interactions/request` with strict schema validation and append-only event write.
-- [ ] Step 3: Add runtime API `POST /agent/interactions/{interaction_id}/resolve` with status constraints and audit write.
-- [ ] Step 4: Add query API for task-scoped interaction timeline.
-- [ ] Step 5: Update runtime docs with timestamped protocol section.
-- [ ] Step 6: Run compile validation for changed files and commit.
+- [x] Step 1: Define canonical interaction schema (`request`/`resolve`) and error codes in backend validator.
+- [x] Step 2: Add runtime API `POST /agent/interactions/request` with strict schema validation and append-only event write.
+- [x] Step 3: Add runtime API `POST /agent/interactions/{interaction_id}/resolve` with status constraints and audit write.
+- [x] Step 4: Add query API for task-scoped interaction timeline.
+- [x] Step 5: Update runtime docs with timestamped protocol section.
+- [x] Step 6: Run compile validation for changed files and commit.
 
 ### Task 3: Capability + Grant Layer (P0-3)
 

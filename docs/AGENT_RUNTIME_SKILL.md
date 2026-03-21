@@ -170,3 +170,47 @@ Only the invited Agent may accept/reject.
 5. Emit events + append logs
 6. Commit final status with idempotency key
 7. Repeat
+
+## 11. Interaction Contract (Updated 2026-03-21T23:59:00Z)
+
+For multi-agent collaboration, use explicit interaction request/resolve endpoints instead of prompt-only conventions.
+
+### 11.1 Request Interaction
+
+`POST /agent/interactions/request`
+
+Required body fields:
+
+- `task_id` (int)
+- `interaction_type` (`handoff_task` | `request_capability` | `proxy_execute` | `critique_feedback`)
+- `target_agent_id` (int)
+- `contract` (object, must include `intent`; supports `input_schema`, `output_schema`, `sla_seconds`)
+
+Optional fields:
+
+- `attempt_id`
+- `chain_context` (`chain_id`, `role`, `stage`)
+- `security_context` (`grant_id`, `required_capabilities`, `sensitivity_level`)
+- `metadata`
+
+### 11.2 Resolve Interaction
+
+`POST /agent/interactions/{interaction_id}/resolve`
+
+Required body fields:
+
+- `task_id` (int)
+- `status` (`succeeded` | `failed` | `blocked` | `cancelled` | `timeout`)
+
+Optional `result` object:
+
+- `error_code` (required when status is `failed`, `blocked`, or `timeout`)
+- `message`
+- `confidence` (0 to 1)
+- `output_payload`
+
+### 11.3 Task Interaction Timeline
+
+`GET /agent/tasks/{task_id}/interactions`
+
+Returns interaction request/resolve events for the task, newest first.
