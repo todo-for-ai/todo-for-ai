@@ -1,0 +1,144 @@
+{
+  "all_requests": [
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/auth/login/guest?return_to=%2Ftodo-for-ai%2Fpages",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT"
+    }
+  ],
+  "all_responses": [
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/auth/login/guest?return_to=%2Ftodo-for-ai%2Fpages",
+      "status": 302,
+      "statusText": "FOUND"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    }
+  ],
+  "network_errors": [
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED"
+    }
+  ],
+  "console_errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    }
+  ],
+  "summary": {
+    "total_requests": 6,
+    "total_responses": 6,
+    "error_count": 5,
+    "status_breakdown": {
+      "401": 5,
+      "302": 1
+    }
+  }
+}
