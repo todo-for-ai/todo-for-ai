@@ -51,7 +51,7 @@ async def test_guest_login():
 
         # 1. 访问首页
         print("1. Opening homepage...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages")
+        await page.goto("http://localhost:50111/todo-for-ai/pages")
         await page.wait_for_timeout(2000)
 
         # 2. 点击游客登录
@@ -92,7 +92,7 @@ async def test_guest_login():
 
             for name, url_path in pages_to_test:
                 try:
-                    full_url = f"http://localhost:50112{url_path}"
+                    full_url = f"http://localhost:50111{url_path}"
                     print(f"   - Navigating to {name}...")
                     await page.goto(full_url)
                     await page.wait_for_timeout(3000)
