@@ -13,3 +13,6 @@
 [submodule "todo-for-ai-mcp"]
 	path = todo-for-ai-mcp
 	url = https://github.com/todo-for-ai/todo-for-ai-mcp.git
+[submodule "agent-runtime"]
+	path = agent-runtime
+	url = ./agent-runtime
