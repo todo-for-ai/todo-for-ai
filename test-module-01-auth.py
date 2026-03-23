@@ -37,7 +37,7 @@ async def test_auth_module():
         # ===== 测试1.1: 游客登录流程 =====
         print("\n[测试1.1] 游客登录流程")
         try:
-            await page.goto("http://localhost:50112/todo-for-ai/pages")
+            await page.goto("http://localhost:50111/todo-for-ai/pages")
             await page.wait_for_timeout(2000)
 
             # 检查是否在登录页
@@ -117,7 +117,7 @@ async def test_auth_module():
         try:
             # 清除token
             await page.evaluate('() => localStorage.clear()')
-            await page.goto("http://localhost:50112/todo-for-ai/pages/projects")
+            await page.goto("http://localhost:50111/todo-for-ai/pages/projects")
             await page.wait_for_timeout(2000)
 
             # 验证是否重定向到登录页

@@ -52,7 +52,7 @@ async def test_frontend_comprehensive():
 
         # 1. 访问首页
         print("1. Testing homepage...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages")
+        await page.goto("http://localhost:50111/todo-for-ai/pages")
         await page.wait_for_timeout(3000)
 
         # 2. 测试游客登录
@@ -81,7 +81,7 @@ async def test_frontend_comprehensive():
         print("\n4. Testing page navigation:")
         for name, url_path in pages_to_test:
             try:
-                full_url = f"http://localhost:50112{url_path}"
+                full_url = f"http://localhost:50111{url_path}"
                 print(f"   - Testing {name} ({url_path})...")
                 await page.goto(full_url)
                 await page.wait_for_timeout(2000)

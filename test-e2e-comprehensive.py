@@ -54,7 +54,7 @@ class E2EComprehensiveTester:
         # 1. 测试登录页面加载
         print("\n[1] 测试登录页面...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/login")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/login")
             await self.page.wait_for_timeout(2000)
             await self.screenshot("login_page")
 
@@ -83,7 +83,7 @@ class E2EComprehensiveTester:
         # 游客登录
         print("\n[2] 测试游客登录...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/login")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/login")
             await self.page.click('text=Guest Mode Login')
             await self.page.wait_for_timeout(5000)
             await self.screenshot("after_guest_login")
@@ -120,7 +120,7 @@ class E2EComprehensiveTester:
 
             for name, url in nav_items:
                 try:
-                    await self.page.goto(f"http://localhost:50112{url}")
+                    await self.page.goto(f"http://localhost:50111{url}")
                     await self.page.wait_for_timeout(3000)
                     await self.screenshot(f"nav_{name.replace(' ', '_')}")
 
@@ -142,7 +142,7 @@ class E2EComprehensiveTester:
         print("="*60)
 
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages")
             await self.page.wait_for_timeout(5000)
             await self.screenshot("dashboard_full")
 
@@ -176,7 +176,7 @@ class E2EComprehensiveTester:
         print("="*60)
 
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/projects")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/projects")
             await self.page.wait_for_timeout(5000)
             await self.screenshot("projects_page")
 
@@ -206,7 +206,7 @@ class E2EComprehensiveTester:
         print("="*60)
 
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/agents")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/agents")
             await self.page.wait_for_timeout(5000)
             await self.screenshot("agents_page")
 
@@ -239,7 +239,7 @@ class E2EComprehensiveTester:
         print("="*60)
 
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/tasks")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/tasks")
             await self.page.wait_for_timeout(5000)
             await self.screenshot("tasks_page")
 
@@ -264,7 +264,7 @@ class E2EComprehensiveTester:
         print("="*60)
 
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/organizations")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/organizations")
             await self.page.wait_for_timeout(5000)
             await self.screenshot("organizations_page")
 
@@ -293,13 +293,13 @@ class E2EComprehensiveTester:
 
         try:
             # 测试个人资料页
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/profile")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/profile")
             await self.page.wait_for_timeout(3000)
             await self.screenshot("profile_page")
             print("  ✓ 个人资料页加载")
 
             # 测试设置页
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/settings")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/settings")
             await self.page.wait_for_timeout(3000)
             await self.screenshot("settings_page")
             print("  ✓ 设置页加载")
@@ -324,7 +324,7 @@ class E2EComprehensiveTester:
         for name, width, height in viewports:
             try:
                 await self.page.set_viewport_size({"width": width, "height": height})
-                await self.page.goto("http://localhost:50112/todo-for-ai/pages")
+                await self.page.goto("http://localhost:50111/todo-for-ai/pages")
                 await self.page.wait_for_timeout(2000)
                 await self.screenshot(f"responsive_{name}")
                 print(f"  ✓ {name} ({width}x{height}): 显示正常")
@@ -341,7 +341,7 @@ class E2EComprehensiveTester:
 
         # 测试 404 页面
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/nonexistent")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/nonexistent")
             await self.page.wait_for_timeout(2000)
             await self.screenshot("error_404")
             print("  ✓ 404 页面处理正常")

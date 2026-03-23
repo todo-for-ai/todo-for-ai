@@ -66,7 +66,7 @@ async def test_with_detailed_logging():
 
         # 1. 访问登录页面
         print("\n[1] 访问登录页面...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages")
+        await page.goto("http://localhost:50111/todo-for-ai/pages")
         await page.wait_for_timeout(3000)
 
         # 2. 点击游客登录
@@ -101,28 +101,28 @@ async def test_with_detailed_logging():
 
         # 5. 导航到Agent管理页面
         print("\n[5] 导航到Agent管理页面...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages/agents")
+        await page.goto("http://localhost:50111/todo-for-ai/pages/agents")
         await page.wait_for_timeout(5000)
         await page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/02-agents-page.png')
         print("  ✓ 截图已保存: 02-agents-page.png")
 
         # 6. 导航到项目管理页面
         print("\n[6] 导航到项目管理页面...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages/projects")
+        await page.goto("http://localhost:50111/todo-for-ai/pages/projects")
         await page.wait_for_timeout(5000)
         await page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/03-projects-page.png')
         print("  ✓ 截图已保存: 03-projects-page.png")
 
         # 7. 导航到任务管理页面
         print("\n[7] 导航到任务管理页面...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages/tasks")
+        await page.goto("http://localhost:50111/todo-for-ai/pages/tasks")
         await page.wait_for_timeout(5000)
         await page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/04-tasks-page.png')
         print("  ✓ 截图已保存: 04-tasks-page.png")
 
         # 8. 导航到组织管理页面
         print("\n[8] 导航到组织管理页面...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages/organizations")
+        await page.goto("http://localhost:50111/todo-for-ai/pages/organizations")
         await page.wait_for_timeout(5000)
         await page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/05-organizations-page.png')
         print("  ✓ 截图已保存: 05-organizations-page.png")

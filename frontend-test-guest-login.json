@@ -3,29 +3,45 @@
   "console_errors": [
     {
       "type": "error",
-      "text": "Failed to load resource: the server responded with a status of 403 ()"
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
     },
     {
       "type": "error",
-      "text": "\u52a0\u8f7d\u4eea\u8868\u76d8\u6570\u636e\u5931\u8d25: TypeError: Failed to fetch\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5199)\n    at rv.get (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5795)\n    at L9.getS"
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
     },
     {
       "type": "error",
-      "text": "Failed to load resource: the server responded with a status of 403 ()"
+      "text": "Failed to load resource: the server responded with a status of 500 (INTERNAL SERVER ERROR)"
     },
     {
       "type": "error",
-      "text": "\u52a0\u8f7d\u4eea\u8868\u76d8\u6570\u636e\u5931\u8d25: TypeError: Failed to fetch\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5199)\n    at rv.get (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5795)\n    at L9.getS"
+      "text": "Failed to check pins: ApiHttpError: Error 61 connecting to 127.0.0.1:6379. Connection refused.\n    at ApiClient.request (http://127.0.0.1:50111/src/api/client/index.ts:110:15)\n    at async Object.getU"
     },
     {
       "type": "error",
-      "text": "Failed to load resource: the server responded with a status of 403 ()"
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
     },
     {
       "type": "error",
-      "text": "Failed to load resource: the server responded with a status of 403 ()"
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
     }
   ],
   "api_calls": [],
-  "final_url": "http://localhost:50112/todo-for-ai/pages"
+  "final_url": "http://127.0.0.1:50111/todo-for-ai/pages"
 }

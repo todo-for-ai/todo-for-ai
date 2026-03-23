@@ -11,7 +11,7 @@ async def manual_test():
         page = await context.new_page()
 
         print("打开登录页面...")
-        await page.goto("http://localhost:50112/todo-for-ai/pages")
+        await page.goto("http://localhost:50111/todo-for-ai/pages")
         await page.wait_for_timeout(2000)
 
         print("点击游客登录...")

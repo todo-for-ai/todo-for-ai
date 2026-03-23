@@ -1,0 +1,218 @@
+{
+  "timestamp": "2026-03-23T02:21:40.189187",
+  "summary": {
+    "total": 18,
+    "passed": 11,
+    "failed": 7,
+    "pass_rate": "61.1%"
+  },
+  "categories": {
+    "auth": {
+      "total": 2,
+      "passed": 1,
+      "rate": "50.0%"
+    },
+    "page": {
+      "total": 10,
+      "passed": 10,
+      "rate": "100.0%"
+    },
+    "api": {
+      "total": 6,
+      "passed": 0,
+      "rate": "0.0%"
+    }
+  },
+  "results": [
+    {
+      "name": "游客登录",
+      "category": "auth",
+      "passed": true,
+      "error": null,
+      "duration_ms": 6626.878,
+      "screenshot": null,
+      "details": {
+        "current_url": "http://127.0.0.1:50111/todo-for-ai/pages",
+        "has_token": true
+      }
+    },
+    {
+      "name": "获取当前用户信息",
+      "category": "auth",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 54.451,
+      "screenshot": "/tmp/test_fail_获取当前用户信息.png",
+      "details": {}
+    },
+    {
+      "name": "仪表板页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3300.7819999999997,
+      "screenshot": null,
+      "details": {
+        "title": "仪表板 - Todo for AI"
+      }
+    },
+    {
+      "name": "项目管理页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3473.266,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "组织页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3340.743,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "Agents页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3455.415,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "设置页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3395.278,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "个人资料页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3390.2619999999997,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "通知页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3258.099,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "看板页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3322.98,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "上下文规则页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3696.413,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "API文档页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3468.1150000000002,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "健康检查API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 37.543,
+      "screenshot": "/tmp/test_fail_健康检查API.png",
+      "details": {}
+    },
+    {
+      "name": "项目列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 37.464999999999996,
+      "screenshot": "/tmp/test_fail_项目列表API.png",
+      "details": {}
+    },
+    {
+      "name": "组织列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 42.083000000000006,
+      "screenshot": "/tmp/test_fail_组织列表API.png",
+      "details": {}
+    },
+    {
+      "name": "Agents列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 32.675999999999995,
+      "screenshot": "/tmp/test_fail_Agents列表API.png",
+      "details": {}
+    },
+    {
+      "name": "任务列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 34.77,
+      "screenshot": "/tmp/test_fail_任务列表API.png",
+      "details": {}
+    },
+    {
+      "name": "通知列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 39.756,
+      "screenshot": "/tmp/test_fail_通知列表API.png",
+      "details": {}
+    }
+  ],
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+    "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+    "Failed to load resource: the server responded with a status of 500 (INTERNAL SERVER ERROR)",
+    "Failed to check pins: ApiHttpError: Error 61 connecting to 127.0.0.1:6379. Connection refused.\n    at ApiClient.request (http://127.0.0.1:50111/src/api/client/index.ts:110:15)\n    at async Object.getU",
+    "Failed to load resource: the server responded with a status of 500 (INTERNAL SERVER ERROR)",
+    "加载活跃度热力图失败: ApiHttpError: Failed to get activity heatmap: Error 61 connecting to 127.0.0.1:6379. Connection refused.\n    at ApiClient.request (http://127.0.0.1:50111/src/api/client/index.ts:110:15)\n  ",
+    "Warning: [antd: message] Static function can not consume context like dynamic theme. Please use 'App' component instead.",
+    "Access to fetch at 'http://127.0.0.1:50110/todo-for-ai/api/v1/auth/me' from origin 'http://127.0.0.1:50111' has been blocked by CORS policy: Response to preflight request doesn't pass access control c",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 500 (INTERNAL SERVER ERROR)",
+    "Failed to load resource: the server responded with a status of 500 (INTERNAL SERVER ERROR)",
+    "加载仪表盘数据失败: ApiHttpError: Failed to get dashboard stats: Error 61 connecting to 127.0.0.1:6379. Connection refused.\n    at ApiClient.request (http://127.0.0.1:50111/src/api/client/index.ts:110:15)\n    ",
+    "Warning: [antd: message] Static function can not consume context like dynamic theme. Please use 'App' component instead.",
+    "Failed to load resource: the server responded with a status of 500 (INTERNAL SERVER ERROR)",
+    "加载活跃度热力图失败: ApiHttpError: Failed to get activity heatmap: Error 61 connecting to 127.0.0.1:6379. Connection refused.\n    at ApiClient.request (http://127.0.0.1:50111/src/api/client/index.ts:110:15)\n  ",
+    "Failed to load pinned projects: ApiHttpError: Error 61 connecting to 127.0.0.1:6379. Connection refused.\n    at ApiClient.request (http://127.0.0.1:50111/src/api/client/index.ts:110:15)\n    at async O",
+    "Warning: [antd: Input] `addonAfter` is deprecated. Please use `Space.Compact` instead.",
+    "Warning: [antd: Input] `addonAfter` is deprecated. Please use `Space.Compact` instead.",
+    "Warning: [antd: Tabs] `Tabs.TabPane` is deprecated. Please use `items` instead.",
+    "Access to fetch at 'http://127.0.0.1:50110/todo-for-ai/api/v1/health' from origin 'http://127.0.0.1:50111' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re"
+  ],
+  "network_errors": []
+}

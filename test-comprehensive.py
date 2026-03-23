@@ -32,7 +32,7 @@ class ComprehensiveTester:
     def handle_request(self, request):
         """处理请求"""
         url = request.url
-        if 'localhost:50112' in url or 'todo-for-ai/api' in url:
+        if 'localhost:50111' in url or 'todo-for-ai/api' in url:
             headers = request.headers
             auth_header = headers.get('authorization', 'NOT_PRESENT')
             self.all_requests.append({
@@ -47,7 +47,7 @@ class ComprehensiveTester:
         url = response.url
         status = response.status
 
-        if 'localhost:50112' in url or 'todo-for-ai/api' in url:
+        if 'localhost:50111' in url or 'todo-for-ai/api' in url:
             self.all_responses.append({
                 "url": url,
                 "status": status,
@@ -93,7 +93,7 @@ class ComprehensiveTester:
         """测试登录流程"""
         print("\n[1] 测试登录页面...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages")
             await self.page.wait_for_timeout(3000)
 
             # 截图
@@ -136,7 +136,7 @@ class ComprehensiveTester:
         """测试 Dashboard 页面"""
         print("\n[3] 测试 Dashboard 页面...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages")
             await self.page.wait_for_timeout(5000)
 
             await self.page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/03-dashboard.png')
@@ -154,7 +154,7 @@ class ComprehensiveTester:
         """测试 Agent 管理页面"""
         print("\n[4] 测试 Agent 管理页面...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/agents")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/agents")
             await self.page.wait_for_timeout(5000)
 
             await self.page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/04-agents-page.png')
@@ -175,7 +175,7 @@ class ComprehensiveTester:
         """测试项目管理页面"""
         print("\n[5] 测试项目管理页面...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/projects")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/projects")
             await self.page.wait_for_timeout(5000)
 
             await self.page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/05-projects-page.png')
@@ -193,7 +193,7 @@ class ComprehensiveTester:
         """测试任务管理页面"""
         print("\n[6] 测试任务管理页面...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/tasks")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/tasks")
             await self.page.wait_for_timeout(5000)
 
             await self.page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/06-tasks-page.png')
@@ -211,7 +211,7 @@ class ComprehensiveTester:
         """测试组织管理页面"""
         print("\n[7] 测试组织管理页面...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages/organizations")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages/organizations")
             await self.page.wait_for_timeout(5000)
 
             await self.page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/test-results/07-organizations-page.png')
@@ -229,7 +229,7 @@ class ComprehensiveTester:
         """测试导航菜单"""
         print("\n[8] 测试导航菜单...")
         try:
-            await self.page.goto("http://localhost:50112/todo-for-ai/pages")
+            await self.page.goto("http://localhost:50111/todo-for-ai/pages")
             await self.page.wait_for_timeout(3000)
 
             # 检查导航链接

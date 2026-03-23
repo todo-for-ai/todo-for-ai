@@ -24,7 +24,7 @@ async def test_frontend():
         }))
 
         # 访问前端页面
-        await page.goto("http://localhost:50112/todo-for-ai/pages")
+        await page.goto("http://localhost:50111/todo-for-ai/pages")
 
         # 等待页面加载
         await page.wait_for_timeout(5000)
