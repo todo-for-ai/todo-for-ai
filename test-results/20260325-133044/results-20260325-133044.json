@@ -1,0 +1,57 @@
+{
+  "timestamp": "20260325-133044",
+  "results": {
+    "agent-runtime": {
+      "module": "agent-runtime",
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0,
+      "total": 1,
+      "duration": 0.0054340362548828125,
+      "coverage": 0.0,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'python'",
+      "return_code": 1,
+      "artifacts": {}
+    },
+    "todo-for-ai-api-server": {
+      "module": "todo-for-ai-api-server",
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0,
+      "total": 1,
+      "duration": 0.008466005325317383,
+      "coverage": 0.0,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'python'",
+      "return_code": 1,
+      "artifacts": {}
+    },
+    "todo-for-ai-webpage": {
+      "module": "todo-for-ai-webpage",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "total": 0,
+      "duration": 0.134566068649292,
+      "coverage": 0.0,
+      "stdout": "\n> frontend@0.0.0 test:coverage\n> vitest run --coverage\n\n",
+      "stderr": "sh: vitest: command not found\n",
+      "return_code": 127,
+      "artifacts": {}
+    },
+    "todo-for-ai-mcp": {
+      "module": "todo-for-ai-mcp",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "total": 0,
+      "duration": 0.13579797744750977,
+      "coverage": 0.0,
+      "stdout": "\n> @todo-for-ai/mcp@2.1.6 test:coverage\n> vitest run --coverage\n\n",
+      "stderr": "sh: vitest: command not found\n",
+      "return_code": 127,
+      "artifacts": {}
+    }
+  }
+}

@@ -1,0 +1,34 @@
+# Testing Framework Configuration
+
+parallel:
+  max_workers: 4
+  timeout_per_suite: 600
+  fail_fast: false
+
+performance:
+  enabled: true
+  baseline_branch: main
+  warning_threshold: 1.10
+  failure_threshold: 1.20
+  metrics:
+    - execution_time
+    - memory_usage
+    - api_response_time
+
+coverage:
+  agent_runtime: 70
+  api_server: 60
+  mcp: 70
+  frontend: 60
+
+notification:
+  slack_channel: "#tests"
+  github_pr_comments: true
+  email_on_failure: false
+
+report_formats:
+  - html
+  - junit
+  - json
+
+retention_days: 30
