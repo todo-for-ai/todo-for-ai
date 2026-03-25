@@ -194,10 +194,31 @@ class ParallelTestRunner:
         return self.results
 
     def _parse_test_results(self, stdout: str, stderr: str) -> tuple:
-        """Parse test counts from output."""
-        passed = stdout.count("PASSED") + stdout.count("✓") + stdout.count("passed")
-        failed = stdout.count("FAILED") + stdout.count("✗") + stdout.count("failed")
-        skipped = stdout.count("SKIPPED") + stdout.count("⊘") + stdout.count("skipped")
+        """Parse test counts from pytest/vitest output."""
+        import re
+
+        combined = stdout + "\n" + stderr
+
+        # Pytest summary line: "X passed, Y failed, Z skipped, W errors"
+        pytest_match = re.search(r'(\d+) passed,?\s*(\d+)?\s*(?:failed?,?)?\s*(\d+)?\s*(?:skipped?,?)?\s*(\d+)?\s*(?:errors?,?)?', combined)
+        if pytest_match:
+            passed = int(pytest_match.group(1)) if pytest_match.group(1) else 0
+            failed = int(pytest_match.group(2)) if pytest_match.group(2) else 0
+            skipped = int(pytest_match.group(3)) if pytest_match.group(3) else 0
+            total = passed + failed + skipped
+            return passed, failed, skipped, total
+
+        # Vitest summary: "Tests (X) Y passed, Z failed"
+        vitest_match = re.search(r'(\d+)\s+passed,?\s*(\d+)?\s*(?:failed?,?)?', combined)
+        if vitest_match:
+            passed = int(vitest_match.group(1))
+            failed = int(vitest_match.group(2)) if vitest_match.group(2) else 0
+            return passed, failed, 0, passed + failed
+
+        # Fallback to simple counting
+        passed = stdout.count("PASSED") + stdout.count(" passed")
+        failed = stdout.count("FAILED") + stdout.count(" failed") + stdout.count("ERROR")
+        skipped = stdout.count("SKIPPED") + stdout.count(" skipped")
         total = passed + failed + skipped
         return passed, failed, skipped, total
 
