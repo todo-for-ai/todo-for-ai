@@ -60,8 +60,7 @@ class ParallelTestRunner:
                 directory=root / "agent-runtime",
                 command=[
                     "python3", "-m", "pytest", "tests/",
-                    "-v", "--cov=src", "--cov-report=xml",
-                    "-n", "auto"
+                    "-v", "--cov=src", "--cov-report=xml"
                 ],
                 timeout=self.config.parallel.timeout_per_suite,
             ))
@@ -74,8 +73,7 @@ class ParallelTestRunner:
                 directory=root / "todo-for-ai-api-server",
                 command=[
                     "python3", "-m", "pytest", "tests/",
-                    "-v", "--cov=.", "--cov-report=xml",
-                    "-n", "auto"
+                    "-v", "--cov=.", "--cov-report=xml"
                 ],
                 timeout=self.config.parallel.timeout_per_suite,
             ))
