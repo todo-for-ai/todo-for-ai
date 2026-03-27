@@ -1,294 +1,331 @@
 #!/bin/bash
-
-# Todo for AI - 一键启动脚本
-# 自动杀死之前的实例并启动前后端服务
+#
+# Start.sh - 同时启动前端和后端服务 (PM2管理)
+#
+# 特性:
+# - 进程保活 (自动重启)
+# - 热加载 (文件变化自动重启)
+# - 单实例保证 (启动前杀死已有进程)
+# - 统一日志管理
+#
 
 set -e
-
-# 检查是否在Service模式下运行
-if [ "${TODOFORAI_SERVICE_MODE}" = "daemon" ]; then
-    echo "检测到Service模式，使用专用启动脚本..."
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    exec "$SCRIPT_DIR/start-service.sh" "$@"
-fi
 
 # 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # 项目根目录
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_DIR="$PROJECT_ROOT/todo-for-ai-api-server"
-FRONTEND_DIR="$PROJECT_ROOT/todo-for-ai-webpage"
+PM2_HOME="${PROJECT_ROOT}/.pm2"
 
-# 端口配置
-BACKEND_PORT=50110
-FRONTEND_PORT=50111
-PREVIEW_PORT=50112
+# 确保PM2_HOME存在
+mkdir -p "${PM2_HOME}"
 
-echo -e "${BLUE}🚀 Todo for AI - 一键启动脚本${NC}"
-echo "项目根目录: $PROJECT_ROOT"
-echo "后端端口: $BACKEND_PORT"
-echo "前端端口: $FRONTEND_PORT"
-echo "预览端口: $PREVIEW_PORT"
-echo ""
+# 进程名称
+FRONTEND_NAME="todo-for-ai-web"
+BACKEND_NAME="todo-for-ai-api"
 
-# 杀死之前的进程
-kill_previous_processes() {
-    echo -e "${YELLOW}🔪 杀死之前的进程...${NC}"
-    
-    # 杀死占用端口的进程
-    local ports=($BACKEND_PORT $FRONTEND_PORT $PREVIEW_PORT)
-    
-    for port in "${ports[@]}"; do
-        local pids=$(lsof -ti:$port 2>/dev/null || true)
-        if [ ! -z "$pids" ]; then
-            echo "  杀死端口 $port 上的进程: $pids"
-            echo "$pids" | xargs kill -9 2>/dev/null || true
-        fi
-    done
-    
-    # 杀死可能的Python和Node进程
-    echo "  杀死相关的Python进程..."
-    pkill -f "python.*app.py" 2>/dev/null || true
-    pkill -f "python.*simple_mcp_server.py" 2>/dev/null || true
-    
-    echo "  杀死相关的Node进程..."
-    pkill -f "vite.*dev" 2>/dev/null || true
-    pkill -f "node.*vite" 2>/dev/null || true
-    
-    # 等待进程完全退出
-    sleep 2
-    
-    echo -e "${GREEN}✅ 进程清理完成${NC}"
+# 端口配置 (从环境变量读取或使用项目默认值)
+FRONTEND_PORT=${FRONTEND_PORT:-50111}
+BACKEND_PORT=${BACKEND_PORT:-50110}
+
+# 热加载模式 (默认开启)
+HOT_RELOAD=${HOT_RELOAD:-true}
+
+# 日志函数
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# 检查PM2是否安装
+check_pm2() {
+    if ! command -v pm2 &> /dev/null; then
+        log_error "PM2 未安装，正在安装..."
+        npm install -g pm2
+    fi
+    log_success "PM2 已就绪"
+}
+
+# 杀死已有进程 (单实例保证)
+kill_existing() {
+    log_info "检查并清理已有进程..."
+
+    # 停止并删除前端进程
+    if pm2 describe "${FRONTEND_NAME}" &> /dev/null; then
+        log_warn "发现已存在的前端进程，正在停止..."
+        pm2 stop "${FRONTEND_NAME}" &> /dev/null || true
+        pm2 delete "${FRONTEND_NAME}" &> /dev/null || true
+        log_success "前端进程已清理"
+    fi
+
+    # 停止并删除后端进程
+    if pm2 describe "${BACKEND_NAME}" &> /dev/null; then
+        log_warn "发现已存在的后端进程，正在停止..."
+        pm2 stop "${BACKEND_NAME}" &> /dev/null || true
+        pm2 delete "${BACKEND_NAME}" &> /dev/null || true
+        log_success "后端进程已清理"
+    fi
+
+    # 确保端口未被占用
+    if lsof -ti:${FRONTEND_PORT} &> /dev/null; then
+        log_warn "端口 ${FRONTEND_PORT} 被占用，正在释放..."
+        kill -9 $(lsof -ti:${FRONTEND_PORT}) 2>/dev/null || true
+    fi
+
+    if lsof -ti:${BACKEND_PORT} &> /dev/null; then
+        log_warn "端口 ${BACKEND_PORT} 被占用，正在释放..."
+        kill -9 $(lsof -ti:${BACKEND_PORT}) 2>/dev/null || true
+    fi
+
+    sleep 1
 }
 
 # 检查依赖
 check_dependencies() {
-    echo -e "${YELLOW}📋 检查依赖...${NC}"
-    
-    # 检查 Node.js
-    if ! command -v node &> /dev/null; then
-        echo -e "${RED}❌ Node.js 未安装${NC}"
-        exit 1
-    fi
-    echo -e "${GREEN}✅ Node.js: $(node --version)${NC}"
-    
-    # 检查 Python
-    if ! command -v python3 &> /dev/null; then
-        echo -e "${RED}❌ Python3 未安装${NC}"
-        exit 1
-    fi
-    echo -e "${GREEN}✅ Python3: $(python3 --version)${NC}"
-    
-    # 检查 MySQL
-    if ! command -v mysql &> /dev/null; then
-        echo -e "${YELLOW}⚠️  MySQL 命令行工具未找到，请确保 MySQL 服务正在运行${NC}"
-    else
-        echo -e "${GREEN}✅ MySQL 命令行工具已安装${NC}"
-    fi
-}
+    log_info "检查项目依赖..."
 
-# 初始化后端
-init_backend() {
-    echo -e "${CYAN}🔧 初始化后端环境...${NC}"
-    cd "$BACKEND_DIR"
-    
-    # 检查虚拟环境
-    if [ ! -d "venv" ]; then
-        echo "创建 Python 虚拟环境..."
-        python3 -m venv venv
+    # 检查前端依赖
+    if [ ! -d "${PROJECT_ROOT}/todo-for-ai-webpage/node_modules" ]; then
+        log_warn "前端依赖未安装，正在安装..."
+        cd "${PROJECT_ROOT}/todo-for-ai-webpage"
+        npm install
+        log_success "前端依赖安装完成"
     fi
-    
-    # 激活虚拟环境
-    source venv/bin/activate
-    
-    # 安装依赖
-    echo "检查 Python 依赖..."
-    if ! pip install -r requirements.txt; then
-        echo -e "${RED}❌ Python依赖安装失败${NC}"
-        exit 1
+
+    # 检查后端依赖
+    if ! python3 -c "import flask" &> /dev/null; then
+        log_warn "后端依赖未安装，正在安装..."
+        cd "${PROJECT_ROOT}/todo-for-ai-api-server"
+        pip3 install -r requirements.txt
+        log_success "后端依赖安装完成"
     fi
-    
-    # 检查数据库连接
-    echo "跳过数据库检查（将在启动时自动创建表）..."
-    
-    echo -e "${GREEN}✅ 后端环境初始化完成${NC}"
-}
 
-# 初始化前端
-init_frontend() {
-    echo -e "${CYAN}🎨 初始化前端环境...${NC}"
-    cd "$FRONTEND_DIR"
-    
-    # 检查依赖
-    if [ ! -d "node_modules" ]; then
-        echo "安装前端依赖..."
-        if ! npm install; then
-            echo -e "${RED}❌ 前端依赖安装失败${NC}"
-            exit 1
-        fi
-    else
-        echo "前端依赖已安装，跳过..."
-    fi
-    
-    echo -e "${GREEN}✅ 前端环境初始化完成${NC}"
-}
-
-# 启动后端服务
-start_backend() {
-    echo -e "${CYAN}🔧 启动后端服务...${NC}"
-    cd "$BACKEND_DIR"
-    source venv/bin/activate
-    
-    # 设置环境变量
-    export PORT=$BACKEND_PORT
-    export HOST=0.0.0.0
-    export FLASK_ENV=development
-    export FLASK_DEBUG=1
-    
-    # 后台启动
-    nohup python app.py > ../logs/todo-for-ai-api-server.log 2>&1 &
-    BACKEND_PID=$!
-
-    # 保存PID
-    echo $BACKEND_PID > "$PROJECT_ROOT/.todo-for-ai-api-server.pid"
-    
-    echo "后端服务 PID: $BACKEND_PID"
-    
-    # 等待服务启动
-    echo "等待后端服务启动..."
-    for i in {1..30}; do
-        if curl -s http://localhost:$BACKEND_PORT/health > /dev/null 2>&1; then
-            echo -e "${GREEN}✅ 后端服务启动成功 (http://localhost:$BACKEND_PORT)${NC}"
-            return 0
-        fi
-        sleep 1
-    done
-    
-    echo -e "${RED}❌ 后端服务启动失败${NC}"
-    return 1
+    log_success "依赖检查完成"
 }
 
 # 启动前端服务
 start_frontend() {
-    echo -e "${CYAN}🎨 启动前端服务...${NC}"
-    cd "$FRONTEND_DIR"
-    
-    # 后台启动
-    nohup npm run dev > ../logs/todo-for-ai-webpage.log 2>&1 &
-    FRONTEND_PID=$!
+    log_info "启动前端服务 (端口: ${FRONTEND_PORT})..."
 
-    # 保存PID
-    echo $FRONTEND_PID > "$PROJECT_ROOT/.todo-for-ai-webpage.pid"
-    
-    echo "前端服务 PID: $FRONTEND_PID"
-    
-    # 等待服务启动
-    echo "等待前端服务启动..."
-    for i in {1..30}; do
-        if curl -s http://localhost:$FRONTEND_PORT > /dev/null 2>&1; then
-            echo -e "${GREEN}✅ 前端服务启动成功 (http://localhost:$FRONTEND_PORT)${NC}"
-            return 0
-        fi
-        sleep 1
-    done
-    
-    echo -e "${YELLOW}⚠️  前端服务可能还在启动中...${NC}"
-    return 0
+    cd "${PROJECT_ROOT}/todo-for-ai-webpage"
+
+    # 热加载配置
+    if [ "${HOT_RELOAD}" = "true" ]; then
+        WATCH_MODE="--watch"
+        IGNORE_WATCH="--ignore-watch node_modules"
+        log_info "前端热加载已启用"
+    else
+        WATCH_MODE="--watch false"
+        IGNORE_WATCH=""
+        log_info "前端热加载已禁用"
+    fi
+
+    # 使用PM2启动前端 (直接使用npx vite，确保端口配置生效)
+    pm2 start npx \
+        --name "${FRONTEND_NAME}" \
+        --cwd "${PROJECT_ROOT}/todo-for-ai-webpage" \
+        -- vite --host 0.0.0.0 \
+        ${WATCH_MODE} ${IGNORE_WATCH} \
+        --restart-delay 2000 \
+        --max-restarts 10 \
+        --autorestart \
+        --time \
+        --env NODE_ENV=development \
+        --log-date-format "YYYY-MM-DD HH:mm:ss" \
+        --merge-logs \
+        --log "${PROJECT_ROOT}/logs/frontend.log" \
+        --error "${PROJECT_ROOT}/logs/frontend-error.log" \
+        --output "${PROJECT_ROOT}/logs/frontend-out.log" \
+        --pid "${PROJECT_ROOT}/.pid/frontend.pid" \
+        --kill-timeout 5000
+
+    log_success "前端服务已启动"
 }
 
-# 显示服务状态
+# 启动后端服务
+start_backend() {
+    log_info "启动后端服务 (端口: ${BACKEND_PORT})..."
+
+    cd "${PROJECT_ROOT}/todo-for-ai-api-server"
+
+    # 热加载配置
+    if [ "${HOT_RELOAD}" = "true" ]; then
+        WATCH_MODE="--watch"
+        IGNORE_WATCH="--ignore-watch __pycache__ --ignore-watch .pytest_cache --ignore-watch logs --ignore-watch test-results"
+        log_info "后端热加载已启用 (Python文件变更自动重启)"
+    else
+        WATCH_MODE="--watch false"
+        IGNORE_WATCH=""
+        log_info "后端热加载已禁用"
+    fi
+
+    # 使用PM2启动后端 (通过Python直接运行)
+    pm2 start python3 \
+        --name "${BACKEND_NAME}" \
+        --cwd "${PROJECT_ROOT}/todo-for-ai-api-server" \
+        -- app.py \
+        ${WATCH_MODE} ${IGNORE_WATCH} \
+        --restart-delay 3000 \
+        --max-restarts 10 \
+        --autorestart \
+        --time \
+        --log-date-format "YYYY-MM-DD HH:mm:ss" \
+        --merge-logs \
+        --log "${PROJECT_ROOT}/logs/backend.log" \
+        --error "${PROJECT_ROOT}/logs/backend-error.log" \
+        --output "${PROJECT_ROOT}/logs/backend-out.log" \
+        --pid "${PROJECT_ROOT}/.pid/backend.pid" \
+        --kill-timeout 5000
+
+    log_success "后端服务已启动"
+}
+
+# 创建日志目录
+create_log_dirs() {
+    mkdir -p "${PROJECT_ROOT}/logs"
+    mkdir -p "${PROJECT_ROOT}/.pid"
+    mkdir -p "${PM2_HOME}"
+}
+
+# 保存PM2配置
+save_pm2_config() {
+    log_info "保存PM2配置..."
+    pm2 save --force
+    log_success "PM2配置已保存"
+}
+
+# 显示状态
 show_status() {
     echo ""
-    echo -e "${BLUE}📊 服务状态:${NC}"
-    echo "=================================="
-    echo -e "${GREEN}🌐 前端服务: http://localhost:$FRONTEND_PORT${NC}"
-    echo -e "${GREEN}🔧 后端API: http://localhost:$BACKEND_PORT${NC}"
-    echo -e "${GREEN}📚 API文档: http://localhost:$BACKEND_PORT/api/docs${NC}"
-    echo -e "${GREEN}🏥 健康检查: http://localhost:$BACKEND_PORT/health${NC}"
-    echo "=================================="
-    echo -e "${YELLOW}📝 日志文件:${NC}"
-    echo "  后端日志: $PROJECT_ROOT/logs/todo-for-ai-api-server.log"
-    echo "  前端日志: $PROJECT_ROOT/logs/todo-for-ai-webpage.log"
-    echo "=================================="
-    echo -e "${BLUE}💡 使用提示:${NC}"
-    echo "  - 查看后端日志: tail -f logs/todo-for-ai-api-server.log"
-    echo "  - 查看前端日志: tail -f logs/todo-for-ai-webpage.log"
-    echo "  - 停止服务: ./scripts/stop_all.sh"
-    echo "  - 检查状态: ./scripts/status.sh"
-    echo "=================================="
+    echo "=========================================="
+    echo -e "${GREEN}服务启动完成${NC}"
+    echo "=========================================="
+    echo ""
+    pm2 list
+    echo ""
+    echo -e "${BLUE}前端地址:${NC} http://localhost:${FRONTEND_PORT}"
+    echo -e "${BLUE}后端地址:${NC} http://localhost:${BACKEND_PORT}"
+    echo ""
+    echo -e "${YELLOW}常用命令:${NC}"
+    echo "  查看日志:  pm2 logs"
+    echo "  停止服务:  pm2 stop all"
+    echo "  重启服务:  pm2 restart all"
+    echo "  查看状态:  pm2 status"
+    echo ""
+    echo -e "${GREEN}热加载状态: ${HOT_RELOAD}${NC}"
+    echo "=========================================="
 }
+
+# 设置信号处理 (优雅退出)
+cleanup() {
+    log_warn "接收到终止信号，正在优雅停止服务..."
+    pm2 stop all
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM
 
 # 主函数
 main() {
-    # 创建日志目录
-    mkdir -p "$PROJECT_ROOT/logs"
-    
+    echo "=========================================="
+    echo -e "${GREEN}Todo for AI - 服务启动脚本${NC}"
+    echo "=========================================="
+    echo ""
+
+    # 导出PM2_HOME
+    export PM2_HOME="${PM2_HOME}"
+
     # 执行启动流程
-    kill_previous_processes
+    check_pm2
+    create_log_dirs
     check_dependencies
-    init_backend
-    init_frontend
-    
-    if start_backend && start_frontend; then
-        echo ""
-        echo -e "${GREEN}🎉 系统启动完成！${NC}"
-        show_status
+    kill_existing
+    start_frontend
+    start_backend
+    save_pm2_config
+    show_status
 
-        # 直接显示实时日志
-        echo ""
-        echo -e "${BLUE}📋 实时日志 (Ctrl+C 退出):${NC}"
-        tail -f "$PROJECT_ROOT/logs/todo-for-ai-api-server.log" "$PROJECT_ROOT/logs/todo-for-ai-webpage.log" 2>/dev/null || true
+    # 保持运行 (如果是直接运行)
+    if [ "$1" = "--fg" ] || [ "$1" = "--foreground" ]; then
+        log_info "前台模式运行，按 Ctrl+C 停止服务..."
+        pm2 logs
     else
-        echo -e "${RED}❌ 系统启动失败${NC}"
-        exit 1
+        log_success "服务已在后台运行，使用 'pm2 logs' 查看日志"
     fi
 }
 
-# 清理函数
-cleanup() {
-    echo -e "\n${YELLOW}🛑 正在停止服务...${NC}"
-    
-    # 停止服务
-    if [ -f "$PROJECT_ROOT/.todo-for-ai-api-server.pid" ]; then
-        kill $(cat "$PROJECT_ROOT/.todo-for-ai-api-server.pid") 2>/dev/null || true
-        rm -f "$PROJECT_ROOT/.todo-for-ai-api-server.pid"
-    fi
-
-    if [ -f "$PROJECT_ROOT/.todo-for-ai-webpage.pid" ]; then
-        kill $(cat "$PROJECT_ROOT/.todo-for-ai-webpage.pid") 2>/dev/null || true
-        rm -f "$PROJECT_ROOT/.todo-for-ai-webpage.pid"
-    fi
-    
-    echo -e "${GREEN}✅ 服务已停止${NC}"
-    exit 0
-}
-
-# 设置信号处理
-trap cleanup SIGINT SIGTERM
-
-# 检查参数
-if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-    echo "用法: $0 [选项]"
-    echo ""
-    echo "Todo for AI 一键启动脚本"
-    echo ""
-    echo "选项:"
-    echo "  --help, -h    显示此帮助信息"
-    echo ""
-    echo "功能:"
-    echo "  - 自动杀死之前的进程实例"
-    echo "  - 检查和安装依赖"
-    echo "  - 启动后端服务 (端口 $BACKEND_PORT)"
-    echo "  - 启动前端服务 (端口 $FRONTEND_PORT)"
-    echo "  - 显示服务状态和日志"
-    exit 0
-fi
-
-# 运行主函数
-main
+# 子命令处理
+case "${1:-}" in
+    stop)
+        log_info "停止所有服务..."
+        pm2 stop all
+        log_success "服务已停止"
+        ;;
+    restart)
+        log_info "重启所有服务..."
+        pm2 restart all
+        log_success "服务已重启"
+        ;;
+    delete|kill)
+        log_info "删除所有PM2进程..."
+        pm2 delete all
+        log_success "进程已删除"
+        ;;
+    logs)
+        pm2 logs
+        ;;
+    status)
+        pm2 status
+        ;;
+    frontend|fe)
+        pm2 logs "${FRONTEND_NAME}"
+        ;;
+    backend|be)
+        pm2 logs "${BACKEND_NAME}"
+        ;;
+    hot-reload|reload)
+        log_info "重新加载热加载配置..."
+        pm2 restart all
+        log_success "热加载配置已应用"
+        ;;
+    --help|-h)
+        echo "Usage: $0 [command]"
+        echo ""
+        echo "Commands:"
+        echo "  (empty)       启动所有服务 (默认)"
+        echo "  stop          停止所有服务"
+        echo "  restart       重启所有服务"
+        echo "  delete        删除所有PM2进程"
+        echo "  logs          查看所有日志"
+        echo "  status        查看服务状态"
+        echo "  frontend      查看前端日志"
+        echo "  backend       查看后端日志"
+        echo "  hot-reload    重启并应用热加载"
+        echo "  --fg          前台模式运行 (带日志)"
+        echo ""
+        echo "Environment Variables:"
+        echo "  FRONTEND_PORT   前端端口 (默认: 50111)"
+        echo "  BACKEND_PORT    后端端口 (默认: 50110)"
+        echo "  HOT_RELOAD      热加载开关 (默认: true)"
+        echo "  PM2_HOME        PM2配置目录"
+        ;;
+    *)
+        main "$@"
+        ;;
+esac

@@ -200,13 +200,20 @@ class ParallelTestRunner:
         combined = stdout + "\n" + stderr
 
         # Pytest summary line: "X passed, Y failed, Z skipped, W errors"
-        pytest_match = re.search(r'(\d+) passed,?\s*(\d+)?\s*(?:failed?,?)?\s*(\d+)?\s*(?:skipped?,?)?\s*(\d+)?\s*(?:errors?,?)?', combined)
+        # Must explicitly match 'failed' keyword
+        pytest_match = re.search(r'(\d+) passed,?\s*(\d+)?\s*failed,?\s*(\d+)?\s*(?:skipped,?)?\s*(\d+)?\s*(?:error?s?,?)?', combined, re.IGNORECASE)
         if pytest_match:
             passed = int(pytest_match.group(1)) if pytest_match.group(1) else 0
             failed = int(pytest_match.group(2)) if pytest_match.group(2) else 0
             skipped = int(pytest_match.group(3)) if pytest_match.group(3) else 0
             total = passed + failed + skipped
             return passed, failed, skipped, total
+
+        # Alternative pattern: just "X passed" with no failures
+        passed_only_match = re.search(r'(\d+) passed', combined)
+        if passed_only_match and 'failed' not in combined.lower():
+            passed = int(passed_only_match.group(1))
+            return passed, 0, 0, passed
 
         # Vitest summary: "Tests (X) Y passed, Z failed"
         vitest_match = re.search(r'(\d+)\s+passed,?\s*(\d+)?\s*(?:failed?,?)?', combined)

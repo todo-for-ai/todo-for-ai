@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'todo-for-ai-backend',
       cwd: '/Users/cc11001100/github/todo-for-ai/todo-for-ai/todo-for-ai-api-server',
-      script: './venv/bin/python',
+      script: '/usr/bin/python3',
       args: 'app.py',
       env: {
         NODE_ENV: 'development',
