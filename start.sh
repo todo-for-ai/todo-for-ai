@@ -21,6 +21,11 @@ NC='\033[0m' # No Color
 # 项目根目录
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PM2_HOME="${PROJECT_ROOT}/.pm2"
+export PM2_HOME
+
+BACKEND_DIR="${PROJECT_ROOT}/todo-for-ai-api-server"
+BACKEND_VENV="${BACKEND_DIR}/.venv"
+BACKEND_PYTHON="${BACKEND_VENV}/bin/python"
 
 # 确保PM2_HOME存在
 mkdir -p "${PM2_HOME}"
@@ -34,7 +39,7 @@ FRONTEND_PORT=${FRONTEND_PORT:-50111}
 BACKEND_PORT=${BACKEND_PORT:-50110}
 
 # 热加载模式 (默认开启)
-HOT_RELOAD=${HOT_RELOAD:-true}
+HOT_RELOAD=${HOT_RELOAD:-false}
 
 # 日志函数
 log_info() {
@@ -108,11 +113,16 @@ check_dependencies() {
         log_success "前端依赖安装完成"
     fi
 
-    # 检查后端依赖
-    if ! python3 -c "import flask" &> /dev/null; then
-        log_warn "后端依赖未安装，正在安装..."
-        cd "${PROJECT_ROOT}/todo-for-ai-api-server"
-        pip3 install -r requirements.txt
+    # 检查后端虚拟环境
+    if [ ! -x "${BACKEND_PYTHON}" ]; then
+        log_warn "后端虚拟环境不存在，正在创建..."
+        python3 -m venv "${BACKEND_VENV}"
+    fi
+
+    # 检查后端关键依赖，缺失则统一安装
+    if ! "${BACKEND_PYTHON}" -c "import flask, bleach, kubernetes" &> /dev/null; then
+        log_warn "后端依赖未就绪，正在安装 requirements.txt..."
+        "${BACKEND_PYTHON}" -m pip install -r "${BACKEND_DIR}/requirements.txt"
         log_success "后端依赖安装完成"
     fi
 
@@ -128,10 +138,10 @@ start_frontend() {
     # 热加载配置
     if [ "${HOT_RELOAD}" = "true" ]; then
         WATCH_MODE="--watch"
-        IGNORE_WATCH="--ignore-watch node_modules"
+        IGNORE_WATCH="--ignore-watch node_modules --ignore-watch logs --ignore-watch .pid"
         log_info "前端热加载已启用"
     else
-        WATCH_MODE="--watch false"
+        WATCH_MODE=""
         IGNORE_WATCH=""
         log_info "前端热加载已禁用"
     fi
@@ -140,11 +150,8 @@ start_frontend() {
     pm2 start npx \
         --name "${FRONTEND_NAME}" \
         --cwd "${PROJECT_ROOT}/todo-for-ai-webpage" \
-        -- vite --host 0.0.0.0 \
-        ${WATCH_MODE} ${IGNORE_WATCH} \
         --restart-delay 2000 \
         --max-restarts 10 \
-        --autorestart \
         --time \
         --env NODE_ENV=development \
         --log-date-format "YYYY-MM-DD HH:mm:ss" \
@@ -153,7 +160,9 @@ start_frontend() {
         --error "${PROJECT_ROOT}/logs/frontend-error.log" \
         --output "${PROJECT_ROOT}/logs/frontend-out.log" \
         --pid "${PROJECT_ROOT}/.pid/frontend.pid" \
-        --kill-timeout 5000
+        --kill-timeout 5000 \
+        ${WATCH_MODE} ${IGNORE_WATCH} \
+        -- vite --host 0.0.0.0 --port ${FRONTEND_PORT}
 
     log_success "前端服务已启动"
 }
@@ -170,20 +179,17 @@ start_backend() {
         IGNORE_WATCH="--ignore-watch __pycache__ --ignore-watch .pytest_cache --ignore-watch logs --ignore-watch test-results"
         log_info "后端热加载已启用 (Python文件变更自动重启)"
     else
-        WATCH_MODE="--watch false"
+        WATCH_MODE=""
         IGNORE_WATCH=""
         log_info "后端热加载已禁用"
     fi
 
     # 使用PM2启动后端 (通过Python直接运行)
-    pm2 start python3 \
+    pm2 start "${BACKEND_PYTHON}" \
         --name "${BACKEND_NAME}" \
-        --cwd "${PROJECT_ROOT}/todo-for-ai-api-server" \
-        -- app.py \
-        ${WATCH_MODE} ${IGNORE_WATCH} \
+        --cwd "${BACKEND_DIR}" \
         --restart-delay 3000 \
         --max-restarts 10 \
-        --autorestart \
         --time \
         --log-date-format "YYYY-MM-DD HH:mm:ss" \
         --merge-logs \
@@ -191,9 +197,37 @@ start_backend() {
         --error "${PROJECT_ROOT}/logs/backend-error.log" \
         --output "${PROJECT_ROOT}/logs/backend-out.log" \
         --pid "${PROJECT_ROOT}/.pid/backend.pid" \
-        --kill-timeout 5000
+        --kill-timeout 5000 \
+        ${WATCH_MODE} ${IGNORE_WATCH} \
+        -- app.py
 
     log_success "后端服务已启动"
+}
+
+# 等待服务健康检查
+wait_for_services() {
+    log_info "验证前后端健康状态..."
+    local max_attempts=40
+    local attempt=1
+
+    while [ "${attempt}" -le "${max_attempts}" ]; do
+        if curl -fsS "http://127.0.0.1:${BACKEND_PORT}/todo-for-ai/api/v1/health" >/dev/null 2>&1 && \
+           curl -fsS "http://127.0.0.1:${FRONTEND_PORT}/" >/dev/null 2>&1; then
+            log_success "健康检查通过 (attempt=${attempt})"
+            return 0
+        fi
+
+        sleep 1
+        attempt=$((attempt + 1))
+    done
+
+    log_error "健康检查失败: 服务未在预期时间内就绪"
+    pm2 status || true
+    echo "----- backend logs -----"
+    pm2 logs "${BACKEND_NAME}" --lines 80 --nostream || true
+    echo "----- frontend logs -----"
+    pm2 logs "${FRONTEND_NAME}" --lines 80 --nostream || true
+    return 1
 }
 
 # 创建日志目录
@@ -247,10 +281,6 @@ main() {
     echo -e "${GREEN}Todo for AI - 服务启动脚本${NC}"
     echo "=========================================="
     echo ""
-
-    # 导出PM2_HOME
-    export PM2_HOME="${PM2_HOME}"
-
     # 执行启动流程
     check_pm2
     create_log_dirs
@@ -258,6 +288,7 @@ main() {
     kill_existing
     start_frontend
     start_backend
+    wait_for_services
     save_pm2_config
     show_status
 
@@ -322,7 +353,7 @@ case "${1:-}" in
         echo "Environment Variables:"
         echo "  FRONTEND_PORT   前端端口 (默认: 50111)"
         echo "  BACKEND_PORT    后端端口 (默认: 50110)"
-        echo "  HOT_RELOAD      热加载开关 (默认: true)"
+        echo "  HOT_RELOAD      热加载开关 (默认: false)"
         echo "  PM2_HOME        PM2配置目录"
         ;;
     *)
