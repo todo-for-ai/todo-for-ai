@@ -172,6 +172,21 @@ npm run build
 npm start
 ```
 
+### ✅ Runtime 端到端验证（本地）
+
+在仓库根目录可直接一键验证：
+
+```bash
+# 自动创建一条 AI 任务并验证 commit -> DONE
+./scripts/runtime_e2e_once.sh
+
+# 严格模式：首个提交事件必须是目标任务
+TARGET_TASK_ID=123456 STRICT_TARGET_ONLY=true ./scripts/runtime_e2e_once.sh
+```
+
+该入口会调用 `agent-runtime/scripts/run_docker_e2e_once.sh`，适配本地 Colima/Docker 环境。
+
+
 ## 🎯 快速开始示例
 
 ### 🤖 **与AI助手配合使用（MCP）**

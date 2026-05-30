@@ -21,33 +21,45 @@
 **Scope:** single subsystem (LLM configuration)
 **Files Create:** None
 **Files Modify:**
-- `scripts/configure_longcat_api.py:26-34` (更新配置参数)
-- `todo-for-ai-webpage/src/components/AdminLLMConfig.tsx:10-34` (添加 LongCat 提供商选项)
+- `scripts/configure_longcat_api.py:21-42` (从环境变量读取 API Key，避免硬编码)
+- `todo-for-ai-webpage/src/components/AdminLLMConfig.tsx:9-37` (前端已包含 LongCat 提供商选项)
 **Tasks:** 2 tasks
 **Order:** Task 1 → Task 2
 **Risks:**
-- Task 1: 数据库配置脚本需要正确执行 → 缓解：脚本已存在，只需更新参数
-- Task 2: 前端需要正确显示 LongCat 选项 → 缓解：复用现有的提供商选择机制
+- Task 1: 脚本需要从环境变量读取 API Key → 缓解：已修改为从 `LONGCAT_API_KEY` 环境变量读取
+- Task 2: 前端已包含 LongCat 选项，无需修改 → 缓解：验证前端编译即可
 
 → Proceeding to Phase 2...
 
 ---
 
-### Task 1: 更新 LongCat API 配置脚本
+### Task 1: 更新 LongCat API 配置脚本（移除硬编码密钥）
 
 **Depends on:** None
 **Files:**
-- Modify: `scripts/configure_longcat_api.py:26-34`
+- Modify: `scripts/configure_longcat_api.py:21-42`
 
-- [ ] **Step 1: 更新 LongCat API 配置参数 — 使用正确的 API 端点和模型名称**
-文件: `scripts/configure_longcat_api.py:26-34`
+- [ ] **Step 1: 修改配置脚本读取环境变量 — 用 LONGCAT_API_KEY 注入密钥，避免写入仓库**
+文件: `scripts/configure_longcat_api.py:21-42`
 
 ```python
+def configure_longcat_api():
+    """配置 LongCat API"""
+    app = create_app()
+
+    # 从环境变量读取 API Key（安全方式）
+    api_key = os.environ.get('LONGCAT_API_KEY', '')
+    if not api_key:
+        print("❌ 错误: 请设置环境变量 LONGCAT_API_KEY")
+        print("   示例: LONGCAT_API_KEY=your_key python scripts/configure_longcat_api.py")
+        sys.exit(1)
+
+    with app.app_context():
         # LongCat API 配置
         longcat_config = {
             'provider': 'openai',  # 使用 OpenAI 兼容格式
             'api_base': 'https://api.longcat.chat/openai',  # OpenAI 格式端点
-            'api_key': 'ak_2mk8Hy6iF6mt4Hd3Ky2yn2ZT9Yo24',  # 你的 API Key
+            'api_key': api_key,  # 从环境变量读取
             'model': 'LongCat-Flash-Lite',  # 模型名称
             'temperature': 0.7,
             'max_tokens': 4096,
@@ -55,76 +67,32 @@
         }
 ```
 
-- [ ] **Step 2: 验证配置脚本**
-Run: `cd /Users/cc11001100/github/todo-for-ai/todo-for-ai && python scripts/configure_longcat_api.py`
+- [ ] **Step 2: 验证配置脚本（通过环境变量注入密钥）**
+Run: `cd /Users/cc11001100/github/todo-for-ai/todo-for-ai && LONGCAT_API_KEY="<your_key>" python scripts/configure_longcat_api.py`
 Expected:
   - Exit code: 0
-  - Output contains: "LongCat API 配置已保存"
+  - Output contains: "✅ LongCat API 配置已保存!"
+  - Output contains: "📋 验证配置:"
 
 - [ ] **Step 3: 提交**
-Run: `git add scripts/configure_longcat_api.py && git commit -m "feat(config): update LongCat API configuration with correct endpoint and model"`
+Run: `git add scripts/configure_longcat_api.py && git commit -m "fix(config): read LongCat API key from env instead of hardcoding"`
 
 ---
 
-### Task 2: 前端添加 LongCat 提供商选项
+### Task 2: 验证前端 LongCat 提供商选项（已实现）
 
 **Depends on:** Task 1
 **Files:**
-- Modify: `todo-for-ai-webpage/src/components/AdminLLMConfig.tsx:10-34`
+- Verify: `todo-for-ai-webpage/src/components/AdminLLMConfig.tsx:9-37`
 
-- [ ] **Step 1: 添加 LongCat 提供商选项 — 在 LLM_PROVIDERS 数组中添加 LongCat 选项**
-文件: `todo-for-ai-webpage/src/components/AdminLLMConfig.tsx:10-16`
-
-```typescript
-// LLM 提供商选项
-const LLM_PROVIDERS = [
-  { value: 'openai', label: 'OpenAI', description: 'OpenAI GPT 系列模型' },
-  { value: 'azure', label: 'Azure OpenAI', description: '微软 Azure OpenAI 服务' },
-  { value: 'anthropic', label: 'Anthropic', description: 'Claude 系列模型' },
-  { value: 'ollama', label: 'Ollama', description: '本地部署的开源模型' },
-  { value: 'longcat', label: 'LongCat API', description: 'LongCat API 平台 - OpenAI 兼容格式' },
-  { value: 'custom', label: '自定义', description: '兼容 OpenAI API 格式的自定义服务' },
-]
-```
-
-- [ ] **Step 2: 添加 LongCat 默认模型列表 — 在 DEFAULT_MODELS 中添加 LongCat 模型**
-文件: `todo-for-ai-webpage/src/components/AdminLLMConfig.tsx:19-25`
-
-```typescript
-// 默认模型选项
-const DEFAULT_MODELS: Record<string, string[]> = {
-  openai: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'],
-  azure: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'],
-  anthropic: ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
-  ollama: ['llama2', 'mistral', 'codellama'],
-  longcat: ['LongCat-Flash-Lite', 'LongCat-Flash', 'LongCat-Pro'],
-  custom: ['custom-model'],
-}
-```
-
-- [ ] **Step 3: 添加 LongCat 默认 API Base URL — 在 DEFAULT_API_BASE 中添加 LongCat 端点**
-文件: `todo-for-ai-webpage/src/components/AdminLLMConfig.tsx:28-34`
-
-```typescript
-// 默认 API Base URL
-const DEFAULT_API_BASE: Record<string, string> = {
-  openai: 'https://api.openai.com/v1',
-  azure: 'https://<your-resource>.openai.azure.com/openai',
-  anthropic: 'https://api.anthropic.com/v1',
-  ollama: 'http://localhost:11434',
-  longcat: 'https://api.longcat.chat/openai',
-  custom: 'http://localhost:8000/v1',
-}
-```
-
-- [ ] **Step 4: 验证前端编译**
+- [ ] **Step 1: 验证前端编译**
 Run: `cd /Users/cc11001100/github/todo-for-ai/todo-for-ai/todo-for-ai-webpage && npm run build`
 Expected:
   - Exit code: 0
   - Output does NOT contain: "error" or "failed"
 
-- [ ] **Step 5: 提交**
-Run: `git add todo-for-ai-webpage/src/components/AdminLLMConfig.tsx && git commit -m "feat(ui): add LongCat API provider option to LLM configuration"`
+- [ ] **Step 2: 提交 Plan 更新**
+Run: `git add docs/superpowers/plans/2026-05-05-longcat-api-integration.md && git commit -m "docs(plan): update LongCat integration plan with secure env-based API key"`
 
 ---
 
@@ -135,7 +103,7 @@ Run: `git add todo-for-ai-webpage/src/components/AdminLLMConfig.tsx && git commi
 | 1 | Header? | PASS | Goal + Architecture + Tech Stack present |
 | 2 | Dependencies? | PASS | Task 2 depends on Task 1 |
 | 3 | Files? | PASS | All file paths with line ranges specified |
-| 4 | Steps per Task? | PASS | Task 1: 3 steps, Task 2: 5 steps |
+| 4 | Steps per Task? | PASS | Task 1: 3 steps, Task 2: 2 steps |
 | 5 | Complete code? | PASS | All code blocks are complete |
 | 6 | No diff format? | PASS | Using complete replacement format |
 | 7 | Code block size? | PASS | All blocks within 5-80 lines |

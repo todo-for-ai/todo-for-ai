@@ -22,12 +22,19 @@ def configure_longcat_api():
     """配置 LongCat API"""
     app = create_app()
 
+    # 从环境变量读取 API Key（安全方式）
+    api_key = os.environ.get('LONGCAT_API_KEY', '')
+    if not api_key:
+        print("❌ 错误: 请设置环境变量 LONGCAT_API_KEY")
+        print("   示例: LONGCAT_API_KEY=your_key python scripts/configure_longcat_api.py")
+        sys.exit(1)
+
     with app.app_context():
         # LongCat API 配置
         longcat_config = {
             'provider': 'openai',  # 使用 OpenAI 兼容格式
             'api_base': 'https://api.longcat.chat/openai',  # OpenAI 格式端点
-            'api_key': 'ak_2mk8Hy6iF6mt4Hd3Ky2yn2ZT9Yo24',  # 你的 API Key
+            'api_key': api_key,  # 从环境变量读取
             'model': 'LongCat-Flash-Lite',  # 模型名称
             'temperature': 0.7,
             'max_tokens': 4096,

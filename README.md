@@ -172,6 +172,21 @@ npm run build
 npm start
 ```
 
+### ✅ Runtime E2E Validation (Local)
+
+From repository root, you can run one-shot runtime validation:
+
+```bash
+# auto-create one AI task and verify commit -> DONE
+./scripts/runtime_e2e_once.sh
+
+# strict mode: first observed commit must match the target task
+TARGET_TASK_ID=123456 STRICT_TARGET_ONLY=true ./scripts/runtime_e2e_once.sh
+```
+
+This wrapper calls `agent-runtime/scripts/run_docker_e2e_once.sh` and works with Colima/Docker local environments.
+
+
 ## 🎯 Quick Start Examples
 
 ### 🤖 **Using with AI Assistants (MCP)**
