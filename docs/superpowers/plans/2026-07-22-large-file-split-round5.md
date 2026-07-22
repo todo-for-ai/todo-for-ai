@@ -5,6 +5,30 @@
 
 **Goal:** 继续拆分大文件为更小的模块，提高代码可维护性。
 
+## 执行结果 ✅ 完成
+
+### 已完成的拆分
+
+#### 1. `_core.py` 路由拆分
+- 1,415 行 → 906 行（减少 509 行，36%）
+- 提取 `task_templates.py` (5 路由)
+- 提取 `workflow_routes.py` (5 路由)
+- 提取 `project_members.py` (4 路由)
+
+#### 2. `analytics.py` 拆分
+- 1,256 行 → 213 行（减少 83%）
+- 提取 `analytics_collaboration.py` (291 行, 3 路由)
+- 提取 `analytics_workflow.py` (390 行, 4 路由)
+- 提取 `analytics_capability.py` (443 行, 4 路由)
+
+### 提交记录
+- 子模块: `e3880d9` (_core拆分), `0127e6a` (analytics拆分)
+- 父仓库: `8b0aa11`, `1076391`
+
+---
+
+## 原始计划
+
 **Architecture:**
 - 前端：将 `Agents.tsx` 的功能模态框抽取为独立组件
 - 后端：将 `api/agents/_core.py` 的路由按功能域拆分为子模块
