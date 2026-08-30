@@ -195,7 +195,9 @@
 > - ✅ 附带修复：main 合并遗留断裂（Agent/AgentRun/ProjectMember 模型统一、JWT str identity、Py3.9 兼容、FK 类型）
 > - ✅ commit 协议 evidence 上报适配：pull 下发 payload.dod；agent-runtime DODVerifier 在沙箱执行验收命令采集证据；失败提交带证据归因（DOD_CHECK_FAILED）；真 HTTP 端到端 PASS（scripts/dod_e2e_http.py）
 > - ✅ P1.3 任务级沙箱 MVP：TaskWorkspaceManager 每任务隔离工作区（并发互不可见、任务结束销毁）、DoD 命令在工作区内执行、租约密钥仅经环境变量注入不落盘
-> - ⏭ 待办：前端任务详情证据展示、repo checkout 型工作区（含依赖缓存）、审批队列完整事件化（Phase 2）
+> - ✅ 前端任务详情证据展示：TaskEvidenceCard（DoD 验收标准 + 证据列表/状态/链接，通过/失败横幅；无内容自动隐藏）
+> - ✅ repo checkout 型工作区：payload.repo 声明 → clone（token 经 GIT_CONFIG_* 环境注入不落盘）+ 依赖缓存（repo+ref+lockfile 内容哈希为 key，硬链接恢复，lockfile 变更自动失效）
+> - ⏭ 待办：审批队列完整事件化（Phase 2 自主等级）、GitHub App 化（当前为 token 绑定）、DOD 命令在 strict 沙箱模式下的 nsjail 执行路径统一
 
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
