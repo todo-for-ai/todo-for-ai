@@ -198,7 +198,8 @@
 > - ✅ 前端任务详情证据展示：TaskEvidenceCard（DoD 验收标准 + 证据列表/状态/链接，通过/失败横幅；无内容自动隐藏）
 > - ✅ repo checkout 型工作区：payload.repo 声明 → clone（token 经 GIT_CONFIG_* 环境注入不落盘）+ 依赖缓存（repo+ref+lockfile 内容哈希为 key，硬链接恢复，lockfile 变更自动失效）
 > - ✅ DOD 命令 strict 沙箱模式统一：DODVerifier 按 SANDBOX_MODE 分派——strict 下命令经 nsjail（config/time_limit/rlimit_as/工作区 bindmount/网络隔离），nsjail 不可用按 SANDBOX_STRICT_FALLBACK 降级或 fail-closed；证据 detail 记录 sandbox_mode
-> - ⏭ 待办：审批队列完整事件化（Phase 2 自主等级）、GitHub App 化（当前为 token 绑定）
+> - ✅ 审批队列完整事件化 + 自主等级 L0-L2（Phase 2 第一项）：ProjectRepoBinding.autonomy_level；L0 PR 创建入 interaction_request 队列不触 GitHub，批准回调执行动作；L1 自动 PR 人工合并；L2 证据全通过自动合并（auto_approved 事件）；决策写 interaction_approval + AuditLog，审批队列 pending 列表直接可见
+> - ⏭ 待办：GitHub App 化（当前为 token 绑定）
 
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
