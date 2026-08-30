@@ -202,6 +202,7 @@
 > - ✅ 前端审批入口：pending 列表端点（GET /tasks/pull-request/approvals/pending，按用户可管理项目过滤）+ CommandCenter PRApprovalsCard 卡片（批准=执行动作 / 拒绝=记录决策）
 > - ✅ GitHub App 化代码侧准备：webhook 接收端点（HMAC SHA256 常量时间校验，fail-closed，config secret → env 回退）处理 pull_request/installation 事件（merged webhook → 任务自动完成）；App manifest 生成 + callback 一次性 code 换凭据（私钥/webhook secret 加密存储，key-id 前缀支持轮换）；App JWT（RS256）与 installation token 获取骨架；项目仓库绑定 token 加密存储同步修复 tuple 隐患
 > - ✅ installation token 接入 repo 操作执行面：resolve_token 凭证优先级 App installation（进程内缓存，过期前 5 分钟刷新）→ 绑定 token → GITHUB_TOKEN；App 不可用静默回退（带 warning），prefer_app=False 可强制静态凭证排障
+> - ✅ P2.6 预算与配额：Budget 模型（agent/project/workspace × tokens/duration_minutes/concurrent × total/daily/weekly/monthly）；任务派发（runtime pull）与 AgentRun 创建（触发引擎）强制校验；超限写 budget_exceeded interaction_request（审批队列可见）+ 审计，同预算同周期幂等告警一次
 > - ⏭ 待办：GitHub App 实际创建/安装（运维步骤：GitHub 后台建 App 或走 manifest 引导），安装后 App 路径自动生效
 
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
