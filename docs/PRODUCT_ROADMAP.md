@@ -213,6 +213,7 @@
 > - ✅ P3.2 学习闭环第一环：handle_failed_commit 归因结果自动沉淀 failure_pattern 经验（domain←任务标签、task_type←归因类别、capabilities_used←Agent 能力）——失败自愈（P2.3）直接喂养技能画像（P3.1）与派单打分（experience_bonus），平台越用越聪明
 > - ✅ P3.1 前端可见：Agent 详情页 Overview 新增「技能画像」卡片（完成/失败/经验统计、Top 技能成功率进度条、stale 标记、一键重建）
 > - ✅ P3.4 记忆治理：agent_soul_versions 升级为统一记忆版本表（memory_kind 区分 soul/skill_profile + snapshot_json 结构化快照，唯一约束放宽到 agent+kind+version，迁移 000009）；技能画像每次重建自动写版本快照；GET /agents/&lt;id&gt;/memory/versions 统一版本历史（kind 过滤）+ GET /memory/audit 记忆审计查询 + DELETE /skill-profile 可遗忘（清空画像 + 墓碑版本 + 审计）——记忆可查看、可审计、可遗忘
+> - ✅ P3.2 知识自动策展（提案-确认流）：ProjectKnowledgeProposal 模型 + 迁移 000010；失败归因自动生成「项目教训」提案（dedupe 幂等，proposal_from_failure 挂入失败自愈路径）；GET /projects/&lt;id&gt;/knowledge-proposals + confirm（→ 项目共享 KnowledgeEntry，entry_type=rule）+ dismiss（归档留痕），裁决走项目管理权限 + 审计——项目约定/教训从手填变为自动建议 + 人工确认
 > - ⏭ 待办：GitHub App 实际创建/安装（运维步骤），安装后 App 路径自动生效
 
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
