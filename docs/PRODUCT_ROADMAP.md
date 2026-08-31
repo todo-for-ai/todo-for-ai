@@ -209,6 +209,7 @@
 > - ✅ P2.4 多 Agent 角色编排：内置 developer/reviewer/tester 角色模板 seed（幂等）；TeamTaskOrchestration.role_assignments 角色→Agent 映射；评审者关卡（require_agent_review）——合并（人工/L2 自动/审批回调）前必须有非自评的通过评审证据，阻断记审计；评审证据提交端点校验指定评审者
 > - ✅ P2.2 预算管理面：workspace 维度 Budget CRUD + 用量查询 API（scope 归属校验、应用层组合查重——SQLite/MySQL 对含 NULL 组合唯一约束不生效、写操作 owner/admin 门、审计）；webpage 组织详情新增「预算配额」Tab（范围/资源/周期选择、用量进度条超限告警、启停/编辑/删除）
 > - ✅ P2.5 事件面再扩容：issues.opened → 绑定项目自动建任务 + repo.issues.opened 出箱（「Issue → 任务 → Agent 认领」自主闭环外部入口）；workflow_run.completed → 按 PR 头分支关联任务发 repo.workflow_run.&lt;conclusion&gt;（CI 失败自动返工的信号源）；manifest default_events/permissions 同步扩容
+> - ✅ P3.1 技能画像（SOUL v2 第一块）：agents.skill_profile JSON 列 + 迁移 000008；services/skill_profile.py 从 AgentExperience（domain/task_type/capabilities × 成败）+ TaskAssignment（完成/失败）聚合画像（幂等重建，不改写人工 capabilities）；GET/POST /agents/&lt;id&gt;/skill-profile(/rebuild) 端点（查看带 stale 标记，重建走管理门 + 审计）；score_task_for_agent 接入 skill_profile_bonus（命中画像技能加权，cap 20）——画像即派单依据
 > - ⏭ 待办：GitHub App 实际创建/安装（运维步骤），安装后 App 路径自动生效
 
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
