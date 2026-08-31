@@ -73,6 +73,12 @@ This project uses Git Submodule architecture, splitting different modules into i
 - **todo-for-ai-webpage/**: Frontend web application → [todo-for-ai-webpage](https://github.com/todo-for-ai/todo-for-ai-webpage)
 - **todo-for-ai-mcp/**: MCP server → [todo-for-ai-mcp](https://github.com/todo-for-ai/todo-for-ai-mcp)
 
+## 📚 Architecture & Specs
+
+- [Agent Platform Spec v1.0](docs/AGENT_PLATFORM_SPEC.md)
+- [API Documentation](docs/API.md)
+- [Database Design](docs/database-design.md)
+
 ## 🚀 Installation & Quick Start
 
 Choose your preferred installation method:
@@ -165,6 +171,21 @@ npm install
 npm run build
 npm start
 ```
+
+### ✅ Runtime E2E Validation (Local)
+
+From repository root, you can run one-shot runtime validation:
+
+```bash
+# auto-create one AI task and verify commit -> DONE
+./scripts/runtime_e2e_once.sh
+
+# strict mode: first observed commit must match the target task
+TARGET_TASK_ID=123456 STRICT_TARGET_ONLY=true ./scripts/runtime_e2e_once.sh
+```
+
+This wrapper calls `agent-runtime/scripts/run_docker_e2e_once.sh` and works with Colima/Docker local environments.
+
 
 ## 🎯 Quick Start Examples
 

@@ -1,0 +1,127 @@
+import asyncio
+import json
+from playwright.async_api import async_playwright
+
+async def test_frontend_comprehensive():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False)
+        context = await browser.new_context()
+        page = await context.new_page()
+
+        # 收集所有网络请求和响应
+        network_errors = []
+        console_errors = []
+        api_responses = []
+
+        async def handle_response(response):
+            url = response.url
+            status = response.status
+            # 只记录4xx/5xx错误（除了GitHub API）
+            if status >= 400 and 'localhost:50110' in url:
+                network_errors.append({
+                    "url": url,
+                    "status": status,
+                    "statusText": response.status_text
+                })
+            # 记录所有API调用用于分析
+            if 'localhost:50110/todo-for-ai/api' in url:
+                api_responses.append({
+                    "url": url,
+                    "status": status
+                })
+
+        def handle_console(msg):
+            msg_type = msg.type
+            if msg_type == "error":
+                text = msg.text
+                # 过滤掉GitHub相关的错误
+                if 'github' not in text.lower() and 'rate limit' not in text.lower():
+                    console_errors.append({
+                        "type": msg_type,
+                        "text": text
+                    })
+
+        page.on("response", lambda response: asyncio.create_task(handle_response(response)))
+        page.on("console", lambda msg: handle_console(msg))
+        page.on("pageerror", lambda error: console_errors.append({
+            "type": "pageerror",
+            "text": str(error)
+        }))
+
+        print("=== Testing Todo for AI Frontend ===\n")
+
+        # 1. 访问首页
+        print("1. Testing homepage...")
+        await page.goto("http://localhost:50111/todo-for-ai/pages")
+        await page.wait_for_timeout(3000)
+
+        # 2. 测试游客登录
+        print("2. Testing guest login...")
+        try:
+            # 直接点击游客登录按钮
+            await page.click('text=Guest Mode Login')
+            await page.wait_for_timeout(4000)
+
+            print("   Guest login clicked, waiting for redirect...")
+        except Exception as e:
+            print(f"   Guest login test error: {e}")
+
+        # 3. 截图当前状态
+        await page.screenshot(path='/Users/cc11001100/github/todo-for-ai/todo-for-ai/frontend-test-screenshot.png')
+        print("3. Screenshot saved to frontend-test-screenshot.png")
+
+        # 4. 测试导航到各个页面
+        pages_to_test = [
+            ("Dashboard", "/todo-for-ai/pages"),
+            ("Projects", "/todo-for-ai/pages/projects"),
+            ("Organizations", "/todo-for-ai/pages/organizations"),
+            ("Create Project", "/todo-for-ai/pages/projects/create"),
+        ]
+
+        print("\n4. Testing page navigation:")
+        for name, url_path in pages_to_test:
+            try:
+                full_url = f"http://localhost:50111{url_path}"
+                print(f"   - Testing {name} ({url_path})...")
+                await page.goto(full_url)
+                await page.wait_for_timeout(2000)
+            except Exception as e:
+                print(f"     Error: {e}")
+
+        # 等待一段时间收集所有请求
+        await page.wait_for_timeout(2000)
+
+        await browser.close()
+
+        return network_errors, console_errors, api_responses
+
+if __name__ == "__main__":
+    network_errors, console_errors, api_responses = asyncio.run(test_frontend_comprehensive())
+
+    # 保存结果到文件
+    with open("/Users/cc11001100/github/todo-for-ai/todo-for-ai/frontend-test-results.json", "w") as f:
+        json.dump({
+            "network_errors": network_errors,
+            "console_errors": console_errors,
+            "api_responses": api_responses
+        }, f, indent=2)
+
+    print("\n" + "="*50)
+    print("=== Test Results Summary ===")
+    print("="*50)
+
+    print(f"\nAPI Calls Made: {len(api_responses)}")
+    for api in api_responses:
+        print(f"  [{api['status']}] {api['url'][:80]}...")
+
+    print(f"\nNetwork Errors (4xx/5xx on localhost): {len(network_errors)}")
+    for log in network_errors:
+        print(f"  [{log['status']}] {log['url']}")
+
+    print(f"\nConsole Errors (non-GitHub): {len(console_errors)}")
+    for log in console_errors:
+        print(f"  [{log['type']}] {log['text'][:100]}...")
+
+    print("\n" + "="*50)
+    print("Results saved to frontend-test-results.json")
+    print("Screenshot saved to frontend-test-screenshot.png")

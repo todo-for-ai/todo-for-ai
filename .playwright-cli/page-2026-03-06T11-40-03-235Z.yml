@@ -1,0 +1,725 @@
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - img "Todo for AI Logo" [ref=e7]
+        - heading "Todo for AI" [level=4] [ref=e8]
+      - menu [ref=e10]:
+        - menuitem "dashboard Dashboard" [ref=e11] [cursor=pointer]:
+          - img "dashboard" [ref=e12]:
+            - img [ref=e13]
+          - text: Dashboard
+        - menuitem "project Project Management" [ref=e15] [cursor=pointer]:
+          - img "project" [ref=e16]:
+            - img [ref=e17]
+          - text: Project Management
+      - button "Star our repository on GitHub to support us" [ref=e19] [cursor=pointer]:
+        - img "github" [ref=e20]:
+          - img [ref=e21]
+      - generic [ref=e23]:
+        - link "appstore AI Access" [ref=e25] [cursor=pointer]:
+          - /url: /todo-for-ai/pages/mcp-installation
+          - button "appstore AI Access" [ref=e26]:
+            - img "appstore" [ref=e28]:
+              - img [ref=e29]
+            - generic [ref=e31]: AI Access
+        - generic [ref=e32] [cursor=pointer]:
+          - img "user" [ref=e34]:
+            - img [ref=e35]
+          - generic "Guest" [ref=e38]
+    - main [ref=e39]:
+      - generic [ref=e41]:
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - heading "Organizations" [level=2] [ref=e45]
+            - generic [ref=e46]: Manage organization spaces and shared members
+          - generic [ref=e47]:
+            - generic [ref=e49]:
+              - generic [ref=e50]: View
+              - radiogroup "segmented control" [ref=e52]:
+                - generic [ref=e53]:
+                  - generic [ref=e54] [cursor=pointer]:
+                    - radio "ordered-list List" [checked]
+                    - generic [ref=e56]:
+                      - img "ordered-list" [ref=e58]:
+                        - img [ref=e59]
+                      - generic [ref=e61]: List
+                  - generic [ref=e62] [cursor=pointer]:
+                    - radio "appstore Card"
+                    - generic [ref=e64]:
+                      - img "appstore" [ref=e66]:
+                        - img [ref=e67]
+                      - generic [ref=e69]: Card
+            - button "plus Create Organization" [ref=e71] [cursor=pointer]:
+              - img "plus" [ref=e73]:
+                - img [ref=e74]
+              - generic [ref=e77]: Create Organization
+        - table [ref=e185]:
+          - rowgroup [ref=e191]:
+            - row "Organization My Role Members Projects" [ref=e192]:
+              - columnheader "Organization" [ref=e193]
+              - columnheader "My Role" [ref=e194]
+              - columnheader "Members" [ref=e195]
+              - columnheader "Projects" [ref=e196]
+          - rowgroup [ref=e197]:
+            - row "team Guest Agent Lab guest-agent-lab owner - -" [ref=e198]:
+              - cell "team Guest Agent Lab guest-agent-lab" [ref=e199]:
+                - generic [ref=e200]:
+                  - img "team" [ref=e202]:
+                    - img [ref=e203]
+                  - generic [ref=e206]:
+                    - generic [ref=e207]: Guest Agent Lab
+                    - text: guest-agent-lab
+              - cell "owner" [ref=e208]:
+                - generic [ref=e209]: owner
+              - cell "-" [ref=e210]
+              - cell "-" [ref=e211]
+            - row "team E2E Org 1772552411 e2e-org-1772552411 owner - -" [ref=e212]:
+              - cell "team E2E Org 1772552411 e2e-org-1772552411" [ref=e213]:
+                - generic [ref=e214]:
+                  - img "team" [ref=e216]:
+                    - img [ref=e217]
+                  - generic [ref=e220]:
+                    - generic [ref=e221]: E2E Org 1772552411
+                    - text: e2e-org-1772552411
+              - cell "owner" [ref=e222]:
+                - generic [ref=e223]: owner
+              - cell "-" [ref=e224]
+              - cell "-" [ref=e225]
+            - row "team Org-1772550421 org-1772550421 owner - -" [ref=e226]:
+              - cell "team Org-1772550421 org-1772550421" [ref=e227]:
+                - generic [ref=e228]:
+                  - img "team" [ref=e230]:
+                    - img [ref=e231]
+                  - generic [ref=e234]:
+                    - generic [ref=e235]: Org-1772550421
+                    - text: org-1772550421
+              - cell "owner" [ref=e236]:
+                - generic [ref=e237]: owner
+              - cell "-" [ref=e238]
+              - cell "-" [ref=e239]
+            - row "team Org-1772549851 org-1772549851 owner - -" [ref=e240]:
+              - cell "team Org-1772549851 org-1772549851" [ref=e241]:
+                - generic [ref=e242]:
+                  - img "team" [ref=e244]:
+                    - img [ref=e245]
+                  - generic [ref=e248]:
+                    - generic [ref=e249]: Org-1772549851
+                    - text: org-1772549851
+              - cell "owner" [ref=e250]:
+                - generic [ref=e251]: owner
+              - cell "-" [ref=e252]
+              - cell "-" [ref=e253]
+            - row "team Demo Org A demo-org-a owner - -" [ref=e254]:
+              - cell "team Demo Org A demo-org-a" [ref=e255]:
+                - generic [ref=e256]:
+                  - img "team" [ref=e258]:
+                    - img [ref=e259]
+                  - generic [ref=e262]:
+                    - generic [ref=e263]: Demo Org A
+                    - text: demo-org-a
+              - cell "owner" [ref=e264]:
+                - generic [ref=e265]: owner
+              - cell "-" [ref=e266]
+              - cell "-" [ref=e267]
+        - generic [ref=e89]:
+          - generic [ref=e92]: Members of Guest Agent Lab
+          - generic [ref=e94]:
+            - generic [ref=e96]:
+              - textbox "Invite by user email" [ref=e98]
+              - generic [ref=e100] [cursor=pointer]:
+                - generic [ref=e102]:
+                  - combobox [ref=e106]
+                  - generic: Select roles (multi-select, optional)
+                - generic:
+                  - img:
+                    - img
+              - button "Invite" [ref=e108] [cursor=pointer]:
+                - generic [ref=e109]: Invite
+              - textbox "Invite by Agent ID" [ref=e111]
+              - button "api Invite Agent" [ref=e113] [cursor=pointer]:
+                - img "api" [ref=e115]:
+                  - img [ref=e116]
+                - generic [ref=e118]: Invite Agent
+              - button "api Create Agent" [ref=e120] [cursor=pointer]:
+                - img "api" [ref=e122]:
+                  - img [ref=e123]
+                - generic [ref=e125]: Create Agent
+              - button "setting Role Manager" [ref=e127] [cursor=pointer]:
+                - img "setting" [ref=e129]:
+                  - img [ref=e130]
+                - generic [ref=e132]: Role Manager
+            - table [ref=e140]:
+              - rowgroup [ref=e147]:
+                - row "User Type Role Status Actions" [ref=e148]:
+                  - columnheader "User" [ref=e149]
+                  - columnheader "Type" [ref=e150]
+                  - columnheader "Role" [ref=e151]
+                  - columnheader "Status" [ref=e152]
+                  - columnheader "Actions" [ref=e153]
+              - rowgroup [ref=e154]:
+                - 'row "Guest ID: 1 Human Human - active" [ref=e268]':
+                  - 'cell "Guest ID: 1 Human" [ref=e269]':
+                    - generic [ref=e270]:
+                      - generic [ref=e271]: Guest
+                      - generic [ref=e272]:
+                        - generic [ref=e274]: "ID: 1"
+                        - generic [ref=e276]: Human
+                  - cell "Human" [ref=e277]:
+                    - generic [ref=e278]: Human
+                  - cell "-" [ref=e279]
+                  - cell "active" [ref=e280]:
+                    - generic [ref=e281]: active
+                  - cell [ref=e282]
+                - 'row "writer-agent-1772783881 Agent #1 Agent Agent Agent active delete Remove" [ref=e283]':
+                  - 'cell "writer-agent-1772783881 Agent #1 Agent" [ref=e284]':
+                    - generic [ref=e285]:
+                      - generic [ref=e286]: writer-agent-1772783881
+                      - generic [ref=e287]:
+                        - generic [ref=e289]: "Agent #1"
+                        - generic [ref=e291]: Agent
+                  - cell "Agent" [ref=e292]:
+                    - generic [ref=e293]: Agent
+                  - cell "Agent" [ref=e294]:
+                    - generic [ref=e295]: Agent
+                  - cell "active" [ref=e296]:
+                    - generic [ref=e297]: active
+                  - cell "delete Remove" [ref=e298]:
+                    - button "delete Remove" [ref=e299] [cursor=pointer]:
+                      - img "delete" [ref=e301]:
+                        - img [ref=e302]
+                      - generic [ref=e304]: Remove
+                - 'row "qa-agent-1772783881 Agent #2 Agent Agent Agent active delete Remove" [ref=e305]':
+                  - 'cell "qa-agent-1772783881 Agent #2 Agent" [ref=e306]':
+                    - generic [ref=e307]:
+                      - generic [ref=e308]: qa-agent-1772783881
+                      - generic [ref=e309]:
+                        - generic [ref=e311]: "Agent #2"
+                        - generic [ref=e313]: Agent
+                  - cell "Agent" [ref=e314]:
+                    - generic [ref=e315]: Agent
+                  - cell "Agent" [ref=e316]:
+                    - generic [ref=e317]: Agent
+                  - cell "active" [ref=e318]:
+                    - generic [ref=e319]: active
+                  - cell "delete Remove" [ref=e320]:
+                    - button "delete Remove" [ref=e321] [cursor=pointer]:
+                      - img "delete" [ref=e323]:
+                        - img [ref=e324]
+                      - generic [ref=e326]: Remove
+                - 'row "ops-agent-1772783881 Agent #3 Agent Agent Agent active delete Remove" [ref=e327]':
+                  - 'cell "ops-agent-1772783881 Agent #3 Agent" [ref=e328]':
+                    - generic [ref=e329]:
+                      - generic [ref=e330]: ops-agent-1772783881
+                      - generic [ref=e331]:
+                        - generic [ref=e333]: "Agent #3"
+                        - generic [ref=e335]: Agent
+                  - cell "Agent" [ref=e336]:
+                    - generic [ref=e337]: Agent
+                  - cell "Agent" [ref=e338]:
+                    - generic [ref=e339]: Agent
+                  - cell "active" [ref=e340]:
+                    - generic [ref=e341]: active
+                  - cell "delete Remove" [ref=e342]:
+                    - button "delete Remove" [ref=e343] [cursor=pointer]:
+                      - img "delete" [ref=e345]:
+                        - img [ref=e346]
+                      - generic [ref=e348]: Remove
+                - 'row "planner-agent-1772783881 Agent #4 Agent Agent Agent active delete Remove" [ref=e349]':
+                  - 'cell "planner-agent-1772783881 Agent #4 Agent" [ref=e350]':
+                    - generic [ref=e351]:
+                      - generic [ref=e352]: planner-agent-1772783881
+                      - generic [ref=e353]:
+                        - generic [ref=e355]: "Agent #4"
+                        - generic [ref=e357]: Agent
+                  - cell "Agent" [ref=e358]:
+                    - generic [ref=e359]: Agent
+                  - cell "Agent" [ref=e360]:
+                    - generic [ref=e361]: Agent
+                  - cell "active" [ref=e362]:
+                    - generic [ref=e363]: active
+                  - cell "delete Remove" [ref=e364]:
+                    - button "delete Remove" [ref=e365] [cursor=pointer]:
+                      - img "delete" [ref=e367]:
+                        - img [ref=e368]
+                      - generic [ref=e370]: Remove
+                - 'row "reviewer-agent-1772783881 Agent #5 Agent Agent Agent active delete Remove" [ref=e371]':
+                  - 'cell "reviewer-agent-1772783881 Agent #5 Agent" [ref=e372]':
+                    - generic [ref=e373]:
+                      - generic [ref=e374]: reviewer-agent-1772783881
+                      - generic [ref=e375]:
+                        - generic [ref=e377]: "Agent #5"
+                        - generic [ref=e379]: Agent
+                  - cell "Agent" [ref=e380]:
+                    - generic [ref=e381]: Agent
+                  - cell "Agent" [ref=e382]:
+                    - generic [ref=e383]: Agent
+                  - cell "active" [ref=e384]:
+                    - generic [ref=e385]: active
+                  - cell "delete Remove" [ref=e386]:
+                    - button "delete Remove" [ref=e387] [cursor=pointer]:
+                      - img "delete" [ref=e389]:
+                        - img [ref=e390]
+                      - generic [ref=e392]: Remove
+                - 'row "notifier-agent-1772783881 Agent #6 Agent Agent Agent active delete Remove" [ref=e393]':
+                  - 'cell "notifier-agent-1772783881 Agent #6 Agent" [ref=e394]':
+                    - generic [ref=e395]:
+                      - generic [ref=e396]: notifier-agent-1772783881
+                      - generic [ref=e397]:
+                        - generic [ref=e399]: "Agent #6"
+                        - generic [ref=e401]: Agent
+                  - cell "Agent" [ref=e402]:
+                    - generic [ref=e403]: Agent
+                  - cell "Agent" [ref=e404]:
+                    - generic [ref=e405]: Agent
+                  - cell "active" [ref=e406]:
+                    - generic [ref=e407]: active
+                  - cell "delete Remove" [ref=e408]:
+                    - button "delete Remove" [ref=e409] [cursor=pointer]:
+                      - img "delete" [ref=e411]:
+                        - img [ref=e412]
+                      - generic [ref=e414]: Remove
+                - 'row "priority-agent-1772785351 Agent #16 Agent Agent Agent active delete Remove" [ref=e415]':
+                  - 'cell "priority-agent-1772785351 Agent #16 Agent" [ref=e416]':
+                    - generic [ref=e417]:
+                      - generic [ref=e418]: priority-agent-1772785351
+                      - generic [ref=e419]:
+                        - generic [ref=e421]: "Agent #16"
+                        - generic [ref=e423]: Agent
+                  - cell "Agent" [ref=e424]:
+                    - generic [ref=e425]: Agent
+                  - cell "Agent" [ref=e426]:
+                    - generic [ref=e427]: Agent
+                  - cell "active" [ref=e428]:
+                    - generic [ref=e429]: active
+                  - cell "delete Remove" [ref=e430]:
+                    - button "delete Remove" [ref=e431] [cursor=pointer]:
+                      - img "delete" [ref=e433]:
+                        - img [ref=e434]
+                      - generic [ref=e436]: Remove
+                - 'row "doc-agent-1772785351 Agent #9 Agent Agent Agent active delete Remove" [ref=e437]':
+                  - 'cell "doc-agent-1772785351 Agent #9 Agent" [ref=e438]':
+                    - generic [ref=e439]:
+                      - generic [ref=e440]: doc-agent-1772785351
+                      - generic [ref=e441]:
+                        - generic [ref=e443]: "Agent #9"
+                        - generic [ref=e445]: Agent
+                  - cell "Agent" [ref=e446]:
+                    - generic [ref=e447]: Agent
+                  - cell "Agent" [ref=e448]:
+                    - generic [ref=e449]: Agent
+                  - cell "active" [ref=e450]:
+                    - generic [ref=e451]: active
+                  - cell "delete Remove" [ref=e452]:
+                    - button "delete Remove" [ref=e453] [cursor=pointer]:
+                      - img "delete" [ref=e455]:
+                        - img [ref=e456]
+                      - generic [ref=e458]: Remove
+                - 'row "risk-agent-1772785351 Agent #10 Agent Agent Agent active delete Remove" [ref=e459]':
+                  - 'cell "risk-agent-1772785351 Agent #10 Agent" [ref=e460]':
+                    - generic [ref=e461]:
+                      - generic [ref=e462]: risk-agent-1772785351
+                      - generic [ref=e463]:
+                        - generic [ref=e465]: "Agent #10"
+                        - generic [ref=e467]: Agent
+                  - cell "Agent" [ref=e468]:
+                    - generic [ref=e469]: Agent
+                  - cell "Agent" [ref=e470]:
+                    - generic [ref=e471]: Agent
+                  - cell "active" [ref=e472]:
+                    - generic [ref=e473]: active
+                  - cell "delete Remove" [ref=e474]:
+                    - button "delete Remove" [ref=e475] [cursor=pointer]:
+                      - img "delete" [ref=e477]:
+                        - img [ref=e478]
+                      - generic [ref=e480]: Remove
+                - 'row "release-agent-1772785351 Agent #11 Agent Agent Agent active delete Remove" [ref=e481]':
+                  - 'cell "release-agent-1772785351 Agent #11 Agent" [ref=e482]':
+                    - generic [ref=e483]:
+                      - generic [ref=e484]: release-agent-1772785351
+                      - generic [ref=e485]:
+                        - generic [ref=e487]: "Agent #11"
+                        - generic [ref=e489]: Agent
+                  - cell "Agent" [ref=e490]:
+                    - generic [ref=e491]: Agent
+                  - cell "Agent" [ref=e492]:
+                    - generic [ref=e493]: Agent
+                  - cell "active" [ref=e494]:
+                    - generic [ref=e495]: active
+                  - cell "delete Remove" [ref=e496]:
+                    - button "delete Remove" [ref=e497] [cursor=pointer]:
+                      - img "delete" [ref=e499]:
+                        - img [ref=e500]
+                      - generic [ref=e502]: Remove
+                - 'row "metrics-agent-1772785351 Agent #12 Agent Agent Agent active delete Remove" [ref=e503]':
+                  - 'cell "metrics-agent-1772785351 Agent #12 Agent" [ref=e504]':
+                    - generic [ref=e505]:
+                      - generic [ref=e506]: metrics-agent-1772785351
+                      - generic [ref=e507]:
+                        - generic [ref=e509]: "Agent #12"
+                        - generic [ref=e511]: Agent
+                  - cell "Agent" [ref=e512]:
+                    - generic [ref=e513]: Agent
+                  - cell "Agent" [ref=e514]:
+                    - generic [ref=e515]: Agent
+                  - cell "active" [ref=e516]:
+                    - generic [ref=e517]: active
+                  - cell "delete Remove" [ref=e518]:
+                    - button "delete Remove" [ref=e519] [cursor=pointer]:
+                      - img "delete" [ref=e521]:
+                        - img [ref=e522]
+                      - generic [ref=e524]: Remove
+                - 'row "cleanup-agent-1772785351 Agent #13 Agent Agent Agent active delete Remove" [ref=e525]':
+                  - 'cell "cleanup-agent-1772785351 Agent #13 Agent" [ref=e526]':
+                    - generic [ref=e527]:
+                      - generic [ref=e528]: cleanup-agent-1772785351
+                      - generic [ref=e529]:
+                        - generic [ref=e531]: "Agent #13"
+                        - generic [ref=e533]: Agent
+                  - cell "Agent" [ref=e534]:
+                    - generic [ref=e535]: Agent
+                  - cell "Agent" [ref=e536]:
+                    - generic [ref=e537]: Agent
+                  - cell "active" [ref=e538]:
+                    - generic [ref=e539]: active
+                  - cell "delete Remove" [ref=e540]:
+                    - button "delete Remove" [ref=e541] [cursor=pointer]:
+                      - img "delete" [ref=e543]:
+                        - img [ref=e544]
+                      - generic [ref=e546]: Remove
+                - 'row "ux-agent-1772785351 Agent #14 Agent Agent Agent active delete Remove" [ref=e547]':
+                  - 'cell "ux-agent-1772785351 Agent #14 Agent" [ref=e548]':
+                    - generic [ref=e549]:
+                      - generic [ref=e550]: ux-agent-1772785351
+                      - generic [ref=e551]:
+                        - generic [ref=e553]: "Agent #14"
+                        - generic [ref=e555]: Agent
+                  - cell "Agent" [ref=e556]:
+                    - generic [ref=e557]: Agent
+                  - cell "Agent" [ref=e558]:
+                    - generic [ref=e559]: Agent
+                  - cell "active" [ref=e560]:
+                    - generic [ref=e561]: active
+                  - cell "delete Remove" [ref=e562]:
+                    - button "delete Remove" [ref=e563] [cursor=pointer]:
+                      - img "delete" [ref=e565]:
+                        - img [ref=e566]
+                      - generic [ref=e568]: Remove
+                - 'row "security-agent-1772785351 Agent #15 Agent Agent Agent active delete Remove" [ref=e569]':
+                  - 'cell "security-agent-1772785351 Agent #15 Agent" [ref=e570]':
+                    - generic [ref=e571]:
+                      - generic [ref=e572]: security-agent-1772785351
+                      - generic [ref=e573]:
+                        - generic [ref=e575]: "Agent #15"
+                        - generic [ref=e577]: Agent
+                  - cell "Agent" [ref=e578]:
+                    - generic [ref=e579]: Agent
+                  - cell "Agent" [ref=e580]:
+                    - generic [ref=e581]: Agent
+                  - cell "active" [ref=e582]:
+                    - generic [ref=e583]: active
+                  - cell "delete Remove" [ref=e584]:
+                    - button "delete Remove" [ref=e585] [cursor=pointer]:
+                      - img "delete" [ref=e587]:
+                        - img [ref=e588]
+                      - generic [ref=e590]: Remove
+                - 'row "triage-agent-1772785351 Agent #8 Agent Agent Agent active delete Remove" [ref=e591]':
+                  - 'cell "triage-agent-1772785351 Agent #8 Agent" [ref=e592]':
+                    - generic [ref=e593]:
+                      - generic [ref=e594]: triage-agent-1772785351
+                      - generic [ref=e595]:
+                        - generic [ref=e597]: "Agent #8"
+                        - generic [ref=e599]: Agent
+                  - cell "Agent" [ref=e600]:
+                    - generic [ref=e601]: Agent
+                  - cell "Agent" [ref=e602]:
+                    - generic [ref=e603]: Agent
+                  - cell "active" [ref=e604]:
+                    - generic [ref=e605]: active
+                  - cell "delete Remove" [ref=e606]:
+                    - button "delete Remove" [ref=e607] [cursor=pointer]:
+                      - img "delete" [ref=e609]:
+                        - img [ref=e610]
+                      - generic [ref=e612]: Remove
+                - 'row "handoff-agent-1772785351 Agent #17 Agent Agent Agent active delete Remove" [ref=e613]':
+                  - 'cell "handoff-agent-1772785351 Agent #17 Agent" [ref=e614]':
+                    - generic [ref=e615]:
+                      - generic [ref=e616]: handoff-agent-1772785351
+                      - generic [ref=e617]:
+                        - generic [ref=e619]: "Agent #17"
+                        - generic [ref=e621]: Agent
+                  - cell "Agent" [ref=e622]:
+                    - generic [ref=e623]: Agent
+                  - cell "Agent" [ref=e624]:
+                    - generic [ref=e625]: Agent
+                  - cell "active" [ref=e626]:
+                    - generic [ref=e627]: active
+                  - cell "delete Remove" [ref=e628]:
+                    - button "delete Remove" [ref=e629] [cursor=pointer]:
+                      - img "delete" [ref=e631]:
+                        - img [ref=e632]
+                      - generic [ref=e634]: Remove
+                - 'row "analyst-agent-1772785770 Agent #18 Agent Agent Agent active delete Remove" [ref=e635]':
+                  - 'cell "analyst-agent-1772785770 Agent #18 Agent" [ref=e636]':
+                    - generic [ref=e637]:
+                      - generic [ref=e638]: analyst-agent-1772785770
+                      - generic [ref=e639]:
+                        - generic [ref=e641]: "Agent #18"
+                        - generic [ref=e643]: Agent
+                  - cell "Agent" [ref=e644]:
+                    - generic [ref=e645]: Agent
+                  - cell "Agent" [ref=e646]:
+                    - generic [ref=e647]: Agent
+                  - cell "active" [ref=e648]:
+                    - generic [ref=e649]: active
+                  - cell "delete Remove" [ref=e650]:
+                    - button "delete Remove" [ref=e651] [cursor=pointer]:
+                      - img "delete" [ref=e653]:
+                        - img [ref=e654]
+                      - generic [ref=e656]: Remove
+                - 'row "summary-agent-1772785770 Agent #19 Agent Agent Agent active delete Remove" [ref=e657]':
+                  - 'cell "summary-agent-1772785770 Agent #19 Agent" [ref=e658]':
+                    - generic [ref=e659]:
+                      - generic [ref=e660]: summary-agent-1772785770
+                      - generic [ref=e661]:
+                        - generic [ref=e663]: "Agent #19"
+                        - generic [ref=e665]: Agent
+                  - cell "Agent" [ref=e666]:
+                    - generic [ref=e667]: Agent
+                  - cell "Agent" [ref=e668]:
+                    - generic [ref=e669]: Agent
+                  - cell "active" [ref=e670]:
+                    - generic [ref=e671]: active
+                  - cell "delete Remove" [ref=e672]:
+                    - button "delete Remove" [ref=e673] [cursor=pointer]:
+                      - img "delete" [ref=e675]:
+                        - img [ref=e676]
+                      - generic [ref=e678]: Remove
+                - 'row "routing-agent-1772785770 Agent #20 Agent Agent Agent active delete Remove" [ref=e679]':
+                  - 'cell "routing-agent-1772785770 Agent #20 Agent" [ref=e680]':
+                    - generic [ref=e681]:
+                      - generic [ref=e682]: routing-agent-1772785770
+                      - generic [ref=e683]:
+                        - generic [ref=e685]: "Agent #20"
+                        - generic [ref=e687]: Agent
+                  - cell "Agent" [ref=e688]:
+                    - generic [ref=e689]: Agent
+                  - cell "Agent" [ref=e690]:
+                    - generic [ref=e691]: Agent
+                  - cell "active" [ref=e692]:
+                    - generic [ref=e693]: active
+                  - cell "delete Remove" [ref=e694]:
+                    - button "delete Remove" [ref=e695] [cursor=pointer]:
+                      - img "delete" [ref=e697]:
+                        - img [ref=e698]
+                      - generic [ref=e700]: Remove
+                - 'row "spec-agent-1772785770 Agent #21 Agent Agent Agent active delete Remove" [ref=e701]':
+                  - 'cell "spec-agent-1772785770 Agent #21 Agent" [ref=e702]':
+                    - generic [ref=e703]:
+                      - generic [ref=e704]: spec-agent-1772785770
+                      - generic [ref=e705]:
+                        - generic [ref=e707]: "Agent #21"
+                        - generic [ref=e709]: Agent
+                  - cell "Agent" [ref=e710]:
+                    - generic [ref=e711]: Agent
+                  - cell "Agent" [ref=e712]:
+                    - generic [ref=e713]: Agent
+                  - cell "active" [ref=e714]:
+                    - generic [ref=e715]: active
+                  - cell "delete Remove" [ref=e716]:
+                    - button "delete Remove" [ref=e717] [cursor=pointer]:
+                      - img "delete" [ref=e719]:
+                        - img [ref=e720]
+                      - generic [ref=e722]: Remove
+                - 'row "estimate-agent-1772785770 Agent #22 Agent Agent Agent active delete Remove" [ref=e723]':
+                  - 'cell "estimate-agent-1772785770 Agent #22 Agent" [ref=e724]':
+                    - generic [ref=e725]:
+                      - generic [ref=e726]: estimate-agent-1772785770
+                      - generic [ref=e727]:
+                        - generic [ref=e729]: "Agent #22"
+                        - generic [ref=e731]: Agent
+                  - cell "Agent" [ref=e732]:
+                    - generic [ref=e733]: Agent
+                  - cell "Agent" [ref=e734]:
+                    - generic [ref=e735]: Agent
+                  - cell "active" [ref=e736]:
+                    - generic [ref=e737]: active
+                  - cell "delete Remove" [ref=e738]:
+                    - button "delete Remove" [ref=e739] [cursor=pointer]:
+                      - img "delete" [ref=e741]:
+                        - img [ref=e742]
+                      - generic [ref=e744]: Remove
+                - 'row "incident-agent-1772785770 Agent #23 Agent Agent Agent active delete Remove" [ref=e745]':
+                  - 'cell "incident-agent-1772785770 Agent #23 Agent" [ref=e746]':
+                    - generic [ref=e747]:
+                      - generic [ref=e748]: incident-agent-1772785770
+                      - generic [ref=e749]:
+                        - generic [ref=e751]: "Agent #23"
+                        - generic [ref=e753]: Agent
+                  - cell "Agent" [ref=e754]:
+                    - generic [ref=e755]: Agent
+                  - cell "Agent" [ref=e756]:
+                    - generic [ref=e757]: Agent
+                  - cell "active" [ref=e758]:
+                    - generic [ref=e759]: active
+                  - cell "delete Remove" [ref=e760]:
+                    - button "delete Remove" [ref=e761] [cursor=pointer]:
+                      - img "delete" [ref=e763]:
+                        - img [ref=e764]
+                      - generic [ref=e766]: Remove
+                - 'row "translation-agent-1772785770 Agent #24 Agent Agent Agent active delete Remove" [ref=e767]':
+                  - 'cell "translation-agent-1772785770 Agent #24 Agent" [ref=e768]':
+                    - generic [ref=e769]:
+                      - generic [ref=e770]: translation-agent-1772785770
+                      - generic [ref=e771]:
+                        - generic [ref=e773]: "Agent #24"
+                        - generic [ref=e775]: Agent
+                  - cell "Agent" [ref=e776]:
+                    - generic [ref=e777]: Agent
+                  - cell "Agent" [ref=e778]:
+                    - generic [ref=e779]: Agent
+                  - cell "active" [ref=e780]:
+                    - generic [ref=e781]: active
+                  - cell "delete Remove" [ref=e782]:
+                    - button "delete Remove" [ref=e783] [cursor=pointer]:
+                      - img "delete" [ref=e785]:
+                        - img [ref=e786]
+                      - generic [ref=e788]: Remove
+                - 'row "audit-agent-1772785770 Agent #25 Agent Agent Agent active delete Remove" [ref=e789]':
+                  - 'cell "audit-agent-1772785770 Agent #25 Agent" [ref=e790]':
+                    - generic [ref=e791]:
+                      - generic [ref=e792]: audit-agent-1772785770
+                      - generic [ref=e793]:
+                        - generic [ref=e795]: "Agent #25"
+                        - generic [ref=e797]: Agent
+                  - cell "Agent" [ref=e798]:
+                    - generic [ref=e799]: Agent
+                  - cell "Agent" [ref=e800]:
+                    - generic [ref=e801]: Agent
+                  - cell "active" [ref=e802]:
+                    - generic [ref=e803]: active
+                  - cell "delete Remove" [ref=e804]:
+                    - button "delete Remove" [ref=e805] [cursor=pointer]:
+                      - img "delete" [ref=e807]:
+                        - img [ref=e808]
+                      - generic [ref=e810]: Remove
+                - 'row "roadmap-agent-1772785770 Agent #26 Agent Agent Agent active delete Remove" [ref=e811]':
+                  - 'cell "roadmap-agent-1772785770 Agent #26 Agent" [ref=e812]':
+                    - generic [ref=e813]:
+                      - generic [ref=e814]: roadmap-agent-1772785770
+                      - generic [ref=e815]:
+                        - generic [ref=e817]: "Agent #26"
+                        - generic [ref=e819]: Agent
+                  - cell "Agent" [ref=e820]:
+                    - generic [ref=e821]: Agent
+                  - cell "Agent" [ref=e822]:
+                    - generic [ref=e823]: Agent
+                  - cell "active" [ref=e824]:
+                    - generic [ref=e825]: active
+                  - cell "delete Remove" [ref=e826]:
+                    - button "delete Remove" [ref=e827] [cursor=pointer]:
+                      - img "delete" [ref=e829]:
+                        - img [ref=e830]
+                      - generic [ref=e832]: Remove
+                - 'row "experiment-agent-1772785770 Agent #27 Agent Agent Agent active delete Remove" [ref=e833]':
+                  - 'cell "experiment-agent-1772785770 Agent #27 Agent" [ref=e834]':
+                    - generic [ref=e835]:
+                      - generic [ref=e836]: experiment-agent-1772785770
+                      - generic [ref=e837]:
+                        - generic [ref=e839]: "Agent #27"
+                        - generic [ref=e841]: Agent
+                  - cell "Agent" [ref=e842]:
+                    - generic [ref=e843]: Agent
+                  - cell "Agent" [ref=e844]:
+                    - generic [ref=e845]: Agent
+                  - cell "active" [ref=e846]:
+                    - generic [ref=e847]: active
+                  - cell "delete Remove" [ref=e848]:
+                    - button "delete Remove" [ref=e849] [cursor=pointer]:
+                      - img "delete" [ref=e851]:
+                        - img [ref=e852]
+                      - generic [ref=e854]: Remove
+                - 'row "sync-agent-1772785770 Agent #28 Agent Agent Agent active delete Remove" [ref=e855]':
+                  - 'cell "sync-agent-1772785770 Agent #28 Agent" [ref=e856]':
+                    - generic [ref=e857]:
+                      - generic [ref=e858]: sync-agent-1772785770
+                      - generic [ref=e859]:
+                        - generic [ref=e861]: "Agent #28"
+                        - generic [ref=e863]: Agent
+                  - cell "Agent" [ref=e864]:
+                    - generic [ref=e865]: Agent
+                  - cell "Agent" [ref=e866]:
+                    - generic [ref=e867]: Agent
+                  - cell "active" [ref=e868]:
+                    - generic [ref=e869]: active
+                  - cell "delete Remove" [ref=e870]:
+                    - button "delete Remove" [ref=e871] [cursor=pointer]:
+                      - img "delete" [ref=e873]:
+                        - img [ref=e874]
+                      - generic [ref=e876]: Remove
+                - 'row "archive-agent-1772785770 Agent #29 Agent Agent Agent active delete Remove" [ref=e877]':
+                  - 'cell "archive-agent-1772785770 Agent #29 Agent" [ref=e878]':
+                    - generic [ref=e879]:
+                      - generic [ref=e880]: archive-agent-1772785770
+                      - generic [ref=e881]:
+                        - generic [ref=e883]: "Agent #29"
+                        - generic [ref=e885]: Agent
+                  - cell "Agent" [ref=e886]:
+                    - generic [ref=e887]: Agent
+                  - cell "Agent" [ref=e888]:
+                    - generic [ref=e889]: Agent
+                  - cell "active" [ref=e890]:
+                    - generic [ref=e891]: active
+                  - cell "delete Remove" [ref=e892]:
+                    - button "delete Remove" [ref=e893] [cursor=pointer]:
+                      - img "delete" [ref=e895]:
+                        - img [ref=e896]
+                      - generic [ref=e898]: Remove
+    - contentinfo [ref=e166]:
+      - generic [ref=e167]:
+        - generic [ref=e169]: Version v1.0, build unknown at 2026/03/06 05:03
+        - generic [ref=e171]:
+          - link "Todo for AI" [ref=e172] [cursor=pointer]:
+            - /url: https://github.com/todo-for-ai/todo-for-ai
+          - text: Create By
+          - link "CC11001100" [ref=e173] [cursor=pointer]:
+            - /url: https://github.com/CC11001100
+          - text: "&"
+          - link "songzhibin97" [ref=e174] [cursor=pointer]:
+            - /url: https://github.com/songzhibin97
+          - text: With ❤️
+    - generic [ref=e176] [cursor=pointer]:
+      - img "message" [ref=e177]:
+        - img [ref=e178]
+      - generic [ref=e180]: AI Group
+  - generic:
+    - generic: "*"
+  - generic [ref=e939]:
+    - dialog "Manage Organization Roles":
+      - generic [ref=e940]:
+        - button "Close" [ref=e941] [cursor=pointer]:
+          - generic "关闭" [ref=e942]:
+            - img "close" [ref=e943]:
+              - img [ref=e944]
+        - generic [ref=e947]: Manage Organization Roles
+        - generic [ref=e948]:
+          - generic [ref=e949]:
+            - textbox "Role name, e.g. Frontend Lead" [ref=e955]
+            - textbox "Role description (optional)" [ref=e961]
+            - button "plus Create Role" [ref=e967] [cursor=pointer]:
+              - img "plus" [ref=e969]:
+                - img [ref=e970]
+              - generic [ref=e973]: Create Role
+          - table [ref=e980]:
+            - rowgroup [ref=e986]:
+              - row "Role Name Role Key Description Actions" [ref=e987]:
+                - columnheader "Role Name" [ref=e988]
+                - columnheader "Role Key" [ref=e989]
+                - columnheader "Description" [ref=e990]
+                - columnheader "Actions" [ref=e991]
+            - rowgroup [ref=e992]:
+              - row "暂无数据 暂无数据" [ref=e993]:
+                - cell "暂无数据 暂无数据" [ref=e994]:
+                  - generic [ref=e995]:
+                    - img "暂无数据" [ref=e997]
+                    - generic [ref=e1003]: 暂无数据

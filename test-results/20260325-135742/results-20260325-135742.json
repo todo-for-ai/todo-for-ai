@@ -1,0 +1,57 @@
+{
+  "timestamp": "20260325-135742",
+  "results": {
+    "todo-for-ai-mcp": {
+      "module": "todo-for-ai-mcp",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "total": 0,
+      "duration": 0.12763381004333496,
+      "coverage": 0.0,
+      "stdout": "\n> @todo-for-ai/mcp@2.1.6 test:coverage\n> vitest run --coverage\n\n",
+      "stderr": "sh: vitest: command not found\n",
+      "return_code": 127,
+      "artifacts": {}
+    },
+    "todo-for-ai-webpage": {
+      "module": "todo-for-ai-webpage",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "total": 0,
+      "duration": 0.12754297256469727,
+      "coverage": 0.0,
+      "stdout": "\n> frontend@0.0.0 test:coverage\n> vitest run --coverage\n\n",
+      "stderr": "sh: vitest: command not found\n",
+      "return_code": 127,
+      "artifacts": {}
+    },
+    "todo-for-ai-api-server": {
+      "module": "todo-for-ai-api-server",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "total": 0,
+      "duration": 0.9392821788787842,
+      "coverage": 0.0,
+      "stdout": "",
+      "stderr": "/Users/cc11001100/Library/Python/3.9/lib/python/site-packages/_pytest/config/__init__.py:331: PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.\nPlugin: helpconfig, Hook: pytest_cmdline_parse\nUsageError: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: -n auto\n  inifile: /Users/cc11001100/github/todo-for-ai/todo-for-ai/todo-for-ai-api-server/pytest.ini\n  rootdir: /Users/cc11001100/github/todo-for-ai/todo-for-ai/todo-for-ai-api-server\nFor more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning\n  config = pluginmanager.hook.pytest_cmdline_parse(\nERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: -n auto\n  inifile: /Users/cc11001100/github/todo-for-ai/todo-for-ai/todo-for-ai-api-server/pytest.ini\n  rootdir: /Users/cc11001100/github/todo-for-ai/todo-for-ai/todo-for-ai-api-server\n\n",
+      "return_code": 4,
+      "artifacts": {}
+    },
+    "agent-runtime": {
+      "module": "agent-runtime",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "total": 0,
+      "duration": 0.9426999092102051,
+      "coverage": 0.0,
+      "stdout": "",
+      "stderr": "/Users/cc11001100/Library/Python/3.9/lib/python/site-packages/_pytest/config/__init__.py:331: PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.\nPlugin: helpconfig, Hook: pytest_cmdline_parse\nUsageError: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: -n auto\n  inifile: /Users/cc11001100/github/todo-for-ai/todo-for-ai/agent-runtime/pytest.ini\n  rootdir: /Users/cc11001100/github/todo-for-ai/todo-for-ai/agent-runtime\nFor more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning\n  config = pluginmanager.hook.pytest_cmdline_parse(\nERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: -n auto\n  inifile: /Users/cc11001100/github/todo-for-ai/todo-for-ai/agent-runtime/pytest.ini\n  rootdir: /Users/cc11001100/github/todo-for-ai/todo-for-ai/agent-runtime\n\n",
+      "return_code": 4,
+      "artifacts": {}
+    }
+  }
+}

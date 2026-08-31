@@ -1,0 +1,153 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - img "Todo for AI Logo" [ref=e7]
+      - heading "Todo for AI" [level=4] [ref=e8]
+    - menu [ref=e10]:
+      - menuitem "dashboard Dashboard" [ref=e11] [cursor=pointer]:
+        - img "dashboard" [ref=e12]:
+          - img [ref=e13]
+        - text: Dashboard
+      - menuitem "project Project Management" [ref=e15] [cursor=pointer]:
+        - img "project" [ref=e16]:
+          - img [ref=e17]
+        - text: Project Management
+    - button "Star our repository on GitHub to support us" [ref=e19] [cursor=pointer]:
+      - img "github" [ref=e20]:
+        - img [ref=e21]
+    - generic [ref=e23]:
+      - link "appstore AI Access" [ref=e25] [cursor=pointer]:
+        - /url: /todo-for-ai/pages/mcp-installation
+        - button "appstore AI Access" [ref=e26]:
+          - img "appstore" [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e31]: AI Access
+      - generic [ref=e32] [cursor=pointer]:
+        - img "user" [ref=e34]:
+          - img [ref=e35]
+        - generic "Guest" [ref=e38]
+  - main [ref=e39]:
+    - generic [ref=e41]:
+      - generic [ref=e42]:
+        - heading "Dashboard" [level=2] [ref=e43]
+        - generic [ref=e44]: Welcome back! Here's your work overview
+      - heading "Owned Scope" [level=4] [ref=e45]
+      - generic [ref=e46]:
+        - list [ref=e52]:
+          - listitem [ref=e53]
+          - listitem [ref=e54]
+          - listitem [ref=e55]
+          - listitem [ref=e56]
+        - list [ref=e62]:
+          - listitem [ref=e63]
+          - listitem [ref=e64]
+          - listitem [ref=e65]
+          - listitem [ref=e66]
+        - list [ref=e72]:
+          - listitem [ref=e73]
+          - listitem [ref=e74]
+          - listitem [ref=e75]
+          - listitem [ref=e76]
+        - list [ref=e82]:
+          - listitem [ref=e83]
+          - listitem [ref=e84]
+          - listitem [ref=e85]
+          - listitem [ref=e86]
+      - heading "Participated Scope" [level=4] [ref=e87]
+      - generic [ref=e88]:
+        - list [ref=e94]:
+          - listitem [ref=e95]
+          - listitem [ref=e96]
+          - listitem [ref=e97]
+          - listitem [ref=e98]
+        - list [ref=e104]:
+          - listitem [ref=e105]
+          - listitem [ref=e106]
+          - listitem [ref=e107]
+          - listitem [ref=e108]
+        - list [ref=e114]:
+          - listitem [ref=e115]
+          - listitem [ref=e116]
+          - listitem [ref=e117]
+          - listitem [ref=e118]
+        - list [ref=e124]:
+          - listitem [ref=e125]
+          - listitem [ref=e126]
+          - listitem [ref=e127]
+          - listitem [ref=e128]
+      - heading "Organization & Agent Statistics" [level=4] [ref=e129]
+      - generic [ref=e130]:
+        - list [ref=e136]:
+          - listitem [ref=e137]
+          - listitem [ref=e138]
+          - listitem [ref=e139]
+          - listitem [ref=e140]
+        - list [ref=e146]:
+          - listitem [ref=e147]
+          - listitem [ref=e148]
+          - listitem [ref=e149]
+          - listitem [ref=e150]
+        - list [ref=e156]:
+          - listitem [ref=e157]
+          - listitem [ref=e158]
+          - listitem [ref=e159]
+          - listitem [ref=e160]
+      - generic [ref=e163]:
+        - generic [ref=e166]: Top 5 Active Organizations
+        - list [ref=e170]:
+          - listitem [ref=e171]
+          - listitem [ref=e172]
+          - listitem [ref=e173]
+          - listitem [ref=e174]
+      - generic [ref=e177]:
+        - generic [ref=e179]:
+          - generic [ref=e180]: Activity Heatmap
+          - button "reload" [ref=e182] [cursor=pointer]:
+            - img "reload" [ref=e184]:
+              - img [ref=e185]
+        - generic [ref=e188]:
+          - generic [ref=e189]: Activity over the past year
+          - generic [ref=e190]:
+            - generic [ref=e193]:
+              - generic [ref=e194]: Sun
+              - generic [ref=e195]: Mon
+              - generic [ref=e196]: Tue
+              - generic [ref=e197]: Wed
+              - generic [ref=e198]: Thu
+              - generic [ref=e199]: Fri
+              - generic [ref=e200]: Sat
+            - generic [ref=e951]:
+              - generic [ref=e952]: Less
+              - generic [ref=e958]: More
+      - generic [ref=e959]:
+        - generic [ref=e961]:
+          - generic [ref=e964]: Recent Projects
+          - list [ref=e968]:
+            - listitem [ref=e969]
+            - listitem [ref=e970]
+            - listitem [ref=e971]
+            - listitem [ref=e972]
+        - generic [ref=e974]:
+          - generic [ref=e977]: Recent Tasks
+          - list [ref=e981]:
+            - listitem [ref=e982]
+            - listitem [ref=e983]
+            - listitem [ref=e984]
+            - listitem [ref=e985]
+  - contentinfo [ref=e986]:
+    - generic [ref=e987]:
+      - generic [ref=e989]: Version v1.0, build unknown at 2026/03/06 05:03
+      - generic [ref=e991]:
+        - link "Todo for AI" [ref=e992] [cursor=pointer]:
+          - /url: https://github.com/todo-for-ai/todo-for-ai
+        - text: Create By
+        - link "CC11001100" [ref=e993] [cursor=pointer]:
+          - /url: https://github.com/CC11001100
+        - text: "&"
+        - link "songzhibin97" [ref=e994] [cursor=pointer]:
+          - /url: https://github.com/songzhibin97
+        - text: With ❤️
+  - generic [ref=e996] [cursor=pointer]:
+    - img "message" [ref=e997]:
+      - img [ref=e998]
+    - generic [ref=e1000]: AI Group

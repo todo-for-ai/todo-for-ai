@@ -1,0 +1,299 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  test-agent-runtime:
+    name: Test Agent Runtime
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agent-runtime
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-agent-runtime-${{ hashFiles('agent-runtime/requirements*.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --cov=src --cov-report=xml --cov-report=html
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./agent-runtime/coverage.xml
+          flags: agent-runtime
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-runtime-test-results
+          path: |
+            agent-runtime/htmlcov/
+            agent-runtime/coverage.xml
+
+  test-api-server:
+    name: Test API Server
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    defaults:
+      run:
+        working-directory: todo-for-ai-api-server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-api-server-${{ hashFiles('todo-for-ai-api-server/requirements*.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml --cov-report=html
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/test
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET_KEY: test-secret-key
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./todo-for-ai-api-server/coverage.xml
+          flags: api-server
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-server-test-results
+          path: |
+            todo-for-ai-api-server/htmlcov/
+            todo-for-ai-api-server/coverage.xml
+
+  test-mcp:
+    name: Test MCP
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: todo-for-ai-mcp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: todo-for-ai-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./todo-for-ai-mcp/coverage/lcov.info
+          flags: mcp
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mcp-test-results
+          path: |
+            todo-for-ai-mcp/coverage/
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: todo-for-ai-webpage
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: todo-for-ai-webpage/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./todo-for-ai-webpage/coverage/lcov.info
+          flags: frontend
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-test-results
+          path: |
+            todo-for-ai-webpage/coverage/
+
+  regression-test:
+    name: Regression Test
+    runs-on: ubuntu-latest
+    needs: [test-agent-runtime, test-api-server, test-mcp, test-frontend]
+    if: github.event_name == 'schedule' || github.ref == 'refs/heads/main'
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r agent-runtime/requirements.txt
+          pip install -r agent-runtime/requirements-dev.txt
+          pip install -r todo-for-ai-api-server/requirements.txt
+          pip install -r todo-for-ai-api-server/requirements-dev.txt
+
+      - name: Install Node.js dependencies (MCP)
+        working-directory: todo-for-ai-mcp
+        run: npm ci
+
+      - name: Install Node.js dependencies (Frontend)
+        working-directory: todo-for-ai-webpage
+        run: npm ci
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Run regression tests
+        run: ./scripts/run-regression.sh
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/test
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET_KEY: test-secret-key
+
+      - name: Upload regression report
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-report
+          path: |
+            test-results/
+            test-report.json
+            test-report.html
+
+  notify:
+    name: Notify Test Results
+    runs-on: ubuntu-latest
+    needs: [test-agent-runtime, test-api-server, test-mcp, test-frontend]
+    if: always() && github.event_name == 'schedule'
+
+    steps:
+      - name: Check test results
+        env:
+          AGENT_RUNTIME_RESULT: ${{ needs.test-agent-runtime.result }}
+          API_SERVER_RESULT: ${{ needs.test-api-server.result }}
+          MCP_RESULT: ${{ needs.test-mcp.result }}
+          FRONTEND_RESULT: ${{ needs.test-frontend.result }}
+        run: |
+          if [ "$AGENT_RUNTIME_RESULT" == "failure" ] || \
+             [ "$API_SERVER_RESULT" == "failure" ] || \
+             [ "$MCP_RESULT" == "failure" ] || \
+             [ "$FRONTEND_RESULT" == "failure" ]; then
+            echo "Some tests failed!"
+            exit 1
+          fi
+          echo "All tests passed!"

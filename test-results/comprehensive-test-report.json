@@ -1,0 +1,1415 @@
+{
+  "test_results": [
+    {
+      "name": "Login Page",
+      "status": "PASS"
+    },
+    {
+      "name": "Guest Login",
+      "status": "PASS"
+    },
+    {
+      "name": "Dashboard",
+      "status": "PASS"
+    },
+    {
+      "name": "Agents Page",
+      "status": "PASS"
+    },
+    {
+      "name": "Projects Page",
+      "status": "PASS"
+    },
+    {
+      "name": "Tasks Page",
+      "status": "PASS"
+    },
+    {
+      "name": "Organizations Page",
+      "status": "PASS"
+    },
+    {
+      "name": "Navigation",
+      "status": "PASS"
+    }
+  ],
+  "api_requests": [
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.48561
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.525471
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.526873
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.5288682
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.529873
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.533021
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.537008
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.760022
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.760648
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.787625
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031329.820191
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/auth/login/guest?return_to=%2Ftodo-for-ai%2Fpages",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031332.960872
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/auth/me",
+      "method": "GET",
+      "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcm...",
+      "timestamp": 1774031333.181576
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcm...",
+      "timestamp": 1774031333.2112
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/pins",
+      "method": "GET",
+      "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcm...",
+      "timestamp": 1774031333.299597
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/pins",
+      "method": "GET",
+      "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcm...",
+      "timestamp": 1774031333.301012
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/dashboard/activity-heatmap",
+      "method": "GET",
+      "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcm...",
+      "timestamp": 1774031333.3012831
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/dashboard/stats",
+      "method": "GET",
+      "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcm...",
+      "timestamp": 1774031333.3040068
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.19924
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.211359
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.211583
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.215807
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.2186759
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.2236228
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.22577
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.3178182
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.319187
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.349178
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031338.396364
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/agents",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.454321
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.4624379
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.468755
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.469455
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.469773
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.4699268
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.4702148
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.5310872
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.5330932
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.556329
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031343.5574698
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/projects",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.653273
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.661452
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.6620219
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.662482
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.662823
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.663085
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.663548
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.7022588
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.706746
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.729773
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031348.739444
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/tasks",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.8257082
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.834199
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.834736
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.8350542
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.8354938
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.835822
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.83604
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.8756301
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.893853
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.914489
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031353.9199722
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/organizations",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.03549
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.0470662
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.04846
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.049032
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.0492291
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.0494878
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.049643
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.084411
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.0906339
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.107397
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031359.1115441
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.2064729
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.225339
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.2257652
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.2263381
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.226516
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.226872
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.227377
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.284152
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.2851672
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.3028858
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "method": "GET",
+      "auth_header": "NOT_PRESENT",
+      "timestamp": 1774031364.30789
+    }
+  ],
+  "api_responses": [
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.511839
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.5438879
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.555658
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.559495
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.601152
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.642498
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.657738
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.786588
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "timestamp": 1774031329.790051
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.804255
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031329.833686
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/auth/login/guest?return_to=%2Ftodo-for-ai%2Fpages",
+      "status": 302,
+      "statusText": "FOUND",
+      "timestamp": 1774031333.0173068
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/auth/me",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031333.210481
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/user-settings",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031333.31585
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/dashboard/stats",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031333.337899
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/pins",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031333.351458
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/dashboard/activity-heatmap",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031333.3521678
+    },
+    {
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/pins",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031333.416327
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.203309
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.241735
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.243358
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.243986
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.245155
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.245696
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.2514079
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.33658
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "timestamp": 1774031338.3380501
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.3898811
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031338.406087
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/agents",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.459073
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.472737
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.473397
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.473672
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.4739761
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.482621
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.4936929
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.5528939
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "timestamp": 1774031343.5537071
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.5569122
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031343.561234
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/projects",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031348.657312
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031348.664522
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031348.665226
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031348.665771
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031348.6661918
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031348.66687
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031348.667268
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031348.726447
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "timestamp": 1774031348.72806
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031348.736761
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031348.743993
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/tasks",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031353.8286238
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031353.836385
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031353.837076
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031353.8375628
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031353.8382988
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031353.840079
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031353.8412428
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031353.895326
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "timestamp": 1774031353.913651
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031353.917356
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031353.9240372
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages/organizations",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031359.0377622
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031359.051357
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031359.053081
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031359.0539432
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031359.056105
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031359.0566552
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031359.057188
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031359.098492
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "timestamp": 1774031359.104864
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031359.110914
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031359.11635
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/pages",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.2105012
+    },
+    {
+      "url": "http://localhost:50112/assets/index-D2BbFVwm.css",
+      "status": 304,
+      "statusText": "Not Modified",
+      "timestamp": 1774031364.2280362
+    },
+    {
+      "url": "http://localhost:50112/assets/i18n-vendor-DzvDbbKJ.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.228483
+    },
+    {
+      "url": "http://localhost:50112/assets/react-vendor-BgYxOI6i.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.2288692
+    },
+    {
+      "url": "http://localhost:50112/assets/milkdown-vendor-D92MrJ1o.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.22914
+    },
+    {
+      "url": "http://localhost:50112/assets/index-tdbJHwQ2.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.232797
+    },
+    {
+      "url": "http://localhost:50112/assets/antd-vendor-CXsNBVZf.js",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.2432508
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.300201
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "timestamp": 1774031364.301402
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.306386
+    },
+    {
+      "url": "http://localhost:50112/favicon-round.png",
+      "status": 200,
+      "statusText": "OK",
+      "timestamp": 1774031364.31196
+    }
+  ],
+  "network_errors": [
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "type": "api_error"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "type": "api_error"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "type": "api_error"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "type": "api_error"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "type": "api_error"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "type": "api_error"
+    },
+    {
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings",
+      "status": 401,
+      "statusText": "UNAUTHORIZED",
+      "type": "api_error"
+    }
+  ],
+  "console_errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    }
+  ],
+  "console_logs": [
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031329.704609
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031329.707436
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "timestamp": 1774031329.790378
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load user language settings: ApiHttpError: Authentication required\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5596)\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:20503\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:21672",
+      "timestamp": 1774031329.817037
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从GitHub API获取数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031329.829058
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031332.943087
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031332.943744
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: 127.0.0.1:50112, protocol: http:}",
+      "timestamp": 1774031333.1516721
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031333.152334
+    },
+    {
+      "type": "log",
+      "text": "[AuthStore] Token刷新服务已启动",
+      "timestamp": 1774031333.181965
+    },
+    {
+      "type": "log",
+      "text": "[TokenRefreshService] Service started",
+      "timestamp": 1774031333.182355
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从GitHub API获取数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031333.268248
+    },
+    {
+      "type": "log",
+      "text": "开始加载Pin项目...",
+      "timestamp": 1774031333.300363
+    },
+    {
+      "type": "log",
+      "text": "Pin API Response: {pins: Array(0), total: 0}",
+      "timestamp": 1774031333.4169998
+    },
+    {
+      "type": "log",
+      "text": "Response type: object",
+      "timestamp": 1774031333.417551
+    },
+    {
+      "type": "log",
+      "text": "Response keys: [pins, total]",
+      "timestamp": 1774031333.4179258
+    },
+    {
+      "type": "log",
+      "text": "Pin projects: []",
+      "timestamp": 1774031333.418124
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 保存到 localStorage: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031334.7578812
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 成功获取仓库信息: 1156 stars",
+      "timestamp": 1774031334.758026
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031338.2756732
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031338.277141
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "timestamp": 1774031338.338219
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load user language settings: ApiHttpError: Authentication required\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5596)\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:20503\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:21672",
+      "timestamp": 1774031338.3392022
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从GitHub API获取数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031338.354465
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 保存到 localStorage: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031338.4489548
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 成功获取仓库信息: 1156 stars",
+      "timestamp": 1774031338.449162
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031343.499237
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031343.499737
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从 localStorage 加载缓存: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031343.499918
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "timestamp": 1774031343.5539641
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 使用内存缓存数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031343.5544078
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load user language settings: ApiHttpError: Authentication required\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5596)\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:20503\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:21672",
+      "timestamp": 1774031343.555669
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031348.668311
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031348.6688378
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从 localStorage 加载缓存: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031348.669211
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "timestamp": 1774031348.728173
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 使用内存缓存数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031348.728937
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load user language settings: ApiHttpError: Authentication required\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5596)\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:20503\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:21672",
+      "timestamp": 1774031348.729524
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031353.8442361
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031353.844824
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从 localStorage 加载缓存: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031353.84524
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 使用内存缓存数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031353.9110441
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "timestamp": 1774031353.913857
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load user language settings: ApiHttpError: Authentication required\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5596)\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:20503\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:21672",
+      "timestamp": 1774031353.9143171
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031359.05746
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031359.057653
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从 localStorage 加载缓存: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031359.057835
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "timestamp": 1774031359.1052108
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load user language settings: ApiHttpError: Authentication required\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5596)\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:20503\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:21672",
+      "timestamp": 1774031359.1062431
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 使用内存缓存数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031359.107109
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Detecting environment: {currentHost: localhost:50112, protocol: http:}",
+      "timestamp": 1774031364.2481642
+    },
+    {
+      "type": "log",
+      "text": "[API Config] Development environment detected, using Vite proxy: /todo-for-ai/api/v1",
+      "timestamp": 1774031364.2487638
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 从 localStorage 加载缓存: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031364.249193
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "timestamp": 1774031364.30148
+    },
+    {
+      "type": "log",
+      "text": "[GitHubService] 使用内存缓存数据: todo-for-ai/todo-for-ai",
+      "timestamp": 1774031364.302238
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load user language settings: ApiHttpError: Authentication required\n    at rv.request (http://localhost:50112/assets/index-tdbJHwQ2.js:58:5596)\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:20503\n    at async http://localhost:50112/assets/index-tdbJHwQ2.js:65:21672",
+      "timestamp": 1774031364.302615
+    }
+  ],
+  "page_errors": [],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "warnings": 0,
+    "total_requests": 84,
+    "total_responses": 84,
+    "network_error_count": 7,
+    "console_error_count": 7,
+    "page_error_count": 0
+  }
+}

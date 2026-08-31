@@ -73,6 +73,12 @@
 - **todo-for-ai-webpage/**: 前端网页应用 → [todo-for-ai-webpage](https://github.com/todo-for-ai/todo-for-ai-webpage)
 - **todo-for-ai-mcp/**: MCP服务器 → [todo-for-ai-mcp](https://github.com/todo-for-ai/todo-for-ai-mcp)
 
+## 📚 架构与规范
+
+- [Agent 平台规范 v1.0](docs/AGENT_PLATFORM_SPEC.md)
+- [API 文档](docs/API.md)
+- [数据库设计](docs/database-design.md)
+
 ## 🚀 安装与快速开始
 
 选择您偏好的安装方式：
@@ -165,6 +171,21 @@ npm install
 npm run build
 npm start
 ```
+
+### ✅ Runtime 端到端验证（本地）
+
+在仓库根目录可直接一键验证：
+
+```bash
+# 自动创建一条 AI 任务并验证 commit -> DONE
+./scripts/runtime_e2e_once.sh
+
+# 严格模式：首个提交事件必须是目标任务
+TARGET_TASK_ID=123456 STRICT_TARGET_ONLY=true ./scripts/runtime_e2e_once.sh
+```
+
+该入口会调用 `agent-runtime/scripts/run_docker_e2e_once.sh`，适配本地 Colima/Docker 环境。
+
 
 ## 🎯 快速开始示例
 

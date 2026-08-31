@@ -1,0 +1,354 @@
+{
+  "summary": {
+    "passed": 17,
+    "failed": 0,
+    "warnings": 0,
+    "skipped": 0,
+    "total": 17,
+    "screenshots": 23,
+    "errors": 2,
+    "fixes": 0
+  },
+  "results": [
+    {
+      "module": "Auth",
+      "test": "游客登录",
+      "status": "PASS",
+      "time": "2026-03-21T16:28:20.204777",
+      "details": {
+        "options": [
+          "Guest",
+          "GitHub",
+          "Gmail"
+        ],
+        "token_extracted": true
+      },
+      "error": null
+    },
+    {
+      "module": "Auth",
+      "test": "Token刷新",
+      "status": "PASS",
+      "time": "2026-03-21T16:28:27.374159",
+      "details": {
+        "initial_token_exists": false,
+        "current_token_exists": false
+      },
+      "error": null
+    },
+    {
+      "module": "Auth",
+      "test": "访问保护",
+      "status": "PASS",
+      "time": "2026-03-21T16:28:30.146272",
+      "details": {
+        "redirected_to_login": true
+      },
+      "error": null
+    },
+    {
+      "module": "Dashboard",
+      "test": "页面加载",
+      "status": "PASS",
+      "time": "2026-03-21T16:28:36.624058",
+      "details": {
+        "stats_found": [
+          "项目",
+          "任务",
+          "进行中",
+          "projects"
+        ],
+        "charts_count": 0,
+        "lists_found": [
+          "最近项目",
+          "最近任务"
+        ]
+      },
+      "error": null
+    },
+    {
+      "module": "Projects",
+      "test": "创建项目",
+      "status": "PASS",
+      "time": "2026-03-21T16:28:49.747253",
+      "details": {
+        "project_name": "Test Project 20260321_162844"
+      },
+      "error": null
+    },
+    {
+      "module": "Tasks",
+      "test": "创建任务",
+      "status": "PASS",
+      "time": "2026-03-21T16:28:59.509154",
+      "details": {
+        "task_title": "Test Task 20260321_162852"
+      },
+      "error": null
+    },
+    {
+      "module": "Projects",
+      "test": "搜索功能",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:05.213529",
+      "details": {},
+      "error": null
+    },
+    {
+      "module": "Tasks",
+      "test": "任务列表",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:10.919450",
+      "details": {
+        "task_elements_count": 0
+      },
+      "error": null
+    },
+    {
+      "module": "Tasks",
+      "test": "看板视图",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:14.491463",
+      "details": {
+        "columns_count": 0
+      },
+      "error": null
+    },
+    {
+      "module": "Agents",
+      "test": "页面加载",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:19.177499",
+      "details": {
+        "keywords_found": [
+          "Agent",
+          "agent"
+        ],
+        "has_create_btn": true
+      },
+      "error": null
+    },
+    {
+      "module": "Organizations",
+      "test": "页面加载",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:24.763704",
+      "details": {
+        "keywords_found": [
+          "组织"
+        ]
+      },
+      "error": null
+    },
+    {
+      "module": "MCP",
+      "test": "安装页面",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:28.476635",
+      "details": {
+        "keywords_found": [
+          "MCP"
+        ]
+      },
+      "error": null
+    },
+    {
+      "module": "Settings",
+      "test": "设置页面",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:32.284240",
+      "details": {
+        "keywords_found": [
+          "设置",
+          "语言"
+        ]
+      },
+      "error": null
+    },
+    {
+      "module": "Settings",
+      "test": "个人资料",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:36.297637",
+      "details": {},
+      "error": null
+    },
+    {
+      "module": "API",
+      "test": "API文档",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:39.899215",
+      "details": {
+        "keywords_found": [
+          "API",
+          "文档"
+        ]
+      },
+      "error": null
+    },
+    {
+      "module": "Responsive",
+      "test": "响应式设计",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:51.896836",
+      "details": {
+        "viewports_tested": 3
+      },
+      "error": null
+    },
+    {
+      "module": "Errors",
+      "test": "404处理",
+      "status": "PASS",
+      "time": "2026-03-21T16:29:57.171995",
+      "details": {
+        "redirected_to_home": true
+      },
+      "error": null
+    }
+  ],
+  "errors": [
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://127.0.0.1:50112/todo-for-ai/api/v1/user-settings",
+      "time": "2026-03-21T16:28:06.030360"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+      "time": "2026-03-21T16:28:06.030451"
+    }
+  ],
+  "fixes": [],
+  "screenshots": [
+    {
+      "name": "01_login_page",
+      "path": "./test-results/playwright-mcp/01_login_page_20260321_162811.png",
+      "time": "20260321_162811"
+    },
+    {
+      "name": "02_after_guest_login",
+      "path": "./test-results/playwright-mcp/02_after_guest_login_20260321_162816.png",
+      "time": "20260321_162816"
+    },
+    {
+      "name": "03_dashboard",
+      "path": "./test-results/playwright-mcp/03_dashboard_20260321_162833.png",
+      "time": "20260321_162833"
+    },
+    {
+      "name": "04_projects_list",
+      "path": "./test-results/playwright-mcp/04_projects_list_20260321_162840.png",
+      "time": "20260321_162840"
+    },
+    {
+      "name": "05_create_project_form",
+      "path": "./test-results/playwright-mcp/05_create_project_form_20260321_162844.png",
+      "time": "20260321_162844"
+    },
+    {
+      "name": "05_create_project_filled",
+      "path": "./test-results/playwright-mcp/05_create_project_filled_20260321_162844.png",
+      "time": "20260321_162844"
+    },
+    {
+      "name": "05_after_create_project",
+      "path": "./test-results/playwright-mcp/05_after_create_project_20260321_162849.png",
+      "time": "20260321_162849"
+    },
+    {
+      "name": "08_create_task_form",
+      "path": "./test-results/playwright-mcp/08_create_task_form_20260321_162851.png",
+      "time": "20260321_162851"
+    },
+    {
+      "name": "08_create_task_filled",
+      "path": "./test-results/playwright-mcp/08_create_task_filled_20260321_162853.png",
+      "time": "20260321_162853"
+    },
+    {
+      "name": "08_after_create_task",
+      "path": "./test-results/playwright-mcp/08_after_create_task_20260321_162857.png",
+      "time": "20260321_162857"
+    },
+    {
+      "name": "06_project_search",
+      "path": "./test-results/playwright-mcp/06_project_search_20260321_162902.png",
+      "time": "20260321_162902"
+    },
+    {
+      "name": "07_tasks_list",
+      "path": "./test-results/playwright-mcp/07_tasks_list_20260321_162908.png",
+      "time": "20260321_162908"
+    },
+    {
+      "name": "09_kanban_view",
+      "path": "./test-results/playwright-mcp/09_kanban_view_20260321_162914.png",
+      "time": "20260321_162914"
+    },
+    {
+      "name": "10_agents_page",
+      "path": "./test-results/playwright-mcp/10_agents_page_20260321_162917.png",
+      "time": "20260321_162917"
+    },
+    {
+      "name": "11_organizations_page",
+      "path": "./test-results/playwright-mcp/11_organizations_page_20260321_162922.png",
+      "time": "20260321_162922"
+    },
+    {
+      "name": "12_mcp_installation",
+      "path": "./test-results/playwright-mcp/12_mcp_installation_20260321_162927.png",
+      "time": "20260321_162927"
+    },
+    {
+      "name": "13_settings_page",
+      "path": "./test-results/playwright-mcp/13_settings_page_20260321_162931.png",
+      "time": "20260321_162931"
+    },
+    {
+      "name": "14_profile_page",
+      "path": "./test-results/playwright-mcp/14_profile_page_20260321_162935.png",
+      "time": "20260321_162935"
+    },
+    {
+      "name": "15_api_docs",
+      "path": "./test-results/playwright-mcp/15_api_docs_20260321_162939.png",
+      "time": "20260321_162939"
+    },
+    {
+      "name": "16_responsive_桌面端",
+      "path": "./test-results/playwright-mcp/16_responsive_桌面端_20260321_162942.png",
+      "time": "20260321_162942"
+    },
+    {
+      "name": "16_responsive_平板",
+      "path": "./test-results/playwright-mcp/16_responsive_平板_20260321_162946.png",
+      "time": "20260321_162946"
+    },
+    {
+      "name": "16_responsive_手机",
+      "path": "./test-results/playwright-mcp/16_responsive_手机_20260321_162950.png",
+      "time": "20260321_162950"
+    },
+    {
+      "name": "17_404_page",
+      "path": "./test-results/playwright-mcp/17_404_page_20260321_162954.png",
+      "time": "20260321_162954"
+    }
+  ],
+  "config": {
+    "frontend_url": "http://127.0.0.1:50112",
+    "api_url": "http://127.0.0.1:50110/todo-for-ai/api/v1",
+    "mcp_url": "http://127.0.0.1:3000",
+    "test_results_dir": "./test-results/playwright-mcp",
+    "headless": false,
+    "slow_mo": 100,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "generated_at": "2026-03-21T16:30:27.235010"
+}

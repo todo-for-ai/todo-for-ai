@@ -166,6 +166,50 @@ Content-Type: application/json
 }
 ```
 
+### Dashboard
+
+#### Get Dashboard Stats (User-Isolated)
+```http
+GET /dashboard/stats
+Authorization: Bearer <jwt-or-api-token>
+```
+
+Response now includes:
+- Backward-compatible fields: `projects`, `tasks`
+- Scope-aware fields: `scopes.owned`, `scopes.participated`
+- Organization/Agent fields: `organizations.summary`, `organizations.top_organizations`
+
+Example:
+```json
+{
+  "projects": {"total": 12, "active": 9},
+  "tasks": {"total": 120, "todo": 30, "in_progress": 20, "review": 5, "done": 65, "ai_executing": 8},
+  "scopes": {
+    "owned": {
+      "projects": {"total": 12, "active": 9},
+      "tasks": {"total": 120, "todo": 30, "in_progress": 20, "review": 5, "done": 65, "ai_executing": 8}
+    },
+    "participated": {
+      "projects": {"total": 18, "active": 14},
+      "tasks": {"total": 214, "todo": 44, "in_progress": 40, "review": 12, "done": 118, "ai_executing": 16}
+    }
+  },
+  "organizations": {
+    "summary": {"total": 4, "total_agents": 23, "active_agents_7d": 11},
+    "top_organizations": [
+      {
+        "organization_id": 1,
+        "organization_name": "Platform Team",
+        "my_role": "owner",
+        "total_agents": 9,
+        "active_agents_7d": 6,
+        "last_agent_activity_at": "2026-03-05T09:01:23"
+      }
+    ]
+  }
+}
+```
+
 ## MCP Integration Endpoints
 
 ### MCP-Specific Operations
@@ -187,6 +231,220 @@ Content-Type: application/json
   "ai_identifier": "claude-assistant",
   "is_ai_task": true
 }
+```
+
+## Agent Platform Endpoints
+
+The Agent platform APIs provide workspace-scoped Agent identity, credential management, and runtime task execution.
+
+### Workspace Agent Management
+
+#### List Agents
+```http
+GET /workspaces/{workspace_id}/agents
+Authorization: Bearer <jwt-or-api-token>
+```
+
+#### Create Agent
+```http
+POST /workspaces/{workspace_id}/agents
+Content-Type: application/json
+Authorization: Bearer <jwt-or-api-token>
+
+{
+  "name": "writer-agent-prod",
+  "display_name": "Writer Agent",
+  "avatar_url": "https://cdn.example.com/agent.png",
+  "homepage_url": "https://example.com/agents/writer",
+  "contact_email": "agent@example.com",
+  "description": "Agent for content generation",
+  "capability_tags": ["write", "review"],
+  "allowed_project_ids": [1, 2, 3],
+  "llm_provider": "openai",
+  "llm_model": "gpt-5-mini",
+  "temperature": 0.7,
+  "top_p": 1.0,
+  "max_output_tokens": 4096,
+  "context_window_tokens": 128000,
+  "reasoning_mode": "balanced",
+  "system_prompt": "You are a senior writer.",
+  "soul_markdown": "# SOUL\\n\\n## Identity\\n...",
+  "response_style": {"tone": "professional"},
+  "tool_policy": {"allow": ["search"]},
+  "memory_policy": {"mode": "session"},
+  "handoff_policy": {"allow_handoff": true},
+  "max_concurrency": 1,
+  "max_retry": 2,
+  "timeout_seconds": 1800,
+  "heartbeat_interval_seconds": 20,
+  "change_summary": "initial version"
+}
+```
+
+#### Update Agent
+```http
+PATCH /workspaces/{workspace_id}/agents/{agent_id}
+```
+
+`PATCH` supports all create fields plus:
+- `status`: `active | inactive | revoked`
+- `change_summary`: SOUL 变更说明（当 `soul_markdown` 更新时将写入版本历史）
+
+#### Revoke Agent
+```http
+DELETE /workspaces/{workspace_id}/agents/{agent_id}
+```
+
+### Agent Key Management
+
+#### Create Agent Key
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/keys
+Content-Type: application/json
+
+{
+  "name": "prod-key-1"
+}
+```
+
+#### List Agent Keys
+```http
+GET /workspaces/{workspace_id}/agents/{agent_id}/keys
+```
+
+#### Reveal Agent Key
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/keys/{key_id}/reveal
+```
+
+#### Revoke Agent Key
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/keys/{key_id}/revoke
+```
+
+#### Generate Connect Link
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/connect-link
+Content-Type: application/json
+
+{
+  "ttl_seconds": 600
+}
+```
+
+### Agent SOUL Version Management
+
+#### List SOUL Versions
+```http
+GET /workspaces/{workspace_id}/agents/{agent_id}/soul/versions?page=1&per_page=20
+```
+
+#### Get SOUL Version
+```http
+GET /workspaces/{workspace_id}/agents/{agent_id}/soul/versions/{version}
+```
+
+#### Rollback SOUL
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/soul/rollback
+Content-Type: application/json
+
+{
+  "version": 3,
+  "change_summary": "rollback due to bad prompt update"
+}
+```
+
+### Agent Secrets Management
+
+#### List Agent Secrets
+```http
+GET /workspaces/{workspace_id}/agents/{agent_id}/secrets
+```
+
+#### Create Secret
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/secrets
+Content-Type: application/json
+
+{
+  "name": "OPENAI_API_KEY",
+  "secret_value": "sk-xxx"
+}
+```
+
+#### Reveal Secret
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/secrets/{secret_id}/reveal
+```
+
+#### Rotate Secret
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/secrets/{secret_id}/rotate
+Content-Type: application/json
+
+{
+  "secret_value": "sk-new-xxx"
+}
+```
+
+#### Revoke Secret
+```http
+POST /workspaces/{workspace_id}/agents/{agent_id}/secrets/{secret_id}/revoke
+```
+
+### Agent Runtime
+
+#### Introspect Agent Key
+```http
+POST /agent/auth/introspect
+Content-Type: application/json
+
+{
+  "agent_key": "agk_xxx"
+}
+```
+
+#### Pull Tasks
+```http
+POST /agent/tasks/pull
+Authorization: Bearer <agent-access-token>
+Content-Type: application/json
+
+{
+  "max_tasks": 1
+}
+```
+
+`/agent/tasks/pull` 返回新增：
+- `agent_profile`: 当前 Agent 运行配置（含 SOUL、版本号、active secret 名称列表）
+- `items`: 可执行任务列表
+
+#### Renew Lease
+```http
+POST /agent/tasks/{task_id}/lease/renew
+Authorization: Bearer <agent-access-token>
+Content-Type: application/json
+
+{
+  "attempt_id": "att_xxx",
+  "lease_id": "lea_xxx"
+}
+```
+
+#### Emit Task Events
+```http
+POST /agent/tasks/{task_id}/events
+Authorization: Bearer <agent-access-token>
+Content-Type: application/json
+```
+
+#### Commit Task Result
+```http
+POST /agent/tasks/{task_id}/commit
+Authorization: Bearer <agent-access-token>
+Idempotency-Key: idem_xxx
+Content-Type: application/json
 ```
 
 ## Error Handling
@@ -280,4 +538,116 @@ const task = await client.tasks.create({
   title: 'First task',
   content: 'Task description'
 });
+```
+
+## Organization Agent Members
+
+### List Organization Agent Members
+```http
+GET /organizations/{organization_id}/agent-members
+Authorization: Bearer <jwt-token>
+```
+
+### Create Organization Agent
+```http
+POST /organizations/{organization_id}/agents
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "name": "BuildBot",
+  "description": "Org automation agent",
+  "capability_tags": ["build", "ci"],
+  "allowed_project_ids": [1, 2]
+}
+```
+
+### Invite Agent to Organization (pending acceptance)
+```http
+POST /organizations/{organization_id}/agent-members/invite
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "agent_id": 12
+}
+```
+
+### Agent Invitation Handshake
+```http
+GET /agent/organization-invitations
+Authorization: Bearer <agent-access-token>
+
+POST /agent/organization-invitations/{membership_id}/accept
+Authorization: Bearer <agent-access-token>
+
+POST /agent/organization-invitations/{membership_id}/reject
+Authorization: Bearer <agent-access-token>
+```
+
+## Task Collaboration Extensions
+
+### Upload Task Attachment
+```http
+POST /tasks/{task_id}/attachments
+Authorization: Bearer <jwt-token>
+Content-Type: multipart/form-data
+```
+
+### List Task Attachments
+```http
+GET /tasks/{task_id}/attachments
+Authorization: Bearer <jwt-token>
+```
+
+### Append Task Log (Human)
+```http
+POST /tasks/{task_id}/logs
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "content": "Started implementation",
+  "content_type": "text/markdown"
+}
+```
+
+### Query Task Logs (Human)
+```http
+GET /tasks/{task_id}/logs?page=1&per_page=50
+Authorization: Bearer <jwt-token>
+```
+
+### Append / Query Task Logs (Agent)
+```http
+POST /agent/tasks/{task_id}/logs
+Authorization: Bearer <agent-access-token>
+Content-Type: application/json
+
+GET /agent/tasks/{task_id}/logs
+Authorization: Bearer <agent-access-token>
+```
+
+### Task Update Concurrency Control
+
+`PUT /tasks/{task_id}` now supports optional `expected_revision` field:
+
+```json
+{
+  "title": "Update title",
+  "expected_revision": 3
+}
+```
+
+If revision mismatches, API returns `409 REVISION_CONFLICT`.
+
+### Multi-assignees and Mentions
+
+Task create/update supports:
+
+```json
+{
+  "assignees": [{"type": "human", "id": 10}, {"type": "agent", "id": 12}],
+  "mentions": [{"type": "human", "id": 10}]
+}
 ```

@@ -1,0 +1,309 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - img "Todo for AI Logo" [ref=e7]
+      - heading "Todo for AI" [level=4] [ref=e8]
+    - menu [ref=e10]:
+      - menuitem "dashboard Dashboard" [ref=e11] [cursor=pointer]:
+        - img "dashboard" [ref=e12]:
+          - img [ref=e13]
+        - text: Dashboard
+      - menuitem "project Project Management" [ref=e15] [cursor=pointer]:
+        - img "project" [ref=e16]:
+          - img [ref=e17]
+        - text: Project Management
+    - button "Star our repository on GitHub to support us" [ref=e19] [cursor=pointer]:
+      - img "github" [ref=e20]:
+        - img [ref=e21]
+    - generic [ref=e23]:
+      - link "appstore AI Access" [ref=e25] [cursor=pointer]:
+        - /url: /todo-for-ai/pages/mcp-installation
+        - button "appstore AI Access" [ref=e26]:
+          - img "appstore" [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e31]: AI Access
+      - generic [ref=e32] [cursor=pointer]:
+        - img "user" [ref=e34]:
+          - img [ref=e35]
+        - generic "Guest" [ref=e38]
+  - main [ref=e39]:
+    - generic [ref=e41]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - heading "Organizations" [level=2] [ref=e45]
+          - generic [ref=e46]: Manage organization spaces and shared members
+        - generic [ref=e47]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: View
+            - radiogroup "segmented control" [ref=e52]:
+              - generic [ref=e53]:
+                - generic [ref=e54] [cursor=pointer]:
+                  - radio "ordered-list List" [checked]
+                  - generic [ref=e56]:
+                    - img "ordered-list" [ref=e58]:
+                      - img [ref=e59]
+                    - generic [ref=e61]: List
+                - generic [ref=e62] [cursor=pointer]:
+                  - radio "appstore Card"
+                  - generic [ref=e64]:
+                    - img "appstore" [ref=e66]:
+                      - img [ref=e67]
+                    - generic [ref=e69]: Card
+          - button "plus Create Organization" [ref=e71] [cursor=pointer]:
+            - img "plus" [ref=e73]:
+              - img [ref=e74]
+            - generic [ref=e77]: Create Organization
+      - table [ref=e108]:
+        - rowgroup [ref=e114]:
+          - row "Organization My Role Members Projects" [ref=e115]:
+            - columnheader "Organization" [ref=e116]
+            - columnheader "My Role" [ref=e117]
+            - columnheader "Members" [ref=e118]
+            - columnheader "Projects" [ref=e119]
+        - rowgroup [ref=e120]:
+          - row "team PW Org 1772797682 pw-org-1772797682 owner - -" [ref=e121]:
+            - cell "team PW Org 1772797682 pw-org-1772797682" [ref=e122]:
+              - generic [ref=e123]:
+                - img "team" [ref=e125]:
+                  - img [ref=e126]
+                - generic [ref=e129]:
+                  - generic [ref=e130]: PW Org 1772797682
+                  - text: pw-org-1772797682
+            - cell "owner" [ref=e131]:
+              - generic [ref=e132]: owner
+            - cell "-" [ref=e133]
+            - cell "-" [ref=e134]
+          - row "team Guest Agent Lab guest-agent-lab owner - -" [ref=e135]:
+            - cell "team Guest Agent Lab guest-agent-lab" [ref=e136]:
+              - generic [ref=e137]:
+                - img "team" [ref=e139]:
+                  - img [ref=e140]
+                - generic [ref=e143]:
+                  - generic [ref=e144]: Guest Agent Lab
+                  - text: guest-agent-lab
+            - cell "owner" [ref=e145]:
+              - generic [ref=e146]: owner
+            - cell "-" [ref=e147]
+            - cell "-" [ref=e148]
+          - row "team E2E Org 1772552411 e2e-org-1772552411 owner - -" [ref=e149]:
+            - cell "team E2E Org 1772552411 e2e-org-1772552411" [ref=e150]:
+              - generic [ref=e151]:
+                - img "team" [ref=e153]:
+                  - img [ref=e154]
+                - generic [ref=e157]:
+                  - generic [ref=e158]: E2E Org 1772552411
+                  - text: e2e-org-1772552411
+            - cell "owner" [ref=e159]:
+              - generic [ref=e160]: owner
+            - cell "-" [ref=e161]
+            - cell "-" [ref=e162]
+          - row "team Org-1772550421 org-1772550421 owner - -" [ref=e163]:
+            - cell "team Org-1772550421 org-1772550421" [ref=e164]:
+              - generic [ref=e165]:
+                - img "team" [ref=e167]:
+                  - img [ref=e168]
+                - generic [ref=e171]:
+                  - generic [ref=e172]: Org-1772550421
+                  - text: org-1772550421
+            - cell "owner" [ref=e173]:
+              - generic [ref=e174]: owner
+            - cell "-" [ref=e175]
+            - cell "-" [ref=e176]
+          - row "team Org-1772549851 org-1772549851 owner - -" [ref=e177]:
+            - cell "team Org-1772549851 org-1772549851" [ref=e178]:
+              - generic [ref=e179]:
+                - img "team" [ref=e181]:
+                  - img [ref=e182]
+                - generic [ref=e185]:
+                  - generic [ref=e186]: Org-1772549851
+                  - text: org-1772549851
+            - cell "owner" [ref=e187]:
+              - generic [ref=e188]: owner
+            - cell "-" [ref=e189]
+            - cell "-" [ref=e190]
+          - row "team Demo Org A demo-org-a owner - -" [ref=e191]:
+            - cell "team Demo Org A demo-org-a" [ref=e192]:
+              - generic [ref=e193]:
+                - img "team" [ref=e195]:
+                  - img [ref=e196]
+                - generic [ref=e199]:
+                  - generic [ref=e200]: Demo Org A
+                  - text: demo-org-a
+            - cell "owner" [ref=e201]:
+              - generic [ref=e202]: owner
+            - cell "-" [ref=e203]
+            - cell "-" [ref=e204]
+      - generic [ref=e205]:
+        - generic [ref=e208]: Members of PW Org 1772797682
+        - generic [ref=e210]:
+          - generic [ref=e212]:
+            - textbox "Invite by user email" [ref=e214]
+            - generic [ref=e216] [cursor=pointer]:
+              - generic [ref=e218]:
+                - combobox [ref=e222]
+                - generic: Select roles (multi-select, optional)
+              - generic:
+                - img:
+                  - img
+            - button "Invite" [ref=e224] [cursor=pointer]:
+              - generic [ref=e225]: Invite
+            - textbox "Invite by Agent ID" [ref=e227]
+            - button "api Invite Agent" [ref=e229] [cursor=pointer]:
+              - img "api" [ref=e231]:
+                - img [ref=e232]
+              - generic [ref=e234]: Invite Agent
+            - button "api Create Agent" [ref=e236] [cursor=pointer]:
+              - img "api" [ref=e238]:
+                - img [ref=e239]
+              - generic [ref=e241]: Create Agent
+            - button "setting Role Manager" [ref=e243] [cursor=pointer]:
+              - img "setting" [ref=e245]:
+                - img [ref=e246]
+              - generic [ref=e248]: Role Manager
+          - table [ref=e256]:
+            - rowgroup [ref=e263]:
+              - row "User Type Role Status Actions" [ref=e264]:
+                - columnheader "User" [ref=e265]
+                - columnheader "Type" [ref=e266]
+                - columnheader "Role" [ref=e267]
+                - columnheader "Status" [ref=e268]
+                - columnheader "Actions" [ref=e269]
+            - rowgroup [ref=e270]:
+              - 'row "Guest ID: 1 Human Human Owner active" [ref=e271]':
+                - 'cell "Guest ID: 1 Human" [ref=e272]':
+                  - generic [ref=e273]:
+                    - generic [ref=e274]: Guest
+                    - generic [ref=e275]:
+                      - generic [ref=e277]: "ID: 1"
+                      - generic [ref=e279]: Human
+                - cell "Human" [ref=e280]:
+                  - generic [ref=e281]: Human
+                - cell "Owner" [ref=e282]:
+                  - generic [ref=e285]: Owner
+                - cell "active" [ref=e286]:
+                  - generic [ref=e287]: active
+                - cell [ref=e288]
+              - 'row "E2E Member ID: 3 Human Human Admin QA Reviewer active delete Remove" [ref=e289]':
+                - 'cell "E2E Member ID: 3 Human" [ref=e290]':
+                  - generic [ref=e291]:
+                    - generic [ref=e292]: E2E Member
+                    - generic [ref=e293]:
+                      - generic [ref=e295]: "ID: 3"
+                      - generic [ref=e297]: Human
+                - cell "Human" [ref=e298]:
+                  - generic [ref=e299]: Human
+                - cell "Admin QA Reviewer" [ref=e300]:
+                  - generic [ref=e301] [cursor=pointer]:
+                    - generic [ref=e304]:
+                      - generic "Admin" [ref=e306]:
+                        - generic [ref=e307]: Admin
+                        - img [ref=e309]:
+                          - img [ref=e310]
+                      - generic "QA Reviewer" [ref=e313]:
+                        - generic [ref=e314]: QA Reviewer
+                        - img [ref=e316]:
+                          - img [ref=e317]
+                      - generic:
+                        - generic: + 0 ...
+                      - combobox [ref=e321]
+                    - generic:
+                      - img:
+                        - img
+                    - img [ref=e323]:
+                      - img [ref=e324]
+                - cell "active" [ref=e326]:
+                  - generic [ref=e327]: active
+                - cell "delete Remove" [ref=e328]:
+                  - button "delete Remove" [ref=e329] [cursor=pointer]:
+                    - img "delete" [ref=e331]:
+                      - img [ref=e332]
+                    - generic [ref=e334]: Remove
+              - 'row "PW Member ID: 4 Human Human Select roles (multi-select, optional) active delete Remove" [ref=e335]':
+                - 'cell "PW Member ID: 4 Human" [ref=e336]':
+                  - generic [ref=e337]:
+                    - generic [ref=e338]: PW Member
+                    - generic [ref=e339]:
+                      - generic [ref=e341]: "ID: 4"
+                      - generic [ref=e343]: Human
+                - cell "Human" [ref=e344]:
+                  - generic [ref=e345]: Human
+                - cell "Select roles (multi-select, optional)" [ref=e346]:
+                  - generic [ref=e347] [cursor=pointer]:
+                    - generic [ref=e349]:
+                      - combobox [ref=e353]
+                      - generic: Select roles (multi-select, optional)
+                    - generic:
+                      - img:
+                        - img
+                - cell "active" [ref=e354]:
+                  - generic [ref=e355]: active
+                - cell "delete Remove" [ref=e356]:
+                  - button "delete Remove" [ref=e357] [cursor=pointer]:
+                    - img "delete" [ref=e359]:
+                      - img [ref=e360]
+                    - generic [ref=e362]: Remove
+              - 'row "PW Zero ID: 5 Human Human Select roles (multi-select, optional) active delete Remove" [ref=e363]':
+                - 'cell "PW Zero ID: 5 Human" [ref=e364]':
+                  - generic [ref=e365]:
+                    - generic [ref=e366]: PW Zero
+                    - generic [ref=e367]:
+                      - generic [ref=e369]: "ID: 5"
+                      - generic [ref=e371]: Human
+                - cell "Human" [ref=e372]:
+                  - generic [ref=e373]: Human
+                - cell "Select roles (multi-select, optional)" [ref=e374]:
+                  - generic [ref=e375] [cursor=pointer]:
+                    - generic [ref=e377]:
+                      - combobox [ref=e381]
+                      - generic: Select roles (multi-select, optional)
+                    - generic:
+                      - img:
+                        - img
+                - cell "active" [ref=e382]:
+                  - generic [ref=e383]: active
+                - cell "delete Remove" [ref=e384]:
+                  - button "delete Remove" [ref=e385] [cursor=pointer]:
+                    - img "delete" [ref=e387]:
+                      - img [ref=e388]
+                    - generic [ref=e390]: Remove
+              - 'row "PW Zero2 ID: 6 Human Human Select roles (multi-select, optional) active delete Remove" [ref=e391]':
+                - 'cell "PW Zero2 ID: 6 Human" [ref=e392]':
+                  - generic [ref=e393]:
+                    - generic [ref=e394]: PW Zero2
+                    - generic [ref=e395]:
+                      - generic [ref=e397]: "ID: 6"
+                      - generic [ref=e399]: Human
+                - cell "Human" [ref=e400]:
+                  - generic [ref=e401]: Human
+                - cell "Select roles (multi-select, optional)" [ref=e402]:
+                  - generic [ref=e403] [cursor=pointer]:
+                    - generic [ref=e405]:
+                      - combobox [ref=e409]
+                      - generic: Select roles (multi-select, optional)
+                    - generic:
+                      - img:
+                        - img
+                - cell "active" [ref=e410]:
+                  - generic [ref=e411]: active
+                - cell "delete Remove" [ref=e412]:
+                  - button "delete Remove" [ref=e413] [cursor=pointer]:
+                    - img "delete" [ref=e415]:
+                      - img [ref=e416]
+                    - generic [ref=e418]: Remove
+  - contentinfo [ref=e89]:
+    - generic [ref=e90]:
+      - generic [ref=e92]: Version v1.0, build unknown at 2026/03/06 05:03
+      - generic [ref=e94]:
+        - link "Todo for AI" [ref=e95] [cursor=pointer]:
+          - /url: https://github.com/todo-for-ai/todo-for-ai
+        - text: Create By
+        - link "CC11001100" [ref=e96] [cursor=pointer]:
+          - /url: https://github.com/CC11001100
+        - text: "&"
+        - link "songzhibin97" [ref=e97] [cursor=pointer]:
+          - /url: https://github.com/songzhibin97
+        - text: With ❤️
+  - generic [ref=e420] [cursor=pointer]:
+    - img "message" [ref=e421]:
+      - img [ref=e422]
+    - generic [ref=e424]: AI Group

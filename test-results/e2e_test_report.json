@@ -1,0 +1,237 @@
+{
+  "results": [
+    {
+      "name": "登录页面",
+      "status": "PASS"
+    },
+    {
+      "name": "游客登录",
+      "status": "PASS"
+    },
+    {
+      "name": "导航菜单",
+      "status": "PASS"
+    },
+    {
+      "name": "Dashboard功能",
+      "status": "PASS"
+    },
+    {
+      "name": "项目管理",
+      "status": "PASS"
+    },
+    {
+      "name": "Agent管理",
+      "status": "PASS"
+    },
+    {
+      "name": "任务管理",
+      "status": "PASS"
+    },
+    {
+      "name": "组织管理",
+      "status": "PASS"
+    },
+    {
+      "name": "用户资料设置",
+      "status": "PASS"
+    },
+    {
+      "name": "响应式设计",
+      "status": "PASS"
+    },
+    {
+      "name": "错误处理",
+      "status": "PASS"
+    }
+  ],
+  "errors": [
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    },
+    {
+      "type": "api",
+      "status": 401,
+      "url": "http://localhost:50112/todo-for-ai/api/v1/user-settings"
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+    }
+  ],
+  "screenshots": [
+    "login_page",
+    "after_guest_login",
+    "nav_仪表板",
+    "nav_项目管理",
+    "nav_任务管理",
+    "nav_组织管理",
+    "nav_Agent管理",
+    "dashboard_full",
+    "projects_page",
+    "agents_page",
+    "tasks_page",
+    "organizations_page",
+    "profile_page",
+    "settings_page",
+    "responsive_桌面端",
+    "responsive_平板",
+    "responsive_手机",
+    "error_404"
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 0,
+    "total": 11
+  }
+}

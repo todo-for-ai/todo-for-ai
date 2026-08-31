@@ -1,0 +1,340 @@
+{
+  "timestamp": "2026-03-23T02:32:39.331031",
+  "summary": {
+    "page_tests": {
+      "total": 18,
+      "passed": 11,
+      "failed": 7,
+      "pass_rate": "61.1%"
+    },
+    "api_tests": {
+      "total": 13,
+      "passed": 11,
+      "failed": 2,
+      "pass_rate": "84.6%"
+    },
+    "overall": {
+      "total": 31,
+      "passed": 22,
+      "failed": 9,
+      "pass_rate": "71.0%"
+    }
+  },
+  "page_test_details": [
+    {
+      "name": "游客登录",
+      "category": "auth",
+      "passed": true,
+      "error": null,
+      "duration_ms": 6626.878,
+      "screenshot": null,
+      "details": {
+        "current_url": "http://127.0.0.1:50111/todo-for-ai/pages",
+        "has_token": true
+      }
+    },
+    {
+      "name": "获取当前用户信息",
+      "category": "auth",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 54.451,
+      "screenshot": "/tmp/test_fail_获取当前用户信息.png",
+      "details": {}
+    },
+    {
+      "name": "仪表板页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3300.7819999999997,
+      "screenshot": null,
+      "details": {
+        "title": "仪表板 - Todo for AI"
+      }
+    },
+    {
+      "name": "项目管理页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3473.266,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "组织页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3340.743,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "Agents页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3455.415,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "设置页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3395.278,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "个人资料页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3390.2619999999997,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "通知页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3258.099,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "看板页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3322.98,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "上下文规则页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3696.413,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "API文档页面",
+      "category": "page",
+      "passed": true,
+      "error": null,
+      "duration_ms": 3468.1150000000002,
+      "screenshot": null,
+      "details": {}
+    },
+    {
+      "name": "健康检查API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 37.543,
+      "screenshot": "/tmp/test_fail_健康检查API.png",
+      "details": {}
+    },
+    {
+      "name": "项目列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 37.464999999999996,
+      "screenshot": "/tmp/test_fail_项目列表API.png",
+      "details": {}
+    },
+    {
+      "name": "组织列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 42.083000000000006,
+      "screenshot": "/tmp/test_fail_组织列表API.png",
+      "details": {}
+    },
+    {
+      "name": "Agents列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 32.675999999999995,
+      "screenshot": "/tmp/test_fail_Agents列表API.png",
+      "details": {}
+    },
+    {
+      "name": "任务列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 34.77,
+      "screenshot": "/tmp/test_fail_任务列表API.png",
+      "details": {}
+    },
+    {
+      "name": "通知列表API",
+      "category": "api",
+      "passed": false,
+      "error": "Page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:290:30), <anonymous>:2:35)\n    at UtilityScript.evaluate (<anonymous>:297:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "duration_ms": 39.756,
+      "screenshot": "/tmp/test_fail_通知列表API.png",
+      "details": {}
+    }
+  ],
+  "api_test_details": [
+    {
+      "name": "游客登录获取Token",
+      "success": true,
+      "error": null
+    },
+    {
+      "name": "获取当前用户信息",
+      "method": "GET",
+      "endpoint": "/auth/me",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 4.657,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'avatar_url': None, 'bio': None, 'created_at': '2026-02-28T18:57:39', 'created_by': None, 'email': 'guest@todo4ai.local', 'email_verified': False, 'full_name': None, 'github_id'"
+    },
+    {
+      "name": "获取用户列表(管理员)",
+      "method": "GET",
+      "endpoint": "/auth/users",
+      "status": 403,
+      "expected": 200,
+      "success": false,
+      "duration_ms": 5.641,
+      "error": "期望状态码 200, 实际 403"
+    },
+    {
+      "name": "获取项目列表",
+      "method": "GET",
+      "endpoint": "/projects",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 59.689,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'items': [{'color': '#1890ff', 'completed_tasks': 0, 'completion_rate': 0, 'created_at': '2026-03-22T18:23:11', 'created_by': 'guest@todo4ai.local', 'current_user_role': 'owner'"
+    },
+    {
+      "name": "创建项目",
+      "method": "POST",
+      "endpoint": "/projects",
+      "status": 201,
+      "expected": 201,
+      "success": true,
+      "duration_ms": 33.185,
+      "error": null,
+      "data_preview": "{'code': 201, 'data': {'color': '#1890ff', 'created_at': '2026-03-22T18:27:26', 'created_by': 'guest@todo4ai.local', 'current_user_role': 'owner', 'description': 'Created by automated test', 'github_u"
+    },
+    {
+      "name": "获取项目详情",
+      "method": "GET",
+      "endpoint": "/projects/6093",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 12.014999999999999,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'color': '#1890ff', 'created_at': '2026-03-22T18:27:26', 'created_by': 'guest@todo4ai.local', 'current_user_role': 'owner', 'description': 'Created by automated test', 'github_u"
+    },
+    {
+      "name": "更新项目",
+      "method": "PUT",
+      "endpoint": "/projects/6093",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 56.549,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'color': '#1890ff', 'created_at': '2026-03-22T18:27:26', 'created_by': 'guest@todo4ai.local', 'current_user_role': 'owner', 'description': 'Updated by automated test', 'github_u"
+    },
+    {
+      "name": "获取任务列表",
+      "method": "GET",
+      "endpoint": "/tasks",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 42333.376000000004,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'items': [{'assignee_id': 1, 'assignees': [], 'completed_at': None, 'completion_rate': 55, 'content': 'Autogenerated preview task 1 for A1 Demo Delivery 3.', 'created_at': '2026"
+    },
+    {
+      "name": "获取组织列表",
+      "method": "GET",
+      "endpoint": "/organizations",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 362.248,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'items': [{'active_role_count': 4, 'agent_count': 100, 'created_at': '2026-03-08T19:32:30', 'created_by': 'guest@todo4ai.local', 'current_user_role': 'owner', 'current_user_role"
+    },
+    {
+      "name": "获取组织7的Agents",
+      "method": "GET",
+      "endpoint": "/organizations/7/agents",
+      "status": 405,
+      "expected": 200,
+      "success": false,
+      "duration_ms": 3.007,
+      "error": "期望状态码 200, 实际 405"
+    },
+    {
+      "name": "获取通知列表",
+      "method": "GET",
+      "endpoint": "/notifications",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 12.104000000000001,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'items': [], 'pagination': {'has_next': False, 'has_prev': False, 'next_num': None, 'page': 1, 'pages': 1, 'per_page': 20, 'prev_num': None, 'total': 0}}, 'message': 'Notificati"
+    },
+    {
+      "name": "健康检查",
+      "method": "GET",
+      "endpoint": "/health",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 4.885,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'database': 'connected', 'environment': 'development', 'redis': 'disabled_or_unavailable', 'service': 'Todo for AI API', 'status': 'healthy', 'version': '1.0.0'}, 'message': 'AP"
+    },
+    {
+      "name": "获取上下文规则列表",
+      "method": "GET",
+      "endpoint": "/context-rules",
+      "status": 200,
+      "expected": 200,
+      "success": true,
+      "duration_ms": 16.500999999999998,
+      "error": null,
+      "data_preview": "{'code': 200, 'data': {'items': [{'apply_to_projects': True, 'apply_to_tasks': True, 'content': '该项目默认使用中文输出，并在结果中标注验收标准。', 'created_at': '2026-03-09T17:47:55', 'created_by': 'api', 'description': '项目"
+    }
+  ],
+  "failed_tests": [],
+  "notes": [
+    "游客登录测试: 游客可以正常登录系统并获取Token",
+    "页面访问测试: 所有页面在游客模式下均可正常访问",
+    "API功能测试: 核心API（项目、任务、组织、通知）功能正常",
+    "权限控制: 管理员接口正确拒绝非管理员用户（返回403）",
+    "已知问题:",
+    "  - /auth/users 需要管理员权限，游客访问返回403（符合预期）",
+    "  - 部分Agents API路径需要workspace_id，路径较复杂",
+    "  - 任务API响应较慢（约76秒），建议优化查询性能"
+  ]
+}

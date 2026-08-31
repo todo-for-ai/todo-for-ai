@@ -16,3 +16,6 @@
 [submodule "private-deploy"]
 	path = private-deploy
 	url = git@github.com:todo-for-ai/private-deploy.git
+[submodule "agent-runtime"]
+	path = agent-runtime
+	url = git@github.com:todo-for-ai/agent-runtime.git

@@ -1,0 +1,91 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - img "Todo for AI Logo" [ref=e7]
+      - heading "Todo for AI" [level=4] [ref=e8]
+    - menu [ref=e10]:
+      - menuitem "dashboard Dashboard" [ref=e11] [cursor=pointer]:
+        - img "dashboard" [ref=e12]:
+          - img [ref=e13]
+        - text: Dashboard
+      - menuitem "project Project Management" [ref=e15] [cursor=pointer]:
+        - img "project" [ref=e16]:
+          - img [ref=e17]
+        - text: Project Management
+    - button "Star our repository on GitHub to support us" [ref=e19] [cursor=pointer]:
+      - img "github" [ref=e20]:
+        - img [ref=e21]
+    - generic [ref=e23]:
+      - link "appstore AI Access" [ref=e25] [cursor=pointer]:
+        - /url: /todo-for-ai/pages/mcp-installation
+        - button "appstore AI Access" [ref=e26]:
+          - img "appstore" [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e31]: AI Access
+      - generic [ref=e32] [cursor=pointer]:
+        - img "user" [ref=e34]:
+          - img [ref=e35]
+        - generic "Guest" [ref=e38]
+  - main [ref=e39]:
+    - generic [ref=e41]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - heading "Organizations" [level=2] [ref=e45]
+          - generic [ref=e46]: Manage organization spaces and shared members
+        - generic [ref=e47]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: View
+            - radiogroup "segmented control" [ref=e52]:
+              - generic [ref=e53]:
+                - generic [ref=e54] [cursor=pointer]:
+                  - radio "ordered-list List" [checked]
+                  - generic [ref=e56]:
+                    - img "ordered-list" [ref=e58]:
+                      - img [ref=e59]
+                    - generic [ref=e61]: List
+                - generic [ref=e62] [cursor=pointer]:
+                  - radio "appstore Card"
+                  - generic [ref=e64]:
+                    - img "appstore" [ref=e66]:
+                      - img [ref=e67]
+                    - generic [ref=e69]: Card
+          - button "plus Create Organization" [ref=e71] [cursor=pointer]:
+            - img "plus" [ref=e73]:
+              - img [ref=e74]
+            - generic [ref=e77]: Create Organization
+      - generic [ref=e81]:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - table:
+                  - rowgroup:
+                    - row "Organization My Role Members Projects":
+                      - columnheader "Organization"
+                      - columnheader "My Role"
+                      - columnheader "Members"
+                      - columnheader "Projects"
+                  - rowgroup:
+                    - row "No data No data":
+                      - cell "No data No data":
+                        - generic:
+                          - generic:
+                            - img "No data"
+                          - generic: No data
+  - contentinfo [ref=e89]:
+    - generic [ref=e90]:
+      - generic [ref=e92]: Version v1.0, build unknown at 2026/03/06 05:03
+      - generic [ref=e94]:
+        - link "Todo for AI" [ref=e95] [cursor=pointer]:
+          - /url: https://github.com/todo-for-ai/todo-for-ai
+        - text: Create By
+        - link "CC11001100" [ref=e96] [cursor=pointer]:
+          - /url: https://github.com/CC11001100
+        - text: "&"
+        - link "songzhibin97" [ref=e97] [cursor=pointer]:
+          - /url: https://github.com/songzhibin97
+        - text: With ❤️
+  - generic [ref=e99] [cursor=pointer]:
+    - img "message" [ref=e100]:
+      - img [ref=e101]
+    - generic [ref=e103]: TG AIGC Group

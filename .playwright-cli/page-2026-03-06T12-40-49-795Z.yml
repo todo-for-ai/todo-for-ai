@@ -1,0 +1,139 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - img "Todo for AI Logo" [ref=e7]
+      - heading "Todo for AI" [level=4] [ref=e8]
+    - menu [ref=e10]:
+      - menuitem "dashboard Dashboard" [ref=e11] [cursor=pointer]:
+        - img "dashboard" [ref=e12]:
+          - img [ref=e13]
+        - text: Dashboard
+      - menuitem "project Project Management" [ref=e15] [cursor=pointer]:
+        - img "project" [ref=e16]:
+          - img [ref=e17]
+        - text: Project Management
+    - button "Star our repository on GitHub to support us" [ref=e19] [cursor=pointer]:
+      - img "github" [ref=e20]:
+        - img [ref=e21]
+    - generic [ref=e23]:
+      - link "appstore AI Access" [ref=e25] [cursor=pointer]:
+        - /url: /todo-for-ai/pages/mcp-installation
+        - button "appstore AI Access" [ref=e26]:
+          - img "appstore" [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e31]: AI Access
+      - generic [ref=e32] [cursor=pointer]:
+        - img "user" [ref=e34]:
+          - img [ref=e35]
+        - generic "Guest" [ref=e38]
+  - main [ref=e39]:
+    - generic [ref=e425]:
+      - generic [ref=e427]:
+        - button "arrow-left Back to Organizations" [ref=e429] [cursor=pointer]:
+          - img "arrow-left" [ref=e431]:
+            - img [ref=e432]
+          - generic [ref=e434]: Back to Organizations
+        - generic [ref=e436]:
+          - heading "Manage Organization Roles" [level=2] [ref=e437]
+          - generic [ref=e438]: PW Org 1772797682
+      - generic [ref=e441]:
+        - generic [ref=e443]:
+          - generic "Title" [ref=e445]: "* Title"
+          - textbox "* Title" [ref=e449]:
+            - /placeholder: Role title, e.g. Frontend Lead
+        - generic [ref=e451]:
+          - generic "Description" [ref=e453]
+          - textbox "Description" [ref=e457]:
+            - /placeholder: Role description (optional)
+        - generic [ref=e459]:
+          - generic "Definition Content" [ref=e461]
+          - textbox "Definition Content" [ref=e465]:
+            - /placeholder: Role definition content (Markdown, optional)
+        - button "plus Create Role" [ref=e466] [cursor=pointer]:
+          - img "plus" [ref=e468]:
+            - img [ref=e469]
+          - generic [ref=e472]: Create Role
+      - table [ref=e481]:
+        - rowgroup [ref=e488]:
+          - row "Title Role Key Description Definition Actions" [ref=e489]:
+            - columnheader "Title" [ref=e490]
+            - columnheader "Role Key" [ref=e491]
+            - columnheader "Description" [ref=e492]
+            - columnheader "Definition" [ref=e493]
+            - columnheader "Actions" [ref=e494]
+        - rowgroup [ref=e495]:
+          - row "Owner System owner Organization owner -" [ref=e496]:
+            - cell "Owner System" [ref=e497]:
+              - generic [ref=e498]:
+                - generic [ref=e499]: Owner
+                - generic [ref=e501]: System
+            - cell "owner" [ref=e502]
+            - cell "Organization owner" [ref=e503]
+            - cell "-" [ref=e504]
+            - cell [ref=e505]
+          - row "Admin System admin Organization admin -" [ref=e506]:
+            - cell "Admin System" [ref=e507]:
+              - generic [ref=e508]:
+                - generic [ref=e509]: Admin
+                - generic [ref=e511]: System
+            - cell "admin" [ref=e512]
+            - cell "Organization admin" [ref=e513]
+            - cell "-" [ref=e514]
+            - cell [ref=e515]
+          - row "Member System member Organization member -" [ref=e516]:
+            - cell "Member System" [ref=e517]:
+              - generic [ref=e518]:
+                - generic [ref=e519]: Member
+                - generic [ref=e521]: System
+            - cell "member" [ref=e522]
+            - cell "Organization member" [ref=e523]
+            - cell "-" [ref=e524]
+            - cell [ref=e525]
+          - row "Viewer System viewer Read-only member -" [ref=e526]:
+            - cell "Viewer System" [ref=e527]:
+              - generic [ref=e528]:
+                - generic [ref=e529]: Viewer
+                - generic [ref=e531]: System
+            - cell "viewer" [ref=e532]
+            - cell "Read-only member" [ref=e533]
+            - cell "-" [ref=e534]
+            - cell [ref=e535]
+          - row "QA Reviewer qa_reviewer E2E multi-role test - delete Remove" [ref=e536]:
+            - cell "QA Reviewer" [ref=e537]:
+              - generic [ref=e539]: QA Reviewer
+            - cell "qa_reviewer" [ref=e540]
+            - cell "E2E multi-role test" [ref=e541]
+            - cell "-" [ref=e542]
+            - cell "delete Remove" [ref=e543]:
+              - button "delete Remove" [ref=e544] [cursor=pointer]:
+                - img "delete" [ref=e546]:
+                  - img [ref=e547]
+                - generic [ref=e549]: Remove
+          - 'row "Playwright Spec Role 20260306A playwright_spec_role_20260306a Role definition for playwright e2e test # Responsibilities\\n- Verify org role settings\\n- Coordinate test flows\\n\\n# Constraints\\n- Can hold multiple roles delete Remove" [ref=e550]':
+            - cell "Playwright Spec Role 20260306A" [ref=e551]:
+              - generic [ref=e553]: Playwright Spec Role 20260306A
+            - cell "playwright_spec_role_20260306a" [ref=e554]
+            - cell "Role definition for playwright e2e test" [ref=e555]
+            - cell "# Responsibilities\\n- Verify org role settings\\n- Coordinate test flows\\n\\n# Constraints\\n- Can hold multiple roles" [ref=e556]
+            - cell "delete Remove" [ref=e557]:
+              - button "delete Remove" [ref=e558] [cursor=pointer]:
+                - img "delete" [ref=e560]:
+                  - img [ref=e561]
+                - generic [ref=e563]: Remove
+  - contentinfo [ref=e89]:
+    - generic [ref=e90]:
+      - generic [ref=e92]: Version v1.0, build unknown at 2026/03/06 05:03
+      - generic [ref=e94]:
+        - link "Todo for AI" [ref=e95] [cursor=pointer]:
+          - /url: https://github.com/todo-for-ai/todo-for-ai
+        - text: Create By
+        - link "CC11001100" [ref=e96] [cursor=pointer]:
+          - /url: https://github.com/CC11001100
+        - text: "&"
+        - link "songzhibin97" [ref=e97] [cursor=pointer]:
+          - /url: https://github.com/songzhibin97
+        - text: With ❤️
+  - generic [ref=e420] [cursor=pointer]:
+    - img "message" [ref=e421]:
+      - img [ref=e422]
+    - generic [ref=e424]: AI Group

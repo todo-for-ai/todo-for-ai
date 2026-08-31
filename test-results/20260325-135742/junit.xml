@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites time="2.1371588706970215" tests="0" failures="0"><testsuite name="todo-for-ai-mcp" time="0.12763381004333496" tests="0" failures="0" skipped="0" /><testsuite name="todo-for-ai-webpage" time="0.12754297256469727" tests="0" failures="0" skipped="0" /><testsuite name="todo-for-ai-api-server" time="0.9392821788787842" tests="0" failures="0" skipped="0" /><testsuite name="agent-runtime" time="0.9426999092102051" tests="0" failures="0" skipped="0" /></testsuites>
