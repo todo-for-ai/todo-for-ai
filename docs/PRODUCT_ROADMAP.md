@@ -207,6 +207,8 @@
 > - ✅ P2.3 失败自愈循环：failed 提交自动归因（failure_code/reason → 7 类）；未超重试封顶自动生成修复子任务（父链接 + DoD 继承 + 回流派发池）；封顶后写 repair_escalation 审批事件升级人工；attempt 级幂等
 > - ✅ P2.1 产品目标层：Goal/Epic 模型与迁移；api/goals.py 目标 CRUD、Agent 提议 Epic（proposed）与人类单条/批量裁决、Epic 展开为带 DoD 的任务图（LLM 骨架 + 确定性落地，依赖写 blocking/blocked_by，tasks.epic_id 关联）
 > - ✅ P2.4 多 Agent 角色编排：内置 developer/reviewer/tester 角色模板 seed（幂等）；TeamTaskOrchestration.role_assignments 角色→Agent 映射；评审者关卡（require_agent_review）——合并（人工/L2 自动/审批回调）前必须有非自评的通过评审证据，阻断记审计；评审证据提交端点校验指定评审者
+> - ✅ P2.2 预算管理面：workspace 维度 Budget CRUD + 用量查询 API（scope 归属校验、应用层组合查重——SQLite/MySQL 对含 NULL 组合唯一约束不生效、写操作 owner/admin 门、审计）；webpage 组织详情新增「预算配额」Tab（范围/资源/周期选择、用量进度条超限告警、启停/编辑/删除）
+> - ✅ P2.5 事件面再扩容：issues.opened → 绑定项目自动建任务 + repo.issues.opened 出箱（「Issue → 任务 → Agent 认领」自主闭环外部入口）；workflow_run.completed → 按 PR 头分支关联任务发 repo.workflow_run.&lt;conclusion&gt;（CI 失败自动返工的信号源）；manifest default_events/permissions 同步扩容
 > - ⏭ 待办：GitHub App 实际创建/安装（运维步骤），安装后 App 路径自动生效
 
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
