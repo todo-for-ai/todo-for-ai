@@ -41,20 +41,20 @@
 
 <div align="center">
 
-![Todo for AI 仪表板](docs/images/dashboard-preview.png)
+![Todo for AI 仪表板](docs/images/zh/dashboard-preview.png)
 *现代化、直观的项目和任务管理仪表板*
 
-![任务管理](docs/images/task-management.png)
+![任务管理](docs/images/zh/task-management.png)
 *全面的任务管理，集成AI功能*
 
-![AI助手集成](docs/images/ai-integration.png)
+![AI助手集成](docs/images/zh/ai-integration.png)
 *通过MCP实现的无缝AI助手集成*
 
 </div>
 
 ### 🎬 **演示视频**
 
-[![Todo for AI 演示](https://img.youtube.com/vi/DEMO_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=DEMO_VIDEO_ID)
+[![Todo for AI 演示](https://img.youtube.com/vi/v96wqWLEHk8/0.jpg)](https://www.youtube.com/watch?v=v96wqWLEHk8)
 
 *点击观看Todo for AI的完整演示*
 

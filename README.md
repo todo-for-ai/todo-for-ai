@@ -41,20 +41,20 @@
 
 <div align="center">
 
-![Todo for AI Dashboard](docs/images/dashboard-preview.png)
+![Todo for AI Dashboard](docs/images/en/dashboard-preview.png)
 *Modern, intuitive dashboard for project and task management*
 
-![Task Management](docs/images/task-management.png)
+![Task Management](docs/images/en/task-management.png)
 *Comprehensive task management with AI integration*
 
-![AI Assistant Integration](docs/images/ai-integration.png)
+![AI Assistant Integration](docs/images/en/ai-integration.png)
 *Seamless AI assistant integration through MCP*
 
 </div>
 
 ### 🎬 **Demo Video**
 
-[![Todo for AI Demo](https://img.youtube.com/vi/DEMO_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=DEMO_VIDEO_ID)
+[![Todo for AI Demo](https://img.youtube.com/vi/L5SjoKRzJXQ/0.jpg)](https://www.youtube.com/watch?v=L5SjoKRzJXQ&t=30s)
 
 *Click to watch a full demo of Todo for AI in action*
 
