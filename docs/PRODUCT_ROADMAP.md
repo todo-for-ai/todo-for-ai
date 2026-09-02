@@ -228,6 +228,12 @@
 > - ✅ agent-runtime 沙箱加固（子进程 env 最小化）：DoD 验收命令（dod_verifier）、repo clone/依赖安装（repo_workspace）、SandboxedExecutor（strict/permissive）子进程此前全量继承 runtime 进程环境，AGENT_KEY/API Token 等敏感变量泄漏进任务工作区子进程树——改为 src/sandbox/env.py 白名单最小 env（PATH/HOME/TMPDIR/CA/JAVA_HOME 等工具链变量），租约密钥经 extra 显式追加始终生效，SANDBOX_ENV_PASSTHROUGH 可放开非敏感变量；附带修复 SandboxedExecutor strict 路径 sandbox_network_mode 属性不一致的潜在 AttributeError；+13 单测（泄漏回归 + passthrough + 布局兼容导入），198 passed
 > - ✅ Runtime SDK 同源加固（todo4ai-sdk DoD 子进程 env 最小化）：SDK 版 DODVerifier 同样全量继承第三方宿主进程环境（宿主的平台 Key/模型 API Key/业务密钥泄漏面）——SDK 内联零依赖副本 todo4ai_sdk/_env.py，与 runtime 侧同一白名单与 SANDBOX_ENV_PASSTHROUGH 语义，租约密钥 extra 追加始终生效；+9 测试（26 passed），SDK README 增补环境最小化协议说明
 > - ⏭ 待办：GitHub App 实际创建/安装（运维步骤），安装后 App 路径自动生效
+>
+> **进展（2026-09-02）**：Agent 接入体验迭代（P1.4 收尾，MCP 核心面 8 → 13 工具）：
+> - ✅ 外部 Agent 自主闭环工具补齐（后端 api/mcp + npm 包双层同步）：`list_my_tasks`（发现工作入口：创建/拥有/项目内/被指派四路可见性，assignees JSON 精确匹配过滤 agent 同号误命中）、`search_tasks`（title/content 关键词搜索，权限范围内）、`update_task_status`（状态流转 + `expected_revision` 乐观锁冲突拒绝 + 标 done 有未满足 DoD 时软性告警不阻断）、`report_progress`（append-only 任务日志，actor=AGENT 归属 token 用户）、`request_approval`（外部 Agent 请求人类决策：写 interaction_request 事件进 workspace 审批队列，owner/admin 经既有审批端点批准/拒绝，WebSocket 通知任务房间与任务创建者，审计 audit_source=mcp_request_approval）——外部 Agent（Claude Code/Cursor 等）以自身 API token 即可走完"发现任务 → 开工 → 汇报 → 请求决策 → 交付"全流程
+> - ✅ 配套修复：审批链路对"平台发起事件"（AgentTaskEvent.agent_id 为空）的两处兼容——decide_interaction_approval 不再对 None agent_id 崩溃；approvals/pending 列表 agent_name 回退 payload.source_agent_name/source_user_name 并新增 source 字段区分 agent/mcp 来源
+> - ✅ 存量修复：get_project_tasks_by_name 状态过滤按枚举 value 字符串查询命中 0 行（SQLAlchemy Enum 按 name 落库），统一改 TaskStatus(value) 成员过滤
+> - ✅ 测试：api-server 新增 test_mcp_agent_loop_tools.py（19 用例：可见性/agent 同号过滤/乐观锁/DoD 告警/审批入队-决议-出队全链路；任务行用独立高位 id 段，避免与 task_factory 每测试手工 id 机制在会话级库中撞 UNIQUE）；npm 包新增 agent-loop-tools 注册面测试（23 passed）
 
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
