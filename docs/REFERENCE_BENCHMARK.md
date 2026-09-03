@@ -13,7 +13,7 @@
 |---|---|---|---|---|
 | 1 | 会话恢复锚点：从 agent 日志流提取 session_id/message_id 落库，follow-up 用 `--resume` 续会话 | vibe-kanban `coding_agent_turns` | agent-runtime CLI 引擎 | P0 |
 | 2 | agent hooks 驱动任务状态机：注入 `Stop→提交待审` 等 hook，生命周期事件替代轮询 | cline/kanban | agent-runtime + api-server | P0 |
-| 3 | turn 级 git checkpoint：`write-tree/commit-tree` 存自定义 ref，agent 每轮产出可 diff 可回滚 | cline/kanban `turn-checkpoints.ts` | agent-runtime sandbox | P0 |
+| 3 | ✅ 已落地（agent-runtime 9dbef91，2026-09-04）：turn 级 git checkpoint：`write-tree/commit-tree` 存自定义 ref，agent 每轮产出可 diff 可回滚 | cline/kanban `turn-checkpoints.ts` | agent-runtime sandbox | P0 |
 | 4 | ExecutorAction 执行链：setup→agent→**verify(DoD 门)**→cleanup 串成 JSON 链落库可重放 | vibe-kanban `actions/mod.rs` | api-server + agent-runtime（G2 骨架） | P1 |
 | 5 | task→workspace→session→execution_process 数据模型（G3 的正确抽象） | vibe-kanban migrations | api-server 模型层 | P1 |
 | 6 | worktree 轻量隔离细节：symlink 免重装依赖、半成品资源逆序清理、base SHA 持久化 | kanban + claude-squad | agent-runtime sandbox（G3） | P0 |
