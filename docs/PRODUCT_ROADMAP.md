@@ -271,6 +271,12 @@
 > - ✅ Agent 岗位角色具体化：agents.role_template_id 绑定既有 agent_role_templates 内置岗位（产品经理/开发/测试/架构师等 8 类已种子，不重复造层）；PUT /agents/{id} 支持绑定/解绑（内置或同工作区模板校验）；agent 详情与项目 overview 载荷携带角色；循环规划器注入执行者角色上下文，轮次任务内容带角色前缀
 > - ✅ 前端：Agent 协作 Tab 角色徽标（cyan）；循环卡片计划进度标签（计划 x/y）+ 新建弹窗 Agent 选项带角色；中英 i18n
 > - ✅ 验证：14 单测（计划生命周期/extend 重排/护栏/角色绑定）；全量门禁 352 passed；vite build 通过；E2E（scripted）计划 3 步拆解→逐轮→完成宣告 + 轮数护栏全绿；浏览器验收治理 Tab 计划标签、Agent 协作 Tab「产品经理」徽标渲染
+
+> **进展（2026-09-06 其六）**：岗位角色体系扩容——121 行业 × 5817 工种（api-server）：
+> - ✅ 职业分类数据集 scripts/role_taxonomy.py：121 个行业（农林牧渔/能源矿业/重工制造/汽车/半导体/建筑地产/IT互联网/金融/医疗健康/教育文化/物流/商贸零售/餐饮酒旅/专业服务/交通/公共服务/生活服务等），每行业 = 领域关键词 + 专属核心工种（带技能标签）+ 45 个行业化职能岗——非纯排列组合，职能岗均带行业业务上下文，共 5817 个工种（达标 5000~10000）
+> - ✅ 数据落库：agent_role_templates.industry 列（迁移 000019，索引）；scripts/seed_role_templates.py 幂等批量 upsert（hash-slug name 稳定、按 category 模板生成 system_prompt、增量更新行业/技能/分类）；已入库 121 行业 5817 工种并抽查质量
+> - ✅ API：模板列表支持 industry/keyword 过滤；新增行业清单端点（含各行业工种数，供岗位选择器按行业浏览）；7 个单测（规模 ≥100 行业/≥5000 工种、slug 唯一稳定、字段完整性、system_prompt、行业过滤）；全量门禁 359 passed
+> - 📌 岗位绑定链路（上轮已建）：agents.role_template_id → 角色进规划器上下文与任务前缀；前端行业选择器（结合 industries 端点）待 AgentEditorForm 归属会话补齐
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
