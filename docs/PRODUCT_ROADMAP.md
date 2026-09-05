@@ -236,6 +236,12 @@
 > - ✅ 存量修复：get_project_tasks_by_name 状态过滤按枚举 value 字符串查询命中 0 行（SQLAlchemy Enum 按 name 落库），统一改 TaskStatus(value) 成员过滤
 > - ✅ 测试：api-server 新增 test_mcp_agent_loop_tools.py（19 用例：可见性/agent 同号过滤/乐观锁/DoD 告警/审批入队-决议-出队全链路；任务行用独立高位 id 段，避免与 task_factory 每测试手工 id 机制在会话级库中撞 UNIQUE）；npm 包新增 agent-loop-tools 注册面测试（23 passed）
 
+
+> **进展（2026-09-05）**：项目详情页「最近动态」数据链路打通（api-server，投入使用冲刺）：
+> - ✅ 审计事件项目归属单点修复：write_agent_audit 从 target_type='task' 的 target_id 派生 task_id、再按 tasks 主键派生 project_id（此前全库 48.8 万条事件两列全 NULL，详情页动态/治理 Tab 无数据可召回）；task.leased/committed/lease_released、MCP task 工具等全部 task 目标事件自动带上项目归属，budget.exceeded payload 补 task_id
+> - ✅ overview 端点退回纯索引过滤：recent_events 由「全局最新 500 条 + Python 内存过滤」改为 project_id 索引直查 limit 20（正确性：全局事件量大时本项目事件被 500 条窗口挤出而漏召）
+> - ✅ 存量回填迁移 000015：agent_audit_events 按 target_id → tasks 主键 join 回填 task_id/project_id（幂等，引用已删任务的行保持 NULL）
+> - ✅ 验证：+6 单测（派生/显式优先/非 task 目标不误派/未知任务降级）；门禁 333 passed；本地全栈实测 overview 返回 20 条事件、详情页概览 Tab「最近动态」渲染事件类型 + 任务链接 + 时间戳（截图验收）
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
