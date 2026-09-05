@@ -265,6 +265,12 @@
 > - ✅ 前端：治理 Tab「目标循环」卡片——列表（状态徽标/轮数/Agent/轮次任务链接/受阻原因 tooltip）、新建弹窗（目标/完成标准/轮数/Agent 选择）、暂停/继续/立即推进/停止（canManage 门控）、中英 i18n
 > - ✅ 验证：11 单测 + 全量门禁 349 passed；webpage vite build 通过；真实 HTTP E2E（scripts/e2e_goal_loop.py，scripted 规划器）三轮循环完成宣告、轮数上限 limit_reached、终态后不推进、人工停止全链路通过；浏览器验收治理 Tab 卡片渲染与 UI 建循环成功
 > - ⚠️ 顺带发现主干存量回归（非本轮引入）：bafa2bf 重构删除了 _is_trigger_match 定义但 api/agent_trigger_engine.py:201 调用仍在——工作区存在启用中的 task_event 触发器时任何任务更新都会 500（本地已停用遗留触发器规避）；LLM 配置模型名已修复为 LongCat-2.0（原 Flash-Lite 不被端点支持），但 key 401 失效待换有效钥匙后即可启用真实 AI 规划
+
+> **进展（2026-09-06 其五）**：GoalLoop v2 计划式拆解 + Agent 岗位角色（api-server + webpage）：
+> - ✅ 计划式拆解：创建循环时规划器先把目标拆解为有序计划（goal_loops.plan/plan_index/plan_revision，迁移 000018），逐轮物化步骤为任务；任务成功直接执行下一步（省评审调用），失败或计划耗尽触发评审（extend 扩展/重排剩余计划、complete 宣告、blocked 受阻）；scripted 规划器同步升级为计划式供 E2E
+> - ✅ Agent 岗位角色具体化：agents.role_template_id 绑定既有 agent_role_templates 内置岗位（产品经理/开发/测试/架构师等 8 类已种子，不重复造层）；PUT /agents/{id} 支持绑定/解绑（内置或同工作区模板校验）；agent 详情与项目 overview 载荷携带角色；循环规划器注入执行者角色上下文，轮次任务内容带角色前缀
+> - ✅ 前端：Agent 协作 Tab 角色徽标（cyan）；循环卡片计划进度标签（计划 x/y）+ 新建弹窗 Agent 选项带角色；中英 i18n
+> - ✅ 验证：14 单测（计划生命周期/extend 重排/护栏/角色绑定）；全量门禁 352 passed；vite build 通过；E2E（scripted）计划 3 步拆解→逐轮→完成宣告 + 轮数护栏全绿；浏览器验收治理 Tab 计划标签、Agent 协作 Tab「产品经理」徽标渲染
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
