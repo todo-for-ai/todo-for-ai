@@ -247,6 +247,12 @@
 > - ✅ 后端：user_settings 增加 theme 列（迁移 000016，varchar(32) 默认 sky）——每个用户的界面皮肤落库；GET/PUT /user-settings 透出 theme（PUT 校验 [a-z0-9_-]{1,32}，未知 id 由前端回退默认色板）；deploy_check DEPLOY_SCHEMA_VERSION 13→16 并补 000014-000016 特征指纹（版本自检自 000014 起已滞后）；+5 单测（默认值/更新回读/格式拒绝/超长拒绝/用户间隔离），全量门禁 338 passed
 > - ✅ 前端：色板定义抽离 src/theme/palettes.ts 单一事实源（PALETTES/applyPalette/applySavedPalette，PaletteSwitcher 与 Login 公开页共用）；PaletteSwitcher 三层生效——即时 CSS 变量 + localStorage（未登录快路径）+ PUT /user-settings（到人级别，失败静默降级仅本地）；挂载时先应用本地防闪烁、再以服务端值校准（跨设备真值）；vite build 门禁通过
 > - ✅ 端到端实测：清空 localStorage 模拟换设备 → 重载后服务端 gameboy 皮肤自动应用（--mario-sky=#8bac0f）；页面内点击 FC 色板 → CSS 变量/localStorage/DB 三处同步为 fc（user_settings.theme user_id=1 → fc）
+
+> **进展（2026-09-06 其二）**：皮肤库扩容 42 种 + 风格分组 + 暗色皮肤兼容层（webpage）：
+> - ✅ 色板库 3 → 42 种，按 8 个风格分组（经典游戏/马里奥系列/冷色调/暖色调/自然风光/暗色夜战/粉彩糖果/黑白极简）；暗色皮肤反转墨色语义（深面板 + 浅描边文字）；所有皮肤共用同一组 CSS 变量槽位，新增皮肤零组件改动；后端 theme 列格式校验天然兼容，任何登录用户可换自己的皮肤（人级别，非管理员专属）
+> - ✅ PaletteSwitcher 改为分组选择面板（Popover + 分组色块网格），服务端同步行为不变；选择器触发器显示当前皮肤色块
+> - ✅ 暗色皮肤兼容层 palette-dark-compat.css（palettes.ts 副作用导入，绕开 WIP 锁定的 pixel-theme.css）：antd 硬编码 rgba(0,0,0,.88) 文字色改为跟随 --mario-black（浅色皮肤视觉等价）；金底文字/表格行悬停经 --px-on-gold/--px-row-hover 驱动（浅色皮肤回退原值）——浏览器实测暗色皮肤卡片文字对比度与金按钮深字均达标
+> - ✅ 实测：面板 8 组 42 块全展示；午夜蓝（暗）/森林/碧奇粉/日光纸四皮肤切换即时生效且同步服务端（DB theme=最终值）；tsc 自有文件零错误 + vite build 通过
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
