@@ -258,6 +258,13 @@
 > - ✅ 推倒重选：42 个手工凑数皮肤 → 36 个映射自时间检验的配色方案（Dracula/Tokyo Night/Nord/Gruvbox/One/Catppuccin×4/Rosé Pine/Everforest/Kanagawa/GitHub/Solarized/Flexoki/PICO-8/磷光终端/Horizon 等），6 风格分组（马里奥经典/经典暗色/经典浅色/复古终端/柔和粉彩/黑白极简），品牌马里奥系保留
 > - ✅ 对比度纪律：新增 scripts/validate_palettes.py（WCAG 相对亮度公式，随仓回归）——墨/面板 ≥4.5、墨/页底 ≥4.5、金底文字 ≥4.5、功能色/面板 ≥3，36 主题全部达标（初版 20 项不达标经最小修正迭代清零：功能色加深/提亮、浅色主题指定金底文字色 --px-on-gold）
 > - ✅ 实测：面板 6 组 36 块全展示；德古拉（暗）/Flexoki 纸墨（浅）/磷光绿终端/黑白像素四组代表主题切换即时生效并同步服务端；tsc 自有文件零错误 + vite build 通过
+
+> **进展（2026-09-06 其四）**：GoalLoop 目标循环——agent 朝目标自主循环干活（api-server + webpage）：
+> - ✅ 产品与技术设计 docs/GOAL_LOOP_DESIGN.md（api-server）：一个循环 = 项目 + 绑定 Agent + 目标 + 完成标准；任务终态后平台驱动器自动规划下一轮并走既有 auto-assign（租约+WebSocket 推送）派发，人从「喂任务」变为「定目标看产出」
+> - ✅ 后端：goal_loops 表（迁移 000017）+ goal_loop_service（CAS advancing 防并发双发；护栏=轮数上限/连续受阻计数/人工暂停停止/kick 兜底）；规划器可插拔——默认平台 LLM（feature='goal_loop'），GOAL_LOOP_PLANNER=scripted 确定性规划器供测试；REST：/projects/{id}/goal-loops + pause/resume/stop/kick（can_manage_project 门控）；触发点挂钩 runtime commit / 人工任务更新 / MCP update_task_status（非循环任务零开销）
+> - ✅ 前端：治理 Tab「目标循环」卡片——列表（状态徽标/轮数/Agent/轮次任务链接/受阻原因 tooltip）、新建弹窗（目标/完成标准/轮数/Agent 选择）、暂停/继续/立即推进/停止（canManage 门控）、中英 i18n
+> - ✅ 验证：11 单测 + 全量门禁 349 passed；webpage vite build 通过；真实 HTTP E2E（scripts/e2e_goal_loop.py，scripted 规划器）三轮循环完成宣告、轮数上限 limit_reached、终态后不推进、人工停止全链路通过；浏览器验收治理 Tab 卡片渲染与 UI 建循环成功
+> - ⚠️ 顺带发现主干存量回归（非本轮引入）：bafa2bf 重构删除了 _is_trigger_match 定义但 api/agent_trigger_engine.py:201 调用仍在——工作区存在启用中的 task_event 触发器时任何任务更新都会 500（本地已停用遗留触发器规避）；LLM 配置模型名已修复为 LongCat-2.0（原 Flash-Lite 不被端点支持），但 key 401 失效待换有效钥匙后即可启用真实 AI 规划
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
