@@ -253,6 +253,11 @@
 > - ✅ PaletteSwitcher 改为分组选择面板（Popover + 分组色块网格），服务端同步行为不变；选择器触发器显示当前皮肤色块
 > - ✅ 暗色皮肤兼容层 palette-dark-compat.css（palettes.ts 副作用导入，绕开 WIP 锁定的 pixel-theme.css）：antd 硬编码 rgba(0,0,0,.88) 文字色改为跟随 --mario-black（浅色皮肤视觉等价）；金底文字/表格行悬停经 --px-on-gold/--px-row-hover 驱动（浅色皮肤回退原值）——浏览器实测暗色皮肤卡片文字对比度与金按钮深字均达标
 > - ✅ 实测：面板 8 组 42 块全展示；午夜蓝（暗）/森林/碧奇粉/日光纸四皮肤切换即时生效且同步服务端（DB theme=最终值）；tsc 自有文件零错误 + vite build 通过
+
+> **进展（2026-09-06 其三）**：皮肤库质量重构——基于著名配色方案 + WCAG 程序化验证（webpage）：
+> - ✅ 推倒重选：42 个手工凑数皮肤 → 36 个映射自时间检验的配色方案（Dracula/Tokyo Night/Nord/Gruvbox/One/Catppuccin×4/Rosé Pine/Everforest/Kanagawa/GitHub/Solarized/Flexoki/PICO-8/磷光终端/Horizon 等），6 风格分组（马里奥经典/经典暗色/经典浅色/复古终端/柔和粉彩/黑白极简），品牌马里奥系保留
+> - ✅ 对比度纪律：新增 scripts/validate_palettes.py（WCAG 相对亮度公式，随仓回归）——墨/面板 ≥4.5、墨/页底 ≥4.5、金底文字 ≥4.5、功能色/面板 ≥3，36 主题全部达标（初版 20 项不达标经最小修正迭代清零：功能色加深/提亮、浅色主题指定金底文字色 --px-on-gold）
+> - ✅ 实测：面板 6 组 36 块全展示；德古拉（暗）/Flexoki 纸墨（浅）/磷光绿终端/黑白像素四组代表主题切换即时生效并同步服务端；tsc 自有文件零错误 + vite build 通过
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
