@@ -242,6 +242,11 @@
 > - ✅ overview 端点退回纯索引过滤：recent_events 由「全局最新 500 条 + Python 内存过滤」改为 project_id 索引直查 limit 20（正确性：全局事件量大时本项目事件被 500 条窗口挤出而漏召）
 > - ✅ 存量回填迁移 000015：agent_audit_events 按 target_id → tasks 主键 join 回填 task_id/project_id（幂等，引用已删任务的行保持 NULL）
 > - ✅ 验证：+6 单测（派生/显式优先/非 task 目标不误派/未知任务降级）；门禁 333 passed；本地全栈实测 overview 返回 20 条事件、详情页概览 Tab「最近动态」渲染事件类型 + 任务链接 + 时间戳（截图验收）
+
+> **进展（2026-09-06）**：像素皮肤系统到人级别（webpage + api-server，换肤跨设备跟随）：
+> - ✅ 后端：user_settings 增加 theme 列（迁移 000016，varchar(32) 默认 sky）——每个用户的界面皮肤落库；GET/PUT /user-settings 透出 theme（PUT 校验 [a-z0-9_-]{1,32}，未知 id 由前端回退默认色板）；deploy_check DEPLOY_SCHEMA_VERSION 13→16 并补 000014-000016 特征指纹（版本自检自 000014 起已滞后）；+5 单测（默认值/更新回读/格式拒绝/超长拒绝/用户间隔离），全量门禁 338 passed
+> - ✅ 前端：色板定义抽离 src/theme/palettes.ts 单一事实源（PALETTES/applyPalette/applySavedPalette，PaletteSwitcher 与 Login 公开页共用）；PaletteSwitcher 三层生效——即时 CSS 变量 + localStorage（未登录快路径）+ PUT /user-settings（到人级别，失败静默降级仅本地）；挂载时先应用本地防闪烁、再以服务端值校准（跨设备真值）；vite build 门禁通过
+> - ✅ 端到端实测：清空 localStorage 模拟换设备 → 重载后服务端 gameboy 皮肤自动应用（--mario-sky=#8bac0f）；页面内点击 FC 色板 → CSS 变量/localStorage/DB 三处同步为 fc（user_settings.theme user_id=1 → fc）
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
