@@ -281,3 +281,13 @@
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
 4. **数据闭环埋点**：从现在起记录每个任务"人工干预次数"字段，为 ACR 指标积累基线数据。
+
+> **进展（2026-09-10）**：Agent 平台主动性三件套——定时调度、定时建任务、任务拆解/规划主动角色（api-server + webpage）：
+> - ✅ 审计结论：cron 触发器模型与 CRUD API 早已在，但调度器只是独立脚本且未挂 pm2——生产上 cron 触发器从不触发；task_event 触发链路因 `_is_trigger_match` 函数头丢失全部 NameError（2026-09-06 发现的存量回归本轮修复）；Agent 级触发器有 API 无 UI；内置角色 8 个无"拆解/规划/调度"主动岗位
+> - ✅ 存量修复：api/agent_trigger_engine.py 补回 `_is_trigger_match` 函数定义（孤儿函数体归位），task_event 触发器恢复工作；+7 回归测试锁死（事件匹配/项目/标签/状态迁移过滤/幂等/停用）
+> - ✅ 定时调度常驻：core/agent_cron_scheduler.py 守护线程（AGENT_CRON_SCHEDULER_ENABLED 门控、interval 可调、多 worker 单开），app.py 挂载，独立脚本改薄壳共享同一 tick；到期扫描→派发动作→推进 next_fire_at，幂等键防重
+> - ✅ 定时创建任务：触发器新增 action 字段（迁移 000023：action/action_payload/last_fired_key）——run_agent（原行为）与 create_task（到点自动在指定项目创建任务，带标题/描述/优先级/标签，工作区校验，创建后 emit task.created 联动下游触发器）；CRUD 校验分支 +12 测试
+> - ✅ 主动角色 seed：内置新增 task-planner 任务规划师（模糊目标→结构化拆解+依赖+DoD，假设先行不空等）与 task-dispatcher 任务调度师（巡检任务池/异常升级/负载均衡），已灌库（builtin 10 个）
+> - ✅ 前端：Agent 详情新增「触发器」Tab——列表（类型/动作/触发条件/下次触发/启停）、新建表单（task_event 事件多选；cron 表达式 + 动作选择 + create_task 任务模板字段）、中英 i18n；tsc 自有文件零错误 + vite build 通过
+> - ✅ 验证：api-server 全量门禁 1787 passed（+27）；真实 HTTP E2E：worktree 后端 :50113（AGENT_CRON_SCHEDULER_ENABLED=true）建两个每分钟 cron 触发器——cron.tick AgentRun 产生、定时任务落库、next_fire_at 推进全链路 PASS；本地库已应用迁移 000023
+> - ⏭️ 待办：本地 pm2 backend 带 AGENT_CRON_SCHEDULER_ENABLED=true 重启后 cron 调度即常驻生效；AgentEditorForm 角色模板选择器仍归原属会话；LLM key 401 换新后 planner 角色 + ai-split 可做"任务创建即自动拆解"的联动闭环

@@ -8,7 +8,9 @@ module.exports = {
       env: {
         NODE_ENV: 'development',
         FLASK_ENV: 'development',
-        PORT: '50110'
+        PORT: '50110',
+        AGENT_CRON_SCHEDULER_ENABLED: 'true',
+        AGENT_CRON_SCHEDULER_INTERVAL_SECONDS: '30'
       },
       autorestart: true,
       watch: false,
