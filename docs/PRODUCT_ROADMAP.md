@@ -315,3 +315,9 @@
 > - ✅ 编排拆分强化（goal_loop 多 Agent 路由）：executor_pool 过滤工作时间区间外执行者（避免白派一轮）；pick_executor 岗位匹配到多人时选最闲者——计划步骤真正并行摊到多 Agent
 > - ✅ webpage：组织详情新增「运行时」Tab——同时干活 Agent 上限 / Pod 上限 / 空闲回收阈值表单 + 「正在干活 x/上限」实时水位条；中英 tab 标签
 > - ✅ 验证：api-server 新增 18 测试（容量语义/负载摊开/容量挡下/预算挡下/goal_loop 路由），全量门禁 1856 passed；webpage tsc 自有文件零错误 + vite build 通过
+
+> **进展（2026-09-10 其三）**：存储层体检 + 热路径复合索引（api-server）：
+> - ✅ 引擎确认：存储层为 MySQL（mysql+pymysql / PyMySQL 1.1.0，本地活库 26.7.0，99 表全 InnoDB+utf8mb4），无任何 PostgreSQL 依赖（旧迁移里的 postgres 分支仅是方言兼容代码）；连接池已带 pre_ping/recycle(300s)/pool_size 10 + overflow 20
+> - ✅ 活库 EXPLAIN 审计三缺口并补复合索引（迁移 000025 + 模型 __table_args__ 双侧对齐，幂等可重跑）：agent_task_leases(workspace_id,active,expires_at,agent_id)——工作区「正在干活」水位门禁由 expires_at 范围扫描+临时表变覆盖索引扫描；agent_task_leases(agent_id,active,expires_at)——在岗计数/预算 concurrent 用量变覆盖索引；agent_heartbeats(agent_id,created_at)——最新心跳从全表扫描 9352 行+filesort 变索引逆序直取（该表随心跳无限增长，收益随时间放大）
+> - ✅ 索引已在本地活库应用并 EXPLAIN 前后对比验证；+3 索引存在性回归测试；全量门禁 1859 passed 全绿
+> - ⚠️ 待用户确认：perf_task_ids 压测残留 750 万行 / 490MB（tasks 正表的 10 倍体积），TRUNCATE 即可回收，等确认后执行
