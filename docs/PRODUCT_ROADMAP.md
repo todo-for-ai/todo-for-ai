@@ -321,3 +321,10 @@
 > - ✅ 活库 EXPLAIN 审计三缺口并补复合索引（迁移 000025 + 模型 __table_args__ 双侧对齐，幂等可重跑）：agent_task_leases(workspace_id,active,expires_at,agent_id)——工作区「正在干活」水位门禁由 expires_at 范围扫描+临时表变覆盖索引扫描；agent_task_leases(agent_id,active,expires_at)——在岗计数/预算 concurrent 用量变覆盖索引；agent_heartbeats(agent_id,created_at)——最新心跳从全表扫描 9352 行+filesort 变索引逆序直取（该表随心跳无限增长，收益随时间放大）
 > - ✅ 索引已在本地活库应用并 EXPLAIN 前后对比验证；+3 索引存在性回归测试；全量门禁 1859 passed 全绿
 > - ⚠️ 待用户确认：perf_task_ids 压测残留 750 万行 / 490MB（tasks 正表的 10 倍体积），TRUNCATE 即可回收，等确认后执行
+
+> **进展（2026-09-10 其四）**：Agent 运行时环境可插拔抽象——k8s / docker / compose / baremetal 四后端（api-server）：
+> - ✅ 抽象：services/runtime_env/base.py 定义 RuntimeProvider 接口与归一化状态契约（phase/agent_id/workspace_id/started_at，phase ∈ Running|Pending|Succeeded|Failed|Unknown），ensure_runtime 模板方法统一"幂等确保 + 工作区实例上限"流程；工厂 get_runtime_provider() 按 RUNTIME_PROVIDER 配置选择后端
+> - ✅ 四后端：k8s = 既有控制器原逻辑（Secret 注入/共享 PVC/gVisor/Pod 配额，行为不变）；docker = 每 Agent 一容器（docker CLI 驱动零新依赖，labels + 沙箱档位映射 --cpus/--memory/--pids-limit，环境变量镜像 manifests 语义）；compose = 每 Agent 一份生成的 compose 文件（可审计可手工接管）+ compose 项目生命周期；baremetal = 宿主进程 + PID 注册表（进程组终止，未显式配置命令/工作目录时拒绝 spawn）
+> - ✅ 关键解耦：kubernetes 包改为惰性导入——docker/compose/baremetal 部署不再需要安装 kubernetes SDK（sys.modules 阻断探针验证）
+> - ✅ 调用方统一：运行时管理 API、GoalLoop 编排联动（ensure_cloud_executor）、空闲回收看门狗全部改走 get_runtime_provider()；派发逻辑 auto_assign_task 与后端无关；API 响应保留历史键名（pods/pod）向后兼容
+> - ✅ 验证：+15 后端测试（CLI 全打桩，不依赖本机 Docker）+ 存量测试迁移到 provider 契约；全量门禁 1876 passed 全绿；后端选择文档 docs/RUNTIME_ENV_PROVIDERS.md
