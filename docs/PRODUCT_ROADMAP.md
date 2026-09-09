@@ -277,6 +277,16 @@
 > - ✅ 数据落库：agent_role_templates.industry 列（迁移 000019，索引）；scripts/seed_role_templates.py 幂等批量 upsert（hash-slug name 稳定、按 category 模板生成 system_prompt、增量更新行业/技能/分类）；已入库 121 行业 5817 工种并抽查质量
 > - ✅ API：模板列表支持 industry/keyword 过滤；新增行业清单端点（含各行业工种数，供岗位选择器按行业浏览）；7 个单测（规模 ≥100 行业/≥5000 工种、slug 唯一稳定、字段完整性、system_prompt、行业过滤）；全量门禁 359 passed
 > - 📌 岗位绑定链路（上轮已建）：agents.role_template_id → 角色进规划器上下文与任务前缀；前端行业选择器（结合 industries 端点）待 AgentEditorForm 归属会话补齐
+
+> **进展（2026-09-09）**：Agent 工作时间区间——只在指定时段接活（api-server + agent-runtime + webpage）：
+> - ✅ 数据模型：agents.working_schedule JSON 列（迁移 000023）——enabled/timezone + includes/excludes 两类时间窗；窗支持 daily/weekly/monthly/dates 四种循环 + 起止时刻（跨午夜语义）+ days_of_week（1=周一）+ days_of_month（负数从月末倒数，-1=最后一天）+ months 限定 + 生效日期界限 + 每窗独立开关与名称
+> - ✅ 求值服务 services/agent_working_schedule.py：写路径严格校验（normalize/validate）；求值 = includes 并集（空=全天候）减 excludes，IANA 时区墙钟匹配（zoneinfo），next_working_window 边界扫描给出下次开窗精确时刻；脏数据 fail-open 不阻断派发
+> - ✅ 平台门禁：auto_assign_task 跳过窗外 Agent（任务留 TODO，开窗后 pull 兜底）；pull 返回 working_window.blocked + next_window_at；协作侧 claim 返回 409 AGENT_OUT_OF_WORKING_WINDOW；进行中任务不受影响（只拦新派发）
+> - ✅ 下发通道：introspect agent.working_schedule + 每次 pull 的 agent_profile.working_schedule，运行时无需新增拉取调用
+> - ✅ agent-runtime：working_windows.py 同语义求值器（镜像副本）+ 轮询预检（窗外不白发请求，等待 next_window_at、上限 60s 保证配置变更快速生效）+ WS 推送纵深防御 + pull_tasks_detail 保留完整响应
+> - ✅ webpage：Agent 编辑页新增「工作时间」Tab——结构化编辑器（四类循环/时刻/星期/月日/月份/日期界限/时区/快捷预设）+ 保存前客户端校验 + 防抖实时预览（preview 端点显示当前是否在区间内与下次开始时间）；中英 i18n
+> - ✅ 专用端点：GET/PUT /agents/{id}/working-schedule + POST .../preview；workspace 侧 PATCH /workspaces/{wid}/agents/{id} 同样支持并校验
+> - ✅ 验证：api-server 54 新测试（全量门禁 1758 passed，剩余失败为已验证的 SSO/SAML 既有失败）；agent-runtime 16 新测试（仅存记录在案的 test_api_client 既有基线）；webpage tsc -b 193→190（净修 3 个既有错误，零新增）+ vite build 通过
 1. **P1.1 GitHub App spike**：申请 GitHub App，打通"项目绑定仓库 + 自动开 PR"最小路径（`api/github_proxy.py` 升级为读写）。
 2. **P1.2 DoD 数据模型设计**：`Task` 增加 `dod`（结构化验收标准）与 `evidence`（证据附件）字段，commit 协议加 `evidence` 必填分支（向后兼容开关）。
 3. **P1.4 MCP 扩容清单评审**：从 6 → 18 的工具列表按 P1 清单定稿，先加 `claim_task` / `report_progress` / `get_verification_result` 三个。
