@@ -236,6 +236,13 @@
 > - ✅ 存量修复：get_project_tasks_by_name 状态过滤按枚举 value 字符串查询命中 0 行（SQLAlchemy Enum 按 name 落库），统一改 TaskStatus(value) 成员过滤
 > - ✅ 测试：api-server 新增 test_mcp_agent_loop_tools.py（19 用例：可见性/agent 同号过滤/乐观锁/DoD 告警/审批入队-决议-出队全链路；任务行用独立高位 id 段，避免与 task_factory 每测试手工 id 机制在会话级库中撞 UNIQUE）；npm 包新增 agent-loop-tools 注册面测试（23 passed）
 
+> - ✅ 本地服务可用性实测：start.sh 拉起全栈（backend/50110 + web/50111 + MySQL/Redis connected）；runtime 协议真 HTTP 全链路 PASS（pull 下发 DoD → 无证据提交 400 DOD_EVIDENCE_MISSING → 带证据提交 200 → 证据端点可查）；npm MCP 服务器 stdio 实测（initialize 握手 / tools/list 244 工具含 7 个闭环工具 / tools/call list_my_tasks 返回真实数据）——外部 Agent 接入通路当天可用
+>
+> **进展（2026-09-03）**：多 CLI Agent 引擎接入 + 开箱即用沙箱（agent-runtime）：
+> - ✅ CLI 引擎抽象 src/runtime/cli_engines.py：claude（`claude -p --output-format json`，CLAUDE_PERMISSION_FLAG 可调）/ codex（`codex exec`，CODEX_FLAGS）/ opencode（`opencode run`）/ custom（CUSTOM_COMMAND 模板 {prompt} 占位 shlex 转义）四种引擎；引擎选择优先级 payload.engine > CLI_AGENT_ENGINE 环境变量 > 默认 openclaw（同 worker 可按任务混用两种后端）
+> - ✅ TaskExecutor 引擎分派：CLI 引擎在任务级隔离工作区内执行（repo checkout / DoD 验证 / 租约续约复用既有机制），子进程环境经 sandbox/env.py 白名单最小化 + 提供商密钥显式注入 + 租约密钥透传不落盘；超时 kill（ENGINE_TIMEOUT）、CLI 缺失（ENGINE_NOT_INSTALLED）、非零退出（ENGINE_FAILED）归因回传；commit 的 processed_by 记录真实引擎名，co-authoring 章节标题随之标注归属
+> - ✅ 开箱即用沙箱 runtimes/cli-agents/：Dockerfile（node:22-bookworm + python3.11 + claude/codex/opencode 三 CLI 预装，非 root 运行）+ entrypoint-cli.sh（引擎凭据检查，无 OpenClaw 依赖）+ docker-compose.yml（环境变量驱动，host.docker.internal 连本机平台，工作区卷可选持久化）+ README 三步接入指南
+> - ✅ 测试与验证：+22 单测（argv 构造/权限旗标/JSON 结果解析/超时/非零退出/缺 CLI/租约密钥透传与杂散环境隔离/执行器路由与 OpenClaw 不误调）；对真实运行平台 LIVE E2E PASS——runtime 以 CLI_AGENT_ENGINE=custom 启动后自动拉取新建任务并执行、任务置 done、产出以「Agent 产出（custom）」章节写回协同文档；Docker 镜像实构建通过
 
 > **进展（2026-09-05）**：项目详情页「最近动态」数据链路打通（api-server，投入使用冲刺）：
 > - ✅ 审计事件项目归属单点修复：write_agent_audit 从 target_type='task' 的 target_id 派生 task_id、再按 tasks 主键派生 project_id（此前全库 48.8 万条事件两列全 NULL，详情页动态/治理 Tab 无数据可召回）；task.leased/committed/lease_released、MCP task 工具等全部 task 目标事件自动带上项目归属，budget.exceeded payload 补 task_id
