@@ -301,3 +301,10 @@
 > - ✅ 前端：Agent 详情新增「触发器」Tab——列表（类型/动作/触发条件/下次触发/启停）、新建表单（task_event 事件多选；cron 表达式 + 动作选择 + create_task 任务模板字段）、中英 i18n；tsc 自有文件零错误 + vite build 通过
 > - ✅ 验证：api-server 全量门禁 1787 passed（+27）；真实 HTTP E2E：worktree 后端 :50113（AGENT_CRON_SCHEDULER_ENABLED=true）建两个每分钟 cron 触发器——cron.tick AgentRun 产生、定时任务落库、next_fire_at 推进全链路 PASS；本地库已应用迁移 000023
 > - ⏭️ 待办：本地 pm2 backend 带 AGENT_CRON_SCHEDULER_ENABLED=true 重启后 cron 调度即常驻生效；AgentEditorForm 角色模板选择器仍归原属会话；LLM key 401 换新后 planner 角色 + ai-split 可做"任务创建即自动拆解"的联动闭环
+
+> **进展（2026-09-10 其二）**：多 Agent 编排——并发上限 + 预算感知派发 + 负载均衡选 Agent（api-server + webpage）：
+> - ✅ 编排并发上限（"最多多少个 Agent 同时干活"的统一入口）：workspace_runtime_settings.max_concurrent_agents（迁移 000024）——按未过期活跃租约的 distinct Agent 计数，NULL=系统默认 5（Config.ORCHESTRATION_MAX_CONCURRENT_AGENTS 可覆盖）、0=不限；已在岗者可继续接任务，新 Agent 等容量释放；GET/PUT /workspaces/{id}/runtime/settings 携带该字段 + 当前活跃数水位
+> - ✅ 派发三道门统一到所有路径（工作时间区间 → token/时长预算 → 编排并发）：auto_assign_task 原先"第一个活跃 Agent"且完全绕过预算，现逐候选过滤（超预算 raise_budget_exceeded 走审批队列并跳过）、按活跃租约数升序负载均衡选 Agent——任务自动摊开到多个 Agent 而非堆在一个人身上；pull 路径到容量上限返回 orchestration.blocked（在岗者不受影响）；goal_loop 派发同步接预算与容量门（挡下不派，任务留 TODO 由 pull 兜底恢复）
+> - ✅ 编排拆分强化（goal_loop 多 Agent 路由）：executor_pool 过滤工作时间区间外执行者（避免白派一轮）；pick_executor 岗位匹配到多人时选最闲者——计划步骤真正并行摊到多 Agent
+> - ✅ webpage：组织详情新增「运行时」Tab——同时干活 Agent 上限 / Pod 上限 / 空闲回收阈值表单 + 「正在干活 x/上限」实时水位条；中英 tab 标签
+> - ✅ 验证：api-server 新增 18 测试（容量语义/负载摊开/容量挡下/预算挡下/goal_loop 路由），全量门禁 1856 passed；webpage tsc 自有文件零错误 + vite build 通过
