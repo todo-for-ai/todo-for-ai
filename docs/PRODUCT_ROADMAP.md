@@ -57,6 +57,7 @@
 - 运行监控：AgentRun/AgentRunState、runtime monitor、Runtime Controller 管理端点
 - 执行环境 × 引擎两层模型（2026-09-11）：RuntimeProvider 五后端（k8s/docker/compose/baremetal/remote 反连）按 Agent.execution_mode 解析；引擎注册表（claude/codex/opencode/SDK，services/runtime_env/engines.py）与环境正交、任何环境×任何引擎合法组合；设计见 api-server `docs/ENGINE_RUNTIME_MODEL.md`。后续：Podman 实测、ECS 后端、daemon 元数据上报
 - 部署引导与自检（2026-09-11）：`/system/deploy/check` 扩展 runtime 检查组（后端前置条件/回连地址/Agent 与 WS 在线概览，带处理建议）；webpage 新增「部署引导」页（菜单直达）分组渲染报告；agent-runtime daemon 经 WS auth/心跳上报 host/engine/version/os 元数据。后续：向导式初始化（建管理员/接入首个 Agent）
+- 系统监控 + 首次安装门控（2026-09-11）：`/system/setup-state`（管理员）驱动菜单——部署未完成才显示「部署引导」，装完自动隐藏；新增「系统监控」页（管理员）：`/system/monitor/server`（CPU/内存/负载/磁盘/进程，psutil 优先 stdlib 兜底，10s 自动刷新）+ `/system/monitor/agents`（Agent 全局：反连在线/待连、托管运行中、活跃租约、近 24h 尝试吞吐、最近活跃 Agent 列表）
 
 **治理与安全（少有的先发优势）**
 - 治理规则、审批队列、交互治理、访问控制、审计事件
