@@ -55,6 +55,7 @@
 - 拉取/提交协议：agent_runtime_pull（拉 is_ai_task）、commit（含事件批量上报）、心跳、任务租约（AgentTaskLease）、尝试记录（AgentTaskAttempt）、结果去重（AgentResultDedup）
 - OpenClaw 封装的 agent-runtime 容器：拉任务 → 转发网关 → 提交结果，含 mock 模式与端到端验证脚本、K8s 清单
 - 运行监控：AgentRun/AgentRunState、runtime monitor、Runtime Controller 管理端点
+- 执行环境 × 引擎两层模型（2026-09-11）：RuntimeProvider 五后端（k8s/docker/compose/baremetal/remote 反连）按 Agent.execution_mode 解析；引擎注册表（claude/codex/opencode/SDK，services/runtime_env/engines.py）与环境正交、任何环境×任何引擎合法组合；设计见 api-server `docs/ENGINE_RUNTIME_MODEL.md`。后续：Podman 实测、ECS 后端、daemon 元数据上报
 
 **治理与安全（少有的先发优势）**
 - 治理规则、审批队列、交互治理、访问控制、审计事件
