@@ -56,6 +56,7 @@
 - OpenClaw 封装的 agent-runtime 容器：拉任务 → 转发网关 → 提交结果，含 mock 模式与端到端验证脚本、K8s 清单
 - 运行监控：AgentRun/AgentRunState、runtime monitor、Runtime Controller 管理端点
 - 执行环境 × 引擎两层模型（2026-09-11）：RuntimeProvider 五后端（k8s/docker/compose/baremetal/remote 反连）按 Agent.execution_mode 解析；引擎注册表（claude/codex/opencode/SDK，services/runtime_env/engines.py）与环境正交、任何环境×任何引擎合法组合；设计见 api-server `docs/ENGINE_RUNTIME_MODEL.md`。后续：Podman 实测、ECS 后端、daemon 元数据上报
+- 部署引导与自检（2026-09-11）：`/system/deploy/check` 扩展 runtime 检查组（后端前置条件/回连地址/Agent 与 WS 在线概览，带处理建议）；webpage 新增「部署引导」页（菜单直达）分组渲染报告；agent-runtime daemon 经 WS auth/心跳上报 host/engine/version/os 元数据。后续：向导式初始化（建管理员/接入首个 Agent）
 
 **治理与安全（少有的先发优势）**
 - 治理规则、审批队列、交互治理、访问控制、审计事件
