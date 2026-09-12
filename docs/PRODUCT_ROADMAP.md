@@ -331,3 +331,11 @@
 > - ✅ 关键解耦：kubernetes 包改为惰性导入——docker/compose/baremetal 部署不再需要安装 kubernetes SDK（sys.modules 阻断探针验证）
 > - ✅ 调用方统一：运行时管理 API、GoalLoop 编排联动（ensure_cloud_executor）、空闲回收看门狗全部改走 get_runtime_provider()；派发逻辑 auto_assign_task 与后端无关；API 响应保留历史键名（pods/pod）向后兼容
 > - ✅ 验证：+15 后端测试（CLI 全打桩，不依赖本机 Docker）+ 存量测试迁移到 provider 契约；全量门禁 1876 passed 全绿；后端选择文档 docs/RUNTIME_ENV_PROVIDERS.md
+
+> **进展（2026-09-13）**：长跑模式（Endurance）一期——循环不再被失败挂死，租约/护栏全面可配（api-server + agent-runtime）：
+> - ✅ 根因治理：循环任务 failed 提交曾置 REVIEW（活跃态）→ GoalLoop 状态机永远等待 → 一轮失败循环挂死；现在循环任务失败直接置 CANCELLED 终态并关闭修复子任务通道，由 maybe_advance 推进规划器评审（LLM 评审 extend 换思路重试 / blocked 计 stall，连续失败到 stall_limit 才 STALLED 护栏兜底）；非循环任务维持 REVIEW+自愈原语义（回归用例保护）
+> - ✅ 评审上下文增强：recent_history 对 cancelled 轮附带最近一次失败归因（failure_code: reason），规划器重规划有据可依
+> - ✅ 租约 TTL 统一走配置：新增 services/lease_policy.py（Agent 激活配置 > LEASE_DURATION_SECONDS env > 120s，钳制 60..3600），接线 pull 建约/续约、GoalLoop 派发、auto_assign 四处 60s 硬编码——60s 租约曾是静默杀手，续约一抖动成果作废
+> - ✅ 续约容错（agent-runtime）：续约循环首次异常即 break → 改为退避重试（2^n 封顶 10s），连续失败 ≥4（约 2 倍租约时长窗口，覆盖平台重启）才放弃；成功复位计数器
+> - ✅ 部署级护栏缺省可调：GOAL_LOOP_DEFAULT_ROUNDS_LIMIT / GOAL_LOOP_DEFAULT_STALL_LIMIT / GOAL_LOOP_STUCK_TASK_HOURS / FAILURE_REPAIR_MAX_ATTEMPTS / LEASE_DURATION_SECONDS——「迭代 100 个版本」「连续跑三天」成为部署级一等配置
+> - ✅ 验证：api-server 全量门禁 2249 passed（含 +15 新用例）、agent-runtime 616 passed（含 +4 续约用例）；长跑设计文档 docs/ENDURANCE_MODE_DESIGN.md（根因清单/部署配方/后续路线：轮次上下文延续、turn 级续跑接线、质量闭环硬化）
