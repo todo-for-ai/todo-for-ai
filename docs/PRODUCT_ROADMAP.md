@@ -351,3 +351,9 @@
 > - ✅ 滚动自动压缩：goal_loops.context_digest（迁移 000025，双方言+幂等冒烟）；每累积 GOAL_LOOP_COMPRESS_EVERY（默认 3）个新终态轮刷一次，状态机物化下一轮前调用；LLM 语义压缩（JSON digest）失败/无 key 自动降级抽取式——长跑记忆不因 LLM 故障断档；context_digest_upto 游标增量幂等；任何异常只记日志不阻断推进
 > - ✅ 自动清理的确定性保证：走廊整体硬上界 6000 字符（超限先裁明细再硬截），注入 prompt 的上下文规模有确定上界
 > - ✅ 验证：+12 用例（走廊三层/空历史零开销/硬上界/压缩增量幂等/LLM 与降级/节奏/异常不阻断/注入与首轮豁免），全量门禁 exit 0；设计文档 docs/ENDURANCE_MODE_DESIGN.md §9
+
+> **进展（2026-09-13 其四）**：Agent 记忆管理——框架评估决策 + 可插拔记忆层 Phase 1（api-server）：
+> - ✅ 评估决策（docs/AGENT_MEMORY_DESIGN.md）：平台记忆基建盘点结论=写入/治理/消费三层已完整（AgentExperience 衰减共享交叉验证、知识提案确认管线、SoulVersion 记忆治理、skill_profile 进派单打分、循环走廊），缺的是「语义检索+自动注入」最后一公里；开源框架对比（mem0 Apache-2.0 / Graphiti / Letta / cognee / LangMem）后决策=**不整体引入**（Letta 是完整 agent 服务器会架空自有 runtime、Graphiti/cognee 需新增图数据库），改为**可插拔记忆层**：自建为底、mem0 为可选语义后端（Redis 向量后端复用现有 Redis）
+> - ✅ services/memory/：MemoryHit 统一形状 + get_memory_backend() 工厂（AGENT_MEMORY_BACKEND=builtin|mem0，mem0 不可用双重自动回退 builtin）+ recall_for_query()（异常永不阻断业务主链路）；builtin 后端=AgentExperience+KnowledgeEntry 词面召回（CJK 二元切分适配中文、多关键词去重加权、置信度×复用排序）
+> - ✅ 自动注入：create_round_task 按步骤文本召回 top-K 记忆注入【相关记忆】块（首轮也注入、800 字符钳制、失败静默跳过不阻断派发）；成功经验写入：循环 DONE 落 success_pattern 经验（与失败路径对称，达成策略不再丢失）
+> - ✅ 验证：+11 用例（召回/排序/回退/永不抛异常/注入/首轮/失败不阻断/成功经验），全量门禁 2283 passed
