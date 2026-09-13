@@ -389,3 +389,9 @@
 > - ✅ 依赖门：epic 展开/批量编辑写入的 blocked_by 此前只有写入与展示，runtime pull 派发完全不消费——多 Agent 并发拉取会提前领到前置未完成的任务，任务图（目标任务图/手工依赖）执行顺序失效；现 _fetch_next_task 跳过依赖未解除的候选（阻塞者到 DONE/CANCELLED 终态即解除）——排序约束语义：阻塞者取消即解除、是否连带取消下游由规划者裁决；失效引用（已删任务/脏数据）容忍，不卡死派发
 > - ✅ 可观测性：pull 响应存在非零依赖跳过时附 dependency_gate（blocked/skipped_blocked）——Agent/调用方可理解「明明有 TODO 却空手而归」；工作时间窗/并发容量/预算门语义不变（预算按首个未阻塞任务计）
 > - ✅ 验证：+12 用例（TODO/IN_PROGRESS 阻塞者挂起、DONE/CANCELLED 终态解除、部分完成多阻塞者、失效与脏引用容忍、绕行派发、多轮派发下游绝不误派、解除后恢复），api-server 全量门禁 2336 passed（d93af66）
+
+> **进展（2026-09-13 其十）**：任务图（DAG）读写成套——防环 + 可视化，Agent 行动规划以有向图为一等公民（api-server + webpage）：
+> - ✅ 写侧防环：PUT /tasks/&lt;id&gt;/dependencies 拒绝自依赖与传递成环——环 = 依赖门下互相等待、永久无法派发；环检测方向语义为「从新阻塞者沿 blocked_by 前置链能走回目标任务」（services/task_graph.find_dependency_cycle）；goal_decomposition 对 LLM 输出的 depends_on 逐边校验，成环边丢弃保持任务图无环（api-server e31e657）
+> - ✅ 读侧端点：GET /tasks/projects/&lt;id&gt;/task-graph（owner/admin/active 成员可读）——节点含 readiness 就绪态（ready/blocked/done/cancelled，与派发门同语义：阻塞者到终态即解除、失效引用视为解除）、unresolved_blockers、epic_id/assignees；边为项目内有向依赖；cycles 报 Tarjan SCC 环组（含自环，迭代实现）；stats 汇总 + 超 500 节点 truncated 标记——供前端 DAG 可视化与外部编排方消费
+> - ✅ 前端可视化：项目详情新增「任务图」Tab（webpage 2c3ad8a）——纯 React+SVG 分层 DAG（最长链分层、贝塞尔连线、环边红色高亮，无新依赖）；节点即任务卡片点击跳详情；就绪态四色 ready 蓝/blocked 橙/done 绿/cancelled 灰；统计条 + 环警示横幅 + 截断标记；zh/en i18n
+> - ✅ 验证：api-server +16 用例（防环矩阵/端点权限/就绪态矩阵/跨项目阻塞者/环组可见性/分解成环边丢弃）全量 2352 passed；webpage vite build 通过
