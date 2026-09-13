@@ -344,3 +344,10 @@
 > - ✅ 额度熔断（用户配置的 LLM API token 没额度了怎么停）：新增归因类别 quota_exhausted（QUOTA_EXCEEDED/INSUFFICIENT_QUOTA/BILLING/PAYMENT_REQUIRED 等 failure_code + insufficient_quota/credit balance/payment required 等关键词，与可重试的 429 限流区分）；该类别为不可重试资源级故障——跳过修复子任务与重试封顶直接升级；新增 services/quota_guard.py：写 token_quota_exhausted interaction_request 上报用户（审批队列/open 协议可见，附「请充值或更换 key」提示，一窗口一 Agent 幂等），并在 pull/auto_assign/goal_loop dispatch 三道派发门熔断该 Agent（QUOTA_BLOCK_WINDOW_HOURS 默认 24h，过后换 key/充值即自愈）；循环任务的额度耗尽失败 → 循环立即 STALLED（last_error 写明额度耗尽），不进规划器空转
 > - ✅ 无进展护栏（用户要"死循环"也必须有退出点）：query.trailing_failure_streak 末尾连续失败轮数；状态机 extend 分支连续失败 ≥ GOAL_LOOP_NO_PROGRESS_LIMIT（默认 3，env 可调）拒绝 extend 强制计 stall（规划器宣告 complete 仍允许）→ 连续两次 STALLED 终态退出，杜绝规划器无限 extend 空转烧预算
 > - ✅ 验证：+11 用例（归因/升级/上报幂等/窗口自愈/三道门/循环停车/extend 拒绝与 complete 放行），全量门禁 2260 passed；设计文档 docs/ENDURANCE_MODE_DESIGN.md §8
+
+> **进展（2026-09-13 其三）**：长跑模式（Endurance）三期——循环上下文走廊与自动压缩（api-server）：
+> - ✅ 问题：轮次任务逐轮物化但执行者「失忆」（不知道前几轮干了什么/失败过什么），全量塞历史又随轮数无限膨胀烧 token；R2 服务侧就此落地
+> - ✅ 三层走廊注入每个轮次任务内容顶部（create_round_task，pull/push 派发自动携带）：目标层（goal_text+done_definition 每轮必带防跑偏）/ 压缩层（早期轮次滚动压缩摘要）/ 明细层（最近 3 轮保留标题+状态+失败归因）；首轮零开销
+> - ✅ 滚动自动压缩：goal_loops.context_digest（迁移 000025，双方言+幂等冒烟）；每累积 GOAL_LOOP_COMPRESS_EVERY（默认 3）个新终态轮刷一次，状态机物化下一轮前调用；LLM 语义压缩（JSON digest）失败/无 key 自动降级抽取式——长跑记忆不因 LLM 故障断档；context_digest_upto 游标增量幂等；任何异常只记日志不阻断推进
+> - ✅ 自动清理的确定性保证：走廊整体硬上界 6000 字符（超限先裁明细再硬截），注入 prompt 的上下文规模有确定上界
+> - ✅ 验证：+12 用例（走廊三层/空历史零开销/硬上界/压缩增量幂等/LLM 与降级/节奏/异常不阻断/注入与首轮豁免），全量门禁 exit 0；设计文档 docs/ENDURANCE_MODE_DESIGN.md §9
