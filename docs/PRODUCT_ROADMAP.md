@@ -403,3 +403,10 @@
 > - ✅ 前端实况：websocketService 转发 task_graph_changed + joinProjectRoom/leaveProjectRoom；useProjectGraphRealtime hook（300ms 去抖合并事件风暴）；TaskGraphTab 实时状态指示（绿点=已连接/灰点=离线）+ 就绪态图例 + 阶段标题行（第 N 阶段 · 任务数）（webpage b1b23b8）
 > - ✅ dev 代理修复：vite 补 /socket.io（ws: true）透传——此前本地 dev 下 WebSocket 实时推送一直不可用；/todo-for-ai/api 代理目标支持 VITE_API_PROXY_TARGET 覆盖，并行验证非默认端口后端无需改代码（webpage e887a0d）
 > - ✅ 端到端实测（本地平台）：建 1→2,3→4 依赖链 → task-graph 端点就绪态正确 → 浏览器打开任务图 Tab 渲染分层 DAG（阶段列/贝塞尔连线/四色就绪态/实时绿标）→ **API 翻转阶段 1 任务为 done，页面不刷新，2.5s 内图自动变化**：阶段 1 变绿已完成、阶段 2 两任务解锁变蓝可派发、阶段 3 仍被阻塞、统计 1/3→2/1/1——DAG 并行解锁语义实况可视化，截图验收 PASS；api-server 全量门禁 2359 passed
+
+> **进展（2026-09-13 其十二）**：任务图可视化重写——React Flow + dagre 专业 DAG 渲染（webpage）：
+> - ✅ 手写分层 SVG 换专门图可视化栈：@xyflow/react 12 + @dagrejs/dagre 1.1——LR 自动分层、smoothstep 圆角连线、箭头闭合、缩放/平移、点阵背景、就绪态着色小地图，大型任务图（epic 展开几十任务）自由缩放导航（webpage db44527）
+> - ✅ 节点卡片：就绪态色标+标签+编号，环上节点红描边 + ↻ cycle 徽标，已完成打勾；边着色语义：done→下游绿色流动动画（多 Agent 推进可见）、环边红色流动、其余灰实线
+> - ✅ 坑与修复：@dagrejs/dagre（1.x 与 3.x 实测同病）`setEdge` 必须显式传 label 对象，缺 label 时 layout 写 points 直接 TypeError 崩掉整页（React 无路由级 error boundary → root 清空白屏）；锁 1.1.4。preview 代理目标支持 VITE_API_PROXY_TARGET（与 server 一致）
+> - ✅ 并行验证基建教训：两个 vite dev server 共享同一 node_modules/.vite 依赖缓存会互踩（一方重优化另一方运行时加载失败白屏）——并行验证用 `vite preview`（跑构建产物无预构建）+ 独立后端实例最稳；npm 缓存 EACCES 用 --cache /tmp/xxx 绕开
+> - ✅ 验证：vite build 通过 + vitest 35 passed；本地平台截图验收——done 绿卡打勾、绿色流动边、ready 蓝/blocked 橙、汇流分叉与阻塞传播一目了然
