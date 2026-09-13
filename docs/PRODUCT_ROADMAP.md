@@ -357,3 +357,10 @@
 > - ✅ services/memory/：MemoryHit 统一形状 + get_memory_backend() 工厂（AGENT_MEMORY_BACKEND=builtin|mem0，mem0 不可用双重自动回退 builtin）+ recall_for_query()（异常永不阻断业务主链路）；builtin 后端=AgentExperience+KnowledgeEntry 词面召回（CJK 二元切分适配中文、多关键词去重加权、置信度×复用排序）
 > - ✅ 自动注入：create_round_task 按步骤文本召回 top-K 记忆注入【相关记忆】块（首轮也注入、800 字符钳制、失败静默跳过不阻断派发）；成功经验写入：循环 DONE 落 success_pattern 经验（与失败路径对称，达成策略不再丢失）
 > - ✅ 验证：+11 用例（召回/排序/回退/永不抛异常/注入/首轮/失败不阻断/成功经验），全量门禁 2283 passed
+
+> **进展（2026-09-13 其五）**：记忆层 Phase 1.5——专用模块 + 五维度作用域隔离（api-server）：
+> - ✅ 专用存储：agent_memories 表（迁移 000026），一行记忆 = (organization_id, scope_type, scope_id) 下的一条可检索事实；五维度=session(会话/一次循环运行)→project(项目持久教训)→agent(个人经验)→user(用户偏好)→organization(组织惯例)，优先级从具体到一般
+> - ✅ 硬隔离：每行强制 organization_id（跨组织永不可见，测试断言）；user 记忆 per-org（同一用户在组织 A 的记忆不泄漏到组织 B）；继承链只能由 scopes.py 构造器从归属已验证实体推导，无法手工拼越权组合；(org,scope,scope_id,dedupe_key) 唯一索引幂等去重，重复验证升置信度
+> - ✅ 作用域化召回注入：store.recall 沿继承链按优先级合并、命中带 [项目记忆]/[组织记忆] 等维度标签、access_count 学习信号；create_round_task 注入改走作用域召回（无命中回退经验/知识库词面召回）
+> - ✅ 生命周期自动沉淀 loop_hooks：循环 DONE→会话级总结+项目级持久结论；STALLED（无进展护栏/规划器受阻）→项目级受阻教训；额度停车→项目级额度教训——同类目标重跑时被召回避免重蹈覆辙；全部 try/except 不影响循环状态流转
+> - ✅ 验证：+11 用例（跨组织不可见/user per-org/链顺序/优先级合并/去重幂等/三类写入/注入标签/隔离注入），全量门禁 2294 passed；迁移 SQLite/MySQL 双方言幂等冒烟；设计文档 AGENT_MEMORY_DESIGN.md §5
