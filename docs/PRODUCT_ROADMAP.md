@@ -395,3 +395,11 @@
 > - ✅ 读侧端点：GET /tasks/projects/&lt;id&gt;/task-graph（owner/admin/active 成员可读）——节点含 readiness 就绪态（ready/blocked/done/cancelled，与派发门同语义：阻塞者到终态即解除、失效引用视为解除）、unresolved_blockers、epic_id/assignees；边为项目内有向依赖；cycles 报 Tarjan SCC 环组（含自环，迭代实现）；stats 汇总 + 超 500 节点 truncated 标记——供前端 DAG 可视化与外部编排方消费
 > - ✅ 前端可视化：项目详情新增「任务图」Tab（webpage 2c3ad8a）——纯 React+SVG 分层 DAG（最长链分层、贝塞尔连线、环边红色高亮，无新依赖）；节点即任务卡片点击跳详情；就绪态四色 ready 蓝/blocked 橙/done 绿/cancelled 灰；统计条 + 环警示横幅 + 截断标记；zh/en i18n
 > - ✅ 验证：api-server +16 用例（防环矩阵/端点权限/就绪态矩阵/跨项目阻塞者/环组可见性/分解成环边丢弃）全量 2352 passed；webpage vite build 通过
+
+> **进展（2026-09-13 其十一）**：任务图实况化——WebSocket 推送驱动 DAG 自动刷新，多 Agent 执行可现场观看（api-server + webpage）：
+> - ✅ 项目房间：/user/ws 新增 join_project/leave_project + push_to_project + notify_task_graph_changed（project_id 缺失/推送异常容错不抛——图刷新是锦上添花，不打断状态翻转主链路）（api-server abdd683）
+> - ✅ 五个推送挂点：依赖编辑（dependencies_changed）、批量状态（batch_status_changed 按项目分组）、人工状态变更（status_changed）、Agent commit（agent_commit:&lt;final_status&gt;，多 Agent 执行的主推进时刻）、MCP update_task_status（mcp_status_changed）——外部 CLI Agent/平台内 Agent/人三条协作面的翻转都驱动图刷新
+> - ✅ 顺手修批量状态既有 bug：裸字符串直接赋值 Enum 列，按 value 传 'done' 触发 KeyError 500（只有 name 'DONE' 碰巧可用）——统一 name/value 双兼容 + 非法值 400
+> - ✅ 前端实况：websocketService 转发 task_graph_changed + joinProjectRoom/leaveProjectRoom；useProjectGraphRealtime hook（300ms 去抖合并事件风暴）；TaskGraphTab 实时状态指示（绿点=已连接/灰点=离线）+ 就绪态图例 + 阶段标题行（第 N 阶段 · 任务数）（webpage b1b23b8）
+> - ✅ dev 代理修复：vite 补 /socket.io（ws: true）透传——此前本地 dev 下 WebSocket 实时推送一直不可用；/todo-for-ai/api 代理目标支持 VITE_API_PROXY_TARGET 覆盖，并行验证非默认端口后端无需改代码（webpage e887a0d）
+> - ✅ 端到端实测（本地平台）：建 1→2,3→4 依赖链 → task-graph 端点就绪态正确 → 浏览器打开任务图 Tab 渲染分层 DAG（阶段列/贝塞尔连线/四色就绪态/实时绿标）→ **API 翻转阶段 1 任务为 done，页面不刷新，2.5s 内图自动变化**：阶段 1 变绿已完成、阶段 2 两任务解锁变蓝可派发、阶段 3 仍被阻塞、统计 1/3→2/1/1——DAG 并行解锁语义实况可视化，截图验收 PASS；api-server 全量门禁 2359 passed
