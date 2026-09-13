@@ -339,3 +339,8 @@
 > - ✅ 续约容错（agent-runtime）：续约循环首次异常即 break → 改为退避重试（2^n 封顶 10s），连续失败 ≥4（约 2 倍租约时长窗口，覆盖平台重启）才放弃；成功复位计数器
 > - ✅ 部署级护栏缺省可调：GOAL_LOOP_DEFAULT_ROUNDS_LIMIT / GOAL_LOOP_DEFAULT_STALL_LIMIT / GOAL_LOOP_STUCK_TASK_HOURS / FAILURE_REPAIR_MAX_ATTEMPTS / LEASE_DURATION_SECONDS——「迭代 100 个版本」「连续跑三天」成为部署级一等配置
 > - ✅ 验证：api-server 全量门禁 2249 passed（含 +15 新用例）、agent-runtime 616 passed（含 +4 续约用例）；长跑设计文档 docs/ENDURANCE_MODE_DESIGN.md（根因清单/部署配方/后续路线：轮次上下文延续、turn 级续跑接线、质量闭环硬化）
+
+> **进展（2026-09-13 其二）**：长跑模式（Endurance）二期——优雅停车两件套：额度熔断 + 死循环退出点（api-server）：
+> - ✅ 额度熔断（用户配置的 LLM API token 没额度了怎么停）：新增归因类别 quota_exhausted（QUOTA_EXCEEDED/INSUFFICIENT_QUOTA/BILLING/PAYMENT_REQUIRED 等 failure_code + insufficient_quota/credit balance/payment required 等关键词，与可重试的 429 限流区分）；该类别为不可重试资源级故障——跳过修复子任务与重试封顶直接升级；新增 services/quota_guard.py：写 token_quota_exhausted interaction_request 上报用户（审批队列/open 协议可见，附「请充值或更换 key」提示，一窗口一 Agent 幂等），并在 pull/auto_assign/goal_loop dispatch 三道派发门熔断该 Agent（QUOTA_BLOCK_WINDOW_HOURS 默认 24h，过后换 key/充值即自愈）；循环任务的额度耗尽失败 → 循环立即 STALLED（last_error 写明额度耗尽），不进规划器空转
+> - ✅ 无进展护栏（用户要"死循环"也必须有退出点）：query.trailing_failure_streak 末尾连续失败轮数；状态机 extend 分支连续失败 ≥ GOAL_LOOP_NO_PROGRESS_LIMIT（默认 3，env 可调）拒绝 extend 强制计 stall（规划器宣告 complete 仍允许）→ 连续两次 STALLED 终态退出，杜绝规划器无限 extend 空转烧预算
+> - ✅ 验证：+11 用例（归因/升级/上报幂等/窗口自愈/三道门/循环停车/extend 拒绝与 complete 放行），全量门禁 2260 passed；设计文档 docs/ENDURANCE_MODE_DESIGN.md §8
