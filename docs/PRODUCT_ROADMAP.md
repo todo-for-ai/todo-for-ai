@@ -371,3 +371,10 @@
 > - ✅ 修复迁移 000026 MySQL 隐患：agent_memories.source_task_id INT→BIGINT（tasks.id 为 BIGINT，FK 类型不兼容会让 MySQL 部署建表直接失败，SQLite 测试测不出）——未部署过该迁移的环境原地修 DDL，已创建 scratch 库 E2E 验证 000026+000027 双向迁移
 > - ✅ 长跑 v4 规划器瞬时故障退避：LLM 供应商抖动（网络/超时/5xx/限流）此前直接烧 stall_limit（默认 2）——一次约 10 分钟的供应商故障把全平台 RUNNING 循环打成 STALLED 只能逐个人工 resume；现在瞬时故障按指数退避自愈（transient_streak/retry_after 迁移 000028，5min→10→20→40→封顶 1h），退避窗口内 watchdog/钩子/kick 推进请求入口快速跳过，不消耗受阻预算；密钥/额度类（401/403/quota/billing）与坏输出类仍按硬故障立即计 stall 快速暴露给人；连续瞬时故障达 GOAL_PLANNER_TRANSIENT_LIMIT（默认 12，约扛 8~12 小时级事故）回落既有 STALLED 人工出口；成功推进/人工 pause/resume 清零；to_dict 透出退避截止时间供前端显示
 > - ✅ 验证：+25 用例（记忆 API 授权矩阵/租户边界/去重/编辑/软删/召回预览/human_edited 偏好 + 退避调度/分类边界/窗口跳过/自愈/回落/resume 清零），全量门禁 2319 passed；ENDURANCE_MODE_DESIGN §10、AGENT_MEMORY_DESIGN §6
+
+> **进展（2026-09-13 其七）**：目标链式接续 + 派发工作时间窗门（api-server，长跑 v5）：
+> - ✅ 链式接续（Agent 断档的最后一公里）：单循环到终态后 Agent 闲置——现在循环可带 successor_loop_id（迁移 000029，自引用 FK），前驱到终态的四条路径（done/limit_reached/stalled/stopped）同步 CAS 提升 PAUSED 后继并推进第一轮；A→B→C 链起来即 FIFO 目标流水线；人工 PAUSED 不提升（挂起是故意的）、人工 stop 只停这个目标不停流水线
+> - ✅ 提升可靠性：CAS（status=PAUSED 才 update）防并发双唤醒；后继若也立刻终态则递归接续（MAX_CHAIN_DEPTH=32 封顶，超限由看门狗漏触发自愈兜底）；提升失败只记日志绝不影响前驱终态；不新增 QUEUED 状态（后继以 PAUSED 挂起，避免双方言 enum 手术）
+> - ✅ API：创建时 chain_next 内联规格（agent/director/护栏缺省继承父循环）或 successor_loop_id 直引既有 PAUSED 循环；PUT successor_loop_id 改链/清链；校验存在/非自身/非终态且 PAUSED/同工作区/沿链不成环
+> - ✅ 派发工作时间窗门（顺手修）：assign_task_to_agent 此前缺窗门，pick_executor 兜底回退绑定 Agent 时绕过在岗判断立即建租约推送；现补第四道门（窗外不派、任务留 TODO、开窗后 pull 兜底、fail-open）
+> - ✅ 验证：+12 用例（创建/直引/校验/四终态提升/暂停不提升/三环链传递/改清链/成环拒绝/终态拒绝/窗口门），全量门禁 2331 passed；迁移 000029 MySQL scratch 库 E2E（FK 约束+双向）；ENDURANCE_MODE_DESIGN §11
