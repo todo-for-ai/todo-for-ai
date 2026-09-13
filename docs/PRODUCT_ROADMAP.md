@@ -384,3 +384,8 @@
 > - ✅ 会话接续（Agent 断档重跑的最后一块）：CLI 任务一次 attempt 失败即从零重跑——现在失败/取消的工作区保留（workspace.preserve：保留区数量上限 AGENT_RUNTIME_CONTINUITY_KEEP=5 + TTL 24h，敏感材料不无限期落盘），下次 attempt restore 取回文件与引擎会话锚点；claude 从 JSON 输出捕获 session_id 落锚点，重试以 --resume <session> 在原对话上下文续跑（codex/opencode 有文件级接续）；AGENT_RUNTIME_CONTINUITY=false 可关；repo 任务不保留（需 patch 桥，后续）
 > - ✅ 顺手补齐：迁移自旧基线时把 fe42a03 的租约续约退避重试语义带回（旧 checkout 落后一个提交）
 > - ✅ 验证：+13 接续用例（preserve/restore 生命周期/上限淘汰/关闭开关/失败保留→续跑全链路/成功不保留/repo 不保留/锚点引擎校验/--resume argv/端到端 fake claude），agent-runtime 全量门禁 592 passed
+
+> **进展（2026-09-13 其九）**：任务图依赖感知派发——多 Agent 按 blocked_by 顺序协作（api-server）：
+> - ✅ 依赖门：epic 展开/批量编辑写入的 blocked_by 此前只有写入与展示，runtime pull 派发完全不消费——多 Agent 并发拉取会提前领到前置未完成的任务，任务图（目标任务图/手工依赖）执行顺序失效；现 _fetch_next_task 跳过依赖未解除的候选（阻塞者到 DONE/CANCELLED 终态即解除）——排序约束语义：阻塞者取消即解除、是否连带取消下游由规划者裁决；失效引用（已删任务/脏数据）容忍，不卡死派发
+> - ✅ 可观测性：pull 响应存在非零依赖跳过时附 dependency_gate（blocked/skipped_blocked）——Agent/调用方可理解「明明有 TODO 却空手而归」；工作时间窗/并发容量/预算门语义不变（预算按首个未阻塞任务计）
+> - ✅ 验证：+12 用例（TODO/IN_PROGRESS 阻塞者挂起、DONE/CANCELLED 终态解除、部分完成多阻塞者、失效与脏引用容忍、绕行派发、多轮派发下游绝不误派、解除后恢复），api-server 全量门禁 2336 passed（d93af66）
