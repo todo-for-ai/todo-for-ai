@@ -364,3 +364,10 @@
 > - ✅ 作用域化召回注入：store.recall 沿继承链按优先级合并、命中带 [项目记忆]/[组织记忆] 等维度标签、access_count 学习信号；create_round_task 注入改走作用域召回（无命中回退经验/知识库词面召回）
 > - ✅ 生命周期自动沉淀 loop_hooks：循环 DONE→会话级总结+项目级持久结论；STALLED（无进展护栏/规划器受阻）→项目级受阻教训；额度停车→项目级额度教训——同类目标重跑时被召回避免重蹈覆辙；全部 try/except 不影响循环状态流转
 > - ✅ 验证：+11 用例（跨组织不可见/user per-org/链顺序/优先级合并/去重幂等/三类写入/注入标签/隔离注入），全量门禁 2294 passed；迁移 SQLite/MySQL 双方言幂等冒烟；设计文档 AGENT_MEMORY_DESIGN.md §5
+
+> **进展（2026-09-13 其六）**：记忆开放用户自编辑 + 规划器瞬时故障退避（api-server）：
+> - ✅ 记忆用户 API（Phase 2）：六端点开放记忆模块给用户自管理——GET/POST /memory（分页列表/新建）、GET/PUT/DELETE /memory/{id}（查看/编辑/软删遗忘）、POST /memory/recall（召回预览，带维度标签、不写 access_count）；授权矩阵按维度收口：organization=org owner/admin、project=owner/maintainer、agent=agent owner 或 org 管理员、user=仅本人、session=系统托管拒绝手写（SESSION_SCOPE_SYSTEM_MANAGED）
+> - ✅ 人工信任信号：human_edited 列（迁移 000027）标记人工创建/编辑的记忆，召回排序加权（confidence +10 加成），去重命中同标题+内容时自动升级标记；store 补 list/get/update/forget_by_id（软删 is_valid=0，幂等）
+> - ✅ 修复迁移 000026 MySQL 隐患：agent_memories.source_task_id INT→BIGINT（tasks.id 为 BIGINT，FK 类型不兼容会让 MySQL 部署建表直接失败，SQLite 测试测不出）——未部署过该迁移的环境原地修 DDL，已创建 scratch 库 E2E 验证 000026+000027 双向迁移
+> - ✅ 长跑 v4 规划器瞬时故障退避：LLM 供应商抖动（网络/超时/5xx/限流）此前直接烧 stall_limit（默认 2）——一次约 10 分钟的供应商故障把全平台 RUNNING 循环打成 STALLED 只能逐个人工 resume；现在瞬时故障按指数退避自愈（transient_streak/retry_after 迁移 000028，5min→10→20→40→封顶 1h），退避窗口内 watchdog/钩子/kick 推进请求入口快速跳过，不消耗受阻预算；密钥/额度类（401/403/quota/billing）与坏输出类仍按硬故障立即计 stall 快速暴露给人；连续瞬时故障达 GOAL_PLANNER_TRANSIENT_LIMIT（默认 12，约扛 8~12 小时级事故）回落既有 STALLED 人工出口；成功推进/人工 pause/resume 清零；to_dict 透出退避截止时间供前端显示
+> - ✅ 验证：+25 用例（记忆 API 授权矩阵/租户边界/去重/编辑/软删/召回预览/human_edited 偏好 + 退避调度/分类边界/窗口跳过/自愈/回落/resume 清零），全量门禁 2319 passed；ENDURANCE_MODE_DESIGN §10、AGENT_MEMORY_DESIGN §6
