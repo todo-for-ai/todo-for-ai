@@ -410,3 +410,10 @@
 > - ✅ 坑与修复：@dagrejs/dagre（1.x 与 3.x 实测同病）`setEdge` 必须显式传 label 对象，缺 label 时 layout 写 points 直接 TypeError 崩掉整页（React 无路由级 error boundary → root 清空白屏）；锁 1.1.4。preview 代理目标支持 VITE_API_PROXY_TARGET（与 server 一致）
 > - ✅ 并行验证基建教训：两个 vite dev server 共享同一 node_modules/.vite 依赖缓存会互踩（一方重优化另一方运行时加载失败白屏）——并行验证用 `vite preview`（跑构建产物无预构建）+ 独立后端实例最稳；npm 缓存 EACCES 用 --cache /tmp/xxx 绕开
 > - ✅ 验证：vite build 通过 + vitest 35 passed；本地平台截图验收——done 绿卡打勾、绿色流动边、ready 蓝/blocked 橙、汇流分叉与阻塞传播一目了然
+
+> **进展（2026-09-14 其十三）**：任务图「指挥中枢」——DAG 页面成体系化，功能从堆砌到联动（webpage）：
+> - ✅ 依赖链聚焦：单击节点选中——传递上游/下游全链高亮（链上边蓝色流动动画、链外节点与边淡出、小地图同步置灰），聚焦条显示 上游 N · 下游 M，Esc/点空白/一键清除；双击跳任务详情页（webpage a20fcb9）
+> - ✅ 图例=筛选=统计三合一：原「统计标签 + 图例」两排重复展示合并为一排可点筛选芯片（带计数，点击按就绪态淡出未命中节点，可多选可重置）；右侧就绪态占比进度条同源同点击——同一份 stats 驱动三种视图
+> - ✅ 详情抽屉：选中即出——就绪态/状态/优先级/AI 标签、执行 Agent 徽标（点击直达 Agent 详情页）、前置依赖清单（已解除 ✓/阻塞中 🕐/失效引用提示，点击依赖项图聚焦随动跳转）、上下文状态操作（标记完成/取消/重新打开 → PUT /tasks → WebSocket 推送 → 图/芯片/聚焦自动刷新）、打开任务详情页
+> - ✅ 节点卡片升级：Agent 指派 🤖×N 徽标；纯逻辑下沉 taskGraphModel.ts（链计算/筛选判定/dagre 布局）+ TaskNodeCard/TaskDetailDrawer 拆分（单文件 ≤290 行）；taskGraph 节点 assignees 类型修正为 {type,id,name}（与后端写侧一致）
+> - ✅ 验证：vite build + vitest 44 passed（新增 taskGraphModel 单测：菱形链计算/环安全/跨项目边/Agent 提取/聚焦与筛选视觉态/布局方向/统计分段）；本地平台 E2E 截图验收——筛选态仅 blocked 高亮、选中 10666108 聚焦链（上游 3）+ 抽屉依赖清单、点依赖跳 10666107（Agent 徽标可见）、抽屉点「标记完成」→ 图实时刷新（绿 ✓/下游解锁变蓝/芯片计数同步/聚焦保持）
