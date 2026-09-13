@@ -378,3 +378,9 @@
 > - ✅ API：创建时 chain_next 内联规格（agent/director/护栏缺省继承父循环）或 successor_loop_id 直引既有 PAUSED 循环；PUT successor_loop_id 改链/清链；校验存在/非自身/非终态且 PAUSED/同工作区/沿链不成环
 > - ✅ 派发工作时间窗门（顺手修）：assign_task_to_agent 此前缺窗门，pick_executor 兜底回退绑定 Agent 时绕过在岗判断立即建租约推送；现补第四道门（窗外不派、任务留 TODO、开窗后 pull 兜底、fail-open）
 > - ✅ 验证：+12 用例（创建/直引/校验/四终态提升/暂停不提升/三环链传递/改清链/成环拒绝/终态拒绝/窗口门），全量门禁 2331 passed；迁移 000029 MySQL scratch 库 E2E（FK 约束+双向）；ENDURANCE_MODE_DESIGN §11
+
+> **进展（2026-09-13 其八）**：CLI 引擎正式接线 + 会话接续/turn-level continuation（agent-runtime）：
+> - ✅ CLI 引擎接入主干：claude/codex/opencode/custom 四引擎可插拔执行引擎（此前只有沙箱/镜像侧就绪）——build_argv 规则表 + provider 密钥显式注入 + 租约 env 透传；引擎优先级 payload.engine > CLI_AGENT_ENGINE env > openclaw；task_executor 分派 CLI 引擎（进度/结果事件、DoD 门、commit 协议不变）；runtimes/cli-agents 容器沙箱随迁（此前 LIVE E2E 已通）
+> - ✅ 会话接续（Agent 断档重跑的最后一块）：CLI 任务一次 attempt 失败即从零重跑——现在失败/取消的工作区保留（workspace.preserve：保留区数量上限 AGENT_RUNTIME_CONTINUITY_KEEP=5 + TTL 24h，敏感材料不无限期落盘），下次 attempt restore 取回文件与引擎会话锚点；claude 从 JSON 输出捕获 session_id 落锚点，重试以 --resume <session> 在原对话上下文续跑（codex/opencode 有文件级接续）；AGENT_RUNTIME_CONTINUITY=false 可关；repo 任务不保留（需 patch 桥，后续）
+> - ✅ 顺手补齐：迁移自旧基线时把 fe42a03 的租约续约退避重试语义带回（旧 checkout 落后一个提交）
+> - ✅ 验证：+13 接续用例（preserve/restore 生命周期/上限淘汰/关闭开关/失败保留→续跑全链路/成功不保留/repo 不保留/锚点引擎校验/--resume argv/端到端 fake claude），agent-runtime 全量门禁 592 passed
