@@ -440,3 +440,7 @@
 > **进展（2026-09-15 其五）**：代码质量马拉松第 126 轮——Agents.tsx 第三刀（webpage + 日志）：
 > - ✅ 1045 → 956：实时看板域 hook useAgentLiveDashboard（154 行：10s 刷新/60s 自动派活/SSE 通知与事件流/看板统计）；100% 行/函数覆盖（6 用例 fake timers + SSE 桩）；webpage 测试 308 → 314；tsc + build 三绿（webpage df65360，api-server b996148 日志）
 > - ⏭ Agents.tsx 剩余 956，下一刀收尾：零散处理器 + JSX 组合层
+
+> **进展（2026-09-15 其六）**：代码质量马拉松第 127 轮——Agents.tsx 视图层拆分（webpage + 日志）：
+> - ✅ 956 → 824 组合根：视图拆为 BoardSection(291)/OpsModals(443)/CollabModals(378) + 共享 props 类型(282)；props 机械提取、JSX 原样搬移。**Agents.tsx 簇终态：1508 单文件 → 组合根 + 13 个 100% 覆盖领域 hooks + 4 个 ≤500 视图组件**（webpage 409b443，api-server 07b1bed 日志）
+> - ⏭ 主文件剩余 ~290 行 props 清单可改 bag/context 传递进 ≤500；api-server 大文件队列待启动
