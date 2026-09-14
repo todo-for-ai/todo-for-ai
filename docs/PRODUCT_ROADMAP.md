@@ -444,3 +444,8 @@
 > **进展（2026-09-15 其六）**：代码质量马拉松第 127 轮——Agents.tsx 视图层拆分（webpage + 日志）：
 > - ✅ 956 → 824 组合根：视图拆为 BoardSection(291)/OpsModals(443)/CollabModals(378) + 共享 props 类型(282)；props 机械提取、JSX 原样搬移。**Agents.tsx 簇终态：1508 单文件 → 组合根 + 13 个 100% 覆盖领域 hooks + 4 个 ≤500 视图组件**（webpage 409b443，api-server 07b1bed 日志）
 > - ⏭ 主文件剩余 ~290 行 props 清单可改 bag/context 传递进 ≤500；api-server 大文件队列待启动
+
+> **进展（2026-09-15 其七）**：代码质量马拉松第 128 轮——api-server 最大源文件拆包 + 越权修复（api-server + 日志）：
+> - ✅ project_repo.py 1016 行 → api/project_repo/ 包（_shared/binding/pull_requests/lifecycle + 兼容 shim），GitHubClient mock 语义保留，补历史覆盖欠账 59 用例（含审批执行/校验/兜底全分支）
+> - ✅ **修越权 bug**：list_pending_pr_approvals 的 `current_user.is_admin` 缺括号（方法恒真）→ 任何用户可见全库待审批 PR；加越权钉子用例（api-server 4e51194，日志 408926f）
+> - ⏭ 观察项：api/goals.py:30 同款 `not user.is_admin` 恒 False；下一批 openai_compatible.py 888 行包化
