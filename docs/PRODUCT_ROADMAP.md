@@ -417,3 +417,8 @@
 > - ✅ 详情抽屉：选中即出——就绪态/状态/优先级/AI 标签、执行 Agent 徽标（点击直达 Agent 详情页）、前置依赖清单（已解除 ✓/阻塞中 🕐/失效引用提示，点击依赖项图聚焦随动跳转）、上下文状态操作（标记完成/取消/重新打开 → PUT /tasks → WebSocket 推送 → 图/芯片/聚焦自动刷新）、打开任务详情页
 > - ✅ 节点卡片升级：Agent 指派 🤖×N 徽标；纯逻辑下沉 taskGraphModel.ts（链计算/筛选判定/dagre 布局）+ TaskNodeCard/TaskDetailDrawer 拆分（单文件 ≤290 行）；taskGraph 节点 assignees 类型修正为 {type,id,name}（与后端写侧一致）
 > - ✅ 验证：vite build + vitest 44 passed（新增 taskGraphModel 单测：菱形链计算/环安全/跨项目边/Agent 提取/聚焦与筛选视觉态/布局方向/统计分段）；本地平台 E2E 截图验收——筛选态仅 blocked 高亮、选中 10666108 聚焦链（上游 3）+ 抽屉依赖清单、点依赖跳 10666107（Agent 徽标可见）、抽屉点「标记完成」→ 图实时刷新（绿 ✓/下游解锁变蓝/芯片计数同步/聚焦保持）
+
+> **进展（2026-09-15）**：代码质量马拉松第 122 轮——协作图指针交互 hook 化收官（webpage + 日志）：
+> - ✅ CollaborationGraphView 597 → 439：抽 useGraphInteraction（拖拽覆盖+localStorage 持久化+背景平移+滚轮缩放，133 行）与 GraphDefs/GraphLegends 纯静态组件；该文件自此达标出队（渲染/交互/图例/力导向/共享逻辑全模块化）
+> - ✅ 新模块单测 100% 行/分支/函数覆盖（13 用例）；webpage 测试 246 → 262；tsc + build 三绿（webpage a559d66，api-server 492c21a 日志）
+> - ⏭ 剩余 >500 行：Agents.tsx 1508、useWorkflowsData.tsx 574
