@@ -462,3 +462,6 @@
 > - ✅ 修 3 个上线级 bug：create_task 的 Enum value 字符串直赋（status/priority）与 Task.assignee relationship 塞字符串，三路径首次使用必 500；submit_feedback 同款枚举修复
 > - ✅ task_tools 覆盖 43% → 82%（22 用例 HTTP 全链路）；全量 2426 → 2448 passed（api-server 047a62c，日志 dee69a5）
 > - ⏭ task_tools 剩余 80 行深层分支下轮继续；观察项：mcp 测试顺序依赖
+
+> **进展（2026-09-15 其十一）**：代码质量马拉松第 132 轮——mcp task_tools 覆盖 82% → 98%（api-server + 日志）：
+> - ✅ 32 个深分支用例：审批全流程/推送块、assignee 精确校验容错、分页截断、越权 403、异常吞并；驻留行按高位段 purge 根治跨文件 id 污染；全量 2448 → 2480 passed（api-server b96c763，日志在 132 号）
