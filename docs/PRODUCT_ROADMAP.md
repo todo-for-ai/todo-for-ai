@@ -457,3 +457,8 @@
 > **进展（2026-09-15 其九）**：代码质量马拉松第 130 轮——agent_teams 包化（api-server + 日志）：
 > - ✅ agent_teams.py 660 → api/agent_teams/ 包（_core/teams/members/projects + shim，13 路由按域三文件）；选型自覆盖率普查（挑 100% 覆盖者拆分即闭环）；40 用例零改动全过、6 文件 100% 行覆盖；全量 2426 passed（api-server a9df94f，日志 0f7ffc5）
 > - ⏭ 剩余 >500 行均在 WIP 区或需先补测（mcp/task_tools 845 覆盖 43%）
+
+> **进展（2026-09-15 其十）**：代码质量马拉松第 131 轮——MCP task_tools 修复 + 补测（api-server + 日志）：
+> - ✅ 修 3 个上线级 bug：create_task 的 Enum value 字符串直赋（status/priority）与 Task.assignee relationship 塞字符串，三路径首次使用必 500；submit_feedback 同款枚举修复
+> - ✅ task_tools 覆盖 43% → 82%（22 用例 HTTP 全链路）；全量 2426 → 2448 passed（api-server 047a62c，日志 dee69a5）
+> - ⏭ task_tools 剩余 80 行深层分支下轮继续；观察项：mcp 测试顺序依赖
