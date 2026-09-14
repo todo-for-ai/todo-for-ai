@@ -476,3 +476,6 @@
 > **进展（2026-09-15 其十四）**：代码质量马拉松第 135 轮——mcp task_tools 100% 收口 + goals 越权修复（api-server + 日志）：
 > - ✅ task_tools 82→98→**100%** 行覆盖（97 用例）；追出第 5 个真 bug：feedback 的 status_changed 用 str(枚举) 与 value 比较，同状态反馈被误记为状态变更，修复为 .value 语义
 > - ✅ 修 goals.py authz：is_admin 缺括号恒放行 → 非成员可跨 workspace 读写 Goal；is_admin() 修复 + 越权钉子 ×2；全量 2480 → **2487 passed**（api-server 9feca2b，日志 ff00143）
+
+> **进展（2026-09-15 其十五）**：代码质量马拉松第 136 轮——auth 包死代码清理（api-server + 日志）：
+> - ✅ 删除 auth 包三个子模块中未被调用的 get_current_user 转发包装（包化时与 _pkg 运行时解析并存的死代码）；oauth/users 升至 100% 覆盖；75 用例零改动；全量 2487 passed（api-server c60e956，日志在 136 号）
