@@ -436,3 +436,7 @@
 > **进展（2026-09-15 其四）**：代码质量马拉松第 125 轮——Agents.tsx 第二刀（webpage + 日志）：
 > - ✅ 1207 → 1045：CRUD/广播/声誉域 hook useAgentCrudActions（203 行，17 状态 + 10 处理器，selectedAgent 注入）；100% 行/函数覆盖（8 用例）；webpage 测试 300 → 308；tsc + build 三绿（webpage e2c123b，api-server fb6c35f 日志）
 > - ⏭ Agents.tsx 剩余 1045，下一刀 effects/通知域 + JSX 组合
+
+> **进展（2026-09-15 其五）**：代码质量马拉松第 126 轮——Agents.tsx 第三刀（webpage + 日志）：
+> - ✅ 1045 → 956：实时看板域 hook useAgentLiveDashboard（154 行：10s 刷新/60s 自动派活/SSE 通知与事件流/看板统计）；100% 行/函数覆盖（6 用例 fake timers + SSE 桩）；webpage 测试 308 → 314；tsc + build 三绿（webpage df65360，api-server b996148 日志）
+> - ⏭ Agents.tsx 剩余 956，下一刀收尾：零散处理器 + JSX 组合层
