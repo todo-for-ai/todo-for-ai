@@ -432,3 +432,7 @@
 > - ✅ 1508 → 1207：步骤重配置域 hook（79 行）+ 冲突解决域 hook（102 行，均零 ctx 自包含）+ 表格列构建器 buildAgentsTableColumns(ctx)（249 行，15 处理器显式注入）
 > - ✅ 新模块 100% 行/函数覆盖（16 用例含 RTL 按钮点击矩阵）；webpage 测试 284 → 300；tsc + build 三绿（webpage a5208c1，api-server 040ac5c 日志）
 > - ⏭ Agents.tsx 剩余 ~1207 行，下一刀拆 JSX 面板组件
+
+> **进展（2026-09-15 其四）**：代码质量马拉松第 125 轮——Agents.tsx 第二刀（webpage + 日志）：
+> - ✅ 1207 → 1045：CRUD/广播/声誉域 hook useAgentCrudActions（203 行，17 状态 + 10 处理器，selectedAgent 注入）；100% 行/函数覆盖（8 用例）；webpage 测试 300 → 308；tsc + build 三绿（webpage e2c123b，api-server fb6c35f 日志）
+> - ⏭ Agents.tsx 剩余 1045，下一刀 effects/通知域 + JSX 组合
