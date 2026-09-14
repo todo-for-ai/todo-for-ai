@@ -465,3 +465,7 @@
 
 > **进展（2026-09-15 其十一）**：代码质量马拉松第 132 轮——mcp task_tools 覆盖 82% → 98%（api-server + 日志）：
 > - ✅ 32 个深分支用例：审批全流程/推送块、assignee 精确校验容错、分页截断、越权 403、异常吞并；驻留行按高位段 purge 根治跨文件 id 污染；全量 2448 → 2480 passed（api-server b96c763，日志在 132 号）
+
+> **进展（2026-09-15 其十二）**：代码质量马拉松第 133 轮——context_rules 包化（api-server + 日志）：
+> - ✅ context_rules.py 625 → api/context_rules/ 包（_core/crud/builder/sharing + shim，14 路由按域三文件）；patch 面 7 符号经包命名空间运行时解析，60 用例零改动全过、5 文件 100% 行覆盖；全量 2480 passed（api-server ab0090f，日志 162aabd）
+> - ⏭ api-server >500 行剩余均在他人 WIP 区或需先补测；goals.py authz 观察项待归属会话
