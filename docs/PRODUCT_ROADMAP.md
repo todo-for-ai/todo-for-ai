@@ -427,3 +427,8 @@
 > - ✅ useWorkflowsData 574 → 273 组合根 + 四域 hook（分析扇出/触发器/版本/模板，50-91 行/个）；跨域经 loadData 注入零耦合；顺带清死 imports 与死常量副本
 > - ✅ 返回键集契约测试（118 键）+ 全处理器成败分支，五文件 100% 行覆盖；webpage 测试 262 → 284；tsc + build 三绿（webpage 976c87f，api-server aac495a 日志）
 > - ⏭ 剩余 >500 行：Agents.tsx 1508
+
+> **进展（2026-09-15 其三）**：代码质量马拉松第 124 轮——Agents.tsx 拆解第一刀（webpage + 日志）：
+> - ✅ 1508 → 1207：步骤重配置域 hook（79 行）+ 冲突解决域 hook（102 行，均零 ctx 自包含）+ 表格列构建器 buildAgentsTableColumns(ctx)（249 行，15 处理器显式注入）
+> - ✅ 新模块 100% 行/函数覆盖（16 用例含 RTL 按钮点击矩阵）；webpage 测试 284 → 300；tsc + build 三绿（webpage a5208c1，api-server 040ac5c 日志）
+> - ⏭ Agents.tsx 剩余 ~1207 行，下一刀拆 JSX 面板组件
