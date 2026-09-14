@@ -453,3 +453,7 @@
 > **进展（2026-09-15 其八）**：代码质量马拉松第 129 轮——OpenAI 兼容层包化（api-server + 日志）：
 > - ✅ openai_compatible.py 888 → api/openai_compatible/ 包（_core/cache/handler/routes + shim，44-384 行/文件）；经包命名空间运行时解析实现**既有 716 行测试零改动**；5 文件 100% 行覆盖；全量 2426 passed（api-server 02e1010，日志 2333701）
 > - ⏭ routes_tasks.py 878（update_task 306 行单函数）待 api/tasks/__init__ 他人 WIP 落地后处理
+
+> **进展（2026-09-15 其九）**：代码质量马拉松第 130 轮——agent_teams 包化（api-server + 日志）：
+> - ✅ agent_teams.py 660 → api/agent_teams/ 包（_core/teams/members/projects + shim，13 路由按域三文件）；选型自覆盖率普查（挑 100% 覆盖者拆分即闭环）；40 用例零改动全过、6 文件 100% 行覆盖；全量 2426 passed（api-server a9df94f，日志 0f7ffc5）
+> - ⏭ 剩余 >500 行均在 WIP 区或需先补测（mcp/task_tools 845 覆盖 43%）
