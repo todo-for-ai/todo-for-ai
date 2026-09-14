@@ -422,3 +422,8 @@
 > - ✅ CollaborationGraphView 597 → 439：抽 useGraphInteraction（拖拽覆盖+localStorage 持久化+背景平移+滚轮缩放，133 行）与 GraphDefs/GraphLegends 纯静态组件；该文件自此达标出队（渲染/交互/图例/力导向/共享逻辑全模块化）
 > - ✅ 新模块单测 100% 行/分支/函数覆盖（13 用例）；webpage 测试 246 → 262；tsc + build 三绿（webpage a559d66，api-server 492c21a 日志）
 > - ⏭ 剩余 >500 行：Agents.tsx 1508、useWorkflowsData.tsx 574
+
+> **进展（2026-09-15 其二）**：代码质量马拉松第 123 轮——工作流页数据层按域拆分收官（webpage + 日志）：
+> - ✅ useWorkflowsData 574 → 273 组合根 + 四域 hook（分析扇出/触发器/版本/模板，50-91 行/个）；跨域经 loadData 注入零耦合；顺带清死 imports 与死常量副本
+> - ✅ 返回键集契约测试（118 键）+ 全处理器成败分支，五文件 100% 行覆盖；webpage 测试 262 → 284；tsc + build 三绿（webpage 976c87f，api-server aac495a 日志）
+> - ⏭ 剩余 >500 行：Agents.tsx 1508
