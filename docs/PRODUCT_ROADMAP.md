@@ -449,3 +449,7 @@
 > - ✅ project_repo.py 1016 行 → api/project_repo/ 包（_shared/binding/pull_requests/lifecycle + 兼容 shim），GitHubClient mock 语义保留，补历史覆盖欠账 59 用例（含审批执行/校验/兜底全分支）
 > - ✅ **修越权 bug**：list_pending_pr_approvals 的 `current_user.is_admin` 缺括号（方法恒真）→ 任何用户可见全库待审批 PR；加越权钉子用例（api-server 4e51194，日志 408926f）
 > - ⏭ 观察项：api/goals.py:30 同款 `not user.is_admin` 恒 False；下一批 openai_compatible.py 888 行包化
+
+> **进展（2026-09-15 其八）**：代码质量马拉松第 129 轮——OpenAI 兼容层包化（api-server + 日志）：
+> - ✅ openai_compatible.py 888 → api/openai_compatible/ 包（_core/cache/handler/routes + shim，44-384 行/文件）；经包命名空间运行时解析实现**既有 716 行测试零改动**；5 文件 100% 行覆盖；全量 2426 passed（api-server 02e1010，日志 2333701）
+> - ⏭ routes_tasks.py 878（update_task 306 行单函数）待 api/tasks/__init__ 他人 WIP 落地后处理
