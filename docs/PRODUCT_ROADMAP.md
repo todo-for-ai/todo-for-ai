@@ -469,3 +469,6 @@
 > **进展（2026-09-15 其十二）**：代码质量马拉松第 133 轮——context_rules 包化（api-server + 日志）：
 > - ✅ context_rules.py 625 → api/context_rules/ 包（_core/crud/builder/sharing + shim，14 路由按域三文件）；patch 面 7 符号经包命名空间运行时解析，60 用例零改动全过、5 文件 100% 行覆盖；全量 2480 passed（api-server ab0090f，日志 162aabd）
 > - ⏭ api-server >500 行剩余均在他人 WIP 区或需先补测；goals.py authz 观察项待归属会话
+
+> **进展（2026-09-15 其十三）**：代码质量马拉松第 134 轮——auth 包化（api-server + 日志）：
+> - ✅ auth.py 636 → api/auth/ 包（_core/routes_core/oauth/users + shim，14 路由按域四文件）；request/oauth service 等 4 符号运行时解析，75 用例零改动全过、5 文件 97-100% 行覆盖；全量 2480 passed（api-server cec984f，日志在 134 号）
