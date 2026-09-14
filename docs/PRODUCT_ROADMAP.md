@@ -472,3 +472,7 @@
 
 > **进展（2026-09-15 其十三）**：代码质量马拉松第 134 轮——auth 包化（api-server + 日志）：
 > - ✅ auth.py 636 → api/auth/ 包（_core/routes_core/oauth/users + shim，14 路由按域四文件）；request/oauth service 等 4 符号运行时解析，75 用例零改动全过、5 文件 97-100% 行覆盖；全量 2480 passed（api-server cec984f，日志在 134 号）
+
+> **进展（2026-09-15 其十四）**：代码质量马拉松第 135 轮——mcp task_tools 100% 收口 + goals 越权修复（api-server + 日志）：
+> - ✅ task_tools 82→98→**100%** 行覆盖（97 用例）；追出第 5 个真 bug：feedback 的 status_changed 用 str(枚举) 与 value 比较，同状态反馈被误记为状态变更，修复为 .value 语义
+> - ✅ 修 goals.py authz：is_admin 缺括号恒放行 → 非成员可跨 workspace 读写 Goal；is_admin() 修复 + 越权钉子 ×2；全量 2480 → **2487 passed**（api-server 9feca2b，日志 ff00143）
