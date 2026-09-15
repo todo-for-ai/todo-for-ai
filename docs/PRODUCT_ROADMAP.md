@@ -482,3 +482,7 @@
 
 > **进展（2026-09-15 其十六）**：代码质量马拉松第 137 轮——审批队列端点补测至 100%（api-server + 日志）：
 > - ✅ agent_approval_queue.py 72% → **100%** 行覆盖（10 用例：pending 列表/统计/越权 403/agent 名解析），顺带删零引用死函数 _resolve_agent_name；全量 2487 → **2497 passed**（api-server 13fb41f，日志 cf18748）
+
+> **进展（2026-09-15 其十七）**：代码质量马拉松第 138 轮——agent_access_control 补测至 100%（api-server + 日志）：
+> - ✅ 51% → **100%** 行覆盖（26 用例真库版）；根因复盘：user_factory teardown 外键置空 vs 驻留行的 organizations.owner_id NOT NULL——权限测试改自建驻留环境规避；全量 2497 → **2523 passed**（api-server 5ca3153，日志 f629cad）
+> - **会话累计：迭代 122–138 共 17 轮全绿**（webpage 大文件清零 + api-server 五模块包化 + 5 个真 bug 修复 + mcp task_tools 100% + goals authz 修复 + approval_queue/access_control 100%）
