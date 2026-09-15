@@ -486,3 +486,7 @@
 > **进展（2026-09-15 其十七）**：代码质量马拉松第 138 轮——agent_access_control 补测至 100%（api-server + 日志）：
 > - ✅ 51% → **100%** 行覆盖（26 用例真库版）；根因复盘：user_factory teardown 外键置空 vs 驻留行的 organizations.owner_id NOT NULL——权限测试改自建驻留环境规避；全量 2497 → **2523 passed**（api-server 5ca3153，日志 f629cad）
 > - **会话累计：迭代 122–138 共 17 轮全绿**（webpage 大文件清零 + api-server 五模块包化 + 5 个真 bug 修复 + mcp task_tools 100% + goals authz 修复 + approval_queue/access_control 100%）
+
+> **进展（2026-09-15 其十八）**：代码质量马拉松第 139 轮——agent_audit 补测至 100%（api-server + 日志）：
+> - ✅ 59% → **100%** 行覆盖（12 用例：list 全过滤参数/分页/404、stats 聚合、export 的 limit 回退/组合过滤/CSV 头、非成员 403×2）；沉淀 JWT 401 绕过定式（owner JWT + 外来 workspace 命中 403）；全量 2523 → **2535 passed**（api-server da2a21e 测试 + 69ddb39 日志）
+> - **会话累计：迭代 122–139 共 18 轮全绿**（webpage 大文件清零 + api-server 五模块包化 + 5 个真 bug 修复 + mcp task_tools 100% + goals authz 修复 + approval_queue/access_control/agent_audit 三模块 100%）
