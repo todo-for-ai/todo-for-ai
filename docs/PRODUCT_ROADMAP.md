@@ -490,3 +490,8 @@
 > **进展（2026-09-15 其十八）**：代码质量马拉松第 139 轮——agent_audit 补测至 100%（api-server + 日志）：
 > - ✅ 59% → **100%** 行覆盖（12 用例：list 全过滤参数/分页/404、stats 聚合、export 的 limit 回退/组合过滤/CSV 头、非成员 403×2）；沉淀 JWT 401 绕过定式（owner JWT + 外来 workspace 命中 403）；全量 2523 → **2535 passed**（api-server da2a21e 测试 + 69ddb39 日志）
 > - **会话累计：迭代 122–139 共 18 轮全绿**（webpage 大文件清零 + api-server 五模块包化 + 5 个真 bug 修复 + mcp task_tools 100% + goals authz 修复 + approval_queue/access_control/agent_audit 三模块 100%）
+
+> **进展（2026-09-16 其十九）**：多 Agent 协作能力实测（真实 LLM E2E 首次全链路打穿）+ agent-runtime 两处交接修复：
+> - ✅ 真实 E2E：双 daemon（claude 引擎 × deepseek-v4-pro 经 local-server-001:54988 中转）跑 DAG——依赖门（B 空手+dependency_gate）、真实 LLM 执行、交接上下文注入下游 prompt（FINAL=782=上游 ANSWER 391×2，下游 prompt 从未含 391）、双 Agent 并发在岗、容量门、审计事件流，18 项证据 PASS（驱动脚本 /tmp/collab_e2e/drive.py）
+> - ✅ agent-runtime 修复：①pull item 的 upstream 兄弟键桥接进 payload（1e91875 渲染 + 4ae5c0d 桥接，此前交接上下文到不了 CLI Agent 的 prompt）——多 Agent 依赖交接对 CLI 引擎从此真实可用
+> - 观察项：write_agent_audit 依赖 request 上下文，无请求上下文的后台路径审计事件静默丢失
