@@ -479,3 +479,6 @@
 
 > **进展（2026-09-15 其十五）**：代码质量马拉松第 136 轮——auth 包死代码清理（api-server + 日志）：
 > - ✅ 删除 auth 包三个子模块中未被调用的 get_current_user 转发包装（包化时与 _pkg 运行时解析并存的死代码）；oauth/users 升至 100% 覆盖；75 用例零改动；全量 2487 passed（api-server c60e956，日志在 136 号）
+
+> **进展（2026-09-15 其十六）**：代码质量马拉松第 137 轮——审批队列端点补测至 100%（api-server + 日志）：
+> - ✅ agent_approval_queue.py 72% → **100%** 行覆盖（10 用例：pending 列表/统计/越权 403/agent 名解析），顺带删零引用死函数 _resolve_agent_name；全量 2487 → **2497 passed**（api-server 13fb41f，日志 cf18748）
