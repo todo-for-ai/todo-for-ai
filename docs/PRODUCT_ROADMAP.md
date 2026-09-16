@@ -495,3 +495,10 @@
 > - ✅ 真实 E2E：双 daemon（claude 引擎 × deepseek-v4-pro 经 local-server-001:54988 中转）跑 DAG——依赖门（B 空手+dependency_gate）、真实 LLM 执行、交接上下文注入下游 prompt（FINAL=782=上游 ANSWER 391×2，下游 prompt 从未含 391）、双 Agent 并发在岗、容量门、审计事件流，18 项证据 PASS（驱动脚本 /tmp/collab_e2e/drive.py）
 > - ✅ agent-runtime 修复：①pull item 的 upstream 兄弟键桥接进 payload（1e91875 渲染 + 4ae5c0d 桥接，此前交接上下文到不了 CLI Agent 的 prompt）——多 Agent 依赖交接对 CLI 引擎从此真实可用
 > - 观察项：write_agent_audit 依赖 request 上下文，无请求上下文的后台路径审计事件静默丢失
+
+> **进展（2026-09-16 其二十）**：多 Agent 协作机制加固（真实 LLM E2E + 单测 + 三道门 LIVE 收口）：
+> - ✅ **交接沉降窗口**（AGENT_HANDOFF_SETTLE_SECONDS，默认 0）：上游终态后延迟 N 秒放行下游派发，根治「交接上下文写入晚于下游被抢」的时序竞态；事件留痕保持终态即解锁语义（api-server d48fb23）
+> - ✅ **后台审计写入修复**：write_agent_audit 无请求上下文不再静默丢事件（调度器/ORM 路径的 agent.created 等从此落库）
+> - ✅ **预算门 LIVE 收口**：concurrent 预算 limit=1 时第二 Agent 被挡、审计 budget.exceeded 留痕、租约释放即恢复；顺修 concurrent 用量不过滤过期租约的 bug（6a91327）
+> - ✅ LIVE 实测：并发抢租约原子性 5/5（双会话同时 pull 零双重租约）、沉降窗口交接闭环 FINAL=1197=399×3（执行者 prompt 从未含 399）、容量门/预算门/审计流全过
+> - ✅ 测试基建：boom 注入测试泄漏毒化共享会话（全量 50F+48E 级联根因）就地复原修复；全量门禁 **2546 passed**（api-server d48fb23+6a91327）
