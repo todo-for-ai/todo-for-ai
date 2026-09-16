@@ -502,3 +502,14 @@
 > - ✅ **预算门 LIVE 收口**：concurrent 预算 limit=1 时第二 Agent 被挡、审计 budget.exceeded 留痕、租约释放即恢复；顺修 concurrent 用量不过滤过期租约的 bug（6a91327）
 > - ✅ LIVE 实测：并发抢租约原子性 5/5（双会话同时 pull 零双重租约）、沉降窗口交接闭环 FINAL=1197=399×3（执行者 prompt 从未含 399）、容量门/预算门/审计流全过
 > - ✅ 测试基建：boom 注入测试泄漏毒化共享会话（全量 50F+48E 级联根因）就地复原修复；全量门禁 **2546 passed**（api-server d48fb23+6a91327）
+
+> **进展（2026-09-17 其二十一）**：Agent 形象化 + 企业 IM 双向打通 + 对外接入三件套（SOTA 一轮交付，真实 E2E 19 项全过）：
+> - ✅ **Agent 形象化**：协作图节点渲染头像（clipPath 裁剪进节点圆，avatar_url 优先、按身份确定性生成 bottts 机器人形象兜底，同一 Agent 永远同一张脸）；`resolveAgentAvatarSrc` 统一解析入口；协作图接口节点携带 avatar_url/display_name（api-server b0c1df4、webpage cc81edb）
+> - ✅ **灵魂人设进执行链**（agent-runtime 6904b4c）：agent_profile（soul_markdown/display_name）随 pull 下发并缓存进 TaskExecutor，渲染为引擎 prompt 首部人设段（超长截断）；顺修历史缺陷——payload.prompt 缺失时只回退 title 导致任务正文永远进不了 CLI 引擎，改为「标题+正文」组合（单测 11 例钉住）
+> - ✅ **飞书双向打通**（api-server b0c1df4）：自建应用事件订阅入站（url_verification 握手、header.token 验签 fail-closed、im.message.receive_v1 文本→建任务、chat_id→项目群路由、message_id 幂等）+ tenant_access_token 交互卡片群回执（api_base 可覆盖支持私有化/测试 mock）
+> - ✅ **企业微信双向打通**：官方回调协议完整实现（SHA1 验签 + AES-256-CBC 加解密，纯 hashlib+cryptography），GET echostr 验证、POST 文本消息→建任务、应用消息回执
+> - ✅ **通用 Webhook 入站**：X-Todo4AI-Token 校验 + 点分路径字段映射模板，任意内部系统（OA/工单/告警）零适配接入；E2E 实测磁盘告警 JSON → 建任务
+> - ✅ **出站 Webhook 订阅中心**：订阅 CRUD、事件类型白名单、HMAC 签名（t=,v1= 防伪造防重放）、3 次退避重试、派发记录可观测、签名 ping；task.created/status_changed/completed/failed 四类事件在建任务/批量状态/Agent 提交三处挂点，后台线程投递不阻塞请求
+> - ✅ **前端集成中心页**（/integrations + 顶部导航）：入站连接器配置（凭据/群路由/字段映射/回调地址复制）、出站订阅管理（密钥一次性展示/测试投递/派发记录）
+> - ✅ **验收**：迁移 000030（webhook_subscriptions/webhook_deliveries/config_json）已应用；api-server 全量 **2560 passed**（新增 14 例，覆盖 81.57%）；agent-runtime 607 passed（5 败为共享 venv RestrictedPython 既有环境问题，基线同败）；webpage tsc/build/314 测试全绿；隔离端口真实 E2E **19/19 PASS**（飞书握手/建任务/幂等/卡片回推、企微 echostr/加密消息、通用映射、出站签名推+验签+派发记录、协作图形象字段）
+> - 观察项：workspace 路由创建的 Agent owner_id 为 NULL 与 owner 鉴权接口（直发消息）不一致；MCP 工具面 30+ 已覆盖本轮场景无需扩展
