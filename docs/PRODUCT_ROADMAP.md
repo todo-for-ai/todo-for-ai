@@ -561,3 +561,13 @@
 > - ✅ **真实 LLM 战役**（lant 中转 × claude 引擎）：三跳接力全链 DONE、LLM 指标实时采集验证（逐调用 tokens/cost/duration 落库）、`llm_call_metrics` 表 15b90b4b 等真实记录；驱动力脚本 /tmp/collab_e2e3/campaign.py（case-a/b/c/d/e）
 > - ⚠️ **外部阻塞**：lant.top 中转账户余额耗尽（RELAY_101，deepseek-v4-pro/flash/glm 全部 403），Case B/C/D/E（失败自愈、4 路扇出、分支阻塞、会话接续）待充值后继续
 > - 📋 live 发现待修：单次 ENGINE_FAILED 会级联生成多层 `[修复] [修复]...` 嵌套任务链（failed_attempts 计数与父链去重需收敛）
+
+> **进展（2026-09-18）**：全屏 Web 工作台——对标 AI 编程工具远程控制台界面（webpage b229229）：
+> - ✅ **定位**：用户看到 zcode/codex 式 remote web UI（左侧任务流 + 中间会话区 + 右侧状态栏）后提出「让用户直接用网页这样做事」；一期/二期的终端能力（合并时间线/REPL/停止执行）已就绪，本轮补齐全屏工作区外壳，路由 `/todo-for-ai/pages/console`（AuthGuard 内、管理布局外的独立深色页）
+> - ✅ **三栏布局**：左侧任务流（按项目分组 + 搜索 + 相对时间戳 + 状态呼吸灯 + 新建 AI 任务 Modal，`is_ai_task` 建参后端原生支持）；中间会话区（完整时间线按执行轮次分代，「Iteration N」分隔条对应每轮 attempt；对话消息 Markdown 渲染、运行事件原始输出等宽呈现）；右侧信息面板（任务元信息/执行者/子任务进度条/共享上下文只读）；URL `?task=` 深链 + 进入自动选中执行中任务
+> - ✅ **Ask for follow-up changes 对标**：底部指令区留言实时转发 + 下轮注入；空闲 AI 任务带「发送并派发执行」开关——发送后自动 `POST /agents/<id>/dispatch` 让 Agent 立即开工，形成「打字 → Agent 干活 → 实时看输出」的网页闭环；执行中变为停止按钮
+> - ✅ **useAgentTimeline hook**：从 AgentTerminal 抽取时间线状态（对话最新页游标/事件游标轮询/WS 增量/乐观回声对账/自动滚底），卡片终端与工作台共用一套数据面
+> - ✅ **真 bug 修复（真实数据验收发现）**：① actor_type 大小写——真实接口返回小写（human/agent），前端全按大写比较导致所有消息渲染成灰色 system 且乐观回声永不对账（Phase1 终端与 TaskChatThread 同病，单测 mock 大写故未暴露）；在 core 映射/回声对账/TaskChatThread 归一化并加小写契约回归用例 ② 时间线空态判断用 segments（历史段被滤后为空数组）致欢迎文案永不出现
+> - ✅ **主题**：darkAlgorithm + 绿色主色；`.tfai-console` 命名空间规则压过像素皮肤全局 `.ant-btn-primary` 红色（皮肤 compat 层同款手法）
+> - ✅ **验收**：consoleData 8 例 + ConsoleWorkspace 6 例（分组/深链选中/分代渲染/markdown 桩/信息面板/派发闭环/搜索过滤）+ core 小写回归，全量 344 passed；tsc + vite build 过；真实后端真数据浏览器验收——分组任务流/深链/真实发送落库回显/空态/主题色，截图 PASS
+> - ⏭️ 待办：Git 工具面板（changes/diff/branch/commit 接入 daemon 工作区）；多任务并行执行视图；移动端适配；侧栏任务流虚拟滚动
