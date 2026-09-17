@@ -513,3 +513,11 @@
 > - ✅ **前端集成中心页**（/integrations + 顶部导航）：入站连接器配置（凭据/群路由/字段映射/回调地址复制）、出站订阅管理（密钥一次性展示/测试投递/派发记录）
 > - ✅ **验收**：迁移 000030（webhook_subscriptions/webhook_deliveries/config_json）已应用；api-server 全量 **2560 passed**（新增 14 例，覆盖 81.57%）；agent-runtime 607 passed（5 败为共享 venv RestrictedPython 既有环境问题，基线同败）；webpage tsc/build/314 测试全绿；隔离端口真实 E2E **19/19 PASS**（飞书握手/建任务/幂等/卡片回推、企微 echostr/加密消息、通用映射、出站签名推+验签+派发记录、协作图形象字段）
 > - 观察项：workspace 路由创建的 Agent owner_id 为 NULL 与 owner 鉴权接口（直发消息）不一致；MCP 工具面 30+ 已覆盖本轮场景无需扩展
+
+> **进展（2026-09-17）**：多 Agent 协作工作流——执行闭环 + 画布式编辑器 + Dify/Coze 连接器（api-server + webpage，详见 `docs/WORKFLOW_CANVAS_AND_INTEGRATIONS.md`）：
+> - ✅ **执行闭环**：此前步骤任务被 Agent 提交后无人回调工作流引擎（只能人工在控制台点完成），真实多 Agent 流水线断在第一步。现 `maybe_autocomplete_for_task` 挂到三条任务终态路径（runtime commit / 人工置 DONE / 评审通过），统一走抽取出的 `complete_step_run` 核心——状态迁移、SharedContext 回写、步骤级自动重试、声誉/经验沉淀、沙箱收尾、DAG 推进全自动；RUNNING 守卫防双写，闭环异常不反噬任务提交
+> - ✅ **画布式工作流编辑器**（React Flow，/workflows 卡片「画布编辑」入口）：拖拽连线建 depends_on（自动防环）、删除即清理引用、节点徽标（Agent/能力/条件/重试/子工作流/连接器）、右侧全字段配置面板（含条件执行 operator 全集）、坐标持久化进 `definition.layout` + dagre 自动布局、保存走既有 PUT 自动版本快照
+> - ✅ **Dify/Coze 连接器**（集成而非重造，规避 AGPL）：`WorkflowStep.integration_config`（迁移 000031，api_key 加密入库/回传脱敏/PUT 回传沿用密文）——配置后该步骤直接调用远端工作流 API（dify blocking / coze v1 run），不建 Agent 任务；输入支持 `{{step_result_上游key}}`/`{{context.x}}`/`{{root_task_title}}` 占位符；远端结果经同一 complete_step_run 回写，推进/重试/失败策略与 Agent 步骤完全一致；默认后台线程执行不阻塞请求
+> - ✅ **顺带修复主干上从未工作过的链路**（冒烟实测发现）：launch_workflow 缺 `Project` 导入（HTTP 启动必 500）；create_workflow/launch/子工作流启动缺 flush（id 为 None 必崩）；工作流/运行/审计/外部 Agent 四个列表端点四连 bug（dict.get(type=) TypeError、paginate_query 传 dict、ApiResponse.paginated 不存在、双重 to_dict）+ audit-logs 缺 or_ 导入
+> - ✅ **验收**：api-server 新增 27 例（闭环四路 + commit HTTP E2E + 连接器全链路 + 列表回归），全量门禁 2616 passed（两轮）；webpage tsc/vite build/314 测试全绿、画布文件 eslint 0 问题；隔离端口浏览器 GUI 冒烟 PASS（模板实例化 → 画布编辑 → 连接器配置 → 保存 → API 复核密文落库/脱敏回读/layout 持久化/version=2）
+> - ⏭️ 待办：WorkflowTrigger 常驻调度（仍靠外部 cron 打 fire-triggers）；运行态画布（run console 复用画布节点显示实时状态）；n8n/通用 HTTP 步骤类型与连接器连通性测试按钮；agent-runtime 步骤任务携带工作流元数据
