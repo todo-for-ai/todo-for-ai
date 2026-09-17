@@ -552,3 +552,12 @@
 > - ✅ Wave 1 ③：**{{sys.*}} 系统变量前缀**（借鉴 Dify variable_prefixes）——run_id/workflow_id/workflow_name/project_id/root_task_*/step_* 九个系统变量可在连接器 inputs 中引用；未知 sys.* 渲染空串不透传
 > - ✅ 验收：api-server 新增 19 例（DSL 清洗/往返/校验/路由 + 测试运行三模式 + sys 占位符），套件 46 工作流测试全绿 + 全量门禁 exit 0；webpage tsc/build/319 测试全绿
 > - ⏭️ Wave 2（已排）：节点级 default-value 错误策略、暂停/恢复整图快照（HITL 底座）、触发日志表 + next_run_at skip_locked 轮询、HTTP 通用节点（SSRF 防护）；Wave 3：引擎事件层 hooks、LLM 生成工作流
+
+> **进展（2026-09-17 其三）**：多 Agent 协作第三轮——交接机制产品化修复 + 真实 LLM 战役测试（agent-runtime + api-server）：
+> - ✅ **commit 时原子交接**（api-server cdbe060）：commit 请求新增可选 `shared_context`，与终态翻转同一事务落库——下游解锁后第一次 pull 必然拿到交接，根治「上游已解锁、交接还没写」时序竞态（settle 窗口退化为纯防御）；失败/取消提交同样收，部分产出也交接
+> - ✅ **Agent 自写交接约定**（agent-runtime 4109d50+15e1840）：引擎在工作区写 `.todo4ai-context.json`，commit 时自动读取上交（20 键上限、安全降级）；live 发现 CLI 成功包装 dict 丢字段导致交接静默失效——已修 + wrapper 级回归测试；失败时完整记录 stderr/stdout tail（此前前 500 字符掩盖真因）
+> - ✅ **交接署名修复**：workspace 域 Agent（owner_id=NULL）在 shared-context API 署名必 404——改为 owner/creator/组织成员三通道判定
+> - ✅ **修复任务带原始描述**：DoD 失败的修复子任务 content 现在携带父任务原始 brief（截 3000 字符，含此前产出），修复 Agent 不再只靠标题猜
+> - ✅ **真实 LLM 战役**（lant 中转 × claude 引擎）：三跳接力全链 DONE、LLM 指标实时采集验证（逐调用 tokens/cost/duration 落库）、`llm_call_metrics` 表 15b90b4b 等真实记录；驱动力脚本 /tmp/collab_e2e3/campaign.py（case-a/b/c/d/e）
+> - ⚠️ **外部阻塞**：lant.top 中转账户余额耗尽（RELAY_101，deepseek-v4-pro/flash/glm 全部 403），Case B/C/D/E（失败自愈、4 路扇出、分支阻塞、会话接续）待充值后继续
+> - 📋 live 发现待修：单次 ENGINE_FAILED 会级联生成多层 `[修复] [修复]...` 嵌套任务链（failed_attempts 计数与父链去重需收敛）
