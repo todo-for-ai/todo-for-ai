@@ -571,3 +571,9 @@
 > - ✅ **主题**：darkAlgorithm + 绿色主色；`.tfai-console` 命名空间规则压过像素皮肤全局 `.ant-btn-primary` 红色（皮肤 compat 层同款手法）
 > - ✅ **验收**：consoleData 8 例 + ConsoleWorkspace 6 例（分组/深链选中/分代渲染/markdown 桩/信息面板/派发闭环/搜索过滤）+ core 小写回归，全量 344 passed；tsc + vite build 过；真实后端真数据浏览器验收——分组任务流/深链/真实发送落库回显/空态/主题色，截图 PASS
 > - ⏭️ 待办：Git 工具面板（changes/diff/branch/commit 接入 daemon 工作区）；多任务并行执行视图；移动端适配；侧栏任务流虚拟滚动
+
+> **进展（2026-09-17 其四）**：修复链嵌套收敛（live 缺陷闭环，api-server c7aa3fb+ad3c7df）：
+> - ✅ **live 抓因**：余额断供窗口反而成为天然的确定性失败源——case-f 实测单次失败级联出 3 个修复（两处并发缺陷：root 与 repair#1 并发失败各自结算预算双花；同轮同名「第 2 次」×2）
+> - ✅ **族收敛**：修复任务（creator_identifier=recovery:*）失败时沿 parent 链归并到根任务，新修复一律挂根、标题扁平化（剥历史 [修复] 前缀 + 轮次号）；族失败计数含全部后代（历史嵌套链兼容）
+> - ✅ **封顶与并发**：升级判定（族失败 ≥ max+1 或已有修复 ≥ max）先于并发去重执行；根行 FOR UPDATE 锁串行化同族结算；在途兄弟修复存在时跳过新建（repair_pending）
+> - ✅ **验收**：单测 12/12（含 3 个收敛新用例：扁平化/封顶升级/历史链族计数）；live case-f 6/6 PASS——恰 1 个修复、扁平挂根、标题「第 1 次」、族失败达阈即升级不再派生
