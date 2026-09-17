@@ -583,3 +583,12 @@
 > - ✅ **细节**：Iteration 分隔条带该轮开始时刻；执行中呼吸指示（会话区「Agent 正在工作」脉冲点 + 头部状态呼吸点 + 侧栏「N 执行中」摘要）；Composer 切换任务自动聚焦
 > - ✅ **真 bug 修复（切换任务串台）**：useAgentTimeline 切换 taskId 未重置事件游标与去重集合——旧任务大 id 残留使新任务事件流整段拉空，慢响应晚到还会把旧对话写进新时间线；补游标归零重拉/慢响应不覆盖两条 hook 回归测试
 > - ✅ **验收**：全量 348 passed（+4）；tsc + vite build 过；真数据浏览器验收切换不串台/切回恢复/摘要行/呼吸点/自动聚焦，截图 PASS
+
+> **进展（2026-09-18 其三）**：Web AI IDE 体感增强（webpage 0380d5f）：
+> - ✅ **⌘K / Ctrl+K 快速任务切换器**（ConsoleQuickSwitcher 自绘弹层）：输入过滤 + ↑↓ 选择 + Enter 打开 + Esc 关闭，头部另有搜索按钮入口；自绘而非 antd Modal（样式可控且避开 jsdom portal 测试坑）
+> - ✅ **InfoPanel 增强**：任务描述 Markdown 折叠展示（parseTaskDocument 归一历史 JSON 信封）、附件列表带下载链接、子任务列表（带状态点）
+> - ✅ **Esc 两段式中断补齐 Console**：执行中按 Esc 武装提示、再按确认停止，与任务详情页终端行为对齐
+> - ✅ **发送失败不丢字**：失败时撤回乐观回声行（pushLocalLine 返回 key + removeLocalLine）并把原文恢复到输入框
+> - ✅ **性能与资源**：时间线行组件 memo 化（milkdown 编辑器不随整列表重渲染）；页面不可见（document.hidden）时暂停 chat/events/列表轮询，回前台立即补拉
+> - ✅ **验收**：新增 useTerminalSend 3 例（成功闭环/失败恢复/命令分支）+ 工作台描述折叠/附件链接/⌘K 切换用例，全量 352 passed；tsc + vite build 过；真数据浏览器验收（描述折叠、⌘K 打开过滤选择切换、Iteration 时刻、侧栏摘要、共享上下文）截图 PASS
+> - ⏭️ 待办不变：Git 工具面板（daemon 工作区 changes/diff/commit）、多任务并行视图、移动端、虚拟滚动、stdin 注入
