@@ -521,3 +521,10 @@
 > - ✅ **顺带修复主干上从未工作过的链路**（冒烟实测发现）：launch_workflow 缺 `Project` 导入（HTTP 启动必 500）；create_workflow/launch/子工作流启动缺 flush（id 为 None 必崩）；工作流/运行/审计/外部 Agent 四个列表端点四连 bug（dict.get(type=) TypeError、paginate_query 传 dict、ApiResponse.paginated 不存在、双重 to_dict）+ audit-logs 缺 or_ 导入
 > - ✅ **验收**：api-server 新增 27 例（闭环四路 + commit HTTP E2E + 连接器全链路 + 列表回归），全量门禁 2616 passed（两轮）；webpage tsc/vite build/314 测试全绿、画布文件 eslint 0 问题；隔离端口浏览器 GUI 冒烟 PASS（模板实例化 → 画布编辑 → 连接器配置 → 保存 → API 复核密文落库/脱敏回读/layout 持久化/version=2）
 > - ⏭️ 待办：WorkflowTrigger 常驻调度（仍靠外部 cron 打 fire-triggers）；运行态画布（run console 复用画布节点显示实时状态）；n8n/通用 HTTP 步骤类型与连接器连通性测试按钮；agent-runtime 步骤任务携带工作流元数据
+
+> **进展（2026-09-17 其二）**：LLM API 指标与可观测——用户级/组织级/单 Agent 三视角（agent-runtime + api-server + webpage）：
+> - ✅ **采集（agent-runtime 424ddb2）**：每次引擎真实调用产出一条遥测——cli_engines 捕获 claude JSON 的 usage/total_cost_usd/实际模型与 ANTHROPIC_BASE_URL 端点（成功/失败/超时路径都带），llm_telemetry 组记录（success/failed/timeout 状态、错误截断）fire-and-forget 上报 `/agent/llm-metrics/batch`（旧平台 404 静默降级，绝不打断任务主链路）；openclaw 路径同步埋点（耗时口径）
+> - ✅ **存储与 API（api-server a04abed）**：迁移 000032 `llm_call_metrics`（幂等键 call_id 防重摄取、tokens/cost/duration/status/model/base_url、组织/用户/Agent 三组窗口索引，MySQL+SQLite 双方言）；`POST /agent/llm-metrics/batch`（agent 会话鉴权，归属用户服务端解析 owner_id→creator 回退）；查询三端点——`GET /llm-metrics/mine`（用户自己的）、`GET /workspaces/<id>/llm-metrics`（组织成员可见）、`GET /llm-metrics/agents/<id>`（管理权限），聚合含 p50/p95 耗时、成功率、tokens、成本、按日趋势、按 Agent/模型分组、最近失败样本
+> - ✅ **视图（webpage 0d57c59）**：共享 LlmMetricsPanel（Statistic 行 + MiniTrendChart 趋势 + by-day/by-agent/by-model 表 + 失败样本含端点列）；仪表板「LLM API 用量」区块（用户级）、组织详情「模型用量」Tab、Agent 详情「LLM 用量」Tab；i18n 中英双语
+> - ✅ **验收**：真库端到端（迁移落 MySQL、摄取 3 条 + 幂等重放 skipped、三视角聚合数值正确、无 token 401）；headless 截图仪表板区块与组织 Tab 真实渲染 PASS；门禁 api-server 全量 2570 passed（1 既有 WeCom 失败与纯净 origin/main 一致）、agent-runtime 616 passed（5 既有沙箱环境失败一致）、webpage tsc 0 错 + vite build 过
+> - ⏭️ 待办：平台侧预算/配额看板接指标列；失败率突增告警钩子；proxy 渠道维度对齐（cc-lant 渠道 id ↔ agent.llm_provider）
