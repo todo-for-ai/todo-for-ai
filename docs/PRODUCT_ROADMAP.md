@@ -528,3 +528,11 @@
 > - ✅ **视图（webpage 0d57c59）**：共享 LlmMetricsPanel（Statistic 行 + MiniTrendChart 趋势 + by-day/by-agent/by-model 表 + 失败样本含端点列）；仪表板「LLM API 用量」区块（用户级）、组织详情「模型用量」Tab、Agent 详情「LLM 用量」Tab；i18n 中英双语
 > - ✅ **验收**：真库端到端（迁移落 MySQL、摄取 3 条 + 幂等重放 skipped、三视角聚合数值正确、无 token 401）；headless 截图仪表板区块与组织 Tab 真实渲染 PASS；门禁 api-server 全量 2570 passed（1 既有 WeCom 失败与纯净 origin/main 一致）、agent-runtime 616 passed（5 既有沙箱环境失败一致）、webpage tsc 0 错 + vite build 过
 > - ⏭️ 待办：平台侧预算/配额看板接指标列；失败率突增告警钩子；proxy 渠道维度对齐（cc-lant 渠道 id ↔ agent.llm_provider）
+
+> **进展（2026-09-17）**：交互式会话一期——任务页实时对话 + 流式输出 + 停止执行（api-server + agent-runtime + webpage）：
+> - ✅ 定位：向类 Codex/Claude Code 的交互式工作方式迈出第一步（对标 REFERENCE_BENCHMARK P0-1 会话锚点），用户从「提交后黑盒等待」升级为「实时看 Agent 干活 + 随时留言 + 随时叫停」；全程复用既有任务/租约/事件管道，零表结构迁移
+> - ✅ 实时对话（Phase 0）：任务详情页新增「任务对话」卡片（复活孤儿组件 TaskChatThread 接线）——用户留言落 TaskLog、WS task_comment 推任务房间，并在途 attempt 的 agent 实时下行 user_message 事件；agent 侧 chat 游标（.todo4ai-chat-cursor.json 存工作区）+ 新端点 GET /agent/tasks/<id>/chat?after_id= 拉增量，每轮 attempt 构建 prompt 时注入「用户留言」段（下轮 --resume 续跑正式可见）；运行中收到留言即时写事件流（控制台可见「💬 收到用户留言」）
+> - ✅ 流式输出（Phase 1 核心）：cli_engines 流式重写——stdout 逐行异步读（原 communicate() 一次性），claude 默认 --output-format stream-json --verbose 逐 turn 解析（text/tool_use/result，CLAUDE_OUTPUT_FORMAT=json 可回退），codex exec --json 逐事件解析，其余引擎原始行透传；输出经节流发射器（1200 字符/1s）走既有批量事件管道 → 平台入库后转发 task_runtime_event 到用户任务房间 → 前端「Agent 运行控制台」实时渲染（WS 增量 + 5s 游标轮询兜底 + id 去重 + 智能滚底）；新增用户侧游标端点 GET /tasks/<id>/runtime-events
+> - ✅ 停止执行（Phase 1）：控制台「停止执行」（内联两步确认）→ POST /tasks/<id>/agent/stop（can_access_project 门控 + 审计留痕）——任务置 CANCELLED + WS cancel_task 命令即时终止；agent-runtime 子进程 start_new_session 按进程组 TERM/KILL（不留握管道写端的孤儿孙进程），cancel_event 触发返回 ENGINE_CANCELLED 并按 cancelled 提交（复用平台 attempt ABORTED 语义）；agent 离线由续约响应新增的 cancel_requested 兜底（≤一个续约周期）；顺手修掉 asyncio.wait 默认 ALL_COMPLETED 使超时/取消形同虚设的实测根因
+> - ✅ 验证：api-server 新增 10 测试（下行通知/游标聊天/事件转发/控制台端点/停止双通道/续约标记），全量门禁 2574 passed（2 失败经干净基线复跑确认为 integrations 既有失败，非本次引入）；agent-runtime 新增 20 测试（stream-json/codex 解析/流式回调/取消/超时/游标/留言注入/续约兜底），全量 646 passed（并入 telemetry 分支测试）；webpage tsc+vite build 通过、319 tests passed（含 AgentRunConsole 5 组件用例；该 jsdom 环境无法打开 antd 弹层 portal，停止改为内联确认）
+> - ⏭️ 后续（二期起）：DB 会话为中心数据模型（session id 落库、成功不毁工作区、跨任务 follow-up）；运行中 stdin 注入与阻塞式工具审批（依赖引擎权限点协议，claude 可行/codex 降级）；SocketIO 多 worker 化（Redis message queue）
