@@ -536,3 +536,11 @@
 > - ✅ 停止执行（Phase 1）：控制台「停止执行」（内联两步确认）→ POST /tasks/<id>/agent/stop（can_access_project 门控 + 审计留痕）——任务置 CANCELLED + WS cancel_task 命令即时终止；agent-runtime 子进程 start_new_session 按进程组 TERM/KILL（不留握管道写端的孤儿孙进程），cancel_event 触发返回 ENGINE_CANCELLED 并按 cancelled 提交（复用平台 attempt ABORTED 语义）；agent 离线由续约响应新增的 cancel_requested 兜底（≤一个续约周期）；顺手修掉 asyncio.wait 默认 ALL_COMPLETED 使超时/取消形同虚设的实测根因
 > - ✅ 验证：api-server 新增 10 测试（下行通知/游标聊天/事件转发/控制台端点/停止双通道/续约标记），全量门禁 2574 passed（2 失败经干净基线复跑确认为 integrations 既有失败，非本次引入）；agent-runtime 新增 20 测试（stream-json/codex 解析/流式回调/取消/超时/游标/留言注入/续约兜底），全量 646 passed（并入 telemetry 分支测试）；webpage tsc+vite build 通过、319 tests passed（含 AgentRunConsole 5 组件用例；该 jsdom 环境无法打开 antd 弹层 portal，停止改为内联确认）
 > - ⏭️ 后续（二期起）：DB 会话为中心数据模型（session id 落库、成功不毁工作区、跨任务 follow-up）；运行中 stdin 注入与阻塞式工具审批（依赖引擎权限点协议，claude 可行/codex 降级）；SocketIO 多 worker 化（Redis message queue）
+
+> **进展（2026-09-17）**：交互式会话二期 UI 收口——Claude Code 风格交互终端（webpage ee61040）：
+> - ✅ **统一时间线终端**：任务详情页 AI 任务顶部通栏「✻ 交互终端」取代原「Agent 运行控制台 + 任务对话」双面板——任务对话（TaskLog）与运行事件流（AgentTaskEvent）按时间合并渲染（用户 ❯ 绿 / Agent ⏺ / 进程 · 蓝 / 状态 ▶ / 错误 ✗ / 系统 ○），对话回复串内联缩进呈现
+> - ✅ **REPL 输入行**：底部终端式输入（❯ 提示符 + 无边框暗色输入），Enter 发送 / Shift+Enter 换行；乐观回声立即上屏，服务端落库后同文对账顶替；留言实时转发 Agent 并在下轮执行注入上下文
+> - ✅ **斜杠命令与中断**：/stop（中断执行）、/clear（清空本地视图，游标保留防历史回灌）、/help（命令列表）；Esc 两段式中断（首次武装提示、2.5s 内再按确认），与「停止执行」内联两步确认并存；复制转录/清屏/完整对话历史（Drawer 承载 TaskChatThread，保留线程回复能力）
+> - ✅ **真 bug 修复（StrictMode 事件丢失）**：appendEvents 原把去重副作用写进 setEvents updater，React 18 StrictMode 双调用 updater 使第二次把整批事件误判「已见过」返回 prev——dev 模式事件流必现白屏；已把副作用移出 updater 纯化，并新增 StrictMode 回归测试（旧 AgentRunConsole 同款隐患随组件替换一并消除）
+> - ✅ **验收**：agentTerminalCore 6 例 + AgentTerminal 9 例（合并渲染/WS 去重/发送回声对账/命令/Esc 两段中断/两步停止/清屏/StrictMode），全量 329 passed；vite build 过；本地 worktree dev server + 仅 mock runtime-events/chat 两端点（其余代理真实后端）真实浏览器视觉验收——合并时间线、前缀配色、欢迎态、输入行渲染全部 PASS
+> - ⏭️ 待办（三期）：运行中 stdin 注入与阻塞式工具审批；会话为中心 DB 模型；SocketIO 多 worker
