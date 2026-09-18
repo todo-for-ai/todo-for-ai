@@ -608,3 +608,11 @@
 > - ✅ 顺带修复：无 root_task 启动含外部步骤的运行时事件留痕触发 NOT NULL 500（冒烟实测发现 + 回归测试锁定）
 > - ✅ 验收：api-server 17 例 http 连接器测试（校验/SSRF/渲染/同步派发推进 DAG/单步预览/DSL 往返/无 root_task 启动）；浏览器 GUI 冒烟——真实运行 #3 的运行画布：失败红节点（SSRF 拦截信息直接展示在详情面板）/等待橙节点/贝塞尔连线箭头全对；webpage tsc/build/352 测试全绿
 > - ⏭️ Wave 2 剩余：default-value 错误策略、整图快照暂停/恢复、触发日志表 + skip_locked 轮询；Wave 3：引擎事件层 hooks、LLM 生成工作流
+
+> **进展（2026-09-18 其三）**：工作流画布编辑体验一轮 + 前端代码组织（webpage 4e31c9e，续 Dify 对标 Wave 3 前置）：
+> - ✅ **创建流程上画布**：「创建工作流」改双入口下拉——可视化画布创建（createMode 直接 POST 创建，definition.layout 一次落库）+ 表单创建；未落库工作流自动隐藏单步测试入口
+> - ✅ **自绘编辑画布替换 React Flow**（编辑器同款 RF v12 受控边不渲染坑实测复现：状态 2 条边 DOM 0 条）：节点拖拽回写 steps、源圆点拖线连线（自环/成环/重复拒绝）、点选边 + ✕ 删除、空白拖动平移、滚轮缩放（指针为中心）、适应视图、Delete 键删节点/边；重构为 editCanvasModel（几何）+ StepCard + CanvasToolbar 三件套
+> - ✅ **编辑体验补齐**：未保存脏态标识 + 关闭前「放弃修改？」确认、⌘/Ctrl+S 保存、复制步骤（克隆配置不带 API Key）、自动布局后视野收拢、连线方向箭头、配置面板变量速插（上游 step_result/根任务标题/运行 ID 点击追加）
+> - ✅ **前端代码组织**（「如何组织」落地）：`Agents.tsx` 824→23 行（useAgentsPage 组合根收敛全部领域 hook/状态/派生处理器，视图区块 {...page} 注入，agentsViewProps 的 any 大接口换成真实类型）；`Workflows.tsx` 538→~300（运行详情/版本弹窗抽出，触发器/启动弹窗接线既有抽取组件）；状态色表去重 runStatus.tsx；commandCenter 双目录并入 command-center（清死 barrel 导入）；**全仓 >500 行文件清零**
+> - ✅ 新增 `docs/FRONTEND_STRUCTURE.md`（目录组织/500 行硬上限/组合根模式/画布集群/命名去重约定）；webpage tsc/build/365 测试全绿；画布创建→连线→删边→脏态确认→保存全链路浏览器冒烟 PASS
+> - ⏭️ 待办：IDE 体感编辑器（对齐 Dify 画布的框选/对齐线/撤销重做）、变量面板（全图变量血缘视图）、Wave 3 引擎事件层 hooks、LLM 生成工作流
