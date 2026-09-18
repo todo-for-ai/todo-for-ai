@@ -399,3 +399,4 @@ nginx_config*.txt
 uploads/
 static/uploads/
 media/
+gui-test-screenshots/
