@@ -55,6 +55,9 @@
 - 拉取/提交协议：agent_runtime_pull（拉 is_ai_task）、commit（含事件批量上报）、心跳、任务租约（AgentTaskLease）、尝试记录（AgentTaskAttempt）、结果去重（AgentResultDedup）
 - OpenClaw 封装的 agent-runtime 容器：拉任务 → 转发网关 → 提交结果，含 mock 模式与端到端验证脚本、K8s 清单
 - 运行监控：AgentRun/AgentRunState、runtime monitor、Runtime Controller 管理端点
+- 执行环境 × 引擎两层模型（2026-09-11）：RuntimeProvider 五后端（k8s/docker/compose/baremetal/remote 反连）按 Agent.execution_mode 解析；引擎注册表（claude/codex/opencode/SDK，services/runtime_env/engines.py）与环境正交、任何环境×任何引擎合法组合；设计见 api-server `docs/ENGINE_RUNTIME_MODEL.md`。后续：Podman 实测、ECS 后端、daemon 元数据上报
+- 部署引导与自检（2026-09-11）：`/system/deploy/check` 扩展 runtime 检查组（后端前置条件/回连地址/Agent 与 WS 在线概览，带处理建议）；webpage 新增「部署引导」页（菜单直达）分组渲染报告；agent-runtime daemon 经 WS auth/心跳上报 host/engine/version/os 元数据。后续：向导式初始化（建管理员/接入首个 Agent）
+- 系统监控 + 首次安装门控（2026-09-11）：`/system/setup-state`（管理员）驱动菜单——部署未完成才显示「部署引导」，装完自动隐藏；新增「系统监控」页（管理员）：`/system/monitor/server`（CPU/内存/负载/磁盘/进程，psutil 优先 stdlib 兜底，10s 自动刷新）+ `/system/monitor/agents`（Agent 全局：反连在线/待连、托管运行中、活跃租约、近 24h 尝试吞吐、最近活跃 Agent 列表）
 
 **治理与安全（少有的先发优势）**
 - 治理规则、审批队列、交互治理、访问控制、审计事件
@@ -315,3 +318,324 @@
 > - ✅ 编排拆分强化（goal_loop 多 Agent 路由）：executor_pool 过滤工作时间区间外执行者（避免白派一轮）；pick_executor 岗位匹配到多人时选最闲者——计划步骤真正并行摊到多 Agent
 > - ✅ webpage：组织详情新增「运行时」Tab——同时干活 Agent 上限 / Pod 上限 / 空闲回收阈值表单 + 「正在干活 x/上限」实时水位条；中英 tab 标签
 > - ✅ 验证：api-server 新增 18 测试（容量语义/负载摊开/容量挡下/预算挡下/goal_loop 路由），全量门禁 1856 passed；webpage tsc 自有文件零错误 + vite build 通过
+
+> **进展（2026-09-10 其三）**：存储层体检 + 热路径复合索引（api-server）：
+> - ✅ 引擎确认：存储层为 MySQL（mysql+pymysql / PyMySQL 1.1.0，本地活库 26.7.0，99 表全 InnoDB+utf8mb4），无任何 PostgreSQL 依赖（旧迁移里的 postgres 分支仅是方言兼容代码）；连接池已带 pre_ping/recycle(300s)/pool_size 10 + overflow 20
+> - ✅ 活库 EXPLAIN 审计三缺口并补复合索引（迁移 000025 + 模型 __table_args__ 双侧对齐，幂等可重跑）：agent_task_leases(workspace_id,active,expires_at,agent_id)——工作区「正在干活」水位门禁由 expires_at 范围扫描+临时表变覆盖索引扫描；agent_task_leases(agent_id,active,expires_at)——在岗计数/预算 concurrent 用量变覆盖索引；agent_heartbeats(agent_id,created_at)——最新心跳从全表扫描 9352 行+filesort 变索引逆序直取（该表随心跳无限增长，收益随时间放大）
+> - ✅ 索引已在本地活库应用并 EXPLAIN 前后对比验证；+3 索引存在性回归测试；全量门禁 1859 passed 全绿
+> - ⚠️ 待用户确认：perf_task_ids 压测残留 750 万行 / 490MB（tasks 正表的 10 倍体积），TRUNCATE 即可回收，等确认后执行
+
+> **进展（2026-09-10 其四）**：Agent 运行时环境可插拔抽象——k8s / docker / compose / baremetal 四后端（api-server）：
+> - ✅ 抽象：services/runtime_env/base.py 定义 RuntimeProvider 接口与归一化状态契约（phase/agent_id/workspace_id/started_at，phase ∈ Running|Pending|Succeeded|Failed|Unknown），ensure_runtime 模板方法统一"幂等确保 + 工作区实例上限"流程；工厂 get_runtime_provider() 按 RUNTIME_PROVIDER 配置选择后端
+> - ✅ 四后端：k8s = 既有控制器原逻辑（Secret 注入/共享 PVC/gVisor/Pod 配额，行为不变）；docker = 每 Agent 一容器（docker CLI 驱动零新依赖，labels + 沙箱档位映射 --cpus/--memory/--pids-limit，环境变量镜像 manifests 语义）；compose = 每 Agent 一份生成的 compose 文件（可审计可手工接管）+ compose 项目生命周期；baremetal = 宿主进程 + PID 注册表（进程组终止，未显式配置命令/工作目录时拒绝 spawn）
+> - ✅ 关键解耦：kubernetes 包改为惰性导入——docker/compose/baremetal 部署不再需要安装 kubernetes SDK（sys.modules 阻断探针验证）
+> - ✅ 调用方统一：运行时管理 API、GoalLoop 编排联动（ensure_cloud_executor）、空闲回收看门狗全部改走 get_runtime_provider()；派发逻辑 auto_assign_task 与后端无关；API 响应保留历史键名（pods/pod）向后兼容
+> - ✅ 验证：+15 后端测试（CLI 全打桩，不依赖本机 Docker）+ 存量测试迁移到 provider 契约；全量门禁 1876 passed 全绿；后端选择文档 docs/RUNTIME_ENV_PROVIDERS.md
+
+> **进展（2026-09-13）**：长跑模式（Endurance）一期——循环不再被失败挂死，租约/护栏全面可配（api-server + agent-runtime）：
+> - ✅ 根因治理：循环任务 failed 提交曾置 REVIEW（活跃态）→ GoalLoop 状态机永远等待 → 一轮失败循环挂死；现在循环任务失败直接置 CANCELLED 终态并关闭修复子任务通道，由 maybe_advance 推进规划器评审（LLM 评审 extend 换思路重试 / blocked 计 stall，连续失败到 stall_limit 才 STALLED 护栏兜底）；非循环任务维持 REVIEW+自愈原语义（回归用例保护）
+> - ✅ 评审上下文增强：recent_history 对 cancelled 轮附带最近一次失败归因（failure_code: reason），规划器重规划有据可依
+> - ✅ 租约 TTL 统一走配置：新增 services/lease_policy.py（Agent 激活配置 > LEASE_DURATION_SECONDS env > 120s，钳制 60..3600），接线 pull 建约/续约、GoalLoop 派发、auto_assign 四处 60s 硬编码——60s 租约曾是静默杀手，续约一抖动成果作废
+> - ✅ 续约容错（agent-runtime）：续约循环首次异常即 break → 改为退避重试（2^n 封顶 10s），连续失败 ≥4（约 2 倍租约时长窗口，覆盖平台重启）才放弃；成功复位计数器
+> - ✅ 部署级护栏缺省可调：GOAL_LOOP_DEFAULT_ROUNDS_LIMIT / GOAL_LOOP_DEFAULT_STALL_LIMIT / GOAL_LOOP_STUCK_TASK_HOURS / FAILURE_REPAIR_MAX_ATTEMPTS / LEASE_DURATION_SECONDS——「迭代 100 个版本」「连续跑三天」成为部署级一等配置
+> - ✅ 验证：api-server 全量门禁 2249 passed（含 +15 新用例）、agent-runtime 616 passed（含 +4 续约用例）；长跑设计文档 docs/ENDURANCE_MODE_DESIGN.md（根因清单/部署配方/后续路线：轮次上下文延续、turn 级续跑接线、质量闭环硬化）
+
+> **进展（2026-09-13 其二）**：长跑模式（Endurance）二期——优雅停车两件套：额度熔断 + 死循环退出点（api-server）：
+> - ✅ 额度熔断（用户配置的 LLM API token 没额度了怎么停）：新增归因类别 quota_exhausted（QUOTA_EXCEEDED/INSUFFICIENT_QUOTA/BILLING/PAYMENT_REQUIRED 等 failure_code + insufficient_quota/credit balance/payment required 等关键词，与可重试的 429 限流区分）；该类别为不可重试资源级故障——跳过修复子任务与重试封顶直接升级；新增 services/quota_guard.py：写 token_quota_exhausted interaction_request 上报用户（审批队列/open 协议可见，附「请充值或更换 key」提示，一窗口一 Agent 幂等），并在 pull/auto_assign/goal_loop dispatch 三道派发门熔断该 Agent（QUOTA_BLOCK_WINDOW_HOURS 默认 24h，过后换 key/充值即自愈）；循环任务的额度耗尽失败 → 循环立即 STALLED（last_error 写明额度耗尽），不进规划器空转
+> - ✅ 无进展护栏（用户要"死循环"也必须有退出点）：query.trailing_failure_streak 末尾连续失败轮数；状态机 extend 分支连续失败 ≥ GOAL_LOOP_NO_PROGRESS_LIMIT（默认 3，env 可调）拒绝 extend 强制计 stall（规划器宣告 complete 仍允许）→ 连续两次 STALLED 终态退出，杜绝规划器无限 extend 空转烧预算
+> - ✅ 验证：+11 用例（归因/升级/上报幂等/窗口自愈/三道门/循环停车/extend 拒绝与 complete 放行），全量门禁 2260 passed；设计文档 docs/ENDURANCE_MODE_DESIGN.md §8
+
+> **进展（2026-09-13 其三）**：长跑模式（Endurance）三期——循环上下文走廊与自动压缩（api-server）：
+> - ✅ 问题：轮次任务逐轮物化但执行者「失忆」（不知道前几轮干了什么/失败过什么），全量塞历史又随轮数无限膨胀烧 token；R2 服务侧就此落地
+> - ✅ 三层走廊注入每个轮次任务内容顶部（create_round_task，pull/push 派发自动携带）：目标层（goal_text+done_definition 每轮必带防跑偏）/ 压缩层（早期轮次滚动压缩摘要）/ 明细层（最近 3 轮保留标题+状态+失败归因）；首轮零开销
+> - ✅ 滚动自动压缩：goal_loops.context_digest（迁移 000025，双方言+幂等冒烟）；每累积 GOAL_LOOP_COMPRESS_EVERY（默认 3）个新终态轮刷一次，状态机物化下一轮前调用；LLM 语义压缩（JSON digest）失败/无 key 自动降级抽取式——长跑记忆不因 LLM 故障断档；context_digest_upto 游标增量幂等；任何异常只记日志不阻断推进
+> - ✅ 自动清理的确定性保证：走廊整体硬上界 6000 字符（超限先裁明细再硬截），注入 prompt 的上下文规模有确定上界
+> - ✅ 验证：+12 用例（走廊三层/空历史零开销/硬上界/压缩增量幂等/LLM 与降级/节奏/异常不阻断/注入与首轮豁免），全量门禁 exit 0；设计文档 docs/ENDURANCE_MODE_DESIGN.md §9
+
+> **进展（2026-09-13 其四）**：Agent 记忆管理——框架评估决策 + 可插拔记忆层 Phase 1（api-server）：
+> - ✅ 评估决策（docs/AGENT_MEMORY_DESIGN.md）：平台记忆基建盘点结论=写入/治理/消费三层已完整（AgentExperience 衰减共享交叉验证、知识提案确认管线、SoulVersion 记忆治理、skill_profile 进派单打分、循环走廊），缺的是「语义检索+自动注入」最后一公里；开源框架对比（mem0 Apache-2.0 / Graphiti / Letta / cognee / LangMem）后决策=**不整体引入**（Letta 是完整 agent 服务器会架空自有 runtime、Graphiti/cognee 需新增图数据库），改为**可插拔记忆层**：自建为底、mem0 为可选语义后端（Redis 向量后端复用现有 Redis）
+> - ✅ services/memory/：MemoryHit 统一形状 + get_memory_backend() 工厂（AGENT_MEMORY_BACKEND=builtin|mem0，mem0 不可用双重自动回退 builtin）+ recall_for_query()（异常永不阻断业务主链路）；builtin 后端=AgentExperience+KnowledgeEntry 词面召回（CJK 二元切分适配中文、多关键词去重加权、置信度×复用排序）
+> - ✅ 自动注入：create_round_task 按步骤文本召回 top-K 记忆注入【相关记忆】块（首轮也注入、800 字符钳制、失败静默跳过不阻断派发）；成功经验写入：循环 DONE 落 success_pattern 经验（与失败路径对称，达成策略不再丢失）
+> - ✅ 验证：+11 用例（召回/排序/回退/永不抛异常/注入/首轮/失败不阻断/成功经验），全量门禁 2283 passed
+
+> **进展（2026-09-13 其五）**：记忆层 Phase 1.5——专用模块 + 五维度作用域隔离（api-server）：
+> - ✅ 专用存储：agent_memories 表（迁移 000026），一行记忆 = (organization_id, scope_type, scope_id) 下的一条可检索事实；五维度=session(会话/一次循环运行)→project(项目持久教训)→agent(个人经验)→user(用户偏好)→organization(组织惯例)，优先级从具体到一般
+> - ✅ 硬隔离：每行强制 organization_id（跨组织永不可见，测试断言）；user 记忆 per-org（同一用户在组织 A 的记忆不泄漏到组织 B）；继承链只能由 scopes.py 构造器从归属已验证实体推导，无法手工拼越权组合；(org,scope,scope_id,dedupe_key) 唯一索引幂等去重，重复验证升置信度
+> - ✅ 作用域化召回注入：store.recall 沿继承链按优先级合并、命中带 [项目记忆]/[组织记忆] 等维度标签、access_count 学习信号；create_round_task 注入改走作用域召回（无命中回退经验/知识库词面召回）
+> - ✅ 生命周期自动沉淀 loop_hooks：循环 DONE→会话级总结+项目级持久结论；STALLED（无进展护栏/规划器受阻）→项目级受阻教训；额度停车→项目级额度教训——同类目标重跑时被召回避免重蹈覆辙；全部 try/except 不影响循环状态流转
+> - ✅ 验证：+11 用例（跨组织不可见/user per-org/链顺序/优先级合并/去重幂等/三类写入/注入标签/隔离注入），全量门禁 2294 passed；迁移 SQLite/MySQL 双方言幂等冒烟；设计文档 AGENT_MEMORY_DESIGN.md §5
+
+> **进展（2026-09-13 其六）**：记忆开放用户自编辑 + 规划器瞬时故障退避（api-server）：
+> - ✅ 记忆用户 API（Phase 2）：六端点开放记忆模块给用户自管理——GET/POST /memory（分页列表/新建）、GET/PUT/DELETE /memory/{id}（查看/编辑/软删遗忘）、POST /memory/recall（召回预览，带维度标签、不写 access_count）；授权矩阵按维度收口：organization=org owner/admin、project=owner/maintainer、agent=agent owner 或 org 管理员、user=仅本人、session=系统托管拒绝手写（SESSION_SCOPE_SYSTEM_MANAGED）
+> - ✅ 人工信任信号：human_edited 列（迁移 000027）标记人工创建/编辑的记忆，召回排序加权（confidence +10 加成），去重命中同标题+内容时自动升级标记；store 补 list/get/update/forget_by_id（软删 is_valid=0，幂等）
+> - ✅ 修复迁移 000026 MySQL 隐患：agent_memories.source_task_id INT→BIGINT（tasks.id 为 BIGINT，FK 类型不兼容会让 MySQL 部署建表直接失败，SQLite 测试测不出）——未部署过该迁移的环境原地修 DDL，已创建 scratch 库 E2E 验证 000026+000027 双向迁移
+> - ✅ 长跑 v4 规划器瞬时故障退避：LLM 供应商抖动（网络/超时/5xx/限流）此前直接烧 stall_limit（默认 2）——一次约 10 分钟的供应商故障把全平台 RUNNING 循环打成 STALLED 只能逐个人工 resume；现在瞬时故障按指数退避自愈（transient_streak/retry_after 迁移 000028，5min→10→20→40→封顶 1h），退避窗口内 watchdog/钩子/kick 推进请求入口快速跳过，不消耗受阻预算；密钥/额度类（401/403/quota/billing）与坏输出类仍按硬故障立即计 stall 快速暴露给人；连续瞬时故障达 GOAL_PLANNER_TRANSIENT_LIMIT（默认 12，约扛 8~12 小时级事故）回落既有 STALLED 人工出口；成功推进/人工 pause/resume 清零；to_dict 透出退避截止时间供前端显示
+> - ✅ 验证：+25 用例（记忆 API 授权矩阵/租户边界/去重/编辑/软删/召回预览/human_edited 偏好 + 退避调度/分类边界/窗口跳过/自愈/回落/resume 清零），全量门禁 2319 passed；ENDURANCE_MODE_DESIGN §10、AGENT_MEMORY_DESIGN §6
+
+> **进展（2026-09-13 其七）**：目标链式接续 + 派发工作时间窗门（api-server，长跑 v5）：
+> - ✅ 链式接续（Agent 断档的最后一公里）：单循环到终态后 Agent 闲置——现在循环可带 successor_loop_id（迁移 000029，自引用 FK），前驱到终态的四条路径（done/limit_reached/stalled/stopped）同步 CAS 提升 PAUSED 后继并推进第一轮；A→B→C 链起来即 FIFO 目标流水线；人工 PAUSED 不提升（挂起是故意的）、人工 stop 只停这个目标不停流水线
+> - ✅ 提升可靠性：CAS（status=PAUSED 才 update）防并发双唤醒；后继若也立刻终态则递归接续（MAX_CHAIN_DEPTH=32 封顶，超限由看门狗漏触发自愈兜底）；提升失败只记日志绝不影响前驱终态；不新增 QUEUED 状态（后继以 PAUSED 挂起，避免双方言 enum 手术）
+> - ✅ API：创建时 chain_next 内联规格（agent/director/护栏缺省继承父循环）或 successor_loop_id 直引既有 PAUSED 循环；PUT successor_loop_id 改链/清链；校验存在/非自身/非终态且 PAUSED/同工作区/沿链不成环
+> - ✅ 派发工作时间窗门（顺手修）：assign_task_to_agent 此前缺窗门，pick_executor 兜底回退绑定 Agent 时绕过在岗判断立即建租约推送；现补第四道门（窗外不派、任务留 TODO、开窗后 pull 兜底、fail-open）
+> - ✅ 验证：+12 用例（创建/直引/校验/四终态提升/暂停不提升/三环链传递/改清链/成环拒绝/终态拒绝/窗口门），全量门禁 2331 passed；迁移 000029 MySQL scratch 库 E2E（FK 约束+双向）；ENDURANCE_MODE_DESIGN §11
+
+> **进展（2026-09-13 其八）**：CLI 引擎正式接线 + 会话接续/turn-level continuation（agent-runtime）：
+> - ✅ CLI 引擎接入主干：claude/codex/opencode/custom 四引擎可插拔执行引擎（此前只有沙箱/镜像侧就绪）——build_argv 规则表 + provider 密钥显式注入 + 租约 env 透传；引擎优先级 payload.engine > CLI_AGENT_ENGINE env > openclaw；task_executor 分派 CLI 引擎（进度/结果事件、DoD 门、commit 协议不变）；runtimes/cli-agents 容器沙箱随迁（此前 LIVE E2E 已通）
+> - ✅ 会话接续（Agent 断档重跑的最后一块）：CLI 任务一次 attempt 失败即从零重跑——现在失败/取消的工作区保留（workspace.preserve：保留区数量上限 AGENT_RUNTIME_CONTINUITY_KEEP=5 + TTL 24h，敏感材料不无限期落盘），下次 attempt restore 取回文件与引擎会话锚点；claude 从 JSON 输出捕获 session_id 落锚点，重试以 --resume <session> 在原对话上下文续跑（codex/opencode 有文件级接续）；AGENT_RUNTIME_CONTINUITY=false 可关；repo 任务不保留（需 patch 桥，后续）
+> - ✅ 顺手补齐：迁移自旧基线时把 fe42a03 的租约续约退避重试语义带回（旧 checkout 落后一个提交）
+> - ✅ 验证：+13 接续用例（preserve/restore 生命周期/上限淘汰/关闭开关/失败保留→续跑全链路/成功不保留/repo 不保留/锚点引擎校验/--resume argv/端到端 fake claude），agent-runtime 全量门禁 592 passed
+
+> **进展（2026-09-13 其九）**：任务图依赖感知派发——多 Agent 按 blocked_by 顺序协作（api-server）：
+> - ✅ 依赖门：epic 展开/批量编辑写入的 blocked_by 此前只有写入与展示，runtime pull 派发完全不消费——多 Agent 并发拉取会提前领到前置未完成的任务，任务图（目标任务图/手工依赖）执行顺序失效；现 _fetch_next_task 跳过依赖未解除的候选（阻塞者到 DONE/CANCELLED 终态即解除）——排序约束语义：阻塞者取消即解除、是否连带取消下游由规划者裁决；失效引用（已删任务/脏数据）容忍，不卡死派发
+> - ✅ 可观测性：pull 响应存在非零依赖跳过时附 dependency_gate（blocked/skipped_blocked）——Agent/调用方可理解「明明有 TODO 却空手而归」；工作时间窗/并发容量/预算门语义不变（预算按首个未阻塞任务计）
+> - ✅ 验证：+12 用例（TODO/IN_PROGRESS 阻塞者挂起、DONE/CANCELLED 终态解除、部分完成多阻塞者、失效与脏引用容忍、绕行派发、多轮派发下游绝不误派、解除后恢复），api-server 全量门禁 2336 passed（d93af66）
+
+> **进展（2026-09-13 其十）**：任务图（DAG）读写成套——防环 + 可视化，Agent 行动规划以有向图为一等公民（api-server + webpage）：
+> - ✅ 写侧防环：PUT /tasks/&lt;id&gt;/dependencies 拒绝自依赖与传递成环——环 = 依赖门下互相等待、永久无法派发；环检测方向语义为「从新阻塞者沿 blocked_by 前置链能走回目标任务」（services/task_graph.find_dependency_cycle）；goal_decomposition 对 LLM 输出的 depends_on 逐边校验，成环边丢弃保持任务图无环（api-server e31e657）
+> - ✅ 读侧端点：GET /tasks/projects/&lt;id&gt;/task-graph（owner/admin/active 成员可读）——节点含 readiness 就绪态（ready/blocked/done/cancelled，与派发门同语义：阻塞者到终态即解除、失效引用视为解除）、unresolved_blockers、epic_id/assignees；边为项目内有向依赖；cycles 报 Tarjan SCC 环组（含自环，迭代实现）；stats 汇总 + 超 500 节点 truncated 标记——供前端 DAG 可视化与外部编排方消费
+> - ✅ 前端可视化：项目详情新增「任务图」Tab（webpage 2c3ad8a）——纯 React+SVG 分层 DAG（最长链分层、贝塞尔连线、环边红色高亮，无新依赖）；节点即任务卡片点击跳详情；就绪态四色 ready 蓝/blocked 橙/done 绿/cancelled 灰；统计条 + 环警示横幅 + 截断标记；zh/en i18n
+> - ✅ 验证：api-server +16 用例（防环矩阵/端点权限/就绪态矩阵/跨项目阻塞者/环组可见性/分解成环边丢弃）全量 2352 passed；webpage vite build 通过
+
+> **进展（2026-09-13 其十一）**：任务图实况化——WebSocket 推送驱动 DAG 自动刷新，多 Agent 执行可现场观看（api-server + webpage）：
+> - ✅ 项目房间：/user/ws 新增 join_project/leave_project + push_to_project + notify_task_graph_changed（project_id 缺失/推送异常容错不抛——图刷新是锦上添花，不打断状态翻转主链路）（api-server abdd683）
+> - ✅ 五个推送挂点：依赖编辑（dependencies_changed）、批量状态（batch_status_changed 按项目分组）、人工状态变更（status_changed）、Agent commit（agent_commit:&lt;final_status&gt;，多 Agent 执行的主推进时刻）、MCP update_task_status（mcp_status_changed）——外部 CLI Agent/平台内 Agent/人三条协作面的翻转都驱动图刷新
+> - ✅ 顺手修批量状态既有 bug：裸字符串直接赋值 Enum 列，按 value 传 'done' 触发 KeyError 500（只有 name 'DONE' 碰巧可用）——统一 name/value 双兼容 + 非法值 400
+> - ✅ 前端实况：websocketService 转发 task_graph_changed + joinProjectRoom/leaveProjectRoom；useProjectGraphRealtime hook（300ms 去抖合并事件风暴）；TaskGraphTab 实时状态指示（绿点=已连接/灰点=离线）+ 就绪态图例 + 阶段标题行（第 N 阶段 · 任务数）（webpage b1b23b8）
+> - ✅ dev 代理修复：vite 补 /socket.io（ws: true）透传——此前本地 dev 下 WebSocket 实时推送一直不可用；/todo-for-ai/api 代理目标支持 VITE_API_PROXY_TARGET 覆盖，并行验证非默认端口后端无需改代码（webpage e887a0d）
+> - ✅ 端到端实测（本地平台）：建 1→2,3→4 依赖链 → task-graph 端点就绪态正确 → 浏览器打开任务图 Tab 渲染分层 DAG（阶段列/贝塞尔连线/四色就绪态/实时绿标）→ **API 翻转阶段 1 任务为 done，页面不刷新，2.5s 内图自动变化**：阶段 1 变绿已完成、阶段 2 两任务解锁变蓝可派发、阶段 3 仍被阻塞、统计 1/3→2/1/1——DAG 并行解锁语义实况可视化，截图验收 PASS；api-server 全量门禁 2359 passed
+
+> **进展（2026-09-13 其十二）**：任务图可视化重写——React Flow + dagre 专业 DAG 渲染（webpage）：
+> - ✅ 手写分层 SVG 换专门图可视化栈：@xyflow/react 12 + @dagrejs/dagre 1.1——LR 自动分层、smoothstep 圆角连线、箭头闭合、缩放/平移、点阵背景、就绪态着色小地图，大型任务图（epic 展开几十任务）自由缩放导航（webpage db44527）
+> - ✅ 节点卡片：就绪态色标+标签+编号，环上节点红描边 + ↻ cycle 徽标，已完成打勾；边着色语义：done→下游绿色流动动画（多 Agent 推进可见）、环边红色流动、其余灰实线
+> - ✅ 坑与修复：@dagrejs/dagre（1.x 与 3.x 实测同病）`setEdge` 必须显式传 label 对象，缺 label 时 layout 写 points 直接 TypeError 崩掉整页（React 无路由级 error boundary → root 清空白屏）；锁 1.1.4。preview 代理目标支持 VITE_API_PROXY_TARGET（与 server 一致）
+> - ✅ 并行验证基建教训：两个 vite dev server 共享同一 node_modules/.vite 依赖缓存会互踩（一方重优化另一方运行时加载失败白屏）——并行验证用 `vite preview`（跑构建产物无预构建）+ 独立后端实例最稳；npm 缓存 EACCES 用 --cache /tmp/xxx 绕开
+> - ✅ 验证：vite build 通过 + vitest 35 passed；本地平台截图验收——done 绿卡打勾、绿色流动边、ready 蓝/blocked 橙、汇流分叉与阻塞传播一目了然
+
+> **进展（2026-09-14 其十三）**：任务图「指挥中枢」——DAG 页面成体系化，功能从堆砌到联动（webpage）：
+> - ✅ 依赖链聚焦：单击节点选中——传递上游/下游全链高亮（链上边蓝色流动动画、链外节点与边淡出、小地图同步置灰），聚焦条显示 上游 N · 下游 M，Esc/点空白/一键清除；双击跳任务详情页（webpage a20fcb9）
+> - ✅ 图例=筛选=统计三合一：原「统计标签 + 图例」两排重复展示合并为一排可点筛选芯片（带计数，点击按就绪态淡出未命中节点，可多选可重置）；右侧就绪态占比进度条同源同点击——同一份 stats 驱动三种视图
+> - ✅ 详情抽屉：选中即出——就绪态/状态/优先级/AI 标签、执行 Agent 徽标（点击直达 Agent 详情页）、前置依赖清单（已解除 ✓/阻塞中 🕐/失效引用提示，点击依赖项图聚焦随动跳转）、上下文状态操作（标记完成/取消/重新打开 → PUT /tasks → WebSocket 推送 → 图/芯片/聚焦自动刷新）、打开任务详情页
+> - ✅ 节点卡片升级：Agent 指派 🤖×N 徽标；纯逻辑下沉 taskGraphModel.ts（链计算/筛选判定/dagre 布局）+ TaskNodeCard/TaskDetailDrawer 拆分（单文件 ≤290 行）；taskGraph 节点 assignees 类型修正为 {type,id,name}（与后端写侧一致）
+> - ✅ 验证：vite build + vitest 44 passed（新增 taskGraphModel 单测：菱形链计算/环安全/跨项目边/Agent 提取/聚焦与筛选视觉态/布局方向/统计分段）；本地平台 E2E 截图验收——筛选态仅 blocked 高亮、选中 10666108 聚焦链（上游 3）+ 抽屉依赖清单、点依赖跳 10666107（Agent 徽标可见）、抽屉点「标记完成」→ 图实时刷新（绿 ✓/下游解锁变蓝/芯片计数同步/聚焦保持）
+
+> **进展（2026-09-15）**：代码质量马拉松第 122 轮——协作图指针交互 hook 化收官（webpage + 日志）：
+> - ✅ CollaborationGraphView 597 → 439：抽 useGraphInteraction（拖拽覆盖+localStorage 持久化+背景平移+滚轮缩放，133 行）与 GraphDefs/GraphLegends 纯静态组件；该文件自此达标出队（渲染/交互/图例/力导向/共享逻辑全模块化）
+> - ✅ 新模块单测 100% 行/分支/函数覆盖（13 用例）；webpage 测试 246 → 262；tsc + build 三绿（webpage a559d66，api-server 492c21a 日志）
+> - ⏭ 剩余 >500 行：Agents.tsx 1508、useWorkflowsData.tsx 574
+
+> **进展（2026-09-15 其二）**：代码质量马拉松第 123 轮——工作流页数据层按域拆分收官（webpage + 日志）：
+> - ✅ useWorkflowsData 574 → 273 组合根 + 四域 hook（分析扇出/触发器/版本/模板，50-91 行/个）；跨域经 loadData 注入零耦合；顺带清死 imports 与死常量副本
+> - ✅ 返回键集契约测试（118 键）+ 全处理器成败分支，五文件 100% 行覆盖；webpage 测试 262 → 284；tsc + build 三绿（webpage 976c87f，api-server aac495a 日志）
+> - ⏭ 剩余 >500 行：Agents.tsx 1508
+
+> **进展（2026-09-15 其三）**：代码质量马拉松第 124 轮——Agents.tsx 拆解第一刀（webpage + 日志）：
+> - ✅ 1508 → 1207：步骤重配置域 hook（79 行）+ 冲突解决域 hook（102 行，均零 ctx 自包含）+ 表格列构建器 buildAgentsTableColumns(ctx)（249 行，15 处理器显式注入）
+> - ✅ 新模块 100% 行/函数覆盖（16 用例含 RTL 按钮点击矩阵）；webpage 测试 284 → 300；tsc + build 三绿（webpage a5208c1，api-server 040ac5c 日志）
+> - ⏭ Agents.tsx 剩余 ~1207 行，下一刀拆 JSX 面板组件
+
+> **进展（2026-09-15 其四）**：代码质量马拉松第 125 轮——Agents.tsx 第二刀（webpage + 日志）：
+> - ✅ 1207 → 1045：CRUD/广播/声誉域 hook useAgentCrudActions（203 行，17 状态 + 10 处理器，selectedAgent 注入）；100% 行/函数覆盖（8 用例）；webpage 测试 300 → 308；tsc + build 三绿（webpage e2c123b，api-server fb6c35f 日志）
+> - ⏭ Agents.tsx 剩余 1045，下一刀 effects/通知域 + JSX 组合
+
+> **进展（2026-09-15 其五）**：代码质量马拉松第 126 轮——Agents.tsx 第三刀（webpage + 日志）：
+> - ✅ 1045 → 956：实时看板域 hook useAgentLiveDashboard（154 行：10s 刷新/60s 自动派活/SSE 通知与事件流/看板统计）；100% 行/函数覆盖（6 用例 fake timers + SSE 桩）；webpage 测试 308 → 314；tsc + build 三绿（webpage df65360，api-server b996148 日志）
+> - ⏭ Agents.tsx 剩余 956，下一刀收尾：零散处理器 + JSX 组合层
+
+> **进展（2026-09-15 其六）**：代码质量马拉松第 127 轮——Agents.tsx 视图层拆分（webpage + 日志）：
+> - ✅ 956 → 824 组合根：视图拆为 BoardSection(291)/OpsModals(443)/CollabModals(378) + 共享 props 类型(282)；props 机械提取、JSX 原样搬移。**Agents.tsx 簇终态：1508 单文件 → 组合根 + 13 个 100% 覆盖领域 hooks + 4 个 ≤500 视图组件**（webpage 409b443，api-server 07b1bed 日志）
+> - ⏭ 主文件剩余 ~290 行 props 清单可改 bag/context 传递进 ≤500；api-server 大文件队列待启动
+
+> **进展（2026-09-15 其七）**：代码质量马拉松第 128 轮——api-server 最大源文件拆包 + 越权修复（api-server + 日志）：
+> - ✅ project_repo.py 1016 行 → api/project_repo/ 包（_shared/binding/pull_requests/lifecycle + 兼容 shim），GitHubClient mock 语义保留，补历史覆盖欠账 59 用例（含审批执行/校验/兜底全分支）
+> - ✅ **修越权 bug**：list_pending_pr_approvals 的 `current_user.is_admin` 缺括号（方法恒真）→ 任何用户可见全库待审批 PR；加越权钉子用例（api-server 4e51194，日志 408926f）
+> - ⏭ 观察项：api/goals.py:30 同款 `not user.is_admin` 恒 False；下一批 openai_compatible.py 888 行包化
+
+> **进展（2026-09-15 其八）**：代码质量马拉松第 129 轮——OpenAI 兼容层包化（api-server + 日志）：
+> - ✅ openai_compatible.py 888 → api/openai_compatible/ 包（_core/cache/handler/routes + shim，44-384 行/文件）；经包命名空间运行时解析实现**既有 716 行测试零改动**；5 文件 100% 行覆盖；全量 2426 passed（api-server 02e1010，日志 2333701）
+> - ⏭ routes_tasks.py 878（update_task 306 行单函数）待 api/tasks/__init__ 他人 WIP 落地后处理
+
+> **进展（2026-09-15 其九）**：代码质量马拉松第 130 轮——agent_teams 包化（api-server + 日志）：
+> - ✅ agent_teams.py 660 → api/agent_teams/ 包（_core/teams/members/projects + shim，13 路由按域三文件）；选型自覆盖率普查（挑 100% 覆盖者拆分即闭环）；40 用例零改动全过、6 文件 100% 行覆盖；全量 2426 passed（api-server a9df94f，日志 0f7ffc5）
+> - ⏭ 剩余 >500 行均在 WIP 区或需先补测（mcp/task_tools 845 覆盖 43%）
+
+> **进展（2026-09-15 其十）**：代码质量马拉松第 131 轮——MCP task_tools 修复 + 补测（api-server + 日志）：
+> - ✅ 修 3 个上线级 bug：create_task 的 Enum value 字符串直赋（status/priority）与 Task.assignee relationship 塞字符串，三路径首次使用必 500；submit_feedback 同款枚举修复
+> - ✅ task_tools 覆盖 43% → 82%（22 用例 HTTP 全链路）；全量 2426 → 2448 passed（api-server 047a62c，日志 dee69a5）
+> - ⏭ task_tools 剩余 80 行深层分支下轮继续；观察项：mcp 测试顺序依赖
+
+> **进展（2026-09-15 其十一）**：代码质量马拉松第 132 轮——mcp task_tools 覆盖 82% → 98%（api-server + 日志）：
+> - ✅ 32 个深分支用例：审批全流程/推送块、assignee 精确校验容错、分页截断、越权 403、异常吞并；驻留行按高位段 purge 根治跨文件 id 污染；全量 2448 → 2480 passed（api-server b96c763，日志在 132 号）
+
+> **进展（2026-09-15 其十二）**：代码质量马拉松第 133 轮——context_rules 包化（api-server + 日志）：
+> - ✅ context_rules.py 625 → api/context_rules/ 包（_core/crud/builder/sharing + shim，14 路由按域三文件）；patch 面 7 符号经包命名空间运行时解析，60 用例零改动全过、5 文件 100% 行覆盖；全量 2480 passed（api-server ab0090f，日志 162aabd）
+> - ⏭ api-server >500 行剩余均在他人 WIP 区或需先补测；goals.py authz 观察项待归属会话
+
+> **进展（2026-09-15 其十三）**：代码质量马拉松第 134 轮——auth 包化（api-server + 日志）：
+> - ✅ auth.py 636 → api/auth/ 包（_core/routes_core/oauth/users + shim，14 路由按域四文件）；request/oauth service 等 4 符号运行时解析，75 用例零改动全过、5 文件 97-100% 行覆盖；全量 2480 passed（api-server cec984f，日志在 134 号）
+
+> **进展（2026-09-15 其十四）**：代码质量马拉松第 135 轮——mcp task_tools 100% 收口 + goals 越权修复（api-server + 日志）：
+> - ✅ task_tools 82→98→**100%** 行覆盖（97 用例）；追出第 5 个真 bug：feedback 的 status_changed 用 str(枚举) 与 value 比较，同状态反馈被误记为状态变更，修复为 .value 语义
+> - ✅ 修 goals.py authz：is_admin 缺括号恒放行 → 非成员可跨 workspace 读写 Goal；is_admin() 修复 + 越权钉子 ×2；全量 2480 → **2487 passed**（api-server 9feca2b，日志 ff00143）
+
+> **进展（2026-09-15 其十五）**：代码质量马拉松第 136 轮——auth 包死代码清理（api-server + 日志）：
+> - ✅ 删除 auth 包三个子模块中未被调用的 get_current_user 转发包装（包化时与 _pkg 运行时解析并存的死代码）；oauth/users 升至 100% 覆盖；75 用例零改动；全量 2487 passed（api-server c60e956，日志在 136 号）
+
+> **进展（2026-09-15 其十六）**：代码质量马拉松第 137 轮——审批队列端点补测至 100%（api-server + 日志）：
+> - ✅ agent_approval_queue.py 72% → **100%** 行覆盖（10 用例：pending 列表/统计/越权 403/agent 名解析），顺带删零引用死函数 _resolve_agent_name；全量 2487 → **2497 passed**（api-server 13fb41f，日志 cf18748）
+
+> **进展（2026-09-15 其十七）**：代码质量马拉松第 138 轮——agent_access_control 补测至 100%（api-server + 日志）：
+> - ✅ 51% → **100%** 行覆盖（26 用例真库版）；根因复盘：user_factory teardown 外键置空 vs 驻留行的 organizations.owner_id NOT NULL——权限测试改自建驻留环境规避；全量 2497 → **2523 passed**（api-server 5ca3153，日志 f629cad）
+> - **会话累计：迭代 122–138 共 17 轮全绿**（webpage 大文件清零 + api-server 五模块包化 + 5 个真 bug 修复 + mcp task_tools 100% + goals authz 修复 + approval_queue/access_control 100%）
+
+> **进展（2026-09-15 其十八）**：代码质量马拉松第 139 轮——agent_audit 补测至 100%（api-server + 日志）：
+> - ✅ 59% → **100%** 行覆盖（12 用例：list 全过滤参数/分页/404、stats 聚合、export 的 limit 回退/组合过滤/CSV 头、非成员 403×2）；沉淀 JWT 401 绕过定式（owner JWT + 外来 workspace 命中 403）；全量 2523 → **2535 passed**（api-server da2a21e 测试 + 69ddb39 日志）
+> - **会话累计：迭代 122–139 共 18 轮全绿**（webpage 大文件清零 + api-server 五模块包化 + 5 个真 bug 修复 + mcp task_tools 100% + goals authz 修复 + approval_queue/access_control/agent_audit 三模块 100%）
+
+> **进展（2026-09-16 其十九）**：多 Agent 协作能力实测（真实 LLM E2E 首次全链路打穿）+ agent-runtime 两处交接修复：
+> - ✅ 真实 E2E：双 daemon（claude 引擎 × deepseek-v4-pro 经 local-server-001:54988 中转）跑 DAG——依赖门（B 空手+dependency_gate）、真实 LLM 执行、交接上下文注入下游 prompt（FINAL=782=上游 ANSWER 391×2，下游 prompt 从未含 391）、双 Agent 并发在岗、容量门、审计事件流，18 项证据 PASS（驱动脚本 /tmp/collab_e2e/drive.py）
+> - ✅ agent-runtime 修复：①pull item 的 upstream 兄弟键桥接进 payload（1e91875 渲染 + 4ae5c0d 桥接，此前交接上下文到不了 CLI Agent 的 prompt）——多 Agent 依赖交接对 CLI 引擎从此真实可用
+> - 观察项：write_agent_audit 依赖 request 上下文，无请求上下文的后台路径审计事件静默丢失
+
+> **进展（2026-09-16 其二十）**：多 Agent 协作机制加固（真实 LLM E2E + 单测 + 三道门 LIVE 收口）：
+> - ✅ **交接沉降窗口**（AGENT_HANDOFF_SETTLE_SECONDS，默认 0）：上游终态后延迟 N 秒放行下游派发，根治「交接上下文写入晚于下游被抢」的时序竞态；事件留痕保持终态即解锁语义（api-server d48fb23）
+> - ✅ **后台审计写入修复**：write_agent_audit 无请求上下文不再静默丢事件（调度器/ORM 路径的 agent.created 等从此落库）
+> - ✅ **预算门 LIVE 收口**：concurrent 预算 limit=1 时第二 Agent 被挡、审计 budget.exceeded 留痕、租约释放即恢复；顺修 concurrent 用量不过滤过期租约的 bug（6a91327）
+> - ✅ LIVE 实测：并发抢租约原子性 5/5（双会话同时 pull 零双重租约）、沉降窗口交接闭环 FINAL=1197=399×3（执行者 prompt 从未含 399）、容量门/预算门/审计流全过
+> - ✅ 测试基建：boom 注入测试泄漏毒化共享会话（全量 50F+48E 级联根因）就地复原修复；全量门禁 **2546 passed**（api-server d48fb23+6a91327）
+
+> **进展（2026-09-17 其二十一）**：Agent 形象化 + 企业 IM 双向打通 + 对外接入三件套（SOTA 一轮交付，真实 E2E 19 项全过）：
+> - ✅ **Agent 形象化**：协作图节点渲染头像（clipPath 裁剪进节点圆，avatar_url 优先、按身份确定性生成 bottts 机器人形象兜底，同一 Agent 永远同一张脸）；`resolveAgentAvatarSrc` 统一解析入口；协作图接口节点携带 avatar_url/display_name（api-server b0c1df4、webpage cc81edb）
+> - ✅ **灵魂人设进执行链**（agent-runtime 6904b4c）：agent_profile（soul_markdown/display_name）随 pull 下发并缓存进 TaskExecutor，渲染为引擎 prompt 首部人设段（超长截断）；顺修历史缺陷——payload.prompt 缺失时只回退 title 导致任务正文永远进不了 CLI 引擎，改为「标题+正文」组合（单测 11 例钉住）
+> - ✅ **飞书双向打通**（api-server b0c1df4）：自建应用事件订阅入站（url_verification 握手、header.token 验签 fail-closed、im.message.receive_v1 文本→建任务、chat_id→项目群路由、message_id 幂等）+ tenant_access_token 交互卡片群回执（api_base 可覆盖支持私有化/测试 mock）
+> - ✅ **企业微信双向打通**：官方回调协议完整实现（SHA1 验签 + AES-256-CBC 加解密，纯 hashlib+cryptography），GET echostr 验证、POST 文本消息→建任务、应用消息回执
+> - ✅ **通用 Webhook 入站**：X-Todo4AI-Token 校验 + 点分路径字段映射模板，任意内部系统（OA/工单/告警）零适配接入；E2E 实测磁盘告警 JSON → 建任务
+> - ✅ **出站 Webhook 订阅中心**：订阅 CRUD、事件类型白名单、HMAC 签名（t=,v1= 防伪造防重放）、3 次退避重试、派发记录可观测、签名 ping；task.created/status_changed/completed/failed 四类事件在建任务/批量状态/Agent 提交三处挂点，后台线程投递不阻塞请求
+> - ✅ **前端集成中心页**（/integrations + 顶部导航）：入站连接器配置（凭据/群路由/字段映射/回调地址复制）、出站订阅管理（密钥一次性展示/测试投递/派发记录）
+> - ✅ **验收**：迁移 000030（webhook_subscriptions/webhook_deliveries/config_json）已应用；api-server 全量 **2560 passed**（新增 14 例，覆盖 81.57%）；agent-runtime 607 passed（5 败为共享 venv RestrictedPython 既有环境问题，基线同败）；webpage tsc/build/314 测试全绿；隔离端口真实 E2E **19/19 PASS**（飞书握手/建任务/幂等/卡片回推、企微 echostr/加密消息、通用映射、出站签名推+验签+派发记录、协作图形象字段）
+> - 观察项：workspace 路由创建的 Agent owner_id 为 NULL 与 owner 鉴权接口（直发消息）不一致；MCP 工具面 30+ 已覆盖本轮场景无需扩展
+
+> **进展（2026-09-17）**：多 Agent 协作工作流——执行闭环 + 画布式编辑器 + Dify/Coze 连接器（api-server + webpage，详见 `docs/WORKFLOW_CANVAS_AND_INTEGRATIONS.md`）：
+> - ✅ **执行闭环**：此前步骤任务被 Agent 提交后无人回调工作流引擎（只能人工在控制台点完成），真实多 Agent 流水线断在第一步。现 `maybe_autocomplete_for_task` 挂到三条任务终态路径（runtime commit / 人工置 DONE / 评审通过），统一走抽取出的 `complete_step_run` 核心——状态迁移、SharedContext 回写、步骤级自动重试、声誉/经验沉淀、沙箱收尾、DAG 推进全自动；RUNNING 守卫防双写，闭环异常不反噬任务提交
+> - ✅ **画布式工作流编辑器**（React Flow，/workflows 卡片「画布编辑」入口）：拖拽连线建 depends_on（自动防环）、删除即清理引用、节点徽标（Agent/能力/条件/重试/子工作流/连接器）、右侧全字段配置面板（含条件执行 operator 全集）、坐标持久化进 `definition.layout` + dagre 自动布局、保存走既有 PUT 自动版本快照
+> - ✅ **Dify/Coze 连接器**（集成而非重造，规避 AGPL）：`WorkflowStep.integration_config`（迁移 000031，api_key 加密入库/回传脱敏/PUT 回传沿用密文）——配置后该步骤直接调用远端工作流 API（dify blocking / coze v1 run），不建 Agent 任务；输入支持 `{{step_result_上游key}}`/`{{context.x}}`/`{{root_task_title}}` 占位符；远端结果经同一 complete_step_run 回写，推进/重试/失败策略与 Agent 步骤完全一致；默认后台线程执行不阻塞请求
+> - ✅ **顺带修复主干上从未工作过的链路**（冒烟实测发现）：launch_workflow 缺 `Project` 导入（HTTP 启动必 500）；create_workflow/launch/子工作流启动缺 flush（id 为 None 必崩）；工作流/运行/审计/外部 Agent 四个列表端点四连 bug（dict.get(type=) TypeError、paginate_query 传 dict、ApiResponse.paginated 不存在、双重 to_dict）+ audit-logs 缺 or_ 导入
+> - ✅ **验收**：api-server 新增 27 例（闭环四路 + commit HTTP E2E + 连接器全链路 + 列表回归），全量门禁 2616 passed（两轮）；webpage tsc/vite build/314 测试全绿、画布文件 eslint 0 问题；隔离端口浏览器 GUI 冒烟 PASS（模板实例化 → 画布编辑 → 连接器配置 → 保存 → API 复核密文落库/脱敏回读/layout 持久化/version=2）
+> - ⏭️ 待办：WorkflowTrigger 常驻调度（仍靠外部 cron 打 fire-triggers）；运行态画布（run console 复用画布节点显示实时状态）；n8n/通用 HTTP 步骤类型与连接器连通性测试按钮；agent-runtime 步骤任务携带工作流元数据
+
+> **进展（2026-09-17 其二）**：LLM API 指标与可观测——用户级/组织级/单 Agent 三视角（agent-runtime + api-server + webpage）：
+> - ✅ **采集（agent-runtime 424ddb2）**：每次引擎真实调用产出一条遥测——cli_engines 捕获 claude JSON 的 usage/total_cost_usd/实际模型与 ANTHROPIC_BASE_URL 端点（成功/失败/超时路径都带），llm_telemetry 组记录（success/failed/timeout 状态、错误截断）fire-and-forget 上报 `/agent/llm-metrics/batch`（旧平台 404 静默降级，绝不打断任务主链路）；openclaw 路径同步埋点（耗时口径）
+> - ✅ **存储与 API（api-server a04abed）**：迁移 000032 `llm_call_metrics`（幂等键 call_id 防重摄取、tokens/cost/duration/status/model/base_url、组织/用户/Agent 三组窗口索引，MySQL+SQLite 双方言）；`POST /agent/llm-metrics/batch`（agent 会话鉴权，归属用户服务端解析 owner_id→creator 回退）；查询三端点——`GET /llm-metrics/mine`（用户自己的）、`GET /workspaces/<id>/llm-metrics`（组织成员可见）、`GET /llm-metrics/agents/<id>`（管理权限），聚合含 p50/p95 耗时、成功率、tokens、成本、按日趋势、按 Agent/模型分组、最近失败样本
+> - ✅ **视图（webpage 0d57c59）**：共享 LlmMetricsPanel（Statistic 行 + MiniTrendChart 趋势 + by-day/by-agent/by-model 表 + 失败样本含端点列）；仪表板「LLM API 用量」区块（用户级）、组织详情「模型用量」Tab、Agent 详情「LLM 用量」Tab；i18n 中英双语
+> - ✅ **验收**：真库端到端（迁移落 MySQL、摄取 3 条 + 幂等重放 skipped、三视角聚合数值正确、无 token 401）；headless 截图仪表板区块与组织 Tab 真实渲染 PASS；门禁 api-server 全量 2570 passed（1 既有 WeCom 失败与纯净 origin/main 一致）、agent-runtime 616 passed（5 既有沙箱环境失败一致）、webpage tsc 0 错 + vite build 过
+> - ⏭️ 待办：平台侧预算/配额看板接指标列；失败率突增告警钩子；proxy 渠道维度对齐（cc-lant 渠道 id ↔ agent.llm_provider）
+
+> **进展（2026-09-17）**：交互式会话一期——任务页实时对话 + 流式输出 + 停止执行（api-server + agent-runtime + webpage）：
+> - ✅ 定位：向类 Codex/Claude Code 的交互式工作方式迈出第一步（对标 REFERENCE_BENCHMARK P0-1 会话锚点），用户从「提交后黑盒等待」升级为「实时看 Agent 干活 + 随时留言 + 随时叫停」；全程复用既有任务/租约/事件管道，零表结构迁移
+> - ✅ 实时对话（Phase 0）：任务详情页新增「任务对话」卡片（复活孤儿组件 TaskChatThread 接线）——用户留言落 TaskLog、WS task_comment 推任务房间，并在途 attempt 的 agent 实时下行 user_message 事件；agent 侧 chat 游标（.todo4ai-chat-cursor.json 存工作区）+ 新端点 GET /agent/tasks/<id>/chat?after_id= 拉增量，每轮 attempt 构建 prompt 时注入「用户留言」段（下轮 --resume 续跑正式可见）；运行中收到留言即时写事件流（控制台可见「💬 收到用户留言」）
+> - ✅ 流式输出（Phase 1 核心）：cli_engines 流式重写——stdout 逐行异步读（原 communicate() 一次性），claude 默认 --output-format stream-json --verbose 逐 turn 解析（text/tool_use/result，CLAUDE_OUTPUT_FORMAT=json 可回退），codex exec --json 逐事件解析，其余引擎原始行透传；输出经节流发射器（1200 字符/1s）走既有批量事件管道 → 平台入库后转发 task_runtime_event 到用户任务房间 → 前端「Agent 运行控制台」实时渲染（WS 增量 + 5s 游标轮询兜底 + id 去重 + 智能滚底）；新增用户侧游标端点 GET /tasks/<id>/runtime-events
+> - ✅ 停止执行（Phase 1）：控制台「停止执行」（内联两步确认）→ POST /tasks/<id>/agent/stop（can_access_project 门控 + 审计留痕）——任务置 CANCELLED + WS cancel_task 命令即时终止；agent-runtime 子进程 start_new_session 按进程组 TERM/KILL（不留握管道写端的孤儿孙进程），cancel_event 触发返回 ENGINE_CANCELLED 并按 cancelled 提交（复用平台 attempt ABORTED 语义）；agent 离线由续约响应新增的 cancel_requested 兜底（≤一个续约周期）；顺手修掉 asyncio.wait 默认 ALL_COMPLETED 使超时/取消形同虚设的实测根因
+> - ✅ 验证：api-server 新增 10 测试（下行通知/游标聊天/事件转发/控制台端点/停止双通道/续约标记），全量门禁 2574 passed（2 失败经干净基线复跑确认为 integrations 既有失败，非本次引入）；agent-runtime 新增 20 测试（stream-json/codex 解析/流式回调/取消/超时/游标/留言注入/续约兜底），全量 646 passed（并入 telemetry 分支测试）；webpage tsc+vite build 通过、319 tests passed（含 AgentRunConsole 5 组件用例；该 jsdom 环境无法打开 antd 弹层 portal，停止改为内联确认）
+> - ⏭️ 后续（二期起）：DB 会话为中心数据模型（session id 落库、成功不毁工作区、跨任务 follow-up）；运行中 stdin 注入与阻塞式工具审批（依赖引擎权限点协议，claude 可行/codex 降级）；SocketIO 多 worker 化（Redis message queue）
+
+> **进展（2026-09-17）**：交互式会话二期 UI 收口——Claude Code 风格交互终端（webpage ee61040）：
+> - ✅ **统一时间线终端**：任务详情页 AI 任务顶部通栏「✻ 交互终端」取代原「Agent 运行控制台 + 任务对话」双面板——任务对话（TaskLog）与运行事件流（AgentTaskEvent）按时间合并渲染（用户 ❯ 绿 / Agent ⏺ / 进程 · 蓝 / 状态 ▶ / 错误 ✗ / 系统 ○），对话回复串内联缩进呈现
+> - ✅ **REPL 输入行**：底部终端式输入（❯ 提示符 + 无边框暗色输入），Enter 发送 / Shift+Enter 换行；乐观回声立即上屏，服务端落库后同文对账顶替；留言实时转发 Agent 并在下轮执行注入上下文
+> - ✅ **斜杠命令与中断**：/stop（中断执行）、/clear（清空本地视图，游标保留防历史回灌）、/help（命令列表）；Esc 两段式中断（首次武装提示、2.5s 内再按确认），与「停止执行」内联两步确认并存；复制转录/清屏/完整对话历史（Drawer 承载 TaskChatThread，保留线程回复能力）
+> - ✅ **真 bug 修复（StrictMode 事件丢失）**：appendEvents 原把去重副作用写进 setEvents updater，React 18 StrictMode 双调用 updater 使第二次把整批事件误判「已见过」返回 prev——dev 模式事件流必现白屏；已把副作用移出 updater 纯化，并新增 StrictMode 回归测试（旧 AgentRunConsole 同款隐患随组件替换一并消除）
+> - ✅ **验收**：agentTerminalCore 6 例 + AgentTerminal 9 例（合并渲染/WS 去重/发送回声对账/命令/Esc 两段中断/两步停止/清屏/StrictMode），全量 329 passed；vite build 过；本地 worktree dev server + 仅 mock runtime-events/chat 两端点（其余代理真实后端）真实浏览器视觉验收——合并时间线、前缀配色、欢迎态、输入行渲染全部 PASS
+> - ⏭️ 待办（三期）：运行中 stdin 注入与阻塞式工具审批；会话为中心 DB 模型；SocketIO 多 worker
+
+> **进展（2026-09-18）**：Dify 工作流引擎系统性对标 + Wave 1 借鉴落地（api-server + webpage，详见 `docs/DIFY_WORKFLOW_BENCHMARK.md`）：
+> - ✅ 对标方法：克隆 Dify main 浅拷贝至 references/dify，通读编排层/节点/DSL/HITL/触发器（其图引擎已抽为 graphon PyPI 包）；许可证为修改版 Apache 2.0，含**多租户 SaaS 限制**——todo-for-ai 是 workspace 多租户模型，**只借鉴概念自研实现，不拷代码**
+> - ✅ Wave 1 ①：**DSL YAML 导入导出**（借鉴 Dify app_dsl_service 的可移植性 + 泄漏防护）——导出清洗 api_key/agent_id/task_template_id、子工作流按名导出；导入校验版本兼容/step_key 唯一/依赖存在/成环（Kahn）/子工作流按名解析（缺失拒绝）；`GET /agents/workflows/<id>/export` + `POST /agents/workflows/import` + 页头导入/卡片导出按钮
+> - ✅ Wave 1 ②：**单步测试运行**（借鉴 Dify single_step_run）——`POST /agents/workflows/<id>/steps/<key>/test-run`：agent 步骤出「将选中的 Agent + 任务内容」预览（零副作用），dify/coze 步骤真实调用远端并回显输出/错误；画布步骤面板「测试运行」按钮 + 结果卡
+> - ✅ Wave 1 ③：**{{sys.*}} 系统变量前缀**（借鉴 Dify variable_prefixes）——run_id/workflow_id/workflow_name/project_id/root_task_*/step_* 九个系统变量可在连接器 inputs 中引用；未知 sys.* 渲染空串不透传
+> - ✅ 验收：api-server 新增 19 例（DSL 清洗/往返/校验/路由 + 测试运行三模式 + sys 占位符），套件 46 工作流测试全绿 + 全量门禁 exit 0；webpage tsc/build/319 测试全绿
+> - ⏭️ Wave 2（已排）：节点级 default-value 错误策略、暂停/恢复整图快照（HITL 底座）、触发日志表 + next_run_at skip_locked 轮询、HTTP 通用节点（SSRF 防护）；Wave 3：引擎事件层 hooks、LLM 生成工作流
+
+> **进展（2026-09-17 其三）**：多 Agent 协作第三轮——交接机制产品化修复 + 真实 LLM 战役测试（agent-runtime + api-server）：
+> - ✅ **commit 时原子交接**（api-server cdbe060）：commit 请求新增可选 `shared_context`，与终态翻转同一事务落库——下游解锁后第一次 pull 必然拿到交接，根治「上游已解锁、交接还没写」时序竞态（settle 窗口退化为纯防御）；失败/取消提交同样收，部分产出也交接
+> - ✅ **Agent 自写交接约定**（agent-runtime 4109d50+15e1840）：引擎在工作区写 `.todo4ai-context.json`，commit 时自动读取上交（20 键上限、安全降级）；live 发现 CLI 成功包装 dict 丢字段导致交接静默失效——已修 + wrapper 级回归测试；失败时完整记录 stderr/stdout tail（此前前 500 字符掩盖真因）
+> - ✅ **交接署名修复**：workspace 域 Agent（owner_id=NULL）在 shared-context API 署名必 404——改为 owner/creator/组织成员三通道判定
+> - ✅ **修复任务带原始描述**：DoD 失败的修复子任务 content 现在携带父任务原始 brief（截 3000 字符，含此前产出），修复 Agent 不再只靠标题猜
+> - ✅ **真实 LLM 战役**（lant 中转 × claude 引擎）：三跳接力全链 DONE、LLM 指标实时采集验证（逐调用 tokens/cost/duration 落库）、`llm_call_metrics` 表 15b90b4b 等真实记录；驱动力脚本 /tmp/collab_e2e3/campaign.py（case-a/b/c/d/e）
+> - ⚠️ **外部阻塞**：lant.top 中转账户余额耗尽（RELAY_101，deepseek-v4-pro/flash/glm 全部 403），Case B/C/D/E（失败自愈、4 路扇出、分支阻塞、会话接续）待充值后继续
+> - 📋 live 发现待修：单次 ENGINE_FAILED 会级联生成多层 `[修复] [修复]...` 嵌套任务链（failed_attempts 计数与父链去重需收敛）
+
+> **进展（2026-09-18）**：全屏 Web 工作台——对标 AI 编程工具远程控制台界面（webpage b229229）：
+> - ✅ **定位**：用户看到 zcode/codex 式 remote web UI（左侧任务流 + 中间会话区 + 右侧状态栏）后提出「让用户直接用网页这样做事」；一期/二期的终端能力（合并时间线/REPL/停止执行）已就绪，本轮补齐全屏工作区外壳，路由 `/todo-for-ai/pages/console`（AuthGuard 内、管理布局外的独立深色页）
+> - ✅ **三栏布局**：左侧任务流（按项目分组 + 搜索 + 相对时间戳 + 状态呼吸灯 + 新建 AI 任务 Modal，`is_ai_task` 建参后端原生支持）；中间会话区（完整时间线按执行轮次分代，「Iteration N」分隔条对应每轮 attempt；对话消息 Markdown 渲染、运行事件原始输出等宽呈现）；右侧信息面板（任务元信息/执行者/子任务进度条/共享上下文只读）；URL `?task=` 深链 + 进入自动选中执行中任务
+> - ✅ **Ask for follow-up changes 对标**：底部指令区留言实时转发 + 下轮注入；空闲 AI 任务带「发送并派发执行」开关——发送后自动 `POST /agents/<id>/dispatch` 让 Agent 立即开工，形成「打字 → Agent 干活 → 实时看输出」的网页闭环；执行中变为停止按钮
+> - ✅ **useAgentTimeline hook**：从 AgentTerminal 抽取时间线状态（对话最新页游标/事件游标轮询/WS 增量/乐观回声对账/自动滚底），卡片终端与工作台共用一套数据面
+> - ✅ **真 bug 修复（真实数据验收发现）**：① actor_type 大小写——真实接口返回小写（human/agent），前端全按大写比较导致所有消息渲染成灰色 system 且乐观回声永不对账（Phase1 终端与 TaskChatThread 同病，单测 mock 大写故未暴露）；在 core 映射/回声对账/TaskChatThread 归一化并加小写契约回归用例 ② 时间线空态判断用 segments（历史段被滤后为空数组）致欢迎文案永不出现
+> - ✅ **主题**：darkAlgorithm + 绿色主色；`.tfai-console` 命名空间规则压过像素皮肤全局 `.ant-btn-primary` 红色（皮肤 compat 层同款手法）
+> - ✅ **验收**：consoleData 8 例 + ConsoleWorkspace 6 例（分组/深链选中/分代渲染/markdown 桩/信息面板/派发闭环/搜索过滤）+ core 小写回归，全量 344 passed；tsc + vite build 过；真实后端真数据浏览器验收——分组任务流/深链/真实发送落库回显/空态/主题色，截图 PASS
+> - ⏭️ 待办：Git 工具面板（changes/diff/branch/commit 接入 daemon 工作区）；多任务并行执行视图；移动端适配；侧栏任务流虚拟滚动
+
+> **进展（2026-09-17 其四）**：修复链嵌套收敛（live 缺陷闭环，api-server c7aa3fb+ad3c7df）：
+> - ✅ **live 抓因**：余额断供窗口反而成为天然的确定性失败源——case-f 实测单次失败级联出 3 个修复（两处并发缺陷：root 与 repair#1 并发失败各自结算预算双花；同轮同名「第 2 次」×2）
+> - ✅ **族收敛**：修复任务（creator_identifier=recovery:*）失败时沿 parent 链归并到根任务，新修复一律挂根、标题扁平化（剥历史 [修复] 前缀 + 轮次号）；族失败计数含全部后代（历史嵌套链兼容）
+> - ✅ **封顶与并发**：升级判定（族失败 ≥ max+1 或已有修复 ≥ max）先于并发去重执行；根行 FOR UPDATE 锁串行化同族结算；在途兄弟修复存在时跳过新建（repair_pending）
+> - ✅ **验收**：单测 12/12（含 3 个收敛新用例：扁平化/封顶升级/历史链族计数）；live case-f 6/6 PASS——恰 1 个修复、扁平挂根、标题「第 1 次」、族失败达阈即升级不再派生
+
+> **进展（2026-09-18 其二）**：Console 工作台模块化收敛 + 细节迭代（webpage f89e31e）：
+> - ✅ **模块化**：`useTerminalSend`（斜杠命令 + 留言 + 乐观回声统一，AgentTerminal 与 ConsoleComposer 去重双实现）、`useConsoleTasks`（任务流轮询/选中详情/深链/WS 刷新装配出壳，工作台组件只管布局）、`consoleTheme`（色板/等宽字体/作用域 CSS/呼吸动画设计令牌集中）
+> - ✅ **细节**：Iteration 分隔条带该轮开始时刻；执行中呼吸指示（会话区「Agent 正在工作」脉冲点 + 头部状态呼吸点 + 侧栏「N 执行中」摘要）；Composer 切换任务自动聚焦
+> - ✅ **真 bug 修复（切换任务串台）**：useAgentTimeline 切换 taskId 未重置事件游标与去重集合——旧任务大 id 残留使新任务事件流整段拉空，慢响应晚到还会把旧对话写进新时间线；补游标归零重拉/慢响应不覆盖两条 hook 回归测试
+> - ✅ **验收**：全量 348 passed（+4）；tsc + vite build 过；真数据浏览器验收切换不串台/切回恢复/摘要行/呼吸点/自动聚焦，截图 PASS
+
+> **进展（2026-09-18 其三）**：Web AI IDE 体感增强（webpage 0380d5f）：
+> - ✅ **⌘K / Ctrl+K 快速任务切换器**（ConsoleQuickSwitcher 自绘弹层）：输入过滤 + ↑↓ 选择 + Enter 打开 + Esc 关闭，头部另有搜索按钮入口；自绘而非 antd Modal（样式可控且避开 jsdom portal 测试坑）
+> - ✅ **InfoPanel 增强**：任务描述 Markdown 折叠展示（parseTaskDocument 归一历史 JSON 信封）、附件列表带下载链接、子任务列表（带状态点）
+> - ✅ **Esc 两段式中断补齐 Console**：执行中按 Esc 武装提示、再按确认停止，与任务详情页终端行为对齐
+> - ✅ **发送失败不丢字**：失败时撤回乐观回声行（pushLocalLine 返回 key + removeLocalLine）并把原文恢复到输入框
+> - ✅ **性能与资源**：时间线行组件 memo 化（milkdown 编辑器不随整列表重渲染）；页面不可见（document.hidden）时暂停 chat/events/列表轮询，回前台立即补拉
+> - ✅ **验收**：新增 useTerminalSend 3 例（成功闭环/失败恢复/命令分支）+ 工作台描述折叠/附件链接/⌘K 切换用例，全量 352 passed；tsc + vite build 过；真数据浏览器验收（描述折叠、⌘K 打开过滤选择切换、Iteration 时刻、侧栏摘要、共享上下文）截图 PASS
+> - ⏭️ 待办不变：Git 工具面板（daemon 工作区 changes/diff/commit）、多任务并行视图、移动端、虚拟滚动、stdin 注入
+
+> **进展（2026-09-18 其四）**：Web IDE 终端体感一轮（webpage ba691b1）：
+> - ✅ **↑↓ 输入历史召回**（useTerminalSend 内建历史环）：光标在首/末行时 ↑↓ 翻阅已发送记录，翻到底恢复草稿，召回值被编辑后从最新重新开始（终端惯例）；卡片终端与工作台共用
+> - ✅ **斜杠命令补全菜单**（TerminalCommandMenu 自绘弹层，双端共用）：输入 / 前缀过滤（/cl→clear），↑↓ 选择、Enter/Tab 选中即执行、Esc 关闭且不触发两段式中断（stopPropagation），点击选中；点选执行后输入清空菜单收起
+> - ✅ **「N 条新输出」徽标**：useAgentTimeline 新增 newBelow——用户上翻浏览期间新到的行计数（回到底部/滚动到底即清零），Console 与卡片终端「回到底部」按钮均带计数
+> - ✅ **转录复制 + 下载**（ConsoleTranscript 右上工具条）：复制纯文本转录（buildTranscriptText）；下载 Markdown（buildTranscriptMarkdown 带 `# Task #id title` 头）
+> - ✅ **快捷键帮助浮层**（ConsoleShortcutsOverlay）：? 键（输入框聚焦时不触发）或头部 ? 按钮唤起，全局/输入/执行中/视图四组 12 条，Esc 或点遮罩关闭
+> - ✅ **验收**：新增 useTerminalSend 4 例（历史召回/编辑重开/菜单过滤选中/Esc 恢复）+ newBelow 1 例 + 工作台 4 例（菜单点选/复制下载/浮层开闭/滚动徽标 WS 推送），全量 365 passed；tsc + vite build 过；真数据浏览器验收（/ 菜单三项、点选 /help 上屏、发送后 ↑ 召回原文、? 浮层开合、复制内容含全部前缀行）截图 PASS
+> - ⏭️ 待办不变：Git 工具面板（daemon 工作区 changes/diff/commit）、多任务并行视图、移动端、虚拟滚动、stdin 注入
+
+> **进展（2026-09-18 其六）**：工作台入口 + 本地平台升级（webpage 8d64ff1）：
+> - ✅ **用户反馈「压根看不到界面」归因**：①工作台是无入口的隐藏路由（/console）——管理页任何地方都进不去；②本地 50111 前端跑在共享检出的旧 main 上，根本不含工作台代码。两个都是真问题
+> - ✅ **顶部导航「工作台」菜单项**（指挥中心之后，CodeOutlined）：全站管理页一键进入全屏工作台；任务详情页「✻ 交互终端」卡片新增「在工作台打开」（跳 /console?task=<id> 带任务深链）
+> - ✅ **本地平台升级**：共享 webpage 检出 ff 到最新（其他会话 3 个未跟踪 WIP 文件零接触）+ pm2 todo-for-ai-web 重启；50111 实测：导航出现工作台 → 点击进入 → 真实任务时间线渲染完整
+> - ✅ 验收：366 tests（+1 工作台入口用例；AgentTerminal 测试改用 MemoryRouter 包裹适配 useNavigate）+ tsc + build 全绿；浏览器端到端（50111 管理页 → 点菜单 → 工作台渲染真数据）PASS
+> - ⏭️ 待办不变：Git 工具面板、多任务并行视图、移动端、虚拟滚动、stdin 注入
+
+> **进展（2026-09-18 其五）**：Console 视觉细节打磨（webpage 43acddc）：
+> - ✅ **深色滚动条 + 选区色**（.tfai-console 作用域 CSS）：webkit/Firefox 双轨深色滚动条（默认亮色滚动条在深底上突兀）、文本选区主色半透明、输入 caret 主色
+> - ✅ **输入壳聚焦描边**：composer 的 ❯ + 输入框收进 console-input-shell 容器，focus-within 时整行一圈主色描边 + 微弱主色底（对标终端输入容器的聚焦反馈）
+> - ✅ **任务流层级**：选中任务左侧 2px 主色条（inset shadow）+ 加粗标题 + bgPanelAlt 底；任务项 hover 反馈（作用域 CSS）；项目组头加刻度条 + 等宽计数；时间戳等宽字体
+> - ✅ **信息面板节标题**：左侧主色刻度条；附件行 hover 反馈
+> - ✅ **弹层入场动画**：补全菜单/⌘K 切换器/快捷键浮层统一 console-pop（0.16s 上浮渐入，transformOrigin 底部）；补全菜单自带 CSS 注入，卡片终端（非工作台作用域）同样生效
+> - ✅ **空态引导**：时间线空态增加 kbd 键位提示行（/ 命令补全 · ↑↓ 输入历史 · ? 快捷键）
+> - ✅ 验收：365 tests + tsc + build 全绿（纯样式改动零测试改动）；真数据截图对比 PASS（聚焦描边/菜单高亮/节标题刻度/组头结构）
+
+> **进展（2026-09-18 其二）**：可视化工作流 Wave 2——运行态画布 + HTTP 通用连接器（api-server + webpage，续 `docs/DIFY_WORKFLOW_BENCHMARK.md` Wave 2 清单）：
+> - ✅ **运行态画布**（借鉴 Dify 运行面板；运行记录「画布」入口）：运行中的工作流直接在 DAG 上看——节点按步骤状态着色（运行中蓝/成功绿/失败红/等待橙/跳过灰），徽标含状态/尝试次数/耗时/Agent，运行中入边虚线流动；坐标复用 definition.layout（缺失时按依赖深度轻量分层）；SSE 实时刷新（workflow_step_* 按 run_id 过滤）+ 10s 轮询兜底；点节点开右侧详情面板（状态/尝试/Agent/任务/起止/错误/输出），保留旧控制台入口联动。实现为只读自绘（绝对定位节点 + SVG 贝塞尔连线 + 自适应缩放），绕开 RF 受控边渲染问题
+> - ✅ **HTTP 通用连接器**（借鉴 Dify http-request 节点）：`provider: http`——method/url/headers/body/timeout，占位符渲染进 url/头/体；api_key 可选（配置后作 Bearer 头，密文入库回传脱敏、DSL 导出剔除）；**SSRF 私网防护**（解析目标拒绝 loopback/私网/保留段，`allow_private_hosts` 显式放行）；2xx=成功、响应体写入 result_summary 供下游引用
+> - ✅ 顺带修复：无 root_task 启动含外部步骤的运行时事件留痕触发 NOT NULL 500（冒烟实测发现 + 回归测试锁定）
+> - ✅ 验收：api-server 17 例 http 连接器测试（校验/SSRF/渲染/同步派发推进 DAG/单步预览/DSL 往返/无 root_task 启动）；浏览器 GUI 冒烟——真实运行 #3 的运行画布：失败红节点（SSRF 拦截信息直接展示在详情面板）/等待橙节点/贝塞尔连线箭头全对；webpage tsc/build/352 测试全绿
+> - ⏭️ Wave 2 剩余：default-value 错误策略、整图快照暂停/恢复、触发日志表 + skip_locked 轮询；Wave 3：引擎事件层 hooks、LLM 生成工作流
+
+> **进展（2026-09-18 其三）**：工作流画布编辑体验一轮 + 前端代码组织（webpage 4e31c9e，续 Dify 对标 Wave 3 前置）：
+> - ✅ **创建流程上画布**：「创建工作流」改双入口下拉——可视化画布创建（createMode 直接 POST 创建，definition.layout 一次落库）+ 表单创建；未落库工作流自动隐藏单步测试入口
+> - ✅ **自绘编辑画布替换 React Flow**（编辑器同款 RF v12 受控边不渲染坑实测复现：状态 2 条边 DOM 0 条）：节点拖拽回写 steps、源圆点拖线连线（自环/成环/重复拒绝）、点选边 + ✕ 删除、空白拖动平移、滚轮缩放（指针为中心）、适应视图、Delete 键删节点/边；重构为 editCanvasModel（几何）+ StepCard + CanvasToolbar 三件套
+> - ✅ **编辑体验补齐**：未保存脏态标识 + 关闭前「放弃修改？」确认、⌘/Ctrl+S 保存、复制步骤（克隆配置不带 API Key）、自动布局后视野收拢、连线方向箭头、配置面板变量速插（上游 step_result/根任务标题/运行 ID 点击追加）
+> - ✅ **前端代码组织**（「如何组织」落地）：`Agents.tsx` 824→23 行（useAgentsPage 组合根收敛全部领域 hook/状态/派生处理器，视图区块 {...page} 注入，agentsViewProps 的 any 大接口换成真实类型）；`Workflows.tsx` 538→~300（运行详情/版本弹窗抽出，触发器/启动弹窗接线既有抽取组件）；状态色表去重 runStatus.tsx；commandCenter 双目录并入 command-center（清死 barrel 导入）；**全仓 >500 行文件清零**
+> - ✅ 新增 `docs/FRONTEND_STRUCTURE.md`（目录组织/500 行硬上限/组合根模式/画布集群/命名去重约定）；webpage tsc/build/365 测试全绿；画布创建→连线→删边→脏态确认→保存全链路浏览器冒烟 PASS
+> - ⏭️ 待办：IDE 体感编辑器（对齐 Dify 画布的框选/对齐线/撤销重做）、变量面板（全图变量血缘视图）、Wave 3 引擎事件层 hooks、LLM 生成工作流
+
+> **进展（2026-09-18 其四）**：软件工程管理蓝图 + 域包化拆分一轮（应对 100~200 万行、上千模块的规模化目标，api-server 28d7648、webpage 6ad5f16）：
+> - ✅ **docs/ENGINEERING_AT_SCALE.md**：五层组织模型（仓→域包→模块≤500行→功能点→测试，每层有管理载体与硬约束）、边界规则（Python：models/core→api/services 禁向；TS：pages 叶子规则）、拆分决策判据（何时拆包/拆仓/拆服务，量化触发线）、兼容三定式（shim 保 import 面/契约版本化/旧路径过渡）、增长治理节奏（每 +50K 行结构 review）
+> - ✅ **api-server 域包化拆分**：api/agents 平铺 53 文件中先拆两域——`workflow/`（11 模块）+ `analytics/`（7 模块）；旧路径 sys.modules 替换型 shim 保持模块对象同一性（monkeypatch/私有名/from 旧路径全等价），注册行零改动、路由顺序不变；workflow 子集 124 passed、全量 tests/unit exit 0（20% 覆盖率门禁）
+> - ✅ **治理审计脚本（棘轮机制）**：api-server `scripts/arch_audit.py` + webpage `scripts/arch-audit.mjs`（npm run arch:audit）——文件行数分级（500 warn/800 fail）、分层边界违规、顶层包循环依赖、巨型平铺包预警；FAIL 级违规登记基线（api-server 存量 48 项：含 4 组顶层包循环依赖与 7 个 >800 行文件，全部可见、只许清偿不许新增），未登记新违规 exit 1 阻断合并
+> - ✅ 规模基线实测：三仓非测试源码 ~211K 行（api-server 91.7K / webpage 92.6K / agent-runtime 27K）；最大失控点 api/ 单层平铺 223 文件 50K 行已列为头号治理对象
+> - ⏭️ 下一批：agents 剩余三域包（collab/tasks/governance，已列目录树）、models/services 同构分域、基线债务清偿（循环依赖与超长文件随域包迁移顺路出清）
