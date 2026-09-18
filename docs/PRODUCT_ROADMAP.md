@@ -602,6 +602,15 @@
 > - ✅ **验收**：新增 useTerminalSend 4 例（历史召回/编辑重开/菜单过滤选中/Esc 恢复）+ newBelow 1 例 + 工作台 4 例（菜单点选/复制下载/浮层开闭/滚动徽标 WS 推送），全量 365 passed；tsc + vite build 过；真数据浏览器验收（/ 菜单三项、点选 /help 上屏、发送后 ↑ 召回原文、? 浮层开合、复制内容含全部前缀行）截图 PASS
 > - ⏭️ 待办不变：Git 工具面板（daemon 工作区 changes/diff/commit）、多任务并行视图、移动端、虚拟滚动、stdin 注入
 
+> **进展（2026-09-18 其五）**：Console 视觉细节打磨（webpage 43acddc）：
+> - ✅ **深色滚动条 + 选区色**（.tfai-console 作用域 CSS）：webkit/Firefox 双轨深色滚动条（默认亮色滚动条在深底上突兀）、文本选区主色半透明、输入 caret 主色
+> - ✅ **输入壳聚焦描边**：composer 的 ❯ + 输入框收进 console-input-shell 容器，focus-within 时整行一圈主色描边 + 微弱主色底（对标终端输入容器的聚焦反馈）
+> - ✅ **任务流层级**：选中任务左侧 2px 主色条（inset shadow）+ 加粗标题 + bgPanelAlt 底；任务项 hover 反馈（作用域 CSS）；项目组头加刻度条 + 等宽计数；时间戳等宽字体
+> - ✅ **信息面板节标题**：左侧主色刻度条；附件行 hover 反馈
+> - ✅ **弹层入场动画**：补全菜单/⌘K 切换器/快捷键浮层统一 console-pop（0.16s 上浮渐入，transformOrigin 底部）；补全菜单自带 CSS 注入，卡片终端（非工作台作用域）同样生效
+> - ✅ **空态引导**：时间线空态增加 kbd 键位提示行（/ 命令补全 · ↑↓ 输入历史 · ? 快捷键）
+> - ✅ 验收：365 tests + tsc + build 全绿（纯样式改动零测试改动）；真数据截图对比 PASS（聚焦描边/菜单高亮/节标题刻度/组头结构）
+
 > **进展（2026-09-18 其二）**：可视化工作流 Wave 2——运行态画布 + HTTP 通用连接器（api-server + webpage，续 `docs/DIFY_WORKFLOW_BENCHMARK.md` Wave 2 清单）：
 > - ✅ **运行态画布**（借鉴 Dify 运行面板；运行记录「画布」入口）：运行中的工作流直接在 DAG 上看——节点按步骤状态着色（运行中蓝/成功绿/失败红/等待橙/跳过灰），徽标含状态/尝试次数/耗时/Agent，运行中入边虚线流动；坐标复用 definition.layout（缺失时按依赖深度轻量分层）；SSE 实时刷新（workflow_step_* 按 run_id 过滤）+ 10s 轮询兜底；点节点开右侧详情面板（状态/尝试/Agent/任务/起止/错误/输出），保留旧控制台入口联动。实现为只读自绘（绝对定位节点 + SVG 贝塞尔连线 + 自适应缩放），绕开 RF 受控边渲染问题
 > - ✅ **HTTP 通用连接器**（借鉴 Dify http-request 节点）：`provider: http`——method/url/headers/body/timeout，占位符渲染进 url/头/体；api_key 可选（配置后作 Bearer 头，密文入库回传脱敏、DSL 导出剔除）；**SSRF 私网防护**（解析目标拒绝 loopback/私网/保留段，`allow_private_hosts` 显式放行）；2xx=成功、响应体写入 result_summary 供下游引用
