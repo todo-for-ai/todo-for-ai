@@ -593,6 +593,15 @@
 > - ✅ **验收**：新增 useTerminalSend 3 例（成功闭环/失败恢复/命令分支）+ 工作台描述折叠/附件链接/⌘K 切换用例，全量 352 passed；tsc + vite build 过；真数据浏览器验收（描述折叠、⌘K 打开过滤选择切换、Iteration 时刻、侧栏摘要、共享上下文）截图 PASS
 > - ⏭️ 待办不变：Git 工具面板（daemon 工作区 changes/diff/commit）、多任务并行视图、移动端、虚拟滚动、stdin 注入
 
+> **进展（2026-09-18 其四）**：Web IDE 终端体感一轮（webpage ba691b1）：
+> - ✅ **↑↓ 输入历史召回**（useTerminalSend 内建历史环）：光标在首/末行时 ↑↓ 翻阅已发送记录，翻到底恢复草稿，召回值被编辑后从最新重新开始（终端惯例）；卡片终端与工作台共用
+> - ✅ **斜杠命令补全菜单**（TerminalCommandMenu 自绘弹层，双端共用）：输入 / 前缀过滤（/cl→clear），↑↓ 选择、Enter/Tab 选中即执行、Esc 关闭且不触发两段式中断（stopPropagation），点击选中；点选执行后输入清空菜单收起
+> - ✅ **「N 条新输出」徽标**：useAgentTimeline 新增 newBelow——用户上翻浏览期间新到的行计数（回到底部/滚动到底即清零），Console 与卡片终端「回到底部」按钮均带计数
+> - ✅ **转录复制 + 下载**（ConsoleTranscript 右上工具条）：复制纯文本转录（buildTranscriptText）；下载 Markdown（buildTranscriptMarkdown 带 `# Task #id title` 头）
+> - ✅ **快捷键帮助浮层**（ConsoleShortcutsOverlay）：? 键（输入框聚焦时不触发）或头部 ? 按钮唤起，全局/输入/执行中/视图四组 12 条，Esc 或点遮罩关闭
+> - ✅ **验收**：新增 useTerminalSend 4 例（历史召回/编辑重开/菜单过滤选中/Esc 恢复）+ newBelow 1 例 + 工作台 4 例（菜单点选/复制下载/浮层开闭/滚动徽标 WS 推送），全量 365 passed；tsc + vite build 过；真数据浏览器验收（/ 菜单三项、点选 /help 上屏、发送后 ↑ 召回原文、? 浮层开合、复制内容含全部前缀行）截图 PASS
+> - ⏭️ 待办不变：Git 工具面板（daemon 工作区 changes/diff/commit）、多任务并行视图、移动端、虚拟滚动、stdin 注入
+
 > **进展（2026-09-18 其二）**：可视化工作流 Wave 2——运行态画布 + HTTP 通用连接器（api-server + webpage，续 `docs/DIFY_WORKFLOW_BENCHMARK.md` Wave 2 清单）：
 > - ✅ **运行态画布**（借鉴 Dify 运行面板；运行记录「画布」入口）：运行中的工作流直接在 DAG 上看——节点按步骤状态着色（运行中蓝/成功绿/失败红/等待橙/跳过灰），徽标含状态/尝试次数/耗时/Agent，运行中入边虚线流动；坐标复用 definition.layout（缺失时按依赖深度轻量分层）；SSE 实时刷新（workflow_step_* 按 run_id 过滤）+ 10s 轮询兜底；点节点开右侧详情面板（状态/尝试/Agent/任务/起止/错误/输出），保留旧控制台入口联动。实现为只读自绘（绝对定位节点 + SVG 贝塞尔连线 + 自适应缩放），绕开 RF 受控边渲染问题
 > - ✅ **HTTP 通用连接器**（借鉴 Dify http-request 节点）：`provider: http`——method/url/headers/body/timeout，占位符渲染进 url/头/体；api_key 可选（配置后作 Bearer 头，密文入库回传脱敏、DSL 导出剔除）；**SSRF 私网防护**（解析目标拒绝 loopback/私网/保留段，`allow_private_hosts` 显式放行）；2xx=成功、响应体写入 result_summary 供下游引用
