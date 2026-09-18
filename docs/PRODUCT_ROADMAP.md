@@ -632,3 +632,10 @@
 > - ✅ **前端代码组织**（「如何组织」落地）：`Agents.tsx` 824→23 行（useAgentsPage 组合根收敛全部领域 hook/状态/派生处理器，视图区块 {...page} 注入，agentsViewProps 的 any 大接口换成真实类型）；`Workflows.tsx` 538→~300（运行详情/版本弹窗抽出，触发器/启动弹窗接线既有抽取组件）；状态色表去重 runStatus.tsx；commandCenter 双目录并入 command-center（清死 barrel 导入）；**全仓 >500 行文件清零**
 > - ✅ 新增 `docs/FRONTEND_STRUCTURE.md`（目录组织/500 行硬上限/组合根模式/画布集群/命名去重约定）；webpage tsc/build/365 测试全绿；画布创建→连线→删边→脏态确认→保存全链路浏览器冒烟 PASS
 > - ⏭️ 待办：IDE 体感编辑器（对齐 Dify 画布的框选/对齐线/撤销重做）、变量面板（全图变量血缘视图）、Wave 3 引擎事件层 hooks、LLM 生成工作流
+
+> **进展（2026-09-18 其四）**：软件工程管理蓝图 + 域包化拆分一轮（应对 100~200 万行、上千模块的规模化目标，api-server 28d7648、webpage 6ad5f16）：
+> - ✅ **docs/ENGINEERING_AT_SCALE.md**：五层组织模型（仓→域包→模块≤500行→功能点→测试，每层有管理载体与硬约束）、边界规则（Python：models/core→api/services 禁向；TS：pages 叶子规则）、拆分决策判据（何时拆包/拆仓/拆服务，量化触发线）、兼容三定式（shim 保 import 面/契约版本化/旧路径过渡）、增长治理节奏（每 +50K 行结构 review）
+> - ✅ **api-server 域包化拆分**：api/agents 平铺 53 文件中先拆两域——`workflow/`（11 模块）+ `analytics/`（7 模块）；旧路径 sys.modules 替换型 shim 保持模块对象同一性（monkeypatch/私有名/from 旧路径全等价），注册行零改动、路由顺序不变；workflow 子集 124 passed、全量 tests/unit exit 0（20% 覆盖率门禁）
+> - ✅ **治理审计脚本（棘轮机制）**：api-server `scripts/arch_audit.py` + webpage `scripts/arch-audit.mjs`（npm run arch:audit）——文件行数分级（500 warn/800 fail）、分层边界违规、顶层包循环依赖、巨型平铺包预警；FAIL 级违规登记基线（api-server 存量 48 项：含 4 组顶层包循环依赖与 7 个 >800 行文件，全部可见、只许清偿不许新增），未登记新违规 exit 1 阻断合并
+> - ✅ 规模基线实测：三仓非测试源码 ~211K 行（api-server 91.7K / webpage 92.6K / agent-runtime 27K）；最大失控点 api/ 单层平铺 223 文件 50K 行已列为头号治理对象
+> - ⏭️ 下一批：agents 剩余三域包（collab/tasks/governance，已列目录树）、models/services 同构分域、基线债务清偿（循环依赖与超长文件随域包迁移顺路出清）
